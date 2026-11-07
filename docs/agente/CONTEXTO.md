@@ -50,14 +50,14 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 ## SDD y Git
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
-contratos aceptados; build (B00) y modos con máximo 185 RPM (B01).
-B00/B01 aceptados y archivados. B02 implementado/verificado en `openspec/changes/`, resultado pendiente de aceptación.
+contratos aceptados; build (B00), modos (B01) y comunicación lógica (B02).
+B00–B02 aceptados y archivados. B03 propuesto en `openspec/changes/`, sin implementar.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 Git local inicializado en main por acuerdo del usuario, con origin privado.
 El usuario autorizó commit y push de la estructura inicial al aceptar B00.
 El usuario autorizó después commits al finalizar cada bloque acordado. El push sigue
 requiriendo autorización independiente; el usuario autorizó publicar los commits B01
-y su cierre. Se conserva configuración de firma Git,
+y su cierre, y posteriormente B02 y su cierre. Se conserva configuración de firma Git,
 actualmente sin firma automática habilitada.
 
 ## Referencias de fabricante consultadas
@@ -107,4 +107,4 @@ rechaza nuevo con error observable, sin sobrescribir FIFO. La marca del evento e
 secuencia global capturada al recibir LF; cada byte exige orden único creciente.
 Captura/recepción/extracción deben serializarse externamente antes de integrar UART/ISR.
 No hay transmisión, temporización física o main integrado en B02. API y errores en
-Comunicacion.h; evidencia en el cambio activo hasta aceptación.
+Comunicacion.h; contrato vigente de comunicación y evidencia en archivo B02.

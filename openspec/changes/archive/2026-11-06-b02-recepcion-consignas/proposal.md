@@ -1,6 +1,6 @@
 # B02 — Recepción y validación de consignas
 
-Estado: alcance y criterio de aceptación autorizados el 2026-11-06; en implementación.
+Estado: alcance y resultado aceptados por el usuario el 2026-11-06.
 
 ## Objetivo y origen
 

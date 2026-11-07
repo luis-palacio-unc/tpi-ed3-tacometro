@@ -65,8 +65,9 @@ B00 aceptado y archivado. Publicación inicial en main autorizada por el usuario
 no extiende autorización a bloques futuros. [Contrato build vigente](openspec/specs/build/spec.md).
 
 B01 aceptado/archivado con límite 185 RPM. [Contrato de modos vigente](openspec/specs/modos/spec.md).
-Bloque actual: [B02 — recepción de consignas](openspec/changes/b02-recepcion-consignas/proposal.md),
-implementado/verificado; resultado pendiente de aceptación.
+B02 aceptado y archivado. [Contrato de comunicación vigente](openspec/specs/comunicacion/spec.md).
+Siguiente bloque propuesto: [B03 — medición de velocidad](openspec/changes/b03-medicion-velocidad/proposal.md),
+sin acuerdo ni implementación todavía.
 
 ## B01 y documentación incremental
 
@@ -98,6 +99,6 @@ de modo. Buffers de trama/cola acotados; errores explícitos y recuperación.
 
 El máximo común vive en Configuracion/Limites.h. Las USW de Comunicacion y la
 constante están incluidas en el Doxyfile parcial. Ver
-[especificación candidata](openspec/changes/b02-recepcion-consignas/specs/comunicacion/spec.md)
-y [verificación B02](openspec/changes/b02-recepcion-consignas/verify-report.md).
+[especificación vigente](openspec/specs/comunicacion/spec.md)
+y [verificación B02](openspec/changes/archive/2026-11-06-b02-recepcion-consignas/verify-report.md).
 Con sanitizadores, ejecutar fuera de depurador/ptrace para que LeakSanitizer funcione.

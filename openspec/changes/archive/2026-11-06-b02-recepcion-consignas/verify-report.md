@@ -88,3 +88,9 @@ relojes, startup, linker, UART física o protocolo de telemetría.
 Captura de órdenes por byte y acceso al contexto deberán serializarse al integrar
 ISR; todavía no existe esa integración. Pendientes pruebas físicas de UART, tiempos
 reales, sensores/motor y depuración. Sin bloqueos para este alcance B02.
+
+## Aceptación posterior
+
+El usuario aceptó B02 el 2026-11-06 y autorizó sincronizar, archivar y publicar el
+commit pendiente más este cierre. Las menciones previas a aceptación pendiente y
+sin push describen el estado al verificar. La aceptación no acredita UART física.

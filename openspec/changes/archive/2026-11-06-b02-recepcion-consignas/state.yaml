@@ -1,0 +1,18 @@
+block: B02
+change: b02-recepcion-consignas
+status: archived
+scope_approved: true
+scope_approved_on: 2026-11-06
+result_accepted: true
+accepted_on: 2026-11-06
+phase: archived
+implementation_started: true
+implementation_complete: true
+verification: passed_host_sanitizers_arm_link_and_doxygen
+main_specs_synced: true
+archived: true
+branch: main
+commit_authorized: true
+push_authorized: true
+push_scope: Commit B02 pendiente y cierre documental con propuesta B03.
+next_action: Acordar B03 antes de implementar.

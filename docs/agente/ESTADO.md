@@ -3,14 +3,16 @@
 ## Punto actual
 
 - Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`.
-- Rama main; base B02 1535715. Obtener revisión actual con `git rev-parse HEAD`.
-  Consultar `git status -sb`: el commit B02 queda local, sin push.
-- Usuario autorizó B02 completo, Doxygen y commit al terminar, sin push.
-  Continúa autorización de commits al cerrar bloques acordados; hooks/firma sin cambios.
-- B00/B01 aceptados y archivados; contratos build/modos vigentes en openspec/specs/.
-- B02 implementado/verificado; resultado pendiente de aceptación. Artefactos activos
-  en openspec/changes/b02-recepcion-consignas/. No sincronizar ni archivar aún.
-- No se inició B03. main sigue mínimo; servicios aún no integrados con UART física.
+- Rama main; revisión actual: `git rev-parse HEAD`; sincronización: `git status -sb`.
+- Implementación B02: 4e6c1d4. Usuario aceptó B02 y autorizó publicar este commit
+  y el cierre documental con propuesta B03 el 2026-11-06.
+- B00–B02 aceptados/archivados. Contratos build, modos y comunicación vigentes.
+- Archivo B02: openspec/changes/archive/2026-11-06-b02-recepcion-consignas/;
+  no modificar archivos archivados.
+- B03 propuesto en openspec/changes/b03-medicion-velocidad/, sin acuerdo ni código.
+- Commits al cerrar bloques acordados autorizados; push de nuevos bloques requiere
+  permiso independiente. Firma/hook Git conservados.
+- main sigue mínimo; UART, sensor y accionamiento físicos no integrados.
 
 ## Evidencia ejecutada
 
@@ -24,9 +26,11 @@
 | Recursos -O0 | Contexto Comunicación 88 bytes; código 818 bytes, sin heap/globals |
 | Stack estático módulo | Hasta 64 bytes de llamadas internas; no medición en hardware |
 | Preservación | main, Procesamiento.c, tests B01, drivers/dispositivos y archivos aceptados intactos |
+| Copia limpia del índice al cerrar B02 | 34 casos host, CTest ARM 4/4 y Doxygen estricto correctos |
 
 Logs: `/tmp/ed3-b02-20261106-6p_kq52o` (fuera del árbol versionado; temporales).
-Matriz S1–S9 y comandos en verify-report.md del cambio B02. Sin fallos funcionales
+Cierre/publicación: /tmp/ed3-cierre-b02-20261106-bep0bv0r (resultados desde copia limpia del índice).
+Matriz S1–S9 y comandos en el informe archivado de B02. Sin fallos funcionales
 observados. No se ejecutó firmware ARM en MCU/simulador, no se flasheó ni instaló nada.
 
 ## Decisiones y limitaciones actuales
@@ -48,5 +52,5 @@ observados. No se ejecutó firmware ARM en MCU/simulador, no se flasheó ni inst
 
 ## Próxima acción
 
-Revisar B02 con el usuario. Tras aceptación, sincronizar/archivar y acordar próximo
-bloque. Push requiere autorización independiente; no iniciar B03 automáticamente.
+Acordar alcance y aceptación B03 antes de implementar; fijar representación/redondeo
+en su especificación. Al reanudar, verificar HEAD/upstream; no inferir permiso de push.

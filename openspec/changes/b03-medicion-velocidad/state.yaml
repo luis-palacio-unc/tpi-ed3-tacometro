@@ -1,0 +1,11 @@
+block: B03
+change: b03-medicion-velocidad
+status: proposed
+scope_approved: false
+result_accepted: false
+phase: proposal
+implementation_started: false
+main_specs_synced: false
+commit_authorized: false
+push_authorized: false
+next_action: Acordar alcance y criterio de aceptacion B03 antes de implementar.
