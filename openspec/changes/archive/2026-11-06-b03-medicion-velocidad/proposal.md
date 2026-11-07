@@ -1,6 +1,6 @@
 # B03 — Cálculo y validez de la medición de velocidad
 
-Estado: alcance y criterio de aceptación acordados por el usuario el 2026-11-06. Implementación autorizada; resultado aún no aceptado. Commit local autorizado, sin push.
+Estado: alcance y resultado aceptados por el usuario el 2026-11-06. Sincronización, archivo y push del commit B03 y su cierre autorizados. Evidencia original conservada.
 
 ## Objetivo y origen
 

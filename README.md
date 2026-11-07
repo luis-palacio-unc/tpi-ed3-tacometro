@@ -66,8 +66,8 @@ no extiende autorización a bloques futuros. [Contrato build vigente](openspec/s
 
 B01 aceptado/archivado con límite 185 RPM. [Contrato de modos vigente](openspec/specs/modos/spec.md).
 B02 aceptado y archivado. [Contrato de comunicación vigente](openspec/specs/comunicacion/spec.md).
-B03 implementado y verificado, pendiente de aceptación del resultado.
-[Contrato candidato y evidencia](openspec/changes/b03-medicion-velocidad/verify-report.md).
+B03 aceptado y archivado. [Contrato de medición vigente](openspec/specs/medicion-velocidad/spec.md).
+La propuesta B04 de normalización del mando manual se prepara a continuación.
 
 ## B01 y documentación incremental
 
@@ -117,4 +117,4 @@ overflow y serializa acceso; no hay timeout de frescura ni captura real integrad
 CTest host agrega 15 casos B03, incluidas 100 fronteras y 10 000 ventanas de barrido;
 ARM agrega fixture con API y división de 64 bits retenidas, enlazando libgcc existente
 sin libc. Doxygen cubre las dos USW nuevas. main continúa mínimo: compilar/enlazar
-no acredita ejecución física. Ver [informe B03](openspec/changes/b03-medicion-velocidad/verify-report.md).
+no acredita ejecución física. Ver [informe B03](openspec/changes/archive/2026-11-06-b03-medicion-velocidad/verify-report.md).

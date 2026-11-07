@@ -1,0 +1,16 @@
+block: B03
+change: b03-medicion-velocidad
+status: archived
+scope_approved: true
+result_accepted: true
+accepted_on: "2026-11-06"
+phase: archive
+implementation_started: true
+implementation_commit: e7ba0183c290f9e5384f609d820a06752587966a
+verification_passed: true
+main_specs_synced: true
+archive_path: openspec/changes/archive/2026-11-06-b03-medicion-velocidad
+commit_authorized: true
+push_authorized: true
+push_scope: Implementacion B03 y commit documental de cierre aceptado.
+next_action: Preparar propuesta B04; no implementar sin acuerdo.

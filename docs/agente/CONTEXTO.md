@@ -39,6 +39,11 @@ indica no comentar el cuerpo de las funciones para la evaluación.
   modos y regulación; Driver_Motor es el intermediario para accionar el motor.
 - Soporte compartido aceptado por el usuario: ADC/DMA y base de tiempos, dentro
   de Dispositivos. No es una cuarta capa.
+- Aclaración del usuario: el profesor exige separación de abstracciones y portabilidad
+  de la aplicación entre configuraciones físicas. La aplicación consume magnitudes
+  y estados lógicos; los dispositivos resuelven registros, pines y captura, y los
+  servicios realizan la adaptación. Generalizar sólo lo que resuelva requisitos concretos.
+  Explicar las decisiones en lenguaje sencillo durante la revisión de diseño posterior.
 - Se propuso lazo cooperativo e interrupciones breves; se detallará en diseños SDD.
 - Entrada en automático exige PWM cero y nueva consigna válida; no reutilizar la
   anterior ni comandos pendientes anteriores al cambio de modo.
@@ -50,15 +55,15 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 ## SDD y Git
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
-contratos aceptados; build (B00), modos (B01) y comunicación lógica (B02).
-B00–B02 aceptados y archivados. B03 implementado/verificado en `openspec/changes/`,
-pendiente de aceptación del resultado; contrato de medición todavía candidato.
+contratos aceptados: build (B00), modos (B01), comunicación lógica (B02)
+y medición lógica (B03). B00–B03 aceptados y archivados. B04 se propone a continuación.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 Git local inicializado en main por acuerdo del usuario, con origin privado.
 El usuario autorizó commit y push de la estructura inicial al aceptar B00.
 El usuario autorizó después commits al finalizar cada bloque acordado. El push sigue
 requiriendo autorización independiente; el usuario autorizó publicar los commits B01
-y su cierre, y posteriormente B02 y su cierre. Se conserva configuración de firma Git,
+y su cierre, y posteriormente B02 y su cierre. También autorizó publicar B03
+y su cierre al aceptarlo; nuevas publicaciones requieren autorización independiente. Se conserva configuración de firma Git,
 actualmente sin firma automática habilitada.
 
 ## Referencias de fabricante consultadas
