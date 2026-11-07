@@ -67,8 +67,8 @@ no extiende autorización a bloques futuros. [Contrato build vigente](openspec/s
 B01 aceptado/archivado con límite 185 RPM. [Contrato de modos vigente](openspec/specs/modos/spec.md).
 B02 aceptado y archivado. [Contrato de comunicación vigente](openspec/specs/comunicacion/spec.md).
 B03 aceptado y archivado. [Contrato de medición vigente](openspec/specs/medicion-velocidad/spec.md).
-B04 implementado/verificado, pendiente de aceptación del resultado.
-[Contrato candidato y evidencia](openspec/changes/b04-normalizacion-mando-manual/verify-report.md).
+B04 aceptado y archivado. [Contrato de mandos vigente](openspec/specs/mandos/spec.md).
+La propuesta B05 de conversión de temperatura se prepara a continuación.
 
 ## B01 y documentación incremental
 
@@ -133,4 +133,4 @@ El límite manual tiene fuente común en Configuracion/Limites.h; Procesamiento
 conserva su alias y comportamiento. Prueba/fixture adapta salidas válidas a B01;
 no hay dependencia del servicio hacia aplicación ni integración del main real.
 CTest agrega 15 casos B04 con recorridos, escalas equivalentes, errores y fronteras;
-Doxygen documenta sus dos USW. Ver [informe B04](openspec/changes/b04-normalizacion-mando-manual/verify-report.md).
+Doxygen documenta sus dos USW. Ver [informe B04](openspec/changes/archive/2026-11-06-b04-normalizacion-mando-manual/verify-report.md).

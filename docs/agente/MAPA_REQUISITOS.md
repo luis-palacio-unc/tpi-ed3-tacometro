@@ -9,7 +9,7 @@ Las rutas indican módulos previstos; no acreditan implementación.
 |---|---|---|---|---|
 | R01 AP | Ejecutar firmware en LPC1769/OM13085 | B00 aceptado: base de build | CMakeLists.txt, Aplicacion/main.c, cmake/, plataforma/ | S1/S3/S5/S6 PASS de build/inspección (verify-report B00); ejecución física pendiente |
 | R02 AP/APA | Medir RPM con disco de 60 ranuras | B03 aceptado/archivado para cálculo; captura física pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | B03 S1–S7 PASS host/enlace ARM (verify-report archivado); medición con señal real pendiente |
-| R03 AP | Potenciómetro determina PWM en manual | B04 implementado/verificado, aceptación pendiente; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.* | B04 S1–S7 PASS host/enlace ARM (verify-report activo); ADC/PWM físicos pendientes |
+| R03 AP | Potenciómetro determina PWM en manual | B04 aceptado/archivado para normalización; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.* | B04 S1–S7 PASS host/enlace ARM (verify-report archivado); ADC/PWM físicos pendientes |
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; lógica | Aplicacion/Procesamiento.* | B01 S1/S2 PASS (C host); integración física pendiente |
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01 aceptado; lógica | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | B01 S3/S4/S5/S6 PASS (C host); recepción real pendiente |
@@ -35,5 +35,5 @@ B02 aceptado para recepción lógica en host/enlace ARM; UART física pendiente.
 B03 aceptado/archivado para cálculo y validez; S1–S7 PASS y 15 casos C.
 Sin evidencia de medición física; contrato vigente en openspec/specs/medicion-velocidad/.
 
-B04 implementado/verificado: 15 casos C, recorridos y fronteras, sanitizadores y enlace ARM PASS.
-Resultado pendiente de aceptación; adquisición del potenciómetro y PWM físicos pendientes.
+B04 aceptado/archivado: 15 casos C, recorridos/fronteras, sanitizadores y enlace ARM PASS.
+Contrato vigente de mandos; adquisición del potenciómetro y PWM físicos pendientes.

@@ -1,6 +1,6 @@
 # B04 — Normalización del mando manual
 
-Estado: alcance acordado el 2026-11-06. Implementación y commit autorizados, sin push; resultado pendiente de aceptación.
+Estado: alcance y resultado aceptados por el usuario el 2026-11-06. Sincronización, archivo y publicación de B04 y su cierre autorizados.
 
 ## Objetivo y origen
 
