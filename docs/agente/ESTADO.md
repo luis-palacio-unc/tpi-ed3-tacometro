@@ -1,49 +1,54 @@
-# Estado — 2026-11-06
+# Estado — 2026-11-07
 
 ## Punto actual
 
 - Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`.
-- Rama main; implementación B04: 915b614b77d6883b165e279e960f081859cb3472.
+- Rama main; base B05 8d5bc7b040fc205af48a00db35de5f7622c82379, publicada en origin/main.
   Revisión al reanudar: `git rev-parse HEAD`; sincronización: `git status -sb`.
-- B00–B04 aceptados/archivados; contratos build, modos, comunicación, medición y mandos vigentes.
-- Archivo B04: openspec/changes/archive/2026-11-06-b04-normalizacion-mando-manual/;
-  no modificar historial. Cuerpo normativo sincronizado sin cambios.
-- Usuario aceptó B04 y autorizó publicar implementación y cierre. Commit de cierre:
-  el que contiene este ESTADO; consultar Git. Verificar resultado del push al reanudar.
-- B05 pendiente de propuesta escrita, sin acuerdo ni implementación: conversión lógica
-  de temperatura para futura alarma/telemetría. Prepararla tras publicar B04.
-- main sigue mínimo; servicios sin integración física. Hooks/firma conservados.
+- B00–B04 aceptados/archivados; contratos e historial preservados, no editar archivos aceptados.
+- B05 acordado, implementado/verificado; resultado pendiente de aceptación.
+  Cambio activo: openspec/changes/b05-conversion-temperatura/.
+- Cierre local con asunto `feat: implementar B05 de conversion de temperatura`;
+  consultar `git log -1` para hash. Commit autorizado; push explícitamente no autorizado.
+- Propuesta/contexto locales previos incorporados; specs B05 candidatas, sin promoción
+  ni archivo hasta aceptación. Hooks/firma conservados. main mínimo, sin integración física.
 
-## Evidencia aceptada B04
+## Evidencia ejecutada B05
 
 | Verificación | Resultado |
 |---|---|
-| Host / sanitizadores | 64 casos: B01 17 + B02 17 + B03 15 + B04 15; sin hallazgos ASan/LeakSanitizer/UBSan |
-| Normalización | 100 fronteras, 10 000 pares y 71 680 puntos de recorrido: límites, redondeo, monotonía y recuperación |
-| ARM Debug / Release | CTest Debug 6/6 (B00 14 casos); fixture Mandos/B01 Release correcto |
-| Doxygen estricto | Sin avisos; 17 funciones/USW, límite común y aliases documentados |
-| Recursos estáticos B04 | Salida 4 bytes; código -O0 292; stack interno hasta 136 bytes con libgcc |
-| ELF fixture | Sin indefinidos; API/auxiliar retenidos y GNU_STACK RW |
-| Cierre documental | Sin cambios de firmware; requisitos, hashes, YAML y vínculos comprobados |
+| CTest host | 5/5; 17 B01 + 17 B02 + 15 B03 + 15 B04 + 17 B05 = 81 casos |
+| ASan/LeakSanitizer/UBSan | 81 casos sin hallazgos, fuera del sandbox/ptrace |
+| Aritmética B05 | 1000 fronteras, 10000 ternas y 70678 puntos de recorrido; equivalencia, límites y redondeo |
+| Controles negativos temporales | Suma con overflow y doble redondeo rechazados por S6/S3; fallos esperados |
+| ARM Debug / Release | CTest Debug 7/7 (B00 14 casos); fixture B05 Release correcto |
+| Doxygen HTML/XML estricto | Sin avisos; 2 USW Temperatura nuevas y 19 funciones totales |
+| Recursos -O0 | Lectura 8 bytes, código 390 bytes sin data/bss; stack interno hasta 176 bytes con libgcc |
+| ELF fixture | API/auxiliar retenidos, sin indefinidos; GNU_STACK RW |
+| Revisión | main, B01–B04, Configuracion, drivers/dispositivos, pruebas y archivos aceptados intactos |
 
-Matriz S1–S7 y comandos en verify-report.md archivado; aceptación/manifest en
-archive-report.md. Logs implementación: /tmp/ed3-b04-20261106-01ljgnod.
-Logs cierre: /tmp/ed3-cierre-b04-20261106-gt6twg61 (temporales, fuera de Git).
-No se repiten pruebas de firmware en cierre documental. Sin ejecución ARM,
-simulación ni placa; no se flasheó, instaló ni configuró hardware.
+Matriz S1–S8, comandos y límites: verify-report.md del cambio activo.
+Logs extensos: /tmp/ed3-b05-20261107-e27t9yaq (temporales, fuera de Git).
+Sin fallos pendientes. No se ejecutó ARM en MCU/simulador ni prueba física, no se
+flasheó, instaló o configuró hardware. Pila/recursos son inspección estática.
 
 ## Decisiones y limitaciones
 
-- Mandos: lectura/escala uint32_t, mando uint16_t 0..1000; cercano/empate arriba y
-  validez explícita. Límite común y alias B01 conservan comportamiento; sin dependencia hacia aplicación.
-- R15: aplicación portable entre configuraciones físicas; ver CONTEXTO.
-- B03 mide sin recorte a 185 RPM; consignas B01/B02 siguen 0..185. Ventana física no fijada.
-- Faltan ADC/DMA, selector/antirrebote, temperatura, captura, UART real, telemetría,
-  PWM/control, alarmas y main. Pines, revisión PCB/silicio, VREF y reloj pendientes.
-- CMSIS-DAP integrado confirmado; sin CI ni aceptación física. Doxyfile parcial,
-  documentación final pendiente. AGENTS/.atl locales por ignore global.
+- Temperatura recibe muestra/escala/referencia µV uint32_t; salida uint32_t centésimas
+  Celsius y estado. Escala son cuentas por referencia; muestra<escala. Ej.: 4096/0..4095.
+- B04 conserva fondo de escala máximo inclusivo para mando; no cambiar ni confundir
+  los dos contratos. Aplicación mantiene magnitudes lógicas (R15).
+- Modelo ideal LM35 sin offset, redondeo cercano/empate arriba por cociente/resto;
+  sin desborde al redondear ni cuantización intermedia. No se impone rango físico no confirmado.
+- Prioridad: NULL, escala cero, referencia cero, muestra excesiva. Error escribible
+  borra dato viejo; sólo VALIDA permite consumo numérico. Sin timeout de frescura.
+- B03 puede medir sobre 185 RPM; consignas B01/B02 siguen 0..185. Ventana física no fijada.
+- Pendientes ADC/DMA, selector, captura, UART/telemetría, PWM/control, alarmas y main;
+  pines, revisión PCB/silicio, VREF, variante/montaje LM35 y reloj aún sin confirmar.
+- CMSIS-DAP integrado confirmado. Sin CI/aceptación física; documentación final pendiente.
+  AGENTS/.atl locales por ignore global; procedimiento compartido en docs/agente/.
 
 ## Próxima acción
 
-Publicar commits B04 autorizados y preparar propuesta B05 con alcance y aceptación.
-No implementar B05 ni extender autorización de push a bloques futuros sin acuerdo.
+Revisar aceptación del resultado B05. Sólo tras ella y orden de cierre, sincronizar
+specs y archivar. No iniciar B06 ni hacer push sin autorización.

@@ -1,0 +1,13 @@
+block: B05
+change: b05-conversion-temperatura
+status: verified_pending_acceptance
+scope_approved: true
+result_accepted: false
+phase: verify
+implementation_started: true
+verification_passed: true
+main_specs_synced: false
+commit_authorized: true
+commit_subject: "feat: implementar B05 de conversion de temperatura"
+push_authorized: false
+next_action: Esperar aceptacion del resultado B05; no sincronizar ni archivar aun.

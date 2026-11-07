@@ -56,7 +56,8 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
 contratos aceptados: build (B00), modos (B01), comunicación (B02), medición (B03)
-y normalización manual (B04). B00–B04 aceptados y archivados. B05 se propone a continuación.
+y normalización manual (B04). B00–B04 aceptados y archivados. B05 implementado/verificado en `openspec/changes/`,
+pendiente de aceptación del resultado; contrato de temperatura todavía candidato.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 Git local inicializado en main por acuerdo del usuario, con origin privado.
 El usuario autorizó commit y push de la estructura inicial al aceptar B00.
@@ -76,6 +77,11 @@ actualmente sin firma automática habilitada.
 - [UM10360 rev.2, copia del manual NXP en Keil](https://www.keil.com/dd/docs/datashts/philips/lpc17xx_um.pdf):
   cap.2/32 revisados para B00. La rev.3.1 publicada en NXP requiere cuenta; revisar
   documentación/erratas pertinentes antes de implementar periféricos.
+
+B05 usa la transferencia nominal del
+[LM35 TI, §7.3.1](https://www.ti.com/lit/ds/symlink/lm35.pdf), consultada para separar
+conversión lógica y precisión eléctrica. Referencia real, variante y montaje pendientes;
+B05 no configura adquisición ni fija umbral de alarma.
 
 ## Plataforma B00
 
@@ -143,3 +149,17 @@ contenido anterior. Errores NULL/escala cero/lectura excesiva en ese orden; sali
 escribible inválida queda a cero, recuperable con siguiente dato válido. Sólo consumir
 VALIDO. Captura coherente, validación del ADC y serialización son responsabilidad
 del integrador; sin timeout. No implementa selector, ADC/DMA ni PWM, ni integra main.
+
+## Conversión lógica de temperatura B05
+
+Temperatura ESW.2.1.4 recibe muestra, escala_adc y referencia_uv uint32_t; devuelve
+uint32_t centésimas Celsius y validez. Escala significa cuentas por referencia,
+muestra<escala (4096 admite 0..4095); no confundir con máximo inclusivo de Mandos B04.
+Modelo LM35 10 mV/°C sin offset ni negativos. Un solo redondeo cercano/empate arriba
+por cociente/resto evita overflow y doble redondeo; salida numérica hasta 42949673.
+Inicializar deja SIN_DATOS/cero; actualizar escribe todo sin leer anterior. Prioridad
+NULL/escala cero/referencia cero/muestra excesiva; error escribible invalida y borra,
+siguiente entrada válida recupera. Sólo VALIDA permite consumo; no certifica sensor.
+Captura/configuración coherentes y acceso serializado son externos; sin frescura,
+ADC/DMA, alarma o main. NXP fig.28 usa LSB ideal=(VREFP−VREFN)/4096; no se agrega media
+cuenta ni se toma esa cuantización como error de redondeo. Pines/VREF/variante físicos pendientes.

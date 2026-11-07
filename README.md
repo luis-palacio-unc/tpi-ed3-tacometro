@@ -27,7 +27,7 @@ El build ejecuta automáticamente el verificador del ELF; CTest agrega casos neg
 `firmware.elf` es para el MCU: no se ejecuta como programa de escritorio.
 No está configurada todavía una sesión de depuración/flasheo de CLion.
 
-Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad y Mandos, sin ejecutar main del firmware:
+Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad, Mandos y Temperatura, sin ejecutar main del firmware:
 
 ```sh
 cmake --preset host-objects
@@ -68,7 +68,8 @@ B01 aceptado/archivado con límite 185 RPM. [Contrato de modos vigente](openspec
 B02 aceptado y archivado. [Contrato de comunicación vigente](openspec/specs/comunicacion/spec.md).
 B03 aceptado y archivado. [Contrato de medición vigente](openspec/specs/medicion-velocidad/spec.md).
 B04 aceptado y archivado. [Contrato de mandos vigente](openspec/specs/mandos/spec.md).
-La propuesta B05 de conversión de temperatura se prepara a continuación.
+B05 implementado/verificado, pendiente de aceptación del resultado.
+[Contrato candidato y evidencia](openspec/changes/b05-conversion-temperatura/verify-report.md).
 
 ## B01 y documentación incremental
 
@@ -134,3 +135,16 @@ conserva su alias y comportamiento. Prueba/fixture adapta salidas válidas a B01
 no hay dependencia del servicio hacia aplicación ni integración del main real.
 CTest agrega 15 casos B04 con recorridos, escalas equivalentes, errores y fronteras;
 Doxygen documenta sus dos USW. Ver [informe B04](openspec/changes/archive/2026-11-06-b04-normalizacion-mando-manual/verify-report.md).
+
+## B05: conversión lógica de temperatura
+
+Temperatura.h/.c recibe muestra ADC, escala de conversión y referencia en µV como
+uint32_t. Entrega centésimas de °C y estado; por ejemplo, 2500 representa 25 °C.
+Escala significa cuentas por referencia: con 4096 admite muestras 0..4095. Es distinta
+del máximo inclusivo que Mandos usa para normalizar extremos. No fija resolución/VREF de placa.
+
+Modelo ideal LM35 sin offset. Redondeo cercano/empate arriba una sola vez; escala o
+referencia cero y muestra fuera de escala invalidan y borran dato anterior. Cero ideal
+válido se distingue de SIN_DATOS; VALIDA sólo acredita conversión numérica. Captura
+coherente y acceso serializado dependen del integrador. ADC/DMA, alarma y main siguen pendientes.
+CTest agrega 17 casos B05; Doxygen incluye sus dos USW. Ver [informe B05](openspec/changes/b05-conversion-temperatura/verify-report.md).
