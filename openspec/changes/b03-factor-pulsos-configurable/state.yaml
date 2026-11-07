@@ -1,0 +1,16 @@
+block: B03-R1
+change: b03-factor-pulsos-configurable
+status: verified_pending_acceptance
+scope_approved: true
+scope_authorized_on: '2026-11-07'
+result_accepted: false
+phase: verify
+implementation_started: true
+verification_passed: true
+main_specs_synced: false
+commit_authorized: true
+push_authorized: false
+next_action: Revisar aceptacion de B03-R1 antes de sincronizar/archivar; sin push
+  nuevo.
+base_commit: a11a97c1c8617fdc42007afa78d071e83b553512
+commit_subject: 'fix: parametrizar pulsos por vuelta en medicion de velocidad'

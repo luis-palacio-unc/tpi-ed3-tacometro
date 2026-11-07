@@ -125,20 +125,27 @@ Captura/recepción/extracción deben serializarse externamente antes de integrar
 No hay transmisión, temporización física o main integrado en B02. API y errores en
 Comunicacion.h; contrato vigente de comunicación y evidencia en archivo B02.
 
-## Medición lógica B03
+## Medición lógica B03 y revisión R1
 
-Medicion_Velocidad (ESW.2.1.3) convierte conteo y duración en us uint32_t para
-60 pulsos/vuelta del eje portadisco, un flanco por ranura. Lectura de 8 bytes ARM:
-milésimas de RPM uint32_t y estado. Inicializar deja SIN_DATOS/cero; Actualizar
-reemplaza toda lectura, incluso sin inicialización previa, sin leer estado anterior.
-Duración positiva sin pulsos es cero válido; valores pequeños también pueden
-redondear a cero válido. Cercano/empate arriba, error aritmético <=0,0005 RPM.
-Duración cero y resultado redondeado fuera de uint32_t dejan error/cero; recuperación
-con siguiente ventana válida. No recorta a 185 RPM ni supone ratio de reductora.
-Captura coherente, overflow previo y acceso serializado son responsabilidad externa;
-sin timeout de frescura ni ventana física elegida. No se integra main/captura en B03.
-División uint64_t enlazada con libgcc del toolchain existente, sin libc. ELF declara
--z noexecstack y fixture verifica GNU_STACK RW; no modifica el MPU del MCU.
+B03 original aceptado/archivado fija 60 pulsos/vuelta; ese historial es inmutable.
+Usuario autorizó revisarlo el 2026-11-07 bajo R15; B03-R1 implementado/verificado,
+pendiente de aceptación. Delta en openspec/changes/b03-factor-pulsos-configurable/;
+contrato vigente original se sincronizará sólo tras aceptación del nuevo resultado.
+
+API actual Medicion_Velocidad_Actualizar recibe pulsos, duracion_us y factor
+pulsos_por_vuelta uint32_t explícitos por llamada. Servicio no incluye configuración
+física; Configuracion/Medicion.h conserva TPI_MEDICION_PULSOS_POR_VUELTA=60 para
+un flanco/ranura del TPI. Factor es relación abstracta conteos/vuelta; no introduce
+modelo de sensor, placa, registros ni ganancia eléctrica en el servicio.
+Salida 8 bytes ARM: milésimas RPM uint32_t y estado. Sin recorte de 185 RPM.
+Prioridad NULL/duración cero/factor cero/rango; error escribible limpia, válido recupera.
+Inicializar mantiene SIN_DATOS/cero. Sólo VALIDA habilita consumo, incluido cero.
+
+Redondeo cercano/empate arriba sin pérdida intermedia; fórmula general por cociente,
+resto y seis pasos binarios uint64_t evita numerador mayor que 64 bits.
+SEGUNDOS_POR_MINUTO=60 es conversión universal de tiempo, distinta del factor físico.
+libgcc existente, sin libc/heap/floats/globals. Ventana/configuración coherentes,
+overflow previo y serialización quedan externos. Sin captura/timeout/main ni hardware.
 
 ## Normalización manual B04
 
@@ -171,5 +178,5 @@ de estados/cota se demuestra en pruebas; composición real pendiente, sin acceso
 directo a dispositivos desde lógica de aplicación. No añadir callbacks hasta necesitar adquisición.
 Acceso serializado, sin frescura/alarma/main implementados.
 
-R15 transversal: Medicion_Velocidad aún contiene 60 pulsos/vuelta fijos en contrato
-B03 aceptado; revisión por cambio SDD separado autorizada el 2026-11-07; no editar su archivo histórico.
+R15: corrección B05 aceptada y revisión B03-R1 verificada; no afirmar implementación
+física completa de toda la capa de servicios. La adquisición y composición real siguen pendientes.

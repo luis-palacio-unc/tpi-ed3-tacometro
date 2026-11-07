@@ -107,19 +107,25 @@ Con sanitizadores, ejecutar fuera de depurador/ptrace para que LeakSanitizer fun
 
 ## B03: cálculo lógico de velocidad
 
-Medicion_Velocidad.h/.c convierte pulsos y duración de ventana en microsegundos
-(uint32_t) para disco de 60 ranuras, contando un flanco/ranura. La lectura contiene
-milésimas de RPM y estado explícito. Inicializar deja SIN_DATOS; cero pulsos con
-duración positiva es cero válido. Redondeo cercano, empate arriba; error aritmético
-máximo 0,0005 RPM, independiente de la precisión física todavía no verificada.
-Duración cero o resultado redondeado fuera de uint32_t invalidan y borran la lectura
-previa. No limita mediciones a 185 RPM. El llamador entrega captura coherente sin
-overflow y serializa acceso; no hay timeout de frescura ni captura real integrada.
+B03 original está aceptado/archivado. La revisión B03-R1 está implementada y
+verificada, pendiente de aceptación. La API actual recibe pulsos, duración_us y
+pulsos_por_vuelta uint32_t explícitos; no conoce el disco ni incluye su configuración.
+El TPI mantiene 60 pulsos/vuelta en Configuracion/Medicion.h para un flanco/ranura.
+Cambiar factor no requiere recompilar el servicio ni cambiar unidades para aplicación.
 
-CTest host agrega 15 casos B03, incluidas 100 fronteras y 10 000 ventanas de barrido;
-ARM agrega fixture con API y división de 64 bits retenidas, enlazando libgcc existente
-sin libc. Doxygen cubre las dos USW nuevas. main continúa mínimo: compilar/enlazar
-no acredita ejecución física. Ver [informe B03](openspec/changes/archive/2026-11-06-b03-medicion-velocidad/verify-report.md).
+Salida: milésimas de RPM y estado. Cero pulsos con duración/factor positivos es cero
+válido. Cercano/empate arriba, sin redondeo intermedio y error aritmético <=0,0005 RPM.
+Prioridad de errores: NULL, duración cero, factor cero y resultado fuera de uint32_t.
+Error escribible invalida y limpia; siguiente ventana válida recupera. No recorta
+mediciones a 185 RPM. Captura/configuración coherentes y acceso serializado externos;
+sin captura física, timeout ni main integrado.
+
+23 casos C B03 y oráculo Python estándar de 11199 ternas pasan en host/sanitizadores.
+Regresiones: 102 casos C totales; ARM Debug 8/8 y fixture B03 Release; Doxygen estricto.
+Servicio y consumidor aislados sin configuración/dispositivo. Cálculo uint64_t
+acotado y libgcc existente, sin libc en firmware. Compilar/enlazar no acredita
+ejecución física. Ver [revisión candidata](openspec/changes/b03-factor-pulsos-configurable/verify-report.md)
+y [evidencia B03 original](openspec/changes/archive/2026-11-06-b03-medicion-velocidad/verify-report.md).
 
 ## B04: normalización del mando manual
 

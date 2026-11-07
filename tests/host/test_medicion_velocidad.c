@@ -1,4 +1,5 @@
 #include "Medicion_Velocidad.h"
+#include "Medicion.h"
 #include <stddef.h>
 #include <stdio.h>
 
@@ -11,7 +12,7 @@ static bool Esperar(uint32_t pulsos, uint32_t us, Medicion_Velocidad_Estado esta
 {
     Medicion_Velocidad_Lectura lectura;
     CHECK(Medicion_Velocidad_Inicializar(&lectura));
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, pulsos, us) == estado);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, pulsos, us, TPI_MEDICION_PULSOS_POR_VUELTA) == estado);
     CHECK(lectura.estado == estado && lectura.rpm_milesimas == esperado);
     return true;
 }
@@ -21,9 +22,9 @@ static bool AusenciaInicial(void)
     Medicion_Velocidad_Lectura lectura;
     CHECK(Medicion_Velocidad_Inicializar(&lectura));
     CHECK(lectura.estado == MEDICION_VELOCIDAD_SIN_DATOS && lectura.rpm_milesimas == 0U);
-    CHECK(MEDICION_VELOCIDAD_PULSOS_POR_VUELTA == 60U);
+    CHECK(TPI_MEDICION_PULSOS_POR_VUELTA == 60U);
     CHECK(MEDICION_VELOCIDAD_ESCALA_RPM == 1000U);
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, 0U, 1000000U) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, 0U, 1000000U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_VALIDA);
     CHECK(lectura.estado == MEDICION_VELOCIDAD_VALIDA && lectura.rpm_milesimas == 0U);
     return true;
 }
@@ -73,10 +74,10 @@ static bool CeroRedondeadoValido(void)
 static bool DuracionNulaYRecuperacion(void)
 {
     Medicion_Velocidad_Lectura lectura;
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, 185U, 1000000U) == MEDICION_VELOCIDAD_VALIDA);
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, 60U, 0U) == MEDICION_VELOCIDAD_ERROR_DURACION);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, 185U, 1000000U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, 60U, 0U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_ERROR_DURACION);
     CHECK(lectura.estado == MEDICION_VELOCIDAD_ERROR_DURACION && lectura.rpm_milesimas == 0U);
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, 60U, 1000000U) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, 60U, 1000000U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_VALIDA);
     CHECK(lectura.rpm_milesimas == 60000U);
     CHECK(Esperar(0U, 0U, MEDICION_VELOCIDAD_ERROR_DURACION, 0U));
     CHECK(Esperar(UINT32_MAX, 0U, MEDICION_VELOCIDAD_ERROR_DURACION, 0U));
@@ -86,10 +87,10 @@ static bool DuracionNulaYRecuperacion(void)
 static bool RangoYRecuperacion(void)
 {
     Medicion_Velocidad_Lectura lectura;
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, 200U, 1000000U) == MEDICION_VELOCIDAD_VALIDA);
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, UINT32_MAX, 1U) == MEDICION_VELOCIDAD_ERROR_RANGO);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, 200U, 1000000U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, UINT32_MAX, 1U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_ERROR_RANGO);
     CHECK(lectura.estado == MEDICION_VELOCIDAD_ERROR_RANGO && lectura.rpm_milesimas == 0U);
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, 0U, 1U) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, 0U, 1U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_VALIDA);
     CHECK(lectura.rpm_milesimas == 0U);
     return true;
 }
@@ -118,19 +119,19 @@ static bool DuracionMinima(void)
 static bool PunterosNulos(void)
 {
     CHECK(!Medicion_Velocidad_Inicializar(NULL));
-    CHECK(Medicion_Velocidad_Actualizar(NULL, 0U, 0U) == MEDICION_VELOCIDAD_ERROR_ARGUMENTO);
-    CHECK(Medicion_Velocidad_Actualizar(NULL, 185U, 1000000U) == MEDICION_VELOCIDAD_ERROR_ARGUMENTO);
-    CHECK(Medicion_Velocidad_Actualizar(NULL, UINT32_MAX, 1U) == MEDICION_VELOCIDAD_ERROR_ARGUMENTO);
+    CHECK(Medicion_Velocidad_Actualizar(NULL, 0U, 0U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_ERROR_ARGUMENTO);
+    CHECK(Medicion_Velocidad_Actualizar(NULL, 185U, 1000000U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_ERROR_ARGUMENTO);
+    CHECK(Medicion_Velocidad_Actualizar(NULL, UINT32_MAX, 1U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_ERROR_ARGUMENTO);
     return true;
 }
 
 static bool Reinicio(void)
 {
     Medicion_Velocidad_Lectura lectura;
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, 185U, 1000000U) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, 185U, 1000000U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_VALIDA);
     CHECK(Medicion_Velocidad_Inicializar(&lectura));
     CHECK(lectura.estado == MEDICION_VELOCIDAD_SIN_DATOS && lectura.rpm_milesimas == 0U);
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, 0U, 0U) == MEDICION_VELOCIDAD_ERROR_DURACION);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, 0U, 0U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_ERROR_DURACION);
     CHECK(Medicion_Velocidad_Inicializar(&lectura));
     CHECK(lectura.estado == MEDICION_VELOCIDAD_SIN_DATOS && lectura.rpm_milesimas == 0U);
     return true;
@@ -139,12 +140,12 @@ static bool Reinicio(void)
 static bool InstanciasIndependientes(void)
 {
     Medicion_Velocidad_Lectura a, b;
-    CHECK(Medicion_Velocidad_Actualizar(&a, 200U, 1000000U) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(Medicion_Velocidad_Actualizar(&a, 200U, 1000000U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_VALIDA);
     CHECK(Medicion_Velocidad_Inicializar(&b));
     CHECK(a.rpm_milesimas == 200000U && a.estado == MEDICION_VELOCIDAD_VALIDA);
-    CHECK(Medicion_Velocidad_Actualizar(&b, 1U, 0U) == MEDICION_VELOCIDAD_ERROR_DURACION);
+    CHECK(Medicion_Velocidad_Actualizar(&b, 1U, 0U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_ERROR_DURACION);
     CHECK(a.rpm_milesimas == 200000U && a.estado == MEDICION_VELOCIDAD_VALIDA);
-    CHECK(Medicion_Velocidad_Actualizar(&a, 60U, 1000000U) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(Medicion_Velocidad_Actualizar(&a, 60U, 1000000U, TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_VALIDA);
     CHECK(b.rpm_milesimas == 0U && b.estado == MEDICION_VELOCIDAD_ERROR_DURACION);
     return true;
 }
@@ -153,7 +154,7 @@ static bool InstanciasIndependientes(void)
 static bool VerificarDistancia(uint32_t pulsos, uint32_t us)
 {
     Medicion_Velocidad_Lectura lectura;
-    const Medicion_Velocidad_Estado estado = Medicion_Velocidad_Actualizar(&lectura, pulsos, us);
+    const Medicion_Velocidad_Estado estado = Medicion_Velocidad_Actualizar(&lectura, pulsos, us, TPI_MEDICION_PULSOS_POR_VUELTA);
     CHECK(lectura.estado == estado);
     if (us == 0U) {
         CHECK(estado == MEDICION_VELOCIDAD_ERROR_DURACION && lectura.rpm_milesimas == 0U);
@@ -201,6 +202,113 @@ static bool BarridoDeterminista(void)
     return true;
 }
 
+static bool EsperarFactor(uint32_t pulsos, uint32_t us, uint32_t factor,
+                          Medicion_Velocidad_Estado estado, uint32_t esperado)
+{
+    Medicion_Velocidad_Lectura lectura;
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, pulsos, us, factor) == estado);
+    CHECK(lectura.estado == estado && lectura.rpm_milesimas == esperado);
+    return true;
+}
+
+static bool FactoresConfigurables(void)
+{
+    const uint32_t factores[] = {1U, 12U, 60U, 100U, 1024U, UINT32_MAX};
+    for (size_t i = 0U; i < sizeof(factores) / sizeof(factores[0]); ++i) {
+        CHECK(EsperarFactor(factores[i], 1000000U, factores[i],
+                            MEDICION_VELOCIDAD_VALIDA, 60000U));
+    }
+    return true;
+}
+
+static bool EscalasEquivalentes(void)
+{
+    CHECK(EsperarFactor(2U, 1000000U, 1U, MEDICION_VELOCIDAD_VALIDA, 120000U));
+    CHECK(EsperarFactor(24U, 1000000U, 12U, MEDICION_VELOCIDAD_VALIDA, 120000U));
+    CHECK(EsperarFactor(120U, 1000000U, 60U, MEDICION_VELOCIDAD_VALIDA, 120000U));
+    CHECK(EsperarFactor(200U, 1000000U, 100U, MEDICION_VELOCIDAD_VALIDA, 120000U));
+    CHECK(EsperarFactor(12U, 500000U, 12U, MEDICION_VELOCIDAD_VALIDA, 120000U));
+    return true;
+}
+
+static bool FactorNuloYRecuperacion(void)
+{
+    Medicion_Velocidad_Lectura lectura;
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, 12U, 1000000U, 12U) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, 12U, 1000000U, 0U) ==
+          MEDICION_VELOCIDAD_ERROR_PULSOS_POR_VUELTA);
+    CHECK(lectura.estado == MEDICION_VELOCIDAD_ERROR_PULSOS_POR_VUELTA && lectura.rpm_milesimas == 0U);
+    CHECK(Medicion_Velocidad_Actualizar(&lectura, 100U, 1000000U, 100U) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(lectura.rpm_milesimas == 60000U);
+    CHECK(EsperarFactor(0U, 1000000U, 0U, MEDICION_VELOCIDAD_ERROR_PULSOS_POR_VUELTA, 0U));
+    return true;
+}
+
+static bool PrioridadErrores(void)
+{
+    CHECK(Medicion_Velocidad_Actualizar(NULL, UINT32_MAX, 0U, 0U) ==
+          MEDICION_VELOCIDAD_ERROR_ARGUMENTO);
+    CHECK(EsperarFactor(UINT32_MAX, 0U, 0U, MEDICION_VELOCIDAD_ERROR_DURACION, 0U));
+    CHECK(EsperarFactor(UINT32_MAX, 1U, 0U, MEDICION_VELOCIDAD_ERROR_PULSOS_POR_VUELTA, 0U));
+    CHECK(EsperarFactor(UINT32_MAX, 1U, 1U, MEDICION_VELOCIDAD_ERROR_RANGO, 0U));
+    return true;
+}
+
+static bool RedondeoConFactor(void)
+{
+    CHECK(EsperarFactor(1U, 1000000000U, 120U, MEDICION_VELOCIDAD_VALIDA, 1U));
+    CHECK(EsperarFactor(1U, 1000000001U, 120U, MEDICION_VELOCIDAD_VALIDA, 0U));
+    CHECK(EsperarFactor(1U, 999999999U, 120U, MEDICION_VELOCIDAD_VALIDA, 1U));
+    CHECK(EsperarFactor(1U, 1600000000U, 1U, MEDICION_VELOCIDAD_VALIDA, 38U));
+    CHECK(EsperarFactor(1U, 1600000001U, 1U, MEDICION_VELOCIDAD_VALIDA, 37U));
+    CHECK(EsperarFactor(1U, 1599999999U, 1U, MEDICION_VELOCIDAD_VALIDA, 38U));
+    CHECK(EsperarFactor(1U, 3000000U, 7U, MEDICION_VELOCIDAD_VALIDA, 2857U));
+    return true;
+}
+
+static bool ExtremosGenericos(void)
+{
+    CHECK(EsperarFactor(UINT32_MAX, UINT32_MAX, UINT32_MAX, MEDICION_VELOCIDAD_VALIDA, 14U));
+    CHECK(EsperarFactor(UINT32_MAX, 60U, UINT32_MAX, MEDICION_VELOCIDAD_VALIDA, 1000000000U));
+    CHECK(EsperarFactor(UINT32_MAX, 14U, UINT32_MAX, MEDICION_VELOCIDAD_VALIDA, 4285714286U));
+    CHECK(EsperarFactor(UINT32_MAX, 13U, UINT32_MAX, MEDICION_VELOCIDAD_ERROR_RANGO, 0U));
+    CHECK(EsperarFactor(UINT32_MAX, 1U, UINT32_MAX, MEDICION_VELOCIDAD_ERROR_RANGO, 0U));
+    CHECK(EsperarFactor(UINT32_MAX, UINT32_MAX, 1U, MEDICION_VELOCIDAD_ERROR_RANGO, 0U));
+    CHECK(EsperarFactor(1U, UINT32_MAX, UINT32_MAX, MEDICION_VELOCIDAD_VALIDA, 0U));
+    CHECK(EsperarFactor(0U, UINT32_MAX, UINT32_MAX, MEDICION_VELOCIDAD_VALIDA, 0U));
+    return true;
+}
+
+static bool InstanciasConFactoresDistintos(void)
+{
+    Medicion_Velocidad_Lectura a, b;
+    CHECK(Medicion_Velocidad_Actualizar(&a, 100U, 1000000U, 100U) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(Medicion_Velocidad_Actualizar(&b, 100U, 1000000U, 60U) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(a.rpm_milesimas == 60000U && b.rpm_milesimas == 100000U);
+    CHECK(Medicion_Velocidad_Actualizar(&a, 100U, 1000000U, 0U) ==
+          MEDICION_VELOCIDAD_ERROR_PULSOS_POR_VUELTA);
+    CHECK(b.estado == MEDICION_VELOCIDAD_VALIDA && b.rpm_milesimas == 100000U);
+    CHECK(Medicion_Velocidad_Actualizar(&a, 100U, 1000000U, 100U) == MEDICION_VELOCIDAD_VALIDA);
+    CHECK(a.rpm_milesimas == 60000U);
+    return true;
+}
+
+static bool MonotoniaConFactor(void)
+{
+    const uint32_t factores[] = {1U, 3U, 12U, 60U, 100U, UINT32_MAX};
+    for (size_t i = 0U; i < sizeof(factores) / sizeof(factores[0]); ++i) {
+        uint32_t anterior = 0U;
+        for (uint32_t pulsos = 0U; pulsos <= 1024U; ++pulsos) {
+            Medicion_Velocidad_Lectura lectura;
+            CHECK(Medicion_Velocidad_Actualizar(&lectura, pulsos, 1000000U, factores[i]) ==
+                  MEDICION_VELOCIDAD_VALIDA);
+            CHECK(lectura.rpm_milesimas >= anterior);
+            anterior = lectura.rpm_milesimas;
+        }
+    }
+    return true;
+}
+
 int main(void)
 {
     const struct { const char *nombre; bool (*ejecutar)(void); } casos[] = {
@@ -213,7 +321,15 @@ int main(void)
         {"S5 duracion minima", DuracionMinima}, {"S6 NULL", PunterosNulos},
         {"S3 reinicio", Reinicio}, {"S6 instancias", InstanciasIndependientes},
         {"S2/S5 matriz 100 fronteras", MatrizDeFronteras},
-        {"S2/S5 barrido 10000 ventanas", BarridoDeterminista}
+        {"S2/S5 barrido 10000 ventanas", BarridoDeterminista},
+        {"S8 factores configurables", FactoresConfigurables},
+        {"S8 escalas equivalentes", EscalasEquivalentes},
+        {"S9 factor nulo/recuperacion", FactorNuloYRecuperacion},
+        {"S9 prioridad errores", PrioridadErrores},
+        {"S10 redondeo con factor", RedondeoConFactor},
+        {"S10 extremos genericos", ExtremosGenericos},
+        {"S6 factores por instancia", InstanciasConFactoresDistintos},
+        {"S10 monotonia 6150 puntos", MonotoniaConFactor}
     };
     for (size_t i = 0U; i < sizeof(casos) / sizeof(casos[0]); ++i) {
         if (!casos[i].ejecutar()) {

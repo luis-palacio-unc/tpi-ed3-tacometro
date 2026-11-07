@@ -12,15 +12,17 @@ endif()
 file(MAKE_DIRECTORY "${OUTPUT_DIR}")
 file(WRITE "${OUTPUT_DIR}/main_fixture.c" [=[
 #include "Medicion_Velocidad.h"
+#include "Medicion.h"
 static Medicion_Velocidad_Lectura lectura;
 static volatile uint32_t pulsos = 200U;
 static volatile uint32_t duracion_us = 1000000U;
+static volatile uint32_t factor = TPI_MEDICION_PULSOS_POR_VUELTA;
 int main(void)
 {
     if (!Medicion_Velocidad_Inicializar(&lectura)) {
         return 1;
     }
-    return Medicion_Velocidad_Actualizar(&lectura, pulsos, duracion_us) ==
+    return Medicion_Velocidad_Actualizar(&lectura, pulsos, duracion_us, factor) ==
            MEDICION_VELOCIDAD_VALIDA && lectura.rpm_milesimas == 200000U ? 0 : 1;
 }
 ]=])
@@ -29,7 +31,7 @@ execute_process(COMMAND "${TOOL_PREFIX}gcc"
     -ffreestanding -ffunction-sections -fdata-sections -Wa,--noexecstack
     -fno-unwind-tables -fno-asynchronous-unwind-tables
     -Wall -Wextra -Werror -Wconversion -Wshadow -Wstrict-prototypes -pedantic-errors
-    "-I${SOURCE_DIR}/Servicios" "${OUTPUT_DIR}/main_fixture.c"
+    "-I${SOURCE_DIR}/Servicios" "-I${SOURCE_DIR}/Configuracion" "${OUTPUT_DIR}/main_fixture.c"
     "${SOURCE_DIR}/Servicios/Medicion_Velocidad.c"
     "${SOURCE_DIR}/plataforma/startup_lpc1769.S"
     -nostdlib "-T${SOURCE_DIR}/plataforma/lpc1769.ld"

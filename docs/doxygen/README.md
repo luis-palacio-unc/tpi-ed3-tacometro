@@ -10,7 +10,7 @@ para generar documentación sin autorización.
   precondiciones y concurrencia. Tipos, miembros y constantes también documentados.
 - Mantener comentarios de contrato fuera del cuerpo de funciones de producción,
   como pide la guía del TPI.
-- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, LM35 y Limites. No usar EXTRACT_ALL para ocultar falta de documentación.
+- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, LM35, Limites y Configuracion/Medicion.h. No usar EXTRACT_ALL para ocultar falta de documentación.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
@@ -25,3 +25,8 @@ el retorno en el XML. No se suprimió la comprobación de retornos.
 
 Referencia: [bloques documentales](https://www.doxygen.nl/manual/docblocks.html) y
 [configuración oficial](https://www.doxygen.nl/manual/config.html).
+
+B03-R1 mantiene 21 funciones/USW: API de velocidad con factor explícito, prioridad
+de errores, unidades y aritmética acotada documentadas en USW.2.1.3.1/.2.
+Configuracion/Medicion.h documenta el factor físico del TPI fuera del servicio.
+Doxygen estricto HTML/XML pasa; no agrega funciones de producción.

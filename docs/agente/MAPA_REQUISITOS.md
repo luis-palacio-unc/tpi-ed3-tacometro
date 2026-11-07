@@ -8,16 +8,16 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | ID / fuente | Requisito | Bloque | Archivos principales | Evidencia de aceptación |
 |---|---|---|---|---|
 | R01 AP | Ejecutar firmware en LPC1769/OM13085 | B00 aceptado: base de build | CMakeLists.txt, Aplicacion/main.c, cmake/, plataforma/ | S1/S3/S5/S6 PASS de build/inspección (verify-report B00); ejecución física pendiente |
-| R02 AP/APA | Medir RPM con disco de 60 ranuras | B03 aceptado/archivado para cálculo; captura física pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | B03 S1–S7 PASS host/enlace ARM (verify-report archivado); medición con señal real pendiente |
+| R02 AP/APA | Medir RPM con disco de 60 ranuras | B03 aceptado/archivado; revisión B03-R1 verificada/candidata; captura pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | B03-R1 S1–S10 PASS, 23 casos + oráculo 11199; aceptación de revisión y señal real pendientes |
 | R03 AP | Potenciómetro determina PWM en manual | B04 aceptado/archivado para normalización; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.* | B04 S1–S7 PASS host/enlace ARM (verify-report archivado); ADC/PWM físicos pendientes |
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; lógica | Aplicacion/Procesamiento.* | B01 S1/S2 PASS (C host); integración física pendiente |
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01 aceptado; lógica | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | B01 S3/S4/S5/S6 PASS (C host); recepción real pendiente |
-| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; aceptación/alarma/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report activo); umbral/alarma física pendientes |
+| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; alarma/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); umbral/alarma física pendientes |
 | R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción lógica; resto pendiente | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 S1–S8 PASS host; UART física/telemetría pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
-| R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03 con 60 pulsos/vuelta aún requiere revisión |
+| R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, verificado pendiente de aceptación |
 | R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B05: 21 funciones/USW incluyendo main y LM35; Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
@@ -40,5 +40,10 @@ Contrato vigente de mandos; adquisición del potenciómetro y PWM físicos pendi
 
 B05 corregido, aceptado y archivado: 10 casos del servicio genérico, 17 LM35 y 3 integración;
 regresiones/sanitizadores/ARM/Doxygen PASS. Aclaración R15 incluye independencia
-de servicios, con curva específica en dispositivos. B03 se revisará por separado.
+de servicios, con curva específica en dispositivos. B03-R1 se verificó por separado; su resultado requiere aceptación.
 Contrato vigente de temperatura sincronizado; adquisición y alarma aún pendientes.
+
+B03-R1: factor TPI en Configuracion/Medicion.h, servicio genérico con factor explícito.
+23 casos C + 11199 ternas de oráculo independiente y sanitizadores PASS;
+ARM Debug/Release y Doxygen PASS. Informe activo de revisión; contrato/archivo original
+sin editar hasta aceptación. Captura/tiempos físicos siguen pendientes.

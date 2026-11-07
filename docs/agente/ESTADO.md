@@ -2,30 +2,44 @@
 
 ## Punto actual
 
-- Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`. Rama main; comprobar HEAD con `git log -1`.
-- B00–B05 aceptados/archivados; temperatura corregida aceptada el 2026-11-07.
-- B05 inicial fcd4392, corrección a1f3b46; cierre documental en commit con asunto
-  `docs: aceptar y archivar B05 corregido`. Contrato vigente de temperatura sincronizado.
-- Publicación de commits pendientes y cierre B05 autorizada en esta orden.
-  Verificar resultado remoto con Git al terminar push; no inferir publicación futura.
-- Revisión B03 autorizada por el usuario: quitar 60 pulsos/vuelta fijos del servicio,
-  crear cambio SDD independiente; no editar historia aceptada.
-- main mínimo; sin adquisición ni integración física.
+- Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`. Rama main; comprobar HEAD con git log -1.
+- B00–B05 aceptados/archivados. B05 corregido aceptado, contrato sincronizado y
+  commits fcd4392/a1f3b46/a11a97c publicados. origin/main=a11a97c1c8617fdc42007afa78d071e83b553512.
+- Revisión B03-R1 autorizada en la misma orden, implementada/verificada y pendiente
+  de aceptación. Cambio activo b03-factor-pulsos-configurable; contratos/archivos aceptados intactos.
+- Commit local con asunto `fix: parametrizar pulsos por vuelta en medicion de velocidad`;
+  consultar Git para hash. Sin push nuevo autorizado. Conservar hooks/firma e historia.
+- No iniciar B06. main mínimo; sin integración física.
 
-## Evidencia aceptada
+## Evidencia actual ejecutada
 
-- B05: 94 casos host/sanitizadores; CTest ARM Debug 8/8, dos enlaces B05 Release;
-  Doxygen estricto, 21 funciones. Informes en archivo B05, no hay fallos del alcance.
-- Temperatura genérico compila/enlaza sin LM35; dispositivo convierte ADC→Celsius.
-- Cierre documental: cuerpo normativo idéntico, fuentes/build/pruebas e historial
-  previo preservados. No repite pruebas ni acredita nuevos comportamientos.
-- No hubo ejecución ARM, simulación o prueba física. Sin instalaciones/flasheo.
-- Logs cierre: /tmp/ed3-cierre-b05-20261107-ylmn3frc; logs B05 en informe archivado.
+| Verificación | Resultado |
+|---|---|
+| Host y sanitizadores | CTest 8/8, 102 casos C (23 B03) + 11199 ternas de oráculo; sin hallazgos |
+| Regresión B03 | Factor 60 conserva 15 casos anteriores, 100 fronteras y 10000 ventanas |
+| Generalización | Factores 1/12/60/100/1024/MAX, prioridades/recuperación y 6150 puntos monótonos |
+| ARM | Debug 8/8, B03 Release 1/1; pruebas finales B03 tras claridad de unidades PASS |
+| Doxygen | Estricto, sin avisos; 21 funciones/USW, dos B03 y configuración documentadas |
+| Aislamiento | Mismo consumidor que fallaba compila sin configuración/dispositivos; oráculo PASS |
+| Recursos -O0 | Código 828, .data/.bss 0; pila propia 224, cadena libgcc hasta 272 bytes |
+| Preservación | Aplicación/dispositivos/bibliotecas y todos los contratos/archivos aceptados intactos |
 
-## Pendientes y próxima acción
+Matriz S1–S10, comandos y recursos: verify-report.md del cambio activo.
+Logs: /tmp/ed3-b03-r1-20261107-6hxxb4jm, fuera del árbol versionado.
+Sin fallos funcionales pendientes; sin ejecución ARM, simulación o prueba física.
+No se instaló, flasheó ni modificó configuración sensible del MCU.
 
-Publicar cierre B05 y abordar revisión B03 con requisitos/especificación/diseño,
-pruebas numéricas y de error, ARM, recursos y Doxygen. Mantener contrato vigente de
-B03 hasta aceptación del cambio nuevo y conservar su archivo inmutable.
-ADC/DMA, captura física, pines/VREF/montaje, UART, PWM/control, alarma y main siguen
-pendientes. CMSIS-DAP integrado; revisión PCB/silicio sin verificar.
+## Decisiones y limitaciones
+
+Factor pulsos/vuelta positivo por llamada; valor 60 del disco sólo en configuración
+TPI, sin dependencia del servicio hacia ese archivo. El 60 interno de unidades es
+segundos/minuto. Firma nueva de cuatro argumentos; consumidores migrados, sin wrapper.
+Estado/valor y redondeo se conservan; factor cero invalida con error propio.
+Captura/configuración coherentes y acceso serializado externos. Todavía sin detección
+de frescura, captura, ADC/DMA, UART, PWM/control, alarma o main integrado.
+CMSIS-DAP integrado; revisión PCB/silicio, pines/VREF/montaje pendientes.
+
+## Próxima acción
+
+Revisar aceptación de B03-R1. Sólo después sincronizar/archivar con orden del usuario.
+No publicar la revisión ni iniciar otro bloque sin autorización.

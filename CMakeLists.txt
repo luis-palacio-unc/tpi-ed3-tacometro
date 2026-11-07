@@ -116,6 +116,9 @@ target_compile_options(firmware PRIVATE
     $<$<COMPILE_LANGUAGE:C>:-Wall;-Wextra;-Werror;-Wconversion;-Wshadow;-Wstrict-prototypes>)
 
 if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
+    find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
+    add_executable(consulta_medicion_velocidad tests/host/consulta_medicion_velocidad.c
+        Servicios/Medicion_Velocidad.c)
     add_executable(pruebas_procesamiento
         tests/host/test_procesamiento.c Aplicacion/Procesamiento.c)
     add_executable(pruebas_comunicacion tests/host/test_comunicacion.c
@@ -131,8 +134,12 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
         Servicios/Temperatura.c Dispositivos/LM35.c)
     target_include_directories(pruebas_lm35 PRIVATE Dispositivos)
     target_include_directories(pruebas_integracion_temperatura PRIVATE Dispositivos)
-    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura)
-        target_include_directories(${prueba} PRIVATE Aplicacion Servicios Configuracion)
+    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad)
+        if(prueba STREQUAL "consulta_medicion_velocidad")
+            target_include_directories(${prueba} PRIVATE Servicios)
+        else()
+            target_include_directories(${prueba} PRIVATE Aplicacion Servicios Configuracion)
+        endif()
         set_target_properties(${prueba} PROPERTIES
             C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO)
         target_compile_options(${prueba} PRIVATE
@@ -146,6 +153,9 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_test(NAME b01.modos COMMAND pruebas_procesamiento)
     add_test(NAME b02.comunicacion COMMAND pruebas_comunicacion)
     add_test(NAME b03.medicion_velocidad COMMAND pruebas_medicion_velocidad)
+    add_test(NAME b03.oraculo_velocidad COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/verificar_velocidad.py"
+        --programa "$<TARGET_FILE:consulta_medicion_velocidad>")
     add_test(NAME b04.mandos COMMAND pruebas_mandos)
     add_test(NAME b05.temperatura COMMAND pruebas_temperatura)
     add_test(NAME b05.lm35 COMMAND pruebas_lm35)
