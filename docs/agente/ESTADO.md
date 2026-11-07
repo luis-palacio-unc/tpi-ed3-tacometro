@@ -3,52 +3,51 @@
 ## Punto actual
 
 - Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`.
-- Rama main; implementación B03: e7ba0183c290f9e5384f609d820a06752587966a.
+- Rama main; base B04 db0c305b8f2533884c00e416f52c3dd75acf652b, publicada en origin/main.
   Revisión al reanudar: `git rev-parse HEAD`; sincronización: `git status -sb`.
-- B00–B03 aceptados/archivados. Contratos build, modos, comunicación y medición vigentes.
-- Archivo B03: openspec/changes/archive/2026-11-06-b03-medicion-velocidad/;
-  no modificar historial archivado. Cuerpo normativo sincronizado sin cambios.
-- Usuario aceptó B03 y autorizó publicar implementación y cierre documental.
-  Commit de cierre: el que contiene este ESTADO; consultar `git log -1`.
-  Verificar resultado real del push al reanudar; no inferir permisos futuros.
-- B04 pendiente de propuesta escrita, sin acuerdo de implementación. Prepararla
-  tras publicar B03: normalización del mando manual, independiente del ADC físico.
-- main sigue mínimo; servicios no integrados al hardware. Hooks/firma conservados.
+- B00–B03 aceptados/archivados; contratos vigentes preservados, no editar historial.
+- B04 acordado, implementado/verificado; resultado pendiente de aceptación.
+  Cambio activo: openspec/changes/b04-normalizacion-mando-manual/.
+- Cierre local con asunto `feat: implementar B04 de normalizacion del mando manual`;
+  consultar `git log -1` para hash. Commit autorizado; push explícitamente no autorizado.
+- Propuesta/contexto locales previos incorporados al bloque. Specs B04 candidatas;
+  sin promoción ni archivo hasta aceptación. Hooks/firma conservados.
+- main sigue mínimo; sin servicios integrados al hardware ni aceptación física.
 
-## Evidencia aceptada B03
+## Evidencia ejecutada B04
 
 | Verificación | Resultado |
 |---|---|
-| CTest host / sanitizadores | 49 casos: B01 17 + B02 17 + B03 15; sin hallazgos ASan/LeakSanitizer/UBSan |
-| Aritmética B03 | 100 fronteras + 10 000 ventanas; redondeo, rango y recuperación |
-| ARM Debug / Release | CTest Debug 5/5 (B00 14 casos); fixture B03 Release correcto |
-| Doxygen estricto | Sin avisos; 15 funciones/USW totales, incluidas 2 nuevas B03 |
-| Recursos estáticos B03 | Lectura 8 bytes; código -O0 236 bytes; stack interno hasta 128 bytes con libgcc |
-| ELF | Sin indefinidos; GNU_STACK RW; control negativo rechaza pila ejecutable |
-| Cierre documental | Sin cambios de firmware; requisitos idénticos y archivos anteriores preservados |
+| CTest host | 4/4; B01 17 + B02 17 + B03 15 + B04 15 = 64 casos |
+| ASan/LeakSanitizer/UBSan | 64 casos sin hallazgos, fuera del sandbox/ptrace |
+| Normalización | 100 fronteras, 10 000 pares y 71 680 puntos de recorrido; redondeo, límites, monotonía y recuperación |
+| ARM Debug / Release | CTest Debug 6/6 (B00 14 casos); fixture B04+B01 Release correcto |
+| Doxygen HTML/XML estricto | Sin avisos; 2 USW nuevas Mandos, 17 funciones totales y límite/aliases documentados |
+| Recursos B04 -O0 | Salida 4 bytes, código 292 bytes sin data/bss; stack interno hasta 136 bytes con libgcc |
+| ELF fixture | Sin indefinidos; API y auxiliar retenidos; GNU_STACK RW |
+| Revisión | Archivos aceptados, main, lógica B01–B03 y pruebas previas intactos; sólo alias B01 al mismo 1000 |
 
-Matriz S1–S7 y comandos en verify-report.md archivado; aceptación y manifest en
-archive-report.md. Logs implementación: /tmp/ed3-b03-20261106-07i2qp2_.
-Logs cierre: /tmp/ed3-cierre-b03-20261106-zpksl5sb (temporales, fuera de Git).
-No se repiten pruebas de firmware en el cierre porque no cambian fuentes ni build.
-Sin ejecución ARM, simulación ni prueba física; no se flasheó ni instaló nada.
+Matriz S1–S7, comandos y limitaciones: verify-report.md del cambio activo.
+Logs extensos: /tmp/ed3-b04-20261106-01ljgnod (temporales, fuera de Git).
+Sin fallos observados. Sin ejecución ARM, simulador ni placa; no se flasheó,
+instaló ni configuró hardware. Memoria/pila son inspección estática.
 
 ## Decisiones y limitaciones
 
-- B03: 60 pulsos/vuelta, conteo/duración us uint32_t; salida milésimas de RPM,
-  cercano/empate arriba y estados explícitos. Las lecturas pueden superar 185 RPM.
-- Captura coherente, serialización y overflow previo requieren integración física;
-  sin ventana física fijada ni timeout de frescura. Runtime libgcc existente, sin libc.
-- R15: aplicación portable entre configuraciones físicas; abstracciones y explicación
-  de decisiones en lenguaje sencillo registradas en CONTEXTO.
-- Consignas siguen 0..185; orden global/FIFO B01/B02 conservados.
-- Faltan captura, UART real, telemetría, PWM/control, ADC/DMA, alarmas y main;
-  pines, revisión PCB/silicio, VREF y reloj pendientes. CMSIS-DAP integrado confirmado.
-- Sin CI ni aceptación física. Doxyfile parcial; documentación final aún pendiente.
+- Mandos recibe lectura/escala uint32_t; salida uint16_t 0..1000 y estado explícito.
+  Escala configurable por llamada, cercano/empate arriba, sin bits/VREF/canal fijos.
+- Prioridad errores: salida NULL, escala cero, lectura excesiva. Error escribible
+  borra valor viejo; sólo VALIDO permite consumo. Sin timeout de frescura.
+- Límite manual común TPI_MANDO_MANUAL_MAX en Configuracion/Limites.h; B01 conserva
+  alias público y comportamiento. No hay dependencia Servicios→Aplicacion.
+- R15: aplicación portable, datos lógicos y adaptación física en capas inferiores.
+- Consignas siguen 0..185; medición B03 puede superarlas. Ventana física no fijada.
+- Faltan ADC/DMA, selector/antirrebote, captura, UART real, telemetría, PWM/control,
+  alarmas y main. Pines, revisión PCB/silicio, VREF y reloj pendientes; CMSIS-DAP integrado.
+- Sin CI ni documentación final completa; Doxyfile cubre módulos desarrollados.
 - AGENTS/.atl locales por ignore global; procedimiento compartido en docs/agente/.
 
 ## Próxima acción
 
-Publicar commits B03 autorizados y preparar propuesta B04 de normalización del mando
-manual (0..1000, fondo de escala explícito, errores observables). Acordar alcance y
-aceptación antes de implementar B04. No extender autorización de push a bloques futuros.
+Revisar aceptación del resultado B04 con el usuario. Sólo tras ella y orden de cierre,
+sincronizar specs y archivar. No iniciar B05 ni hacer push sin autorización.

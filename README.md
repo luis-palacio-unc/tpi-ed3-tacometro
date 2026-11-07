@@ -27,7 +27,7 @@ El build ejecuta automáticamente el verificador del ELF; CTest agrega casos neg
 `firmware.elf` es para el MCU: no se ejecuta como programa de escritorio.
 No está configurada todavía una sesión de depuración/flasheo de CLion.
 
-Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion y Medicion_Velocidad, sin ejecutar main del firmware:
+Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad y Mandos, sin ejecutar main del firmware:
 
 ```sh
 cmake --preset host-objects
@@ -67,7 +67,8 @@ no extiende autorización a bloques futuros. [Contrato build vigente](openspec/s
 B01 aceptado/archivado con límite 185 RPM. [Contrato de modos vigente](openspec/specs/modos/spec.md).
 B02 aceptado y archivado. [Contrato de comunicación vigente](openspec/specs/comunicacion/spec.md).
 B03 aceptado y archivado. [Contrato de medición vigente](openspec/specs/medicion-velocidad/spec.md).
-La propuesta B04 de normalización del mando manual se prepara a continuación.
+B04 implementado/verificado, pendiente de aceptación del resultado.
+[Contrato candidato y evidencia](openspec/changes/b04-normalizacion-mando-manual/verify-report.md).
 
 ## B01 y documentación incremental
 
@@ -118,3 +119,18 @@ CTest host agrega 15 casos B03, incluidas 100 fronteras y 10 000 ventanas de bar
 ARM agrega fixture con API y división de 64 bits retenidas, enlazando libgcc existente
 sin libc. Doxygen cubre las dos USW nuevas. main continúa mínimo: compilar/enlazar
 no acredita ejecución física. Ver [informe B03](openspec/changes/archive/2026-11-06-b03-medicion-velocidad/verify-report.md).
+
+## B04: normalización del mando manual
+
+Mandos.h/.c convierte lectura y fondo de escala explícitos (uint32_t) en mando
+0..1000 por mil (uint16_t), independiente de bits, VREF o canal del ADC. Ejemplo:
+2048/4095 produce 500, equivalente al 50 % del mando lógico. Redondeo cercano,
+empate arriba; extremos 0 y fondo de escala producen exactamente 0 y 1000.
+Inicializar deja SIN_DATOS. Escala cero o lectura excesiva invalidan y borran el
+valor anterior; sólo VALIDO permite consumo. No implementa selector, ADC/DMA o PWM.
+
+El límite manual tiene fuente común en Configuracion/Limites.h; Procesamiento
+conserva su alias y comportamiento. Prueba/fixture adapta salidas válidas a B01;
+no hay dependencia del servicio hacia aplicación ni integración del main real.
+CTest agrega 15 casos B04 con recorridos, escalas equivalentes, errores y fronteras;
+Doxygen documenta sus dos USW. Ver [informe B04](openspec/changes/b04-normalizacion-mando-manual/verify-report.md).

@@ -5,7 +5,8 @@ OUTPUT_DIRECTORY = build/doxygen
 OUTPUT_LANGUAGE = English
 INPUT = Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacion/Procesamiento.c \
         Servicios/Comunicacion.h Servicios/Comunicacion.c Configuracion/Limites.h \
-        Servicios/Medicion_Velocidad.h Servicios/Medicion_Velocidad.c
+        Servicios/Medicion_Velocidad.h Servicios/Medicion_Velocidad.c \
+        Servicios/Mandos.h Servicios/Mandos.c
 FILE_PATTERNS = *.c *.h
 INCLUDE_PATH = Aplicacion Servicios Configuracion
 OPTIMIZE_OUTPUT_FOR_C = YES

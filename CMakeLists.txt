@@ -85,6 +85,11 @@ if(TPI_BUILD_ARM)
             "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b03-fixture" "-DBUILD_TYPE=$<CONFIG>"
             "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b03.cmake")
+        add_test(NAME b04.enlace_arm COMMAND "${CMAKE_COMMAND}"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b04-fixture" "-DBUILD_TYPE=$<CONFIG>"
+            "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b04.cmake")
     endif()
 else()
     if(CMAKE_CROSSCOMPILING)
@@ -107,7 +112,9 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
         Servicios/Comunicacion.c Aplicacion/Procesamiento.c)
     add_executable(pruebas_medicion_velocidad tests/host/test_medicion_velocidad.c
         Servicios/Medicion_Velocidad.c)
-    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad)
+    add_executable(pruebas_mandos tests/host/test_mandos.c
+        Servicios/Mandos.c Aplicacion/Procesamiento.c)
+    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos)
         target_include_directories(${prueba} PRIVATE Aplicacion Servicios Configuracion)
         set_target_properties(${prueba} PROPERTIES
             C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO)
@@ -122,4 +129,5 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_test(NAME b01.modos COMMAND pruebas_procesamiento)
     add_test(NAME b02.comunicacion COMMAND pruebas_comunicacion)
     add_test(NAME b03.medicion_velocidad COMMAND pruebas_medicion_velocidad)
+    add_test(NAME b04.mandos COMMAND pruebas_mandos)
 endif()

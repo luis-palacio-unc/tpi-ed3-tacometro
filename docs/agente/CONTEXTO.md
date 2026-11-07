@@ -56,14 +56,16 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
 contratos aceptados: build (B00), modos (B01), comunicación lógica (B02)
-y medición lógica (B03). B00–B03 aceptados y archivados. B04 se propone a continuación.
+y medición lógica (B03). B00–B03 aceptados y archivados. B04 implementado/verificado en `openspec/changes/`,
+pendiente de aceptación del resultado; contrato de mandos todavía candidato.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 Git local inicializado en main por acuerdo del usuario, con origin privado.
 El usuario autorizó commit y push de la estructura inicial al aceptar B00.
 El usuario autorizó después commits al finalizar cada bloque acordado. El push sigue
 requiriendo autorización independiente; el usuario autorizó publicar los commits B01
 y su cierre, y posteriormente B02 y su cierre. También autorizó publicar B03
-y su cierre al aceptarlo; nuevas publicaciones requieren autorización independiente. Se conserva configuración de firma Git,
+y su cierre al aceptarlo; nuevas publicaciones requieren autorización independiente.
+Se conserva configuración de firma Git,
 actualmente sin firma automática habilitada.
 
 ## Referencias de fabricante consultadas
@@ -129,3 +131,15 @@ Captura coherente, overflow previo y acceso serializado son responsabilidad exte
 sin timeout de frescura ni ventana física elegida. No se integra main/captura en B03.
 División uint64_t enlazada con libgcc del toolchain existente, sin libc. ELF declara
 -z noexecstack y fixture verifica GNU_STACK RW; no modifica el MPU del MCU.
+
+## Normalización manual B04
+
+Mandos (ESW.2.1.5) recibe lectura y fondo de escala uint32_t explícitos; salida
+uint16_t 0..1000 por mil y estado. Cercano/empate arriba, error aritmético <=0,5
+por mil; independiente de resolución, VREF y canal. TPI_MANDO_MANUAL_MAX=1000 vive
+en Limites.h; aliases públicos de Mandos y B01 conservan el mismo rango.
+Inicializar deja SIN_DATOS/cero; NormalizarManual reemplaza toda salida sin leer
+contenido anterior. Errores NULL/escala cero/lectura excesiva en ese orden; salida
+escribible inválida queda a cero, recuperable con siguiente dato válido. Sólo consumir
+VALIDO. Captura coherente, validación del ADC y serialización son responsabilidad
+del integrador; sin timeout. No implementa selector, ADC/DMA ni PWM, ni integra main.

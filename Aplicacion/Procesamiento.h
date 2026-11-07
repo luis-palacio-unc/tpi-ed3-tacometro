@@ -22,7 +22,7 @@
  */
 
 /** @brief Mando manual maximo: 1000 por mil equivale a 100 por ciento. */
-#define PROCESAMIENTO_MANDO_MAX 1000U
+#define PROCESAMIENTO_MANDO_MAX TPI_MANDO_MANUAL_MAX
 
 /** @brief Maxima consigna aceptada en RPM, inclusive; aclaracion del usuario. */
 #define PROCESAMIENTO_RPM_MAX TPI_RPM_MAX

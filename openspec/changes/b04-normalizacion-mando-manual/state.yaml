@@ -1,0 +1,13 @@
+block: B04
+change: b04-normalizacion-mando-manual
+status: verified_pending_acceptance
+scope_approved: true
+result_accepted: false
+phase: verify
+implementation_started: true
+verification_passed: true
+main_specs_synced: false
+commit_authorized: true
+commit_subject: "feat: implementar B04 de normalizacion del mando manual"
+push_authorized: false
+next_action: Esperar aceptacion del resultado B04; no sincronizar ni archivar aun.
