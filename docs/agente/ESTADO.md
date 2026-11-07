@@ -3,54 +3,54 @@
 ## Punto actual
 
 - Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`.
-- Rama main; revisión actual: `git rev-parse HEAD`; sincronización: `git status -sb`.
-- Implementación B02: 4e6c1d4. Usuario aceptó B02 y autorizó publicar este commit
-  y el cierre documental con propuesta B03 el 2026-11-06.
-- B00–B02 aceptados/archivados. Contratos build, modos y comunicación vigentes.
-- Archivo B02: openspec/changes/archive/2026-11-06-b02-recepcion-consignas/;
-  no modificar archivos archivados.
-- B03 propuesto en openspec/changes/b03-medicion-velocidad/, sin acuerdo ni código.
-- Commits al cerrar bloques acordados autorizados; push de nuevos bloques requiere
-  permiso independiente. Firma/hook Git conservados.
-- main sigue mínimo; UART, sensor y accionamiento físicos no integrados.
+- Rama main; base B03: 27ad99a7d04c52dfd98344857fa5c98ed7ad61d4.
+  Revisión al reanudar: `git rev-parse HEAD`; sincronización: `git status -sb`.
+- B00–B02 aceptados/archivados; contratos build/modos/comunicación vigentes.
+- B03 acordado, implementado y verificado; resultado pendiente de aceptación.
+  Carpeta activa: openspec/changes/b03-medicion-velocidad/.
+- Cierre local con asunto `feat: implementar B03 de medicion de velocidad`;
+  consultar `git log -1` para hash. Commit autorizado; push explícitamente no autorizado.
+- Specs B03 candidatas: sin promoción ni archivo hasta aceptación del resultado.
+- main sigue mínimo; servicios no integrados al hardware. Hooks/firma conservados.
 
-## Evidencia ejecutada
+## Evidencia ejecutada B03
 
 | Verificación | Resultado |
 |---|---|
-| Host CTest | 2/2; 17 casos B01 + 17 B02, incluye bytes 0..255 y FIFO/recuperación |
-| ASan/LeakSanitizer/UBSan | 34/34 casos sin hallazgos, fuera del sandbox |
-| ARM Debug CTest | 4/4; B00 14/14, fixture B01 y nuevo B02 |
-| ARM Release | Build y enlace fixture B02 a -O3 correctos |
-| Doxygen estricto HTML/XML | Sin avisos; 6 USW nuevas, 13 totales verificadas en XML |
-| Recursos -O0 | Contexto Comunicación 88 bytes; código 818 bytes, sin heap/globals |
-| Stack estático módulo | Hasta 64 bytes de llamadas internas; no medición en hardware |
-| Preservación | main, Procesamiento.c, tests B01, drivers/dispositivos y archivos aceptados intactos |
-| Copia limpia del índice al cerrar B02 | 34 casos host, CTest ARM 4/4 y Doxygen estricto correctos |
+| CTest host | 3/3; 17 B01 + 17 B02 + 15 B03 = 49 casos |
+| ASan/LeakSanitizer/UBSan | 49 casos sin hallazgos, fuera del sandbox/ptrace |
+| Límites aritméticos B03 | 100 fronteras + 10 000 ventanas, redondeo y rango; prueba final B03 15/15 normal/san |
+| ARM Debug CTest | 5/5; B00 14/14 y fixtures B01/B02/B03 |
+| ARM Release | Build y fixture B03 a -O3 correctos; API y división uint64 retenidas |
+| Doxygen estricto HTML/XML | Sin avisos; 2 USW B03 nuevas, 15 funciones totales |
+| Recursos B03 -O0 | Lectura 8 bytes, código 236 bytes sin global mutable; stack interno hasta 128 bytes con libgcc |
+| ELF | Sin indefinidos; GNU_STACK RW; control negativo rechaza pila ejecutable |
+| Preservación/diff | Archivos aceptados, main, B01/B02 y drivers intactos; diff revisado |
 
-Logs: `/tmp/ed3-b02-20261106-6p_kq52o` (fuera del árbol versionado; temporales).
-Cierre/publicación: /tmp/ed3-cierre-b02-20261106-bep0bv0r (resultados desde copia limpia del índice).
-Matriz S1–S9 y comandos en el informe archivado de B02. Sin fallos funcionales
-observados. No se ejecutó firmware ARM en MCU/simulador, no se flasheó ni instaló nada.
+Informe completo: openspec/changes/b03-medicion-velocidad/verify-report.md.
+Logs: /tmp/ed3-b03-20261106-07i2qp2_ (temporales, fuera del árbol versionado).
+Primer enlace rechazado por nota GNU-stack faltante en libgcc: se declaró pila
+no ejecutable en ELF y se comprobó, manteniendo avisos como errores. Doxygen
+detectó delimitador de grupo inválido: corregido y generación completa verificada.
+No hay fallos pendientes del alcance. No se ejecutó ARM en MCU/simulador, no se
+flasheó, instaló nada ni cambió configuración del microcontrolador.
 
-## Decisiones y limitaciones actuales
+## Decisiones y limitaciones
 
-- Recepción lógica: ASCII RPM, un espacio, 1..3 dígitos, LF/CRLF; 0..185 RPM,
-  ceros iniciales permitidos. Rechazo explícito; no saturar valores inválidos.
-- Buffer 8 bytes antes de LF y cola FIFO de 4 eventos, sin heap. Desborde de trama
-  descarta hasta LF; cola llena conserva anteriores y rechaza nuevo con error.
-- Cada byte lleva orden global único creciente; evento conserva marca del LF. Captura
-  y llamadas serializadas por integrador; nunca usar orden enviado desde PC/extraído
-  de cola. Reinicio purga cola/trama y requiere coordinación de sesión con B01.
-- Máximo común en Configuracion/Limites.h; B01 conserva alias público a 185 RPM.
-- Faltan integración UART/ISR, telemetría, pines/revisión PCB/silicio, VREF, reloj,
-  depuración física, sensores, PWM/regulador, alarmas y lazo principal.
+- B03: pulsos/ventana en us uint32_t, 60 pulsos/vuelta, milésimas de RPM uint32_t;
+  cercano/empate arriba. Lectura no recortada a 185; estados SIN_DATOS/VALIDA/error.
+- Duración cero o resultado redondeado excesivo invalidan y borran valor previo;
+  captura coherente, serialización y overflow previo son responsabilidad del integrador.
+- Runtime libgcc existente enlazado sin libc. Pila ELF RW no configura MPU físico.
+- Consignas siguen 0..185 inclusive; B01/B02 mantienen contrato y orden global/FIFO.
+- Faltan captura/sensor, UART real, telemetría, PWM/control, ADC/DMA, alarmas y main.
+  Pines, revisión PCB/silicio, VREF y reloj pendientes. CMSIS-DAP integrado confirmado.
 - No hay CI ni aceptación física. No consta aprobación formal del anteproyecto aquí.
-- Doxyfile parcial cubre main, Procesamiento, Comunicacion y límites compartidos.
-  Continuar documentando ESW/USW por bloque; no es documentación final completa.
-- Configuración global Git mantiene AGENTS/.atl locales; procedimientos en docs/agente/.
+- Doxyfile parcial: main, Procesamiento, Comunicacion, Medicion_Velocidad y límites.
+  Documentación final de todos los módulos aún pendiente.
+- AGENTS/.atl locales por ignore global; procedimiento compartido en docs/agente/.
 
 ## Próxima acción
 
-Acordar alcance y aceptación B03 antes de implementar; fijar representación/redondeo
-en su especificación. Al reanudar, verificar HEAD/upstream; no inferir permiso de push.
+Revisar aceptación del resultado B03 con el usuario. Sólo tras ella y orden de cierre,
+sincronizar specs y archivar. No iniciar B04 ni hacer push sin autorización.

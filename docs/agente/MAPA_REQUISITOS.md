@@ -8,7 +8,7 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | ID / fuente | Requisito | Bloque | Archivos principales | Evidencia de aceptación |
 |---|---|---|---|---|
 | R01 AP | Ejecutar firmware en LPC1769/OM13085 | B00 aceptado: base de build | CMakeLists.txt, Aplicacion/main.c, cmake/, plataforma/ | S1/S3/S5/S6 PASS de build/inspección (verify-report B00); ejecución física pendiente |
-| R02 AP/APA | Medir RPM con disco de 60 ranuras | B03 propuesto para cálculo; captura física pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | Casos de pulsos/tiempo y medición con señal real; pendiente |
+| R02 AP/APA | Medir RPM con disco de 60 ranuras | B03 implementado/verificado, aceptación pendiente; captura física pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | B03 S1–S7 PASS host/enlace ARM (verify-report activo); medición con señal real pendiente |
 | R03 AP | Potenciómetro determina PWM en manual | Por planificar | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.* | Límites y recorrido en host; PWM físico; pendiente |
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; lógica | Aplicacion/Procesamiento.* | B01 S1/S2 PASS (C host); integración física pendiente |
@@ -17,7 +17,7 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción lógica; resto pendiente | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 S1–S8 PASS host; UART física/telemetría pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01/B02: 13 USW incluyendo main; Doxygen estricto PASS; resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B03: 15 funciones/USW incluyendo main; Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -31,4 +31,5 @@ Aviso de temperatura en PC: opcional según AP; no ampliar alcance obligatorio.
 B00 aceptado y archivado para su alcance de build/inspección. R01 conserva aceptación
 física pendiente. B01 aceptado con R14 para lógica en host/enlace ARM; no hay ensayos físicos.
 B02 aceptado para recepción lógica en host/enlace ARM; UART física pendiente.
-B03 sólo propuesto; sin evidencia de implementación ni medición física.
+B03 implementado/verificado para cálculo y validez; S1–S7 PASS y 15 casos C.
+Resultado pendiente de aceptación; sin evidencia de medición física.

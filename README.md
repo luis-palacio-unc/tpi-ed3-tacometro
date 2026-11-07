@@ -27,7 +27,7 @@ El build ejecuta automáticamente el verificador del ELF; CTest agrega casos neg
 `firmware.elf` es para el MCU: no se ejecuta como programa de escritorio.
 No está configurada todavía una sesión de depuración/flasheo de CLion.
 
-Perfil host: compila objetos y ejecuta pruebas C de Procesamiento y Comunicacion, sin ejecutar main del firmware:
+Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion y Medicion_Velocidad, sin ejecutar main del firmware:
 
 ```sh
 cmake --preset host-objects
@@ -66,8 +66,8 @@ no extiende autorización a bloques futuros. [Contrato build vigente](openspec/s
 
 B01 aceptado/archivado con límite 185 RPM. [Contrato de modos vigente](openspec/specs/modos/spec.md).
 B02 aceptado y archivado. [Contrato de comunicación vigente](openspec/specs/comunicacion/spec.md).
-Siguiente bloque propuesto: [B03 — medición de velocidad](openspec/changes/b03-medicion-velocidad/proposal.md),
-sin acuerdo ni implementación todavía.
+B03 implementado y verificado, pendiente de aceptación del resultado.
+[Contrato candidato y evidencia](openspec/changes/b03-medicion-velocidad/verify-report.md).
 
 ## B01 y documentación incremental
 
@@ -102,3 +102,19 @@ constante están incluidas en el Doxyfile parcial. Ver
 [especificación vigente](openspec/specs/comunicacion/spec.md)
 y [verificación B02](openspec/changes/archive/2026-11-06-b02-recepcion-consignas/verify-report.md).
 Con sanitizadores, ejecutar fuera de depurador/ptrace para que LeakSanitizer funcione.
+
+## B03: cálculo lógico de velocidad
+
+Medicion_Velocidad.h/.c convierte pulsos y duración de ventana en microsegundos
+(uint32_t) para disco de 60 ranuras, contando un flanco/ranura. La lectura contiene
+milésimas de RPM y estado explícito. Inicializar deja SIN_DATOS; cero pulsos con
+duración positiva es cero válido. Redondeo cercano, empate arriba; error aritmético
+máximo 0,0005 RPM, independiente de la precisión física todavía no verificada.
+Duración cero o resultado redondeado fuera de uint32_t invalidan y borran la lectura
+previa. No limita mediciones a 185 RPM. El llamador entrega captura coherente sin
+overflow y serializa acceso; no hay timeout de frescura ni captura real integrada.
+
+CTest host agrega 15 casos B03, incluidas 100 fronteras y 10 000 ventanas de barrido;
+ARM agrega fixture con API y división de 64 bits retenidas, enlazando libgcc existente
+sin libc. Doxygen cubre las dos USW nuevas. main continúa mínimo: compilar/enlazar
+no acredita ejecución física. Ver [informe B03](openspec/changes/b03-medicion-velocidad/verify-report.md).

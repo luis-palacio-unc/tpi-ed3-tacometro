@@ -51,7 +51,8 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
 contratos aceptados; build (B00), modos (B01) y comunicación lógica (B02).
-B00–B02 aceptados y archivados. B03 propuesto en `openspec/changes/`, sin implementar.
+B00–B02 aceptados y archivados. B03 implementado/verificado en `openspec/changes/`,
+pendiente de aceptación del resultado; contrato de medición todavía candidato.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 Git local inicializado en main por acuerdo del usuario, con origin privado.
 El usuario autorizó commit y push de la estructura inicial al aceptar B00.
@@ -108,3 +109,18 @@ secuencia global capturada al recibir LF; cada byte exige orden único creciente
 Captura/recepción/extracción deben serializarse externamente antes de integrar UART/ISR.
 No hay transmisión, temporización física o main integrado en B02. API y errores en
 Comunicacion.h; contrato vigente de comunicación y evidencia en archivo B02.
+
+## Medición lógica B03
+
+Medicion_Velocidad (ESW.2.1.3) convierte conteo y duración en us uint32_t para
+60 pulsos/vuelta del eje portadisco, un flanco por ranura. Lectura de 8 bytes ARM:
+milésimas de RPM uint32_t y estado. Inicializar deja SIN_DATOS/cero; Actualizar
+reemplaza toda lectura, incluso sin inicialización previa, sin leer estado anterior.
+Duración positiva sin pulsos es cero válido; valores pequeños también pueden
+redondear a cero válido. Cercano/empate arriba, error aritmético <=0,0005 RPM.
+Duración cero y resultado redondeado fuera de uint32_t dejan error/cero; recuperación
+con siguiente ventana válida. No recorta a 185 RPM ni supone ratio de reductora.
+Captura coherente, overflow previo y acceso serializado son responsabilidad externa;
+sin timeout de frescura ni ventana física elegida. No se integra main/captura en B03.
+División uint64_t enlazada con libgcc del toolchain existente, sin libc. ELF declara
+-z noexecstack y fixture verifica GNU_STACK RW; no modifica el MPU del MCU.

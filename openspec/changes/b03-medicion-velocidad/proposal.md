@@ -1,6 +1,6 @@
 # B03 — Cálculo y validez de la medición de velocidad
 
-Estado: propuesto, sin autorización de implementación.
+Estado: alcance y criterio de aceptación acordados por el usuario el 2026-11-06. Implementación autorizada; resultado aún no aceptado. Commit local autorizado, sin push.
 
 ## Objetivo y origen
 

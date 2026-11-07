@@ -50,7 +50,8 @@ if(TPI_BUILD_ARM)
     target_link_options(firmware PRIVATE -nostdlib
         "-T${CMAKE_CURRENT_SOURCE_DIR}/plataforma/lpc1769.ld"
         "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/firmware.map"
-        -Wl,--gc-sections -Wl,--build-id=none -Wl,--fatal-warnings)
+        -Wl,--gc-sections -Wl,--build-id=none -Wl,--fatal-warnings -Wl,-z,noexecstack)
+    target_link_libraries(firmware PRIVATE gcc)
     set_property(TARGET firmware APPEND PROPERTY LINK_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/plataforma/lpc1769.ld"
         "${CMAKE_CURRENT_SOURCE_DIR}/scripts/verificar_elf.py")
@@ -79,6 +80,11 @@ if(TPI_BUILD_ARM)
             "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b02-fixture" "-DBUILD_TYPE=$<CONFIG>"
             "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b02.cmake")
+        add_test(NAME b03.enlace_arm COMMAND "${CMAKE_COMMAND}"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b03-fixture" "-DBUILD_TYPE=$<CONFIG>"
+            "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b03.cmake")
     endif()
 else()
     if(CMAKE_CROSSCOMPILING)
@@ -99,7 +105,9 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
         tests/host/test_procesamiento.c Aplicacion/Procesamiento.c)
     add_executable(pruebas_comunicacion tests/host/test_comunicacion.c
         Servicios/Comunicacion.c Aplicacion/Procesamiento.c)
-    foreach(prueba pruebas_procesamiento pruebas_comunicacion)
+    add_executable(pruebas_medicion_velocidad tests/host/test_medicion_velocidad.c
+        Servicios/Medicion_Velocidad.c)
+    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad)
         target_include_directories(${prueba} PRIVATE Aplicacion Servicios Configuracion)
         set_target_properties(${prueba} PROPERTIES
             C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO)
@@ -113,4 +121,5 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     endforeach()
     add_test(NAME b01.modos COMMAND pruebas_procesamiento)
     add_test(NAME b02.comunicacion COMMAND pruebas_comunicacion)
+    add_test(NAME b03.medicion_velocidad COMMAND pruebas_medicion_velocidad)
 endif()
