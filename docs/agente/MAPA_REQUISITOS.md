@@ -13,12 +13,12 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; lógica | Aplicacion/Procesamiento.* | B01 S1/S2 PASS (C host); integración física pendiente |
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01 aceptado; lógica | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | B01 S3/S4/S5/S6 PASS (C host); recepción real pendiente |
-| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 implementado/verificado, aceptación pendiente; alarma/adquisición pendientes | Servicios/Temperatura.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report activo); umbral/alarma física pendientes |
+| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido/verificado: servicio genérico + LM35; aceptación/alarma/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report activo); umbral/alarma física pendientes |
 | R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción lógica; resto pendiente | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 S1–S8 PASS host; UART física/telemetría pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
-| R15 U, aclaración de diseño | Aplicación portable entre configuraciones físicas; separación de abstracciones exigida por el profesor según usuario | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B04 adaptación B01 y B05 configuraciones equivalentes PASS; dependencias revisadas; adquisición física pendiente |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B05: 19 funciones/USW incluyendo main; Doxygen estricto PASS; resto pendiente |
+| R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03 con 60 pulsos/vuelta aún requiere revisión |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B05: 21 funciones/USW incluyendo main y LM35; Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -38,5 +38,7 @@ Sin evidencia de medición física; contrato vigente en openspec/specs/medicion-
 B04 aceptado/archivado: 15 casos C, recorridos/fronteras, sanitizadores y enlace ARM PASS.
 Contrato vigente de mandos; adquisición del potenciómetro y PWM físicos pendientes.
 
-B05 implementado/verificado: 17 casos C, fronteras/recorridos, sanitizadores, enlace ARM y Doxygen PASS.
+B05 corregido/verificado: 10 casos del servicio genérico, 17 LM35 y 3 integración;
+regresiones/sanitizadores/ARM/Doxygen PASS. Aclaración R15 incluye independencia
+de servicios, con curva específica en dispositivos. B03 se revisará por separado.
 Resultado pendiente de aceptación; adquisición y alarma aún pendientes.

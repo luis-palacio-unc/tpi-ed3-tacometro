@@ -1,9 +1,9 @@
 /**
  * @file Temperatura.h
- * @brief Conversion numerica de muestras ADC del LM35 a centesimas de grado Celsius.
- * @details Modelo ideal 10 mV por grado, sin offset. Escala y referencia explicitas;
- * no fija resolucion ni VREF reales, no adquiere muestras ni decide alarmas.
- * @note ESW.2.1.4. La validez numerica no acredita rango fisico, sensor o conexion.
+ * @brief Lectura de temperatura fisica y disponibilidad de una fuente generica.
+ * @details El proveedor entrega centesimas Celsius y validez. El servicio conserva
+ * la magnitud o invalida la lectura sin conocer dispositivos ni parametros electricos.
+ * @note ESW.2.1.4. Datos por valor, acceso serializado externo y sin deteccion de frescura.
  */
 #ifndef TPI_TEMPERATURA_H
 #define TPI_TEMPERATURA_H
@@ -13,68 +13,68 @@
 
 /**
  * @defgroup temperatura ESW.2.1.4 - Temperatura
- * @brief Conversion logica del LM35 con disponibilidad y errores explicitos.
- * @details Escala ADC significa cuentas por referencia, no ultimo codigo inclusivo.
- * Por ejemplo, escala 4096 admite muestra 0..4095. El integrador valida adquisicion,
- * coherencia de muestra/configuracion y acceso serializado a cada salida.
- * No compartir directamente entre ISR y lazo; no se evalua frescura ni plausibilidad fisica.
+ * @brief Contrato de temperatura independiente del origen de la medicion.
+ * @details Cada proveedor adapta sus lecturas y errores a Celsius/estado genericos.
+ * La aplicacion consume solo lecturas VALIDAS. No se interpreta plausibilidad de
+ * una fuente especifica ni se configura adquisicion o alarma.
  * @{
  */
 
-/** @brief Unidades de salida por grado Celsius; una unidad equivale a 0,01 grados. */
-#define TEMPERATURA_CENTESIMAS_POR_GRADO 100U
+/** @brief Unidades por grado Celsius; constante con signo para datos int32_t. */
+#define TEMPERATURA_CENTESIMAS_POR_GRADO INT32_C(100)
 
-/** @brief Disponibilidad/validez numerica de la lectura o error de la llamada. */
+/** @brief Disponibilidad normalizada del proveedor, sin errores especificos del origen. */
 typedef enum {
-    TEMPERATURA_SIN_DATOS = 0, /**< Inicializada, sin conversion disponible. */
-    TEMPERATURA_VALIDA, /**< Conversion valida en el modelo, incluido cero ideal. */
-    TEMPERATURA_ERROR_ARGUMENTO, /**< Salida NULL; no se accedio a memoria. */
-    TEMPERATURA_ERROR_ESCALA, /**< Escala ADC cero; lectura invalidada. */
-    TEMPERATURA_ERROR_REFERENCIA, /**< Referencia de tension cero; lectura invalidada. */
-    TEMPERATURA_ERROR_MUESTRA /**< Muestra >= escala positiva; lectura invalidada. */
+    TEMPERATURA_FUENTE_SIN_DATOS = 0, /**< Todavia no hay una medicion disponible. */
+    TEMPERATURA_FUENTE_VALIDA, /**< El proveedor valida la medicion fisica entregada. */
+    TEMPERATURA_FUENTE_ERROR /**< El proveedor no puede entregar una medicion valida. */
+} Temperatura_EstadoFuente;
+
+/** @brief Estado generico de la lectura del servicio. */
+typedef enum {
+    TEMPERATURA_SIN_DATOS = 0, /**< No hay valor disponible; campo numerico cero. */
+    TEMPERATURA_VALIDA, /**< Valor recibido de una fuente valida; puede ser cero o negativo. */
+    TEMPERATURA_ERROR_ARGUMENTO, /**< Salida NULL o estado de fuente desconocido. */
+    TEMPERATURA_ERROR_FUENTE /**< Fuente fallida; lectura invalidada. */
 } Temperatura_Estado;
 
 /**
- * @brief Salida por instancia; consultar ambos campos, sin modificarlos directamente.
- * @details Legible tras inicializar o actualizar; consumir solo VALIDA. Modelo no
- * negativo sin offset: no se implementan acondicionamiento, calibracion ni alarma.
+ * @brief Lectura por instancia; consultar ambos campos sin modificarlos directamente.
+ * @details Legible tras inicializar/actualizar. Cada fuente valida la precision/rango
+ * que le corresponden; el servicio no impone los de un dispositivo particular.
  */
 typedef struct {
-    uint32_t centesimas_c; /**< Centesimas Celsius, 0..42949673 en dominio valido; cero si error/sin datos. */
-    Temperatura_Estado estado; /**< Distingue cero ideal valido, ausencia y errores. */
+    int32_t centesimas_c; /**< Temperatura en centesimas Celsius; cero si no VALIDA. */
+    Temperatura_Estado estado; /**< Distingue valor valido, ausencia y error. */
 } Temperatura_Lectura;
 
 /**
  * @brief Inicializar o reiniciar una lectura a SIN_DATOS y cero.
  * @param[out] lectura Salida escribible con acceso exclusivo; NULL se rechaza.
- * @return true si se inicializo; false si lectura es NULL, sin acceder a memoria.
- * @note USW.2.1.4.1. No inicializa ADC, sensor ni subsistema de alarmas.
+ * @return true si se inicializo; false si lectura es NULL, sin acceso a memoria.
+ * @note USW.2.1.4.1. No inicializa ni selecciona dispositivos.
  */
 bool Temperatura_Inicializar(Temperatura_Lectura *lectura);
 
 /**
- * @brief Reemplazar la lectura con la conversion completa o con un error explicito.
- * @details Centesimas = muestra * referencia_uv / (escala_adc * 100). Redondeo al
- * mas cercano, empate arriba; error aritmetico <=0,005 grados Celsius. No redondea
- * primero a voltios/milivoltios/microvoltios enteros. No agrega media cuenta ADC.
- * La prioridad de errores es argumento, escala, referencia y muestra. Todo error
- * escribible borra valor anterior; una entrada valida posterior recupera la salida.
- * No lee contenido anterior ni exige inicializacion previa para esta escritura.
- * Cambiar escala/referencia por llamada esta permitido; no se impone rango fisico
- * de una variante no confirmada. VALIDA solo acredita la conversion numerica.
+ * @brief Reemplazar la lectura con una medicion fisica o un estado generico de fuente.
+ * @details FUENTE_VALIDA conserva exactamente centesimas_c, sin conversiones o
+ * limites de un sensor concreto. FUENTE_SIN_DATOS produce SIN_DATOS/cero;
+ * FUENTE_ERROR produce ERROR_FUENTE/cero. Estado desconocido produce
+ * ERROR_ARGUMENTO/cero si la salida es escribible. Una nueva fuente valida recupera.
+ * No lee estado anterior ni exige inicializacion previa para esta escritura.
  * @param[out] lectura Salida escribible serializada; NULL devuelve ERROR_ARGUMENTO.
- * @param[in] muestra Codigo ADC uint32_t; debe pertenecer a 0..escala_adc-1.
- * @param[in] escala_adc Cuentas por referencia, 1..UINT32_MAX; cero es error.
- * @param[in] referencia_uv Referencia positiva en microvoltios, 1..UINT32_MAX; cero es error.
- * @return VALIDA, ERROR_ESCALA, ERROR_REFERENCIA o ERROR_MUESTRA, tambien escrito
- * en lectura->estado; ERROR_ARGUMENTO si salida NULL. Nunca devuelve SIN_DATOS.
- * @pre Captura/configuracion coherentes, adquisicion validada y acceso exclusivo
- * durante escritura/lectura. Solo consumir valor cuando estado sea VALIDA.
- * @note USW.2.1.4.2. Sin heap, flotantes, espera ni dependencia hacia Aplicacion.
+ * @param[in] centesimas_c Magnitud fisica int32_t; se ignora si la fuente no es valida.
+ * @param[in] fuente Estado normalizado del proveedor; no contiene codigos de dispositivo.
+ * @return VALIDA, SIN_DATOS, ERROR_FUENTE o ERROR_ARGUMENTO; tambien escrito en
+ * lectura->estado si la salida no es NULL.
+ * @pre Fuente adaptada a Celsius/estado genericos; serializar escritura/lectura.
+ * Consumir el campo numerico solo si estado es VALIDA.
+ * @note USW.2.1.4.2. Sin adquisicion, heap, flotantes, esperas o hardware especifico.
  */
 Temperatura_Estado Temperatura_Actualizar(Temperatura_Lectura *lectura,
-                                        uint32_t muestra, uint32_t escala_adc,
-                                        uint32_t referencia_uv);
+                                        int32_t centesimas_c,
+                                        Temperatura_EstadoFuente fuente);
 
 /** @} */
 #endif /* TPI_TEMPERATURA_H */

@@ -1,55 +1,50 @@
-# B05 — Conversión lógica de temperatura
+# B05 — Temperatura independiente del sensor
 
-Estado: alcance acordado el 2026-11-07; implementación y commit autorizados, sin push. Resultado pendiente de aceptación.
+Estado: alcance acordado y aclarado por el usuario el 2026-11-07. Corrección de B05
+en curso; commit autorizado, sin push. Resultado pendiente de aceptación.
 
 ## Objetivo y origen
 
-Implementar Temperatura (ESW.2.1.4) para entregar temperatura ambiente y validez,
-preparando R07 (supervisión térmica) y R09 (telemetría), con portabilidad R15.
-B00–B04 están aceptados; Temperatura y LM35 aún son esqueletos.
+R07/R09 requieren temperatura y validez; R15 exige abstracción de hardware también
+en servicios. El usuario confirmó LM35 y aportó Datasheet_LM35_TI.pdf.
+La versión fcd4392 colocaba su curva en Temperatura: se corrige esa responsabilidad.
 
 ## Alcance y comportamiento
 
-- Entrada: muestra ADC y parámetros explícitos de conversión, referencia en µV y
-  escala. No fijar resolución, VREF, canal o registros del microcontrolador.
-- Modelo lineal ideal LM35, 10 mV/°C sin offset, según
-  [TI, §7.3.1](https://www.ti.com/lit/ds/symlink/lm35.pdf). La aplicación recibe
-  temperatura/estado, sin conocer el modelo eléctrico del sensor.
-- Salida entera en centésimas de °C, redondeada al más cercano con empate arriba;
-  error aritmético <=0,005 °C, separado de cuantización y error físico del sensor.
-- Inicialmente sin datos. Escala/referencia nulas, muestra fuera de escala y argumentos
-  inválidos generan error explícito; invalidar valor anterior y permitir recuperación.
+- Dispositivos/LM35 convierte muestra ADC, cuentas por referencia y referencia µV
+  a centésimas Celsius con estado. Aquí quedan ganancia nominal, validaciones eléctricas
+  numéricas y redondeo. Sin programar ADC/DMA ni asumir variante/VREF reales.
+- Servicios/Temperatura recibe temperatura física int32_t ya expresada en centésimas
+  y estado genérico de fuente (válida, sin datos o error). No conoce LM35, ADC, VREF
+  ni ganancias; entrega lectura/estado genéricos a aplicación.
+- Fuente válida conserva el valor, incluido cero o signo negativo de otra fuente.
+  Ausencia/error borra dato anterior; fuente válida posterior recupera.
+- Inicialización, NULL, estado de fuente inválido y errores de conversión son explícitos.
+- Documentar cuatro USW de servicio/dispositivo con Doxygen. Probar conversión,
+  servicio sin enlazar LM35 e integración por adaptación de datos en pruebas.
 
-Excluye ADC/DMA, pines, alimentación, calibración, offset/acondicionamiento para
-temperaturas negativas, filtrado, frescura temporal, umbral/histéresis de alarma,
-LED/buzzer, UART, regulación e integración del main.
+Excluye adquisición física, pines, calibración, acondicionamiento LM35 para negativos,
+filtrado, frescura, umbral/alarma, UART y main. Admitir Celsius negativos en el servicio
+no implementa adquisición negativa con LM35. Conservar B00–B04 y sus archivos.
 
-## Dependencias y decisiones
+## Dependencias y archivos
 
-Al especificar, fijar tipos, API, significado exacto de escala/código admisible,
-representabilidad, disponibilidad/errores y recuperación antes de escribir código.
-Evitar pérdidas por conversiones intermedias y overflow al redondear.
-VREF real, variante/rango del LM35 y conexión deben confirmarse al integrar hardware;
-no impiden verificar este modelo lógico ni se inventan como constantes de placa.
+B00–B04 aceptados. Modificar Temperatura.h/.c y LM35.h/.c; pruebas host, fixtures ARM,
+CMake/Doxyfile, docs/agente/ y OpenSpec. No añadir callbacks o un framework para la
+adquisición aún inexistente: el contrato actual intercambia magnitudes físicas/estado.
+La composición con dispositivos reales se resolverá al integrar adquisición.
 
-## Archivos previstos
+## Criterio de aceptación
 
-Servicios/Temperatura.h/.c; tests/host/test_temperatura.c;
-cmake/verificar_enlace_b05.cmake; CMakeLists.txt; docs/doxygen/Doxyfile;
-docs/agente/ y OpenSpec. Sin alterar contratos aceptados ni drivers físicos.
-
-## Criterio de aceptación y evidencia
-
-1. Muestras/configuraciones equivalentes a 250 mV y 1000 mV producen 2500 y
-   10000 centésimas de °C; misma tensión con escalas/referencias distintas da igual resultado.
-2. Cero ideal válido se distingue de ausencia; redondeo y fronteras cumplen el contrato.
-3. Escala/referencia cero, muestra inválida, NULL y extremos de tipos tienen resultados
-   definidos sin división por cero, overflow ni valores antiguos presentados como válidos.
-4. C host/sanitizadores, enlace ARM, regresiones B00–B04 y Doxygen estricto pasan;
-   documentar USW y evidencia real, sin afirmar medición eléctrica o alarma implementadas.
+1. LM35 mantiene referencias 250 mV →2500 y 1000 mV →10000 centésimas, escalas
+   equivalentes, redondeo único, límites y errores verificables.
+2. Temperatura acepta fuentes ya convertidas sin incluir/enlazar LM35 ni recibir
+   parámetros ADC; conserva valores Celsius, diferencia ausencia/cero/error y recupera.
+3. Integración propaga válida/sin datos/error sin filtrar errores específicos a aplicación.
+4. Host/sanitizadores, enlace ARM, regresiones y Doxygen pasan; evidencia real por escenario.
 
 ## Riesgos y reversión
 
-Riesgos: confundir referencia nominal con medida o resolución con precisión física.
-Mitigar con parámetros explícitos y casos numéricos. Revertir sólo diff B05,
-preservando contratos, drivers y cambios ajenos. Sin dependencias nuevas.
+Riesgo: mover archivos y mantener el acoplamiento en la API. Verificar consumidor genérico
+y enlaces separados. Corrección local adicional, sin reescribir fcd4392 ni publicar.
+Revertir sólo su diff, preservando trabajo ajeno. VREF, variante y conexión siguen pendientes.

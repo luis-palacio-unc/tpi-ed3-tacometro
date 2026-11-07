@@ -42,7 +42,9 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 - Aclaración del usuario: el profesor exige separación de abstracciones y portabilidad
   de la aplicación entre configuraciones físicas. La aplicación consume magnitudes
   y estados lógicos; los dispositivos resuelven registros, pines y captura, y los
-  servicios realizan la adaptación. Generalizar sólo lo que resuelva requisitos concretos.
+  servicios realizan la adaptación. Aclaración posterior: los servicios también deben
+  independizarse del hardware específico; la curva/calibración del sensor pertenece
+  al dispositivo. Generalizar sólo lo que resuelva requisitos concretos.
   Explicar las decisiones en lenguaje sencillo durante la revisión de diseño posterior.
 - Se propuso lazo cooperativo e interrupciones breves; se detallará en diseños SDD.
 - Entrada en automático exige PWM cero y nueva consigna válida; no reutilizar la
@@ -150,16 +152,24 @@ escribible inválida queda a cero, recuperable con siguiente dato válido. Sólo
 VALIDO. Captura coherente, validación del ADC y serialización son responsabilidad
 del integrador; sin timeout. No implementa selector, ADC/DMA ni PWM, ni integra main.
 
-## Conversión lógica de temperatura B05
+## Temperatura B05 corregido
 
-Temperatura ESW.2.1.4 recibe muestra, escala_adc y referencia_uv uint32_t; devuelve
-uint32_t centésimas Celsius y validez. Escala significa cuentas por referencia,
-muestra<escala (4096 admite 0..4095); no confundir con máximo inclusivo de Mandos B04.
-Modelo LM35 10 mV/°C sin offset ni negativos. Un solo redondeo cercano/empate arriba
-por cociente/resto evita overflow y doble redondeo; salida numérica hasta 42949673.
-Inicializar deja SIN_DATOS/cero; actualizar escribe todo sin leer anterior. Prioridad
-NULL/escala cero/referencia cero/muestra excesiva; error escribible invalida y borra,
-siguiente entrada válida recupera. Sólo VALIDA permite consumo; no certifica sensor.
-Captura/configuración coherentes y acceso serializado son externos; sin frescura,
-ADC/DMA, alarma o main. NXP fig.28 usa LSB ideal=(VREFP−VREFN)/4096; no se agrega media
-cuenta ni se toma esa cuantización como error de redondeo. Pines/VREF/variante físicos pendientes.
+La curva LM35 y parámetros ADC pertenecen a Dispositivos/LM35 (ESW.2.1.11), no al
+servicio. Fuente local confirmada por usuario: /home/luis/Desktop/Universidad/ed3/Datasheet_LM35_TI.pdf,
+TI SNIS159H §7.3.1 p.13, ganancia nominal 10 mV/°C. Variante/montaje/VREF reales pendientes.
+LM35 inicializa un registro y convierte muestra/escala/referencia uint32_t a Celsius
+uint32_t, con estados/errores propios. Escala son cuentas por referencia; muestra<escala.
+Modelo sin offset, mismo redondeo y cotas verificados en B05 inicial; sin ADC/DMA físico.
+
+Servicios/Temperatura (ESW.2.1.4) recibe int32_t centésimas Celsius y estado de fuente
+genérico válido/sin datos/error; conserva magnitud o invalida con cero. NULL/enum
+desconocido son error de argumento; nueva fuente válida recupera. No incluye ni
+enlaza LM35, no interpreta ADC, VREF, ganancia o rango de un sensor. Admite negativos
+de otra fuente; no adquiere temperaturas negativas mediante LM35.
+Contratos propios evitan dependencia del dispositivo hacia el servicio. Adaptación
+de estados/cota se demuestra en pruebas; composición real pendiente, sin acceso
+directo a dispositivos desde lógica de aplicación. No añadir callbacks hasta necesitar adquisición.
+Acceso serializado, sin frescura/alarma/main implementados.
+
+R15 transversal: Medicion_Velocidad aún contiene 60 pulsos/vuelta fijos en contrato
+B03 aceptado; registrar revisión futura por cambio SDD separado, sin editar su archivo.

@@ -7,9 +7,10 @@ INPUT = Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacion/Procesamiento.c 
         Servicios/Comunicacion.h Servicios/Comunicacion.c Configuracion/Limites.h \
         Servicios/Medicion_Velocidad.h Servicios/Medicion_Velocidad.c \
         Servicios/Mandos.h Servicios/Mandos.c \
-        Servicios/Temperatura.h Servicios/Temperatura.c
+        Servicios/Temperatura.h Servicios/Temperatura.c \
+        Dispositivos/LM35.h Dispositivos/LM35.c
 FILE_PATTERNS = *.c *.h
-INCLUDE_PATH = Aplicacion Servicios Configuracion
+INCLUDE_PATH = Aplicacion Servicios Configuracion Dispositivos
 OPTIMIZE_OUTPUT_FOR_C = YES
 EXTRACT_ALL = NO
 EXTRACT_STATIC = YES

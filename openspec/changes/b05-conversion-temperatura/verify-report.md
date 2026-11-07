@@ -1,116 +1,103 @@
-# Verificación B05 — 2026-11-07
+# Verificación B05 corregido — 2026-11-07
 
-Resultado: **PASS para el alcance numérico acordado**; pendiente de aceptación del
-usuario. Base main: 8d5bc7b040fc205af48a00db35de5f7622c82379. Cierre con asunto
-`feat: implementar B05 de conversion de temperatura`; hash consultable en Git.
-Commit autorizado, sin push. Se incorpora propuesta/contexto locales previos.
+Resultado: **PASS para el alcance corregido**, pendiente de aceptación. Base:
+fcd43927d7b2dbaed19169d4cfb249de4a3da16f. Commit correctivo con asunto
+`fix: desacoplar Temperatura del sensor LM35`; consultar Git para hash. Sin push.
+La aclaración actual del usuario prevalece sobre el diseño candidato inicial:
+los servicios también deben ser independientes del hardware específico.
 
-## Contrato y completitud
+## Problema reproducido y cambio
 
-12 tareas de contrato, implementación, verificación y cierre. Temperatura ESW.2.1.4
-implementa Inicializar (USW.2.1.4.1) y Actualizar (USW.2.1.4.2). Muestra, escala_adc
-y referencia_uv son uint32_t. Escala significa cuentas por referencia, muestra<escala;
-ejemplo 4096 admite 0..4095. No es el máximo inclusivo usado por Mandos B04.
-Salida uint32_t en centésimas de °C, redondeada al más cercano con empate arriba;
-sin redondeo de tensión intermedio ni suma que pueda desbordar el numerador.
+La curva 10 mV/°C y parámetros ADC estaban en Servicios/Temperatura; LM35.h delegaba
+la conversión al servicio. Un consumidor con Celsius y estado genérico no compilaba
+contra esa API. Se escribió primero el consumidor actual de test_temperatura.c y
+se compiló contra fcd4392: faltaban Temperatura_EstadoFuente/FUENTE_VALIDA y el contrato
+de llamada. Fallo esperado guardado en OUT/reproduccion-acoplamiento.log.
+El mismo consumidor ahora compila/enlaza con sólo Temperatura.c y ejecuta 10/10 casos.
 
-Inicializar deja SIN_DATOS/cero; Actualizar reemplaza todo sin leer estado previo.
-Prioridad: NULL → ERROR_ARGUMENTO, escala cero → ERROR_ESCALA, referencia cero →
-ERROR_REFERENCIA, muestra>=escala → ERROR_MUESTRA. Error escribible invalida y borra
-valor anterior. Entrada válida posterior recupera, incluso cero ideal válido.
-Sólo VALIDA habilita consumo; indica conversión numérica, no plausibilidad eléctrica.
-Modelo sin offset/no negativo; no supone variante/rango real del LM35 ni VREF de placa.
+Dispositivos/LM35 ahora contiene inicialización de lectura y conversión ADC→Celsius,
+con ganancia/escala/errores numéricos propios. Servicio Temperatura recibe int32_t
+centésimas Celsius y fuente VALIDA/SIN_DATOS/ERROR, conservando valor válido o
+invalidando con cero. No contiene LM35, ganancia, muestra ADC, escala o referencia.
+No incluye ni enlaza el dispositivo. Dispositivo tampoco depende del servicio.
+La adaptación se prueba en código de integración/fixture, no en main de producción.
+No se añade lectura física, callback, selección de fuente o configuración de periféricos.
 
-## Matriz de conformidad
+## Matriz de aceptación
 
-Pruebas ejecutadas en tests/host/test_temperatura.c; no basta el análisis estático.
-
-| Req. / escenario | Funciones de prueba ejecutadas | Resultado |
+| Req. / escenario | Evidencia ejecutada | Resultado |
 |---|---|---|
-| TE1 / S1 referencias/escala | ReferenciasNominales, EscalaYUltimoCodigo, RecorridosMonotonos | PASS |
-| TE1 / S2 equivalencia | ConfiguracionesEquivalentes, RecuperacionYCambioDeConfiguracion | PASS |
-| TE1 / S3 redondeo único | RedondeoYEmpates, SinRedondeoIntermedio, MatrizDeFronteras, BarridoDeterminista | PASS |
-| TE2 / S4 disponibilidad/reinicio | AusenciaYCeroValido, Reinicio | PASS |
-| TE2 / S5 errores/recuperación | EscalaCeroInvalida, ReferenciaCeroInvalida, MuestraExcesivaInvalida, RecuperacionYCambioDeConfiguracion, PunterosNulosYPrioridad | PASS |
-| TE3 / S6 límites | ExtremosDeTipos, MatrizDeFronteras, BarridoDeterminista | PASS |
-| TE3 / S7 aislamiento | InstanciasIndependientes; inspección de dependencias/símbolos | PASS |
-| TE4 / S8 evidencia | CTest host/ARM, sanitizadores, Release, Doxygen y controles negativos descritos abajo | PASS |
+| TE1 / S1 referencias | test_lm35: ReferenciasNominales; integración: ConversionYPropagacion | PASS |
+| TE1 / S2 equivalencia/escala | test_lm35: ConfiguracionesEquivalentes, EscalaYUltimoCodigo | PASS |
+| TE1 / S3 redondeo/límites | test_lm35: RedondeoYEmpates, SinRedondeoIntermedio, ExtremosDeTipos, matriz/barrido/recorridos | PASS |
+| TE2 / S4 Celsius/disponibilidad | servicio: Inicializacion, FuentesEnUnidadesFisicas, CeroYDisponibilidad, Reinicio; integración: AusenciaYCeroValido | PASS |
+| TE2 / S5 invalidación/recuperación | servicio: ErrorInvalidaDatoAnterior, AusenciaInvalidaDatoAnterior, Recuperacion; integración: ErrorYRecuperacion | PASS |
+| TE3 / S6 argumentos/fronteras | servicio: ArgumentosInvalidos, int32 MIN/MAX; dispositivo: prioridades y uint32 MAX; adaptación con cota explícita | PASS |
+| TE3 / S7 aislamiento | servicio: InstanciasIndependientes, SecuenciaDeFuentes; consumidor y ELF sin LM35; inspección de dependencias | PASS |
+| TE4 / S8 evidencia | CTest, sanitizadores, ARM Debug/Release, Doxygen y diff descritos abajo | PASS |
 
-17 casos B05 incluyen 1000 ternas de fronteras, 10000 ternas deterministas mixtas y
-70678 puntos de recorrido completo para escalas 1/2/3/16/1024/4096/65536. Oráculo
-independiente de intervalos exactos alrededor de la salida: no recalcula N/D. Usa
-(q−1)×D y verifica las fronteras inferior inclusiva/superior exclusiva del redondeo;
-evita q×D, que puede exceder uint64_t aun con resultado correcto. Producto base
-acotado tras exigir q<=42949673; sin extensiones __int128 ni flotantes en pruebas.
-
-Referencias: 125/1500 y 500/1500 con 3000000 µV →2500 y 10000 centésimas.
-Configuraciones equivalentes dan 2500. Muestra 1/4 con referencias 4999/5000/5001 µV
-→12/13/13. Extremo MAX−1/MAX/MAX →42949673; muestra=escala se rechaza.
+Conversión LM35 conserva exactamente los cuerpos de las dos funciones iniciales,
+salvo nombres de símbolos/estados. Comparación textual normalizada contra fcd4392
+ejecutada; no se cambió su algoritmo. Los 17 casos numéricos siguen en test_lm35.c,
+incluidos 1000 fronteras, 10000 ternas y 70678 puntos de recorrido.
+El servicio tiene 10 casos independientes, con fuentes emuladas en unidades físicas,
+valores negativos/INT32_MIN/MAX, ausencia, fallo, argumento inválido y recuperación.
+Tres casos de integración verifican adaptación, cota uint32→int32, errores y cero válido.
 
 ## Comandos y resultados reales
 
-Desde raíz; OUT=/tmp/ed3-b05-20261107-e27t9yaq. GCC host 13.3.0, GCC ARM 13.2.1, CMake 3.28.3, Doxygen 1.9.8.
-C11 y advertencias estrictas como errores; sin dependencias instaladas.
+OUT=/tmp/ed3-b05-desacople-20261107-ltmr1lup. Herramientas existentes; C11 y advertencias como errores, sin controles desactivados.
 
-| Comando/configuración ejecutados | Resultado |
+| Configuración/comando | Resultado |
 |---|---|
-| `cmake -S . -B "$OUT/host/build" -DTPI_BUILD_ARM=OFF -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug`; build; `ctest --test-dir "$OUT/host/build" -V --output-on-failure` | 5/5 CTest; 17 B01 + 17 B02 + 15 B03 + 15 B04 + 17 B05 = 81 casos |
-| Igual flujo en `$OUT/san/build`, agregando `-DTPI_HOST_SANITIZERS=ON` | 81 casos, sin hallazgos ASan/LeakSanitizer/UBSan |
-| Sanitizadores fuera de sandbox/ptrace: `ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ctest ...` | Controles completos; sin suprimir errores |
-| ARM Debug en `$OUT/arm-debug/build`, con `-DTPI_BUILD_ARM=ON -DCMAKE_TOOLCHAIN_FILE="$PWD/cmake/arm-none-eabi.cmake" -DCMAKE_BUILD_TYPE=Debug`; build/CTest | 7/7; B00 incluye 14 casos y fixtures B01–B05 |
-| ARM Release build y `ctest --test-dir "$OUT/arm-release/build" -R b05.enlace_arm -V --output-on-failure` | API B05 completa retenida y enlace -O3 correcto |
-| `doxygen -` con Doxyfile versionado y OUTPUT_DIRECTORY temporal; inspección XML | Sin avisos; dos USW nuevas y 19 funciones totales, constantes documentadas |
-| `arm-none-eabi-gcc -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -std=c11 -O0 -ffreestanding -fstack-usage -c Servicios/Temperatura.c -IServicios`; size/nm/objdump | Recursos abajo; sin globals mutables |
-| Variantes temporales compiladas con `cc -std=c11 -O0` y mismos avisos estrictos, contra test_temperatura.c | Dos defectos detectados por la suite; detalle abajo |
-| Diff/índice, hashes contra inventario inicial, YAML y vínculos locales | Correctos, sin cambios ajenos ni archivos aceptados modificados |
+| `cmake -S . -B "$OUT/host/build" -DTPI_BUILD_ARM=OFF -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug`; build; `ctest --test-dir "$OUT/host/build" -V --output-on-failure` | CTest 7/7; 64 B01–B04 + 10 servicio + 17 LM35 + 3 integración = 94 casos |
+| Mismo flujo en `$OUT/san/build` con `-DTPI_HOST_SANITIZERS=ON` | 94 casos sin hallazgos ASan/LeakSanitizer/UBSan |
+| Sanitizadores fuera de sandbox/ptrace: `ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ctest ...` | Sin suprimir fallos |
+| ARM Debug con `-DTPI_BUILD_ARM=ON -DCMAKE_TOOLCHAIN_FILE="$PWD/cmake/arm-none-eabi.cmake" -DCMAKE_BUILD_TYPE=Debug`; build/CTest | 8/8; B00 conserva sus 14 casos, fixtures B01–B04 y dos B05 |
+| ARM Release build y `ctest --test-dir "$OUT/arm-release/build" -R '^b05\.' -V --output-on-failure` | 2/2; servicio aislado y LM35+servicio correctos a -O3 |
+| `cc -std=c11` con avisos estrictos, `-IServicios`, consumidor genérico + Servicios/Temperatura.c, sin directorio ni fuente de dispositivos | Compila/enlaza y pasa 10/10; antes fallaba con mismo consumidor |
+| `doxygen -`, Doxyfile versionado y OUTPUT_DIRECTORY temporal; inspección XML | Sin avisos; cuatro USW B05 y 21 funciones totales |
+| ARM `-O0 -ffreestanding -fstack-usage` para ambos módulos; size/nm/objdump | Recursos abajo; servicio sin símbolos indefinidos, LM35 usa libgcc |
+| Hashes iniciales, cuerpos LM35 normalizados, vínculos/YAML y diff/índice | Correctos; B00–B04 e historial aceptado preservados |
 
-Controles negativos, sólo en OUT/controles-negativos/; no cambian fuentes del proyecto:
+Pruebas actuales sin fallos pendientes del alcance. La evidencia inicial de 81 casos
+y controles negativos numéricos se conserva sin modificar en verify-report-inicial.md;
+corresponde a fcd4392 y no acredita la interfaz actual. No se afirman controles
+negativos reejecutados ahora: el algoritmo trasladado es idéntico y la suite se recompiló.
+Cobertura sin umbral configurado; no se ejecutó medición de cobertura. Sin CI nuevo.
 
-- `(N+D/2)/D` compila y falla como se esperaba en **S6 extremos uint32**: la suma
-  envuelve para una entrada válida. Resultado de test exit=1 esperado, sin fallo oculto.
-- Redondear primero a µV enteros compila y falla en **S3 redondeo/empates**; se detecta
-  el doble redondeo. Exit=1 esperado. La implementación original pasa 17/17.
+## Recursos estáticos y Doxygen
 
-Sin fallos pendientes del bloque. Cobertura sin umbral configurado; no se ejecutó
-medición de cobertura. No hay CI incorporado. Logs extensos/artefactos sólo en OUT.
+| Unidad ARM -O0 | Código / datos | Pila estática / símbolos |
+|---|---|---|
+| Servicio Temperatura | .text 142 bytes, .data/.bss 0; lectura 8 bytes | Inicializar 16, Actualizar 24 bytes; sin auxiliares externos |
+| Dispositivo LM35 | .text 390 bytes, .data/.bss 0; lectura 8 bytes | InicializarLectura 16, ConvertirMuestra 128; cadena con libgcc hasta 176 bytes |
+| Fixture servicio Debug / Release | Flash 1072 / 968; SRAM 2064 con pila reservada 2048 | Enlace sin LM35, libc ni libgcc |
+| Fixture compuesto Debug / Release | Flash 2276 / 1876; SRAM 2076 con pila reservada 2048 | APIs y __aeabi_uldivmod retenidos, sin indefinidos |
 
-## Aritmética, recursos y enlace ARM
+Ambos ELF pasan verificador B00 y GNU_STACK RW. Pila interna LM35: 128+16+32,
+excluye llamador/IRQ; no es medición física. Servicio/dispositivo se ejecutan por
+etapas, sin añadir cola, heap, espera, recursión o globals mutables.
+Doxygen: USW.2.1.4.1/.2 y USW.2.1.11.1/.2 documentadas con parámetros, retornos,
+unidades, errores y concurrencia; sin comentarios dentro de cuerpos de producción.
 
-N=muestra×referencia_uv <=18446744060824649730 en dominio válido. D=escala_adc×100
-<=429496729500, positivo/par. Se calculan cociente/resto; resto>=D/2 incrementa
-cociente. No se suma D/2 a N. Salida<=42949673, estrechamiento a uint32_t seguro.
-Libgcc existente resuelve __aeabi_uldivmod, sin libc. Fixture comprueba ambas API,
-auxiliar y ELF B00; `nm -u` vacío en Debug/Release y GNU_STACK RW verificado.
+## Fuente y limitaciones
 
-| Recurso ARM | Inspección estática |
-|---|---|
-| Temperatura_Lectura | 8 bytes; sin buffers/heap |
-| Objeto Temperatura -O0 | .text 390 bytes, .data/.bss 0; único auxiliar pendiente antes de enlace: __aeabi_uldivmod |
-| Stack propio -O0 (-fstack-usage) | Inicializar 16 bytes; Actualizar 128 bytes |
-| Cadena interna -O0 | 128 + 16 (__aeabi_uldivmod) + 32 (__udivmoddi4) = hasta 176 bytes; excluye llamador/IRQ |
-| Llamadas de división | Debug emite dos llamadas secuenciales al auxiliar; Release combina en una. No duplica pila simultánea |
-| Fixture B05 Debug / Release | Huella flash 2080 / 1776 bytes; SRAM 2068 (12 datos de fixture + 8 salida + 2048 pila reservada) |
-| main mínimo Debug / Release | Flash 844 / 840 bytes; SRAM 2048. GC elimina API sin integrar, por eso se retiene en fixture |
+Fuente local aportada por el usuario, TI SNIS159H, §7.3.1 p.13; ecuación comprobada
+en texto y render. El render emitió avisos de fuentes/caché; la ecuación es legible,
+se contrastó con extracción textual y no se modificó el PDF. Procedencia registrada:
 
-Sin recursión ni globals mutables; sin espera ni acceso a periféricos. La inspección
-no acredita profundidad de pila, tiempos o ejecución reales. GNU_STACK es metadata,
-no configuración del MPU. Adquisición y lectura/escritura requieren serialización externa.
+/home/luis/Desktop/Universidad/ed3/Datasheet_LM35_TI.pdf
+SHA-256 2f249badf3c1c9036b5fdff21ab26b097df9488f7cb6accd58666bb965074087
 
-## Fuentes, revisión y límites
+Servicio genérico acepta Celsius negativos ya proporcionados por otra fuente; esto
+no implementa circuito/offset negativo del LM35. LM35 mantiene modelo nominal sin
+offset y tipos/cotas de B05 inicial. Captura coherente y acceso serializado siguen
+siendo externos. No hay ADC/DMA real, integración de adquisición/main, VREF/pines,
+validación eléctrica, frescura, alarma o ejecución MCU/simulador.
 
-Modelo nominal: [TI LM35 §7.3.1](https://www.ti.com/lit/ds/symlink/lm35.pdf).
-Escala por cuentas: [NXP, fig.28, p.68](https://www.nxp.com/docs/en/data-sheet/LPC1769_68_67_66_65_64_63.pdf),
-LSB ideal=(VREFP−VREFN)/4096. Se usa código×LSB sin corrección de media cuenta;
-cuantización, precisión del ADC/LM35 y VREF real no forman parte del error aritmético.
-No se asigna una referencia física ni se confirma variante/rango eléctrico del LM35.
-
-Diseño seguido sin desviaciones. USW con parámetros, retornos, unidades, errores y
-concurrencia Doxygen; sin comentarios dentro del cuerpo de funciones de producción.
-Preservados main, B01–B04, Configuracion, drivers/dispositivos, pruebas anteriores,
-contratos vigentes y archivos archivados. Propuesta/contexto previos incorporados.
-Estado/spec B05 activos y candidatos, sin sincronización ni archivo antes de aceptación.
-Commit local autorizado, sin push. Próxima acción: aceptación de B05; no iniciar B06.
-
-Sin ejecución ARM, simulación ni hardware. Pendientes ADC/DMA, canales/pines, VREF,
-variante/conexión del LM35, calibración/offset para negativos, filtro/frescura, umbral,
-histéresis/alarma, UART y main. No se flasheó ni cambió configuración del MCU.
+R15 se aplica transversalmente: B03 conserva 60 pulsos/vuelta en un contrato ya
+aceptado y requiere revisión posterior. No se modifica aquí ni se declara toda la
+capa de servicios independiente del hardware. No se cambiaron archivos archivados.
+B05 queda verificado pero pendiente de aceptación, sin sincronización/archivo ni push.
+Próxima acción: revisar aceptación del B05 corregido; no iniciar otro bloque.

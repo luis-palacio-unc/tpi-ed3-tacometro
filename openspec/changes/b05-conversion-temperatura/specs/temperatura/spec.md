@@ -1,87 +1,85 @@
-# Temperatura — contrato candidato B05
+# Temperatura — contrato candidato B05 corregido
 
-Origen: R07/R09 y portabilidad R15; alcance aprobado el 2026-11-07.
-Resultado pendiente de aceptación. Sólo conversión numérica del LM35 sin offset.
+Origen R07/R09/R15; aclaración del usuario 2026-11-07: servicios independientes del
+hardware específico. Sustituye diseño candidato fcd4392, sin aceptación ni archivo.
 
 ## Requirements
 
-### Requirement: TE1 — Conversión y unidades
+### Requirement: TE1 — Conversión específica en dispositivo
 
-Temperatura MUST recibir muestra, escala_adc y referencia_uv uint32_t. Escala MUST
-representar cuentas por referencia, con muestra<escala y escala>0; no el último código
-inclusivo. Ejemplo: escala 4096 admite 0..4095. Referencia MUST ser positiva, en µV.
-Con el modelo ideal LM35 10 mV/°C, MUST entregar uint32_t centésimas de °C:
-muestra×referencia_uv/(escala_adc×100), redondeo cercano/empate arriba.
-MUST evitar redondeos intermedios; error aritmético <=0,005 °C, sin garantizar
-precisión del ADC, rango real del sensor o conexión física.
+LM35 MUST convertir muestra/escala_adc/referencia_uv uint32_t a uint32_t centésimas
+Celsius, modelo nominal 10 mV/°C sin offset. Escala son cuentas por referencia;
+0<=muestra<escala. MUST redondear una vez al cercano/empate arriba, error aritmético
+<=0,005 °C, sin imponer precisión/rango eléctrico no confirmado.
+Servicios/Temperatura MUST NOT conocer esta curva, códigos ADC o parámetros eléctricos.
 
-#### Scenario: S1 — Referencias y escala
+#### Scenario: S1 — Referencias
 
-- Given 125/1500 y 500/1500 muestras/escala con referencia 3 000 000 µV.
-- When se convierten, además del último código admisible de otras escalas.
-- Then MUST obtener 2500 y 10000 centésimas, respectivamente; muestra=escala es inválida.
+- Given muestras 125/1500 y 500/1500 con 3000000 µV.
+- When LM35 convierte y se adapta a la fuente genérica.
+- Then MUST producir 2500/10000 centésimas, sin fórmula LM35 en el servicio.
 
-#### Scenario: S2 — Configuraciones equivalentes
+#### Scenario: S2 — Equivalencia y escala
 
-- Given configuraciones distintas que representan la misma tensión ideal del sensor.
-- When se convierten sin fijar resolución o referencia de placa.
-- Then MUST entregar igual temperatura; cambiar configuración por llamada está permitido.
+- Given configuraciones distintas con igual tensión ideal y último código admisible.
+- When LM35 convierte.
+- Then MUST conservar temperatura; muestra=escala se rechaza.
 
-#### Scenario: S3 — Redondeo único
+#### Scenario: S3 — Redondeo y límites
 
-- Given muestra 1, escala 4, referencias 4999, 5000 y 5001 µV.
-- When se convierte sin cuantizar primero a µV/mV enteros.
-- Then MUST producir 12, 13 y 13 centésimas; extremos de empate se resuelven hacia arriba.
+- Given muestra 1/4 con 4999/5000/5001 µV y MAX−1/MAX/MAX.
+- When LM35 convierte sin doble redondeo ni sumar al numerador.
+- Then MUST devolver 12/13/13 y 42949673, sin overflow.
 
-### Requirement: TE2 — Disponibilidad y errores
+### Requirement: TE2 — Servicio genérico en unidades físicas
 
-Inicializar MUST dejar SIN_DATOS/cero. Actualizar MUST reemplazar valor/estado sin
-leer datos anteriores. NULL MUST devolver ERROR_ARGUMENTO (false al inicializar),
-sin acceso. Escala cero, referencia cero y muestra>=escala MUST producir
-ERROR_ESCALA, ERROR_REFERENCIA y ERROR_MUESTRA, en esa prioridad después de NULL.
-Errores con salida escribible MUST borrar valor e invalidarla; dato válido siguiente
-MUST recuperar. Sólo VALIDA habilita consumo; cero ideal válido difiere de ausencia.
+Temperatura MUST recibir int32_t centésimas Celsius y estado de fuente VALIDA,
+SIN_DATOS o ERROR. MUST conservar exactamente datos válidos, sin recalibrar ni limitar
+al rango de un sensor. SIN_DATOS MUST producir SIN_DATOS/cero; ERROR, ERROR_FUENTE/cero.
+Inicializar MUST dejar SIN_DATOS/cero. NULL MUST devolver ERROR_ARGUMENTO (false al
+inicializar); estado de fuente desconocido MUST invalidar con ERROR_ARGUMENTO/cero.
+Una fuente válida posterior MUST recuperar. Sólo VALIDA habilita consumo.
 
-#### Scenario: S4 — Inicio y reinicio
+#### Scenario: S4 — Magnitudes y disponibilidad
 
-- Given salida nueva, válida o errónea.
-- When se inicializa y luego se convierte muestra cero con escala/referencia positivas.
-- Then MUST pasar de SIN_DATOS/cero a VALIDA/cero, sin confundir disponibilidad y valor.
+- Given fuentes genéricas con 2534, cero, -725 e INT32_MIN/MAX centésimas.
+- When llegan como válidas, ausentes o fallidas.
+- Then MUST preservar sólo valores válidos, diferenciando cero válido de ausencia/error.
 
-#### Scenario: S5 — Errores y recuperación
+#### Scenario: S5 — Invalidación y recuperación
 
-- Given lectura válida anterior, combinaciones inválidas y salida NULL.
-- When se actualiza y luego llega una entrada válida.
-- Then MUST respetar prioridad, invalidar el dato viejo y recuperar sin saturación.
+- Given lectura previa válida, NULL, estado desconocido y ausencia/error de fuente.
+- When se actualiza y luego llega nueva lectura válida.
+- Then MUST aplicar errores definidos, borrar datos viejos y recuperar sin depender del sensor.
 
-### Requirement: TE3 — Límites y aislamiento
+### Requirement: TE3 — Aislamiento y errores de dispositivo
 
-Todas las entradas uint32_t MUST tener resultado definido sin overflow ni división
-por cero. El dominio válido cabe en uint32_t, hasta 42949673 centésimas; MUST NOT
-imponer límites físicos de una variante no confirmada. VALIDA indica conversión
-numérica, no sensor funcionando. Instancias MUST ser independientes, sin heap,
-flotantes, globals mutables ni periféricos. Llamador MUST validar adquisición,
-captura coherente y acceso serializado; no hay timeout de frescura.
+LM35 MUST informar NULL/escala cero/referencia cero/muestra excesiva en ese orden,
+borrar salida escribible ante error y recuperar; inicializar lectura deja SIN_DATOS/cero.
+Su dominio válido cabe en uint32_t. Temperatura MUST compilar/enlazar sin dispositivo
+concreto y sin depender de Aplicacion. Dispositivos MUST NOT depender del servicio.
+Adaptación MUST mapear errores concretos a ERROR de fuente; no aplicar conversiones
+en aplicación. Instancias MUST ser independientes, acceso serializado externo.
 
-#### Scenario: S6 — Extremos de tipos
+#### Scenario: S6 — Argumentos y fronteras
 
-- Given muestra=UINT32_MAX-1, escala=referencia=UINT32_MAX y otras fronteras.
-- When se convierte sin sumar un término que desborde el numerador.
-- Then MUST producir 42949673; casos inválidos se rechazan antes de dividir.
+- Given errores combinados y extremos uint32_t del dispositivo/int32_t del servicio.
+- When se ejecutan APIs y adaptación.
+- Then MUST preservar prioridades y tipos, sin división inválida, overflow ni valor viejo válido.
 
-#### Scenario: S7 — Independencia
+#### Scenario: S7 — Otra fuente y estados independientes
 
-- Given dos salidas con configuraciones diferentes.
-- When una se actualiza/reinicia/falla.
-- Then MUST conservar la otra y no depender de Aplicacion ni dispositivos.
+- Given un consumidor de Temperatura sin LM35, dos instancias y adaptación LM35 separada.
+- When se alternan fuentes o falla una.
+- Then MUST funcionar con Celsius/estado genéricos y conservar la instancia ajena.
 
-### Requirement: TE4 — Verificación y alcance
+### Requirement: TE4 — Evidencia y alcance
 
-B05 MUST pasar C host/sanitizadores, enlace ARM, regresiones B00–B04 y Doxygen ESW/USW.
-MUST NOT implementar ADC/DMA, offset/calibración, negativos, alarma, UART o main.
+B05 MUST pasar host/sanitizadores, ARM, regresiones B00–B04 y Doxygen ESW/USW.
+MUST NOT adquirir ADC/DMA ni implementar acondicionamiento negativo LM35, alarma o main.
 
-#### Scenario: S8 — Evidencia
+#### Scenario: S8 — Verificación
 
-- Given código y documentación B05.
-- When se verifican escenarios, build, documentación, recursos y diff.
-- Then MUST registrar ejecuciones reales y distinguir host/ELF de simulación/hardware pendientes.
+- Given código corregido y reproducción de acoplamiento previo.
+- When se ejecutan suites, enlaces separados, documentación y revisión.
+- Then MUST registrar evidencia real; integración/tiempos eléctricos permanecen pendientes.

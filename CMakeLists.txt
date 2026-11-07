@@ -95,6 +95,11 @@ if(TPI_BUILD_ARM)
             "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b05-fixture" "-DBUILD_TYPE=$<CONFIG>"
             "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b05.cmake")
+        add_test(NAME b05.lm35_enlace_arm COMMAND "${CMAKE_COMMAND}"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b05-lm35-fixture" "-DBUILD_TYPE=$<CONFIG>"
+            "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b05_lm35.cmake")
     endif()
 else()
     if(CMAKE_CROSSCOMPILING)
@@ -121,7 +126,12 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
         Servicios/Mandos.c Aplicacion/Procesamiento.c)
     add_executable(pruebas_temperatura tests/host/test_temperatura.c
         Servicios/Temperatura.c)
-    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura)
+    add_executable(pruebas_lm35 tests/host/test_lm35.c Dispositivos/LM35.c)
+    add_executable(pruebas_integracion_temperatura tests/host/test_integracion_temperatura.c
+        Servicios/Temperatura.c Dispositivos/LM35.c)
+    target_include_directories(pruebas_lm35 PRIVATE Dispositivos)
+    target_include_directories(pruebas_integracion_temperatura PRIVATE Dispositivos)
+    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura)
         target_include_directories(${prueba} PRIVATE Aplicacion Servicios Configuracion)
         set_target_properties(${prueba} PROPERTIES
             C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO)
@@ -138,4 +148,6 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_test(NAME b03.medicion_velocidad COMMAND pruebas_medicion_velocidad)
     add_test(NAME b04.mandos COMMAND pruebas_mandos)
     add_test(NAME b05.temperatura COMMAND pruebas_temperatura)
+    add_test(NAME b05.lm35 COMMAND pruebas_lm35)
+    add_test(NAME b05.integracion_temperatura COMMAND pruebas_integracion_temperatura)
 endif()

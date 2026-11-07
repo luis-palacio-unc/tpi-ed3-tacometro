@@ -10,14 +10,15 @@ para generar documentación sin autorización.
   precondiciones y concurrencia. Tipos, miembros y constantes también documentados.
 - Mantener comentarios de contrato fuera del cuerpo de funciones de producción,
   como pide la guía del TPI.
-- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura y Limites. No usar EXTRACT_ALL para ocultar falta de documentación.
+- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, LM35 y Limites. No usar EXTRACT_ALL para ocultar falta de documentación.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
-Validación B05: 19 funciones/USW en XML (6 Procesamiento, 6 Comunicacion,
-2 Medicion_Velocidad, 2 Mandos, 2 Temperatura y main), sin avisos. Nuevas USW.2.1.4.1/.2;
-contratos de Temperatura incluyen cuentas por referencia, unidades, redondeo,
-prioridad de errores y concurrencia. Constantes de unidad/modelo también documentadas.
+Validación B05 corregido: 21 funciones/USW en XML (6 Procesamiento, 6 Comunicacion,
+2 Medicion_Velocidad, 2 Mandos, 2 Temperatura, 2 LM35 y main), sin avisos.
+USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
+Documentar unidades físicas/estados en el servicio y conversión/errores específicos
+en LM35. La inclusión de archivos del dispositivo no introduce dependencia del servicio.
 La sonda sin @return documentada en B01 sigue como evidencia del control estricto.
 El modo sólo XML instalado generó un aviso falso, reproducido incluso apareciendo
 el retorno en el XML. No se suprimió la comprobación de retornos.

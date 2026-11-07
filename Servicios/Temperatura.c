@@ -1,10 +1,9 @@
 /**
  * @file Temperatura.c
- * @brief Calculo entero de temperatura del modelo ideal LM35 sin offset.
- * @details TI 7.3.1: 10 mV por grado equivalen a 100 uV por centesima Celsius.
- * Producto y divisor caben en uint64_t; redondear por resto evita sumar al numerador.
- * El dominio valido da hasta 42949673 centesimas, representables en uint32_t.
- * @note ESW.2.1.4. Libgcc existente resuelve division/modulo en ARM; sin libc.
+ * @brief Disponibilidad y errores genericos de una temperatura fisica.
+ * @details La conversion especifica pertenece al proveedor. El servicio solo
+ * conserva Celsius/validez o invalida un dato anterior cuando la fuente falla.
+ * @note ESW.2.1.4. Sin dependencia de dispositivos concretos ni estado global mutable.
  */
 #include "Temperatura.h"
 #include <stddef.h>
@@ -13,48 +12,39 @@
  * @{
  */
 
-/** @brief Factor nominal del LM35: microvoltios por centesima de grado Celsius. */
-#define TEMPERATURA_UV_POR_CENTESIMA UINT64_C(100)
-
 bool Temperatura_Inicializar(Temperatura_Lectura *lectura)
 {
     if (lectura == NULL) {
         return false;
     }
-    lectura->centesimas_c = 0U;
+    lectura->centesimas_c = 0;
     lectura->estado = TEMPERATURA_SIN_DATOS;
     return true;
 }
 
 Temperatura_Estado Temperatura_Actualizar(Temperatura_Lectura *lectura,
-                                        uint32_t muestra, uint32_t escala_adc,
-                                        uint32_t referencia_uv)
+                                        int32_t centesimas_c,
+                                        Temperatura_EstadoFuente fuente)
 {
     if (lectura == NULL) {
         return TEMPERATURA_ERROR_ARGUMENTO;
     }
-    lectura->centesimas_c = 0U;
-    if (escala_adc == 0U) {
-        lectura->estado = TEMPERATURA_ERROR_ESCALA;
-        return lectura->estado;
+    lectura->centesimas_c = 0;
+    switch (fuente) {
+        case TEMPERATURA_FUENTE_VALIDA:
+            lectura->centesimas_c = centesimas_c;
+            lectura->estado = TEMPERATURA_VALIDA;
+            break;
+        case TEMPERATURA_FUENTE_SIN_DATOS:
+            lectura->estado = TEMPERATURA_SIN_DATOS;
+            break;
+        case TEMPERATURA_FUENTE_ERROR:
+            lectura->estado = TEMPERATURA_ERROR_FUENTE;
+            break;
+        default:
+            lectura->estado = TEMPERATURA_ERROR_ARGUMENTO;
+            break;
     }
-    if (referencia_uv == 0U) {
-        lectura->estado = TEMPERATURA_ERROR_REFERENCIA;
-        return lectura->estado;
-    }
-    if (muestra >= escala_adc) {
-        lectura->estado = TEMPERATURA_ERROR_MUESTRA;
-        return lectura->estado;
-    }
-    const uint64_t numerador = (uint64_t)muestra * referencia_uv;
-    const uint64_t divisor = (uint64_t)escala_adc * TEMPERATURA_UV_POR_CENTESIMA;
-    uint64_t centesimas = numerador / divisor;
-    const uint64_t resto = numerador % divisor;
-    if (resto >= divisor / 2U) {
-        ++centesimas;
-    }
-    lectura->centesimas_c = (uint32_t)centesimas;
-    lectura->estado = TEMPERATURA_VALIDA;
     return lectura->estado;
 }
 

@@ -27,7 +27,7 @@ El build ejecuta automáticamente el verificador del ELF; CTest agrega casos neg
 `firmware.elf` es para el MCU: no se ejecuta como programa de escritorio.
 No está configurada todavía una sesión de depuración/flasheo de CLion.
 
-Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad, Mandos y Temperatura, sin ejecutar main del firmware:
+Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura y LM35, incluida su integración, sin ejecutar main del firmware:
 
 ```sh
 cmake --preset host-objects
@@ -68,7 +68,7 @@ B01 aceptado/archivado con límite 185 RPM. [Contrato de modos vigente](openspec
 B02 aceptado y archivado. [Contrato de comunicación vigente](openspec/specs/comunicacion/spec.md).
 B03 aceptado y archivado. [Contrato de medición vigente](openspec/specs/medicion-velocidad/spec.md).
 B04 aceptado y archivado. [Contrato de mandos vigente](openspec/specs/mandos/spec.md).
-B05 implementado/verificado, pendiente de aceptación del resultado.
+B05 corregido/verificado, pendiente de aceptación del resultado.
 [Contrato candidato y evidencia](openspec/changes/b05-conversion-temperatura/verify-report.md).
 
 ## B01 y documentación incremental
@@ -136,15 +136,18 @@ no hay dependencia del servicio hacia aplicación ni integración del main real.
 CTest agrega 15 casos B04 con recorridos, escalas equivalentes, errores y fronteras;
 Doxygen documenta sus dos USW. Ver [informe B04](openspec/changes/archive/2026-11-06-b04-normalizacion-mando-manual/verify-report.md).
 
-## B05: conversión lógica de temperatura
+## B05: temperatura genérica y dispositivo LM35
 
-Temperatura.h/.c recibe muestra ADC, escala de conversión y referencia en µV como
-uint32_t. Entrega centésimas de °C y estado; por ejemplo, 2500 representa 25 °C.
-Escala significa cuentas por referencia: con 4096 admite muestras 0..4095. Es distinta
-del máximo inclusivo que Mandos usa para normalizar extremos. No fija resolución/VREF de placa.
+Servicios/Temperatura.h/.c recibe temperatura ya expresada en centésimas Celsius
+(int32_t) y estado de fuente válido/sin datos/error. Preserva valores válidos o
+invalida con cero; diferencia cero válido de ausencia. No conoce el sensor concreto.
+Dispositivos/LM35.h/.c contiene la conversión ADC→Celsius y su ganancia nominal,
+con escala/referencia explícitas y errores de conversión. Todavía no adquiere muestras.
 
-Modelo ideal LM35 sin offset. Redondeo cercano/empate arriba una sola vez; escala o
-referencia cero y muestra fuera de escala invalidan y borran dato anterior. Cero ideal
-válido se distingue de SIN_DATOS; VALIDA sólo acredita conversión numérica. Captura
-coherente y acceso serializado dependen del integrador. ADC/DMA, alarma y main siguen pendientes.
-CTest agrega 17 casos B05; Doxygen incluye sus dos USW. Ver [informe B05](openspec/changes/b05-conversion-temperatura/verify-report.md).
+El servicio compila y enlaza por separado, sin LM35; las pruebas adaptan datos del
+dispositivo al contrato genérico y conservan casos numéricos/fronteras de B05.
+La composición con adquisición real se resolverá después, sin acceso directo a
+dispositivos desde lógica de aplicación. ADC/DMA, alarma y main siguen pendientes.
+Ver [informe corregido](openspec/changes/b05-conversion-temperatura/verify-report.md);
+[informe inicial](openspec/changes/b05-conversion-temperatura/verify-report-inicial.md)
+conserva la evidencia de la arquitectura anterior y no acredita la API actual.

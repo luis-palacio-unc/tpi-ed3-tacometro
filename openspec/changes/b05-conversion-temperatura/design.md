@@ -1,69 +1,66 @@
-# Diseño B05 — Conversión de temperatura
+# Diseño B05 corregido — Separación servicio/dispositivo
 
-## Decisiones
+## Decisión y fuentes
 
-ESW.2.1.4 según anexo B; USW.2.1.4.1 Inicializar y .2 Actualizar. Propuesta aceptada
-para conversión ideal LM35 sin offset; captura y alarma permanecen fuera del bloque.
+La aclaración actual del usuario refuerza R15: servicios también independientes del
+hardware específico. Temperatura.c de fcd4392 contenía el factor LM35; LM35.h delegaba
+la conversión al servicio. Son fuentes previas contradictorias con la aclaración actual,
+que prevalece. Corregir B05 aún no aceptado; conservar historial/commit y evidencia inicial.
+Datasheet local confirmado LM35 TI SNIS159H, §7.3.1 p.13: ganancia 10 mV/°C.
 
-| Opción | Compromiso | Decisión y motivo |
+| Opción | Compromiso | Decisión/motivo |
 |---|---|---|
-| VREF/resolución fijas / parámetros | Fijarlas ata cálculo a la placa | Muestra, escala_adc y referencia_uv uint32_t por llamada |
-| Último código / cuentas por referencia | Son magnitudes distintas | Escala es divisor de conversión; muestra<escala. Para 12 bits, ejemplo 4096 y códigos 0..4095 |
-| Volver a redondear tensión / cálculo directo | Dos redondeos pueden cambiar resultado | Una conversión racional a centésimas de °C |
-| Float / entero | Float innecesario para contrato | uint64_t intermedios; uint32_t salida no negativa, modelo sin offset |
-| Sumar medio divisor / cociente y resto | La suma puede superar UINT64_MAX con entradas válidas | Dividir y usar resto para redondear; sin sumar al numerador |
-| Saturar o conservar viejo / invalidar | Oculta error de configuración/adquisición | Estado explícito y cero; siguiente dato válido recupera |
-| Contexto y getter / salida por instancia | Getter duplica copia sin requisito | Temperatura_Lectura, dos funciones, sin estado oculto |
+| Curva fija o configurable en servicio / convertir en dispositivo | Parametrizar ganancia mantiene servicio ligado a modelo eléctrico | Curva y ADC→Celsius en Dispositivos/LM35 |
+| Callback/proveedor activo / entrada de datos físicos | No hay adquisición real en B05; callback agrega ciclo de vida sin requisito actual | Servicio recibe Celsius/estado por valor, fuente intercambiable |
+| Datos específicos compartidos / contratos propios | Compartir enum LM35 acopla servicio al sensor | LM35_Lectura propia; Temperatura usa estados de fuente genéricos |
+| Temperatura sin signo / int32_t | Celsius puede ser negativo en otra fuente | Servicio int32_t físico; LM35 conserva uint32_t sin offset, siempre <=42949673 |
+| Cambiar algoritmo / trasladar y verificar | Algoritmo numérico ya verificado | Mantener cociente/resto y límites; mover pruebas a dispositivo |
 
-Escala B05 no cambia B04: Mandos usa máximo inclusivo para mapear extremos del mando;
-Temperatura usa cuentas por referencia para convertir unidades. Son contratos diferentes.
-NXP fig.28 muestra LSB ideal=(VREFP−VREFN)/4096; TI §7.3.1 fija 10 mV/°C. Modelo
-usa código×LSB, sin agregar media cuenta ADC; ese error de cuantización no es redondeo
-aritmético. No fija bits, pines ni VREF reales ni promete rango eléctrico/variante.
+## APIs y flujo
 
-## API, flujo y errores
+Dispositivos/LM35.h/.c, ESW.2.1.11:
+LM35_InicializarLectura(.1) reinicia registro, no hardware; LM35_ConvertirMuestra(.2)
+recibe muestra, escala_adc y referencia_uv uint32_t. Devuelve LM35_Lectura con
+centesimas_c uint32_t y estados SIN_DATOS/VALIDA/errores de argumento, escala,
+referencia y muestra. Misma prioridad y cálculo que B05 inicial; sin registros/DMA.
 
-Temperatura_Lectura: uint32_t centesimas_c y Temperatura_Estado estado.
-Inicializar(lectura*) devuelve bool, SIN_DATOS/cero; NULL devuelve false.
-Actualizar(lectura*, uint32_t muestra, uint32_t escala_adc, uint32_t referencia_uv)
-escribe todo sin leer anterior y devuelve estado. Prioridad: NULL → ERROR_ARGUMENTO;
-escala=0 → ERROR_ESCALA; referencia=0 → ERROR_REFERENCIA; muestra>=escala → ERROR_MUESTRA;
-resto → VALIDA. Error escribible borra valor; acceso serializado externo.
-SIN_DATOS sólo tras inicio/reinicio, sin timeout. Consumir sólo VALIDA; no certifica sensor.
+Servicios/Temperatura.h/.c, ESW.2.1.4:
+Temperatura_Inicializar(.1) deja SIN_DATOS/cero.
+Actualizar(.2) recibe salida, int32_t centesimas_c y Temperatura_EstadoFuente.
+FUENTE_VALIDA copia valor/VALIDA; FUENTE_SIN_DATOS limpia/SIN_DATOS; FUENTE_ERROR
+limpia/ERROR_FUENTE; enum desconocido limpia/ERROR_ARGUMENTO. NULL devuelve
+ERROR_ARGUMENTO sin acceso (false al inicializar). No lee estado anterior.
+No hay parámetros ADC, ganancia ni inclusión/llamada LM35 en el servicio.
 
-Futura muestra/config coherente → Temperatura → aplicación en °C/validez.
-No hay dependencia hacia aplicación/dispositivos ni integración de main. Capturador
-valida adquisición, desbordes y parámetros antes de llamar; no detectamos fallos
-eléctricos que produzcan códigos matemáticamente admisibles.
+Fuente específica → magnitud Celsius/estado → servicio genérico → aplicación.
+La adaptación de integración se demuestra en test/fixture, no en main. Mapea LM35
+VALIDA/SIN_DATOS/otros a FUENTE_VALIDA/SIN_DATOS/ERROR; convierte uint32_t a int32_t
+sólo tras comprobar validez y cota (máximo 42949673<INT32_MAX). Futuro ensamblado
+de adquisición proporcionará estos datos sin introducir acceso directo a dispositivos
+en la lógica de aplicación. Sin composición física nueva en B05.
+Servicio admite negativos de otra fuente; no implementa circuito negativo del LM35.
+Lectura/conversión/acceso requieren serialización externa; sin detección de frescura.
 
-## Aritmética y recursos
+## Aritmética y archivos
 
-N=(uint64_t)muestra×referencia_uv; D=(uint64_t)escala_adc×100; q=N/D; r=N%D.
-D es positivo y par. Si r>=D/2, incrementar q; estrechar sólo al terminar.
-N<=18446744060824649730 para dominio válido; D<=429496729500. Ambos caben en uint64_t;
-N+D/2 puede desbordar, por eso no se suma. Como muestra<escala, q redondeado<=42949673,
-representable en uint32_t; no se necesita error de rango de salida ni saturación.
-Salida de pocos bytes (medir ARM), sin buffers/heap/globals. Reutilizar libgcc existente
-y -z noexecstack. Medir código y pila estática, sin atribuir tiempos reales.
+En LM35: N=muestra×referencia_uv, D=escala_adc×100; cociente/resto para redondear.
+N<=18446744060824649730, D<=429496729500; nunca sumar D/2 al numerador. Salida
+<=42949673. Servicio sólo copia int32_t y estados, sin cálculos eléctricos ni runtime64.
+Sin heap/globals/esperas. Medir ambas unidades, pila y enlaces ARM por separado.
 
-## Archivos y documentación
+Modificar dos pares .h/.c, CMakeLists y Doxyfile. test_temperatura prueba servicio
+sin incluir/enlazar dispositivos; test_lm35 conserva 17 casos aritméticos;
+test_integracion_temperatura prueba adaptación. Fixture B05 de servicio independiente;
+nuevo fixture LM35+servicio retiene APIs y auxiliares libgcc. Actualizar documentos;
+verify-report-inicial.md conserva evidencia fcd4392 sin acreditarla para interfaz nueva.
+No modificar contratos/historial aceptados ni otros módulos físicos.
 
-Servicios/Temperatura.h/.c: API, estados, unidades/errores/concurrencia Doxygen; sin
-comentarios dentro del cuerpo. tests/host/test_temperatura.c: referencias, redondeo,
-errores, fronteras y recorridos. cmake/verificar_enlace_b05.cmake: retener ambas API
-y auxiliares en Debug/Release. CMakeLists.txt y docs/doxygen/Doxyfile: agregar controles.
-README, docs/agente/ y OpenSpec: estado y evidencia; conservar todo otro módulo,
-drivers, contratos aceptados e historial. Sin configuración común nueva.
+## Verificación y límites
 
-## Verificación y preguntas
-
-17 casos C: incluye 1000 fronteras, 10000 ternas y 70678 puntos de recorrido.
-Oráculo independiente compara intervalos de redondeo alrededor del resultado; usa
-(q−1)×D acotado para evitar que q×D desborde incluso con salida correcta.
-Controles negativos temporales para suma ingenua y redondeo intermedio, si reproducibles.
-Host C11 estricto y sanitizadores; regresiones B00–B04, ARM -O0/-O3 y Doxygen estricto.
-No hay TDD configurado: modo estándar. Sin información indispensable pendiente para
-el cálculo. Montaje, VREF, variante/rango LM35 y precisión reales se verifican al integrar.
-
-Fuentes: [TI §7.3.1](https://www.ti.com/lit/ds/symlink/lm35.pdf) y
-[NXP fig.28, p.68](https://www.nxp.com/docs/en/data-sheet/LPC1769_68_67_66_65_64_63.pdf).
+Reproducir primero fallo de compilación de consumidor Celsius/estado contra interfaz
+previa. Después ejecutar servicio aislado, LM35, integración, sanitizadores, regresiones,
+ARM Debug/Release y Doxygen (cuatro USW de estas unidades). Pruebas de saturación,
+equivalencia, redondeo y extremos se mantienen, sin recalcular cociente en oráculo.
+R15 se aplica transversalmente: B03 conserva 60 pulsos/vuelta en contrato aceptado;
+registrar revisión posterior, sin modificarlo dentro de B05. No declarar toda capa
+de servicios desacoplada aún. Pines/VREF/variante/rango y tiempos reales pendientes.

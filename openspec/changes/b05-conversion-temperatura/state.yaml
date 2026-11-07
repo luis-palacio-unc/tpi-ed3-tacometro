@@ -2,12 +2,14 @@ block: B05
 change: b05-conversion-temperatura
 status: verified_pending_acceptance
 scope_approved: true
+scope_clarified_on: "2026-11-07"
 result_accepted: false
 phase: verify
 implementation_started: true
+initial_implementation_commit: fcd43927d7b2dbaed19169d4cfb249de4a3da16f
 verification_passed: true
 main_specs_synced: false
 commit_authorized: true
-commit_subject: "feat: implementar B05 de conversion de temperatura"
+commit_subject: "fix: desacoplar Temperatura del sensor LM35"
 push_authorized: false
-next_action: Esperar aceptacion del resultado B05; no sincronizar ni archivar aun.
+next_action: Revisar aceptacion del B05 corregido, manteniendo B03 transversal pendiente.

@@ -13,16 +13,15 @@ file(MAKE_DIRECTORY "${OUTPUT_DIR}")
 file(WRITE "${OUTPUT_DIR}/main_fixture.c" [=[
 #include "Temperatura.h"
 static Temperatura_Lectura lectura;
-static volatile uint32_t muestra = 125U;
-static volatile uint32_t escala_adc = 1500U;
-static volatile uint32_t referencia_uv = 3000000U;
+static volatile int32_t centesimas = -725;
+static volatile Temperatura_EstadoFuente fuente = TEMPERATURA_FUENTE_VALIDA;
 int main(void)
 {
     if (!Temperatura_Inicializar(&lectura)) {
         return 1;
     }
-    return Temperatura_Actualizar(&lectura, muestra, escala_adc, referencia_uv) ==
-           TEMPERATURA_VALIDA && lectura.centesimas_c == 2500U ? 0 : 1;
+    return Temperatura_Actualizar(&lectura, centesimas, fuente) == TEMPERATURA_VALIDA &&
+           lectura.centesimas_c == -725 ? 0 : 1;
 }
 ]=])
 execute_process(COMMAND "${TOOL_PREFIX}gcc"
@@ -34,7 +33,7 @@ execute_process(COMMAND "${TOOL_PREFIX}gcc"
     "${SOURCE_DIR}/Servicios/Temperatura.c" "${SOURCE_DIR}/plataforma/startup_lpc1769.S"
     -nostdlib "-T${SOURCE_DIR}/plataforma/lpc1769.ld"
     -Wl,--gc-sections -Wl,--build-id=none -Wl,--fatal-warnings -Wl,-z,noexecstack
-    "-Wl,-Map=${OUTPUT_DIR}/fixture.map" -lgcc -o "${OUTPUT_DIR}/fixture.elf"
+    "-Wl,-Map=${OUTPUT_DIR}/fixture.map" -o "${OUTPUT_DIR}/fixture.elf"
     RESULT_VARIABLE result OUTPUT_VARIABLE output ERROR_VARIABLE errors)
 if(NOT result EQUAL 0)
     message(FATAL_ERROR "Fallo de enlace API Temperatura: ${output} ${errors}")
@@ -50,7 +49,7 @@ execute_process(COMMAND "${TOOL_PREFIX}nm" --defined-only "${OUTPUT_DIR}/fixture
 if(NOT result EQUAL 0)
     message(FATAL_ERROR "No se pudieron inspeccionar simbolos B05: ${errors}")
 endif()
-foreach(required_symbol Temperatura_Inicializar Temperatura_Actualizar __aeabi_uldivmod)
+foreach(required_symbol Temperatura_Inicializar Temperatura_Actualizar)
     if(NOT symbols MATCHES "[ \t]${required_symbol}[\r\n]")
         message(FATAL_ERROR "API/auxiliar B05 eliminado o ausente: ${required_symbol}")
     endif()
@@ -60,4 +59,4 @@ execute_process(COMMAND "${TOOL_PREFIX}readelf" -lW "${OUTPUT_DIR}/fixture.elf"
 if(NOT result EQUAL 0 OR NOT headers MATCHES "GNU_STACK[^\r\n]*[ \t]RW[ \t]+0x")
     message(FATAL_ERROR "B05 requiere GNU_STACK RW, sin ejecucion: ${headers} ${errors}")
 endif()
-message(STATUS "API Temperatura enlazada con libgcc, sin libc; no ejecutada en MCU. ${output}")
+message(STATUS "Servicio Temperatura enlazado sin dispositivo concreto, libgcc ni libc; no ejecutada en MCU. ${output}")
