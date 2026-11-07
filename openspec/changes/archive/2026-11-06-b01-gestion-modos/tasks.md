@@ -19,7 +19,8 @@
 - [x] 4.1 Actualizar evidencia, ESTADO, CONTEXTO, mapa y estado SDD.
 - [x] 4.2 Crear commit B01 con configuración de firma vigente y hooks; sin push.
 
-Resultado pendiente de aceptación antes de sincronizar/archivar. No comenzar B02.
+Resultado aceptado, incluido máximo 185 RPM, el 2026-11-06. Contrato sincronizado
+y cambio archivado en cierre posterior. B02 sólo propuesto.
 
 ## 5. Aclaración del usuario: máximo 185 RPM
 - [x] 5.1 Actualizar contrato, tipos documentados y prueba de fronteras 0/184/185/186/UINT32_MAX.

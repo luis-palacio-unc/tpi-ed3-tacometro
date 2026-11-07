@@ -1,6 +1,6 @@
 # B01 — Gestión de modos y selección del mando
 
-Estado: alcance y criterios aceptados el 2026-11-06; implementación autorizada.
+Estado: alcance y resultado, incluido máximo 185 RPM, aceptados el 2026-11-06.
 
 ## Objetivo y requisitos de origen
 

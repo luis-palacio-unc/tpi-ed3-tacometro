@@ -113,3 +113,10 @@ SRAM 2088; las cifras 740/1676 anteriores corresponden a a83d87b.
 Contrato/diseño/mapa/contexto actualizados. Archivo B00 preservado; B01 sigue
 pendiente de aceptación y su especificación no se promovió. Commit correctivo
 local autorizado por la política vigente de commits al cerrar bloques, sin push.
+
+## Aceptación y archivo posteriores
+
+El usuario aceptó B01 con máximo 185 RPM el 2026-11-06 y autorizó sincronizar,
+archivar y publicar los commits pendientes. Las menciones anteriores a aceptación
+pendiente/sin push describen los momentos de ejecución previos a este cierre.
+La aceptación comprende lógica y evidencia estática, no pruebas físicas.

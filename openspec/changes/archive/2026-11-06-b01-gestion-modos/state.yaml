@@ -1,18 +1,20 @@
 block: B01
 change: b01-gestion-modos
-status: verified_pending_acceptance
+status: archived
 scope_approved: true
 scope_approved_on: 2026-11-06
-result_accepted: false
-phase: verified
+result_accepted: true
+accepted_on: 2026-11-06
+phase: archived
 implementation_started: true
 implementation_complete: true
 verification: passed_host_arm_link_and_doxygen
 rpm_max: 185
 latest_clarification: R14 - maximo inclusivo confirmado por usuario
-main_specs_synced: false
-archived: false
+main_specs_synced: true
+archived: true
 branch: main
 commit_authorized: true
-push_authorized: false
-next_action: Revisar resultado B01 con usuario antes de sincronizar/archivar; no iniciar B02.
+push_authorized: true
+push_scope: Commits B01 pendientes y este cierre documental, sin implementar B02.
+next_action: Acordar B02 antes de implementar.

@@ -6,7 +6,7 @@ context: |
   Pruebas B01: C host 17/17; CTest ARM 3/3, B00 14/14; Doxygen estricto.
   Consigna: 0..185 RPM inclusive; maximo aclarado por el usuario.
   Sonda: CMSIS-DAP integrado confirmado; revision fisica pendiente.
-  Persistencia: archivos; B00 aceptado/archivado, B01 verificado pendiente de aceptacion; leer ESTADO al reanudar.
+  Persistencia: archivos; B00/B01 aceptados/archivados; B02 propuesto; leer ESTADO al reanudar.
 rules:
   proposal:
     - Vincular origen, alcance, exclusiones, dependencias y aceptacion verificable.

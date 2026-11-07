@@ -64,14 +64,15 @@ Repositorio privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 B00 aceptado y archivado. Publicación inicial en main autorizada por el usuario;
 no extiende autorización a bloques futuros. [Contrato build vigente](openspec/specs/build/spec.md).
 
-Siguiente bloque: [B01 — gestión de modos](openspec/changes/b01-gestion-modos/proposal.md),
-implementado y verificado; resultado pendiente de aceptación.
+B01 aceptado/archivado con límite 185 RPM. [Contrato de modos vigente](openspec/specs/modos/spec.md).
+Siguiente bloque propuesto: [B02 — recepción de consignas](openspec/changes/b02-recepcion-consignas/proposal.md),
+sin implementación ni acuerdo todavía.
 
 ## B01 y documentación incremental
 
-Procesamiento.h/.c implementan selección de modo/fuente y validez temporal de consignas,
+Procesamiento.h/.c implementan selección de modo/fuente, límite 0..185 RPM y validez temporal de consignas,
 sin hardware ni regulación PI/PID. main sigue mínimo. Contratos, escenarios y evidencia
-están en openspec/changes/b01-gestion-modos/.
+están en openspec/changes/archive/2026-11-06-b01-gestion-modos/.
 
 Para instrumentar pruebas host (en un build independiente):
 

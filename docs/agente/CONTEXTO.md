@@ -50,13 +50,14 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 ## SDD y Git
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
-contratos aceptados; dominio build vigente desde el cierre de B00.
-Cambios en `openspec/changes/`; B01 implementado/verificado, resultado pendiente de aceptación.
+contratos aceptados; build (B00) y modos con máximo 185 RPM (B01).
+B00/B01 aceptados y archivados. B02 propuesto en `openspec/changes/`, sin implementar.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 Git local inicializado en main por acuerdo del usuario, con origin privado.
 El usuario autorizó commit y push de la estructura inicial al aceptar B00.
 El usuario autorizó después commits al finalizar cada bloque acordado. El push sigue
-requiriendo autorización independiente. Se conserva configuración de firma Git,
+requiriendo autorización independiente; el usuario autorizó publicar los commits B01
+y su cierre. Se conserva configuración de firma Git,
 actualmente sin firma automática habilitada.
 
 ## Referencias de fabricante consultadas

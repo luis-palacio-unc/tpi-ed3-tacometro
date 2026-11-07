@@ -3,17 +3,16 @@
 ## Punto actual
 
 - Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`.
-- Rama main. Base B01: a21cc1e; el commit actual se obtiene con `git rev-parse HEAD`.
-  Consultar `git status -sb` al reanudar: el commit B01 queda local, sin push.
-- Usuario autorizó commits al finalizar cada bloque acordado; no autorizó push B01.
-  Se conserva configuración Git de firma (sin firma automática) y hooks.
-- B00 aceptado/archivado; contrato vigente en openspec/specs/build/spec.md.
-- B01 implementado/verificado y ajustado al máximo de 185 RPM aclarado por el usuario;
-  pendiente de aceptación del resultado. La corrección tiene commit local, sin push.
-  Artefactos en openspec/changes/b01-gestion-modos/. No sincronizar modos/archivar aún.
-- No se inició B02. Procesamiento tiene API lógica; main sigue sin integrar servicios.
-- Doxygen incremental: documentadas las 6 USW de Procesamiento y main; configuración
-  parcial en docs/doxygen/Doxyfile. Continuar este estilo en bloques siguientes.
+- Rama main; revisión actual: `git rev-parse HEAD`; sincronización: `git status -sb`.
+- Commits de B01: a83d87b (implementación) y 4c8038a (máximo 185 RPM).
+- B00/B01 aceptados y archivados. Contratos vigentes build y modos en openspec/specs/.
+- B01: `openspec/changes/archive/2026-11-06-b01-gestion-modos/`; no modificar archivo.
+- B02 propuesto en `openspec/changes/b02-recepcion-consignas/`, sin acuerdo ni código.
+- Usuario autorizó commits al finalizar bloques acordados y push de los pendientes
+  B01 más este cierre; no habilita push de bloques posteriores.
+- Firma Git sin cambios (sin firma automática), hooks conservados.
+- Doxygen incremental: seis USW Procesamiento y main documentadas; ampliar por módulo.
+- main sigue mínimo; ninguna aceptación física de sensores/motor/UART.
 
 ## Evidencia realmente ejecutada
 
@@ -27,11 +26,13 @@
 | Doxygen sonda sin retorno | Rechazo esperado; controles habilitados |
 | Recursos ARM -O0 | Contexto 40 bytes; módulo sin heap/globals; camino de llamadas hasta 72 bytes estáticos |
 | Preservación | Drivers/Servicios/Dispositivos/archivo B00 intactos |
+| Copia limpia del índice al cerrar B01 | C host 17/17, CTest ARM 3/3 y Doxygen estricto correctos |
 
 Logs/artefactos: `/tmp/ed3-b01-20261106-02a8ln3f` (temporales, fuera del árbol versionado).
 Última corrección: /tmp/ed3-rpm185-py52m3z4; 17/17 casos normales/sanitizados,
 ARM CTest 3/3, Release y Doxygen correctos. La prueba nueva falló antes del cambio.
-Detalle y matriz S1–S9/R14 en verify-report.md del cambio B01.
+Cierre/publicación: /tmp/ed3-cierre-b01-20261106-cwceo_r4 (builds/pruebas/documentación desde copia del índice).
+Detalle y matriz S1–S9/R14 en el informe archivado de B01.
 Fallos iniciales registrados: LeakSanitizer incompatible con ptrace; Doxygen sólo XML
 no reconocía correctamente @return. Se corrigió entorno/formato manteniendo controles.
 No se ejecutó firmware ARM en placa o simulador ni se flasheó.
@@ -54,5 +55,5 @@ No se ejecutó firmware ARM en placa o simulador ni se flasheó.
 
 ## Próxima acción
 
-Revisar B01 con el usuario. Tras aceptación, sincronizar/archivar. Acordar el siguiente
-bloque antes de implementarlo; push requiere autorización independiente.
+Acordar alcance/protocolo y aceptación de B02 antes de implementar. Al reanudar,
+verificar HEAD y upstream; no inferir permiso para push de nuevos bloques.
