@@ -45,13 +45,13 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 - Alarma de temperatura prioritaria, visual y acústica. No se ha requerido detener
   el motor por temperatura ni se ha acordado aún histéresis/enclavamiento.
 - Consignas aceptadas: 0..185 RPM inclusive; máximo aclarado por el usuario.
-- No se ha elegido PI/PID, pines, frecuencias u otros límites/protocolo de comunicación.
+- No se ha elegido PI/PID, pines, frecuencias ni telemetría; recepción lógica ASCII en B02.
 
 ## SDD y Git
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
 contratos aceptados; build (B00) y modos con máximo 185 RPM (B01).
-B00/B01 aceptados y archivados. B02 propuesto en `openspec/changes/`, sin implementar.
+B00/B01 aceptados y archivados. B02 implementado/verificado en `openspec/changes/`, resultado pendiente de aceptación.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 Git local inicializado en main por acuerdo del usuario, con origin privado.
 El usuario autorizó commit y push de la estructura inicial al aceptar B00.
@@ -95,3 +95,16 @@ unidades, errores y concurrencia. Sin comentarios dentro de cuerpos de producci�
 según guía del TPI. Doxyfile parcial estricto; ampliar INPUT con cada módulo documentado.
 Doxygen instalado genera HTML/XML juntos; contenido español y etiquetas automáticas
 inglesas. No se instala ni actualiza Doxygen para generar la documentación final.
+
+## Recepción lógica B02
+
+Comunicacion expone Inicializar/RecibirByte/ExtraerConsigna, con eventos propios del
+servicio. ASCII RPM + espacio + 1..3 dígitos + LF/CRLF; ceros iniciales permitidos.
+0..185 RPM, definidos una sola vez en Configuracion/Limites.h. Procesamiento conserva
+su alias; no hay dependencia Servicios→Aplicacion. No se limita la medición real.
+Buffer 8 bytes sin LF y cola 4 eventos. Trama excesiva descarta hasta LF; cola llena
+rechaza nuevo con error observable, sin sobrescribir FIFO. La marca del evento es la
+secuencia global capturada al recibir LF; cada byte exige orden único creciente.
+Captura/recepción/extracción deben serializarse externamente antes de integrar UART/ISR.
+No hay transmisión, temporización física o main integrado en B02. API y errores en
+Comunicacion.h; evidencia en el cambio activo hasta aceptación.

@@ -15,18 +15,19 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01 aceptado; lógica | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | B01 S3/S4/S5/S6 PASS (C host); recepción real pendiente |
 | R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | Por planificar | Servicios/Temperatura.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | Frontera de umbral y latencia de alarma medidos; pendiente |
 | R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
-| R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 propuesto para recepción lógica; resto pendiente | Servicios/Comunicacion.*, Dispositivos/UART.* | Mensajes válidos/rotos, recuperación y enlace físico; pendiente |
+| R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 verificado, pendiente de aceptación para recepción lógica; resto pendiente | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 S1–S8 PASS host; UART física/telemetría pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01: 6 USW Procesamiento + main, Doxygen estricto PASS; resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01/B02: 13 USW incluyendo main; Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
 R14 — aclaración del usuario (2026-11-06): aceptar consignas hasta **185 RPM**,
-inclusive. B01: Procesamiento.c/.h; prueba LimitesRPM cubre 0/184/185 aceptadas y
+inclusive. Fuente común Configuracion/Limites.h (B02); alias públicos de servicios/aplicación.
+B01: Procesamiento.c/.h; prueba LimitesRPM cubre 0/184/185 aceptadas y
 186/UINT32_MAX rechazadas en espera y con consigna activa. Evidencia: corrección R14
 en verify-report.md. Se conserva consigna activa ante rechazo; no se satura.
 
 Aviso de temperatura en PC: opcional según AP; no ampliar alcance obligatorio.
 B00 aceptado y archivado para su alcance de build/inspección. R01 conserva aceptación
 física pendiente. B01 aceptado con R14 para lógica en host/enlace ARM; no hay ensayos físicos.
-B02 sólo propuesto, sin evidencia de implementación.
+B02 verificado en C host y enlace ARM; resultado pendiente de aceptación, sin UART física.

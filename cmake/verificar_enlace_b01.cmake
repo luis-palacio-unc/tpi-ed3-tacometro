@@ -27,7 +27,7 @@ execute_process(COMMAND "${TOOL_PREFIX}gcc"
     -ffreestanding -ffunction-sections -fdata-sections -Wa,--noexecstack
     -fno-unwind-tables -fno-asynchronous-unwind-tables
     -Wall -Wextra -Werror -Wconversion -Wshadow -Wstrict-prototypes -pedantic-errors
-    "-I${SOURCE_DIR}/Aplicacion" "${OUTPUT_DIR}/main_fixture.c"
+    "-I${SOURCE_DIR}/Aplicacion" "-I${SOURCE_DIR}/Configuracion" "${OUTPUT_DIR}/main_fixture.c"
     "${SOURCE_DIR}/Aplicacion/Procesamiento.c" "${SOURCE_DIR}/plataforma/startup_lpc1769.S"
     -nostdlib "-T${SOURCE_DIR}/plataforma/lpc1769.ld"
     -Wl,--gc-sections -Wl,--build-id=none -Wl,--fatal-warnings

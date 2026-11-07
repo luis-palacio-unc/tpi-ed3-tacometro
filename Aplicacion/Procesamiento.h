@@ -8,6 +8,7 @@
 #ifndef TPI_PROCESAMIENTO_H
 #define TPI_PROCESAMIENTO_H
 
+#include "Limites.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -24,7 +25,7 @@
 #define PROCESAMIENTO_MANDO_MAX 1000U
 
 /** @brief Maxima consigna aceptada en RPM, inclusive; aclaracion del usuario. */
-#define PROCESAMIENTO_RPM_MAX 185U
+#define PROCESAMIENTO_RPM_MAX TPI_RPM_MAX
 
 /** @brief Modo logico entregado por el futuro servicio Mandos. */
 typedef enum {

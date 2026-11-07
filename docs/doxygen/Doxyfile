@@ -3,9 +3,10 @@
 PROJECT_NAME = "TPI EDIII - Firmware"
 OUTPUT_DIRECTORY = build/doxygen
 OUTPUT_LANGUAGE = English
-INPUT = Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacion/Procesamiento.c
+INPUT = Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacion/Procesamiento.c \
+        Servicios/Comunicacion.h Servicios/Comunicacion.c Configuracion/Limites.h
 FILE_PATTERNS = *.c *.h
-INCLUDE_PATH = Aplicacion
+INCLUDE_PATH = Aplicacion Servicios Configuracion
 OPTIMIZE_OUTPUT_FOR_C = YES
 EXTRACT_ALL = NO
 EXTRACT_STATIC = YES

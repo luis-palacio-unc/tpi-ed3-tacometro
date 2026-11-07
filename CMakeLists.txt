@@ -74,6 +74,11 @@ if(TPI_BUILD_ARM)
             "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b01-fixture"
             "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b01.cmake")
+        add_test(NAME b02.enlace_arm COMMAND "${CMAKE_COMMAND}"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b02-fixture" "-DBUILD_TYPE=$<CONFIG>"
+            "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b02.cmake")
     endif()
 else()
     if(CMAKE_CROSSCOMPILING)
@@ -85,22 +90,27 @@ endif()
 set_target_properties(firmware PROPERTIES
     C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO)
 target_include_directories(firmware PRIVATE
-    Aplicacion Servicios Dispositivos Dispositivos/soporte)
+    Aplicacion Servicios Dispositivos Dispositivos/soporte Configuracion)
 target_compile_options(firmware PRIVATE
     $<$<COMPILE_LANGUAGE:C>:-Wall;-Wextra;-Werror;-Wconversion;-Wshadow;-Wstrict-prototypes>)
 
 if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_executable(pruebas_procesamiento
         tests/host/test_procesamiento.c Aplicacion/Procesamiento.c)
-    target_include_directories(pruebas_procesamiento PRIVATE Aplicacion)
-    set_target_properties(pruebas_procesamiento PROPERTIES
-        C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO)
-    target_compile_options(pruebas_procesamiento PRIVATE
-        -Wall -Wextra -Werror -Wconversion -Wshadow -Wstrict-prototypes -pedantic-errors)
-    if(TPI_HOST_SANITIZERS)
-        target_compile_options(pruebas_procesamiento PRIVATE
-            -fsanitize=address,undefined -fno-omit-frame-pointer)
-        target_link_options(pruebas_procesamiento PRIVATE -fsanitize=address,undefined)
-    endif()
+    add_executable(pruebas_comunicacion tests/host/test_comunicacion.c
+        Servicios/Comunicacion.c Aplicacion/Procesamiento.c)
+    foreach(prueba pruebas_procesamiento pruebas_comunicacion)
+        target_include_directories(${prueba} PRIVATE Aplicacion Servicios Configuracion)
+        set_target_properties(${prueba} PROPERTIES
+            C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO)
+        target_compile_options(${prueba} PRIVATE
+            -Wall -Wextra -Werror -Wconversion -Wshadow -Wstrict-prototypes -pedantic-errors)
+        if(TPI_HOST_SANITIZERS)
+            target_compile_options(${prueba} PRIVATE
+                -fsanitize=address,undefined -fno-omit-frame-pointer)
+            target_link_options(${prueba} PRIVATE -fsanitize=address,undefined)
+        endif()
+    endforeach()
     add_test(NAME b01.modos COMMAND pruebas_procesamiento)
+    add_test(NAME b02.comunicacion COMMAND pruebas_comunicacion)
 endif()
