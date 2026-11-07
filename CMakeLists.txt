@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 
 project(TPI_ED3_Tacometro LANGUAGES C)
 option(TPI_BUILD_ARM "Generar ELF para LPC1769 (requiere toolchain ARM)" OFF)
+option(TPI_HOST_SANITIZERS "Instrumentar pruebas host con ASan/UBSan" OFF)
+include(CTest)
 
 set(TPI_SOURCES
     Aplicacion/main.c
@@ -59,7 +61,6 @@ if(TPI_BUILD_ARM)
             "$<TARGET_FILE:firmware>" --tool-prefix "${TPI_TOOL_PREFIX}"
             --report "${CMAKE_CURRENT_BINARY_DIR}/memoria.txt"
         VERBATIM)
-    include(CTest)
     if(BUILD_TESTING)
         add_test(NAME b00.imagen COMMAND "${Python3_EXECUTABLE}"
             "${CMAKE_CURRENT_SOURCE_DIR}/scripts/verificar_elf.py"
@@ -68,6 +69,11 @@ if(TPI_BUILD_ARM)
             "${CMAKE_CURRENT_SOURCE_DIR}/scripts/pruebas_b00.py"
             --source "${CMAKE_CURRENT_SOURCE_DIR}" --elf "$<TARGET_FILE:firmware>"
             --tool-prefix "${TPI_TOOL_PREFIX}")
+        add_test(NAME b01.enlace_arm COMMAND "${CMAKE_COMMAND}"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b01-fixture"
+            "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b01.cmake")
     endif()
 else()
     if(CMAKE_CROSSCOMPILING)
@@ -82,3 +88,19 @@ target_include_directories(firmware PRIVATE
     Aplicacion Servicios Dispositivos Dispositivos/soporte)
 target_compile_options(firmware PRIVATE
     $<$<COMPILE_LANGUAGE:C>:-Wall;-Wextra;-Werror;-Wconversion;-Wshadow;-Wstrict-prototypes>)
+
+if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
+    add_executable(pruebas_procesamiento
+        tests/host/test_procesamiento.c Aplicacion/Procesamiento.c)
+    target_include_directories(pruebas_procesamiento PRIVATE Aplicacion)
+    set_target_properties(pruebas_procesamiento PROPERTIES
+        C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO)
+    target_compile_options(pruebas_procesamiento PRIVATE
+        -Wall -Wextra -Werror -Wconversion -Wshadow -Wstrict-prototypes -pedantic-errors)
+    if(TPI_HOST_SANITIZERS)
+        target_compile_options(pruebas_procesamiento PRIVATE
+            -fsanitize=address,undefined -fno-omit-frame-pointer)
+        target_link_options(pruebas_procesamiento PRIVATE -fsanitize=address,undefined)
+    endif()
+    add_test(NAME b01.modos COMMAND pruebas_procesamiento)
+endif()

@@ -1,0 +1,22 @@
+# Doxygen 1.9.8: validar HTML y XML juntos; contenido documental en espanol.
+# Documentacion parcial: ampliar INPUT al implementar/documentar cada ESW.
+PROJECT_NAME = "TPI EDIII - Firmware"
+OUTPUT_DIRECTORY = build/doxygen
+OUTPUT_LANGUAGE = English
+INPUT = Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacion/Procesamiento.c
+FILE_PATTERNS = *.c *.h
+INCLUDE_PATH = Aplicacion
+OPTIMIZE_OUTPUT_FOR_C = YES
+EXTRACT_ALL = NO
+EXTRACT_STATIC = YES
+WARNINGS = YES
+WARN_IF_UNDOCUMENTED = YES
+WARN_IF_DOC_ERROR = YES
+WARN_NO_PARAMDOC = YES
+WARN_AS_ERROR = YES
+QUIET = YES
+GENERATE_HTML = YES
+GENERATE_LATEX = NO
+GENERATE_XML = YES
+XML_PROGRAMLISTING = NO
+HAVE_DOT = NO

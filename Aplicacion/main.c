@@ -9,6 +9,7 @@
 /**
  * @brief Mantener la aplicacion en el lazo minimo de B00.
  * @details No retorna ni modifica perifericos; pendiente de integrar servicios.
+ * @return No retorna; mantiene el lazo minimo hasta integrar los servicios.
  * @note USW.2.1.1.1.
  */
 int main(void)

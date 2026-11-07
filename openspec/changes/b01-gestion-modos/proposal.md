@@ -1,6 +1,6 @@
 # B01 — Gestión de modos y selección del mando
 
-Estado: propuesto, sin autorización de implementación.
+Estado: alcance y criterios aceptados el 2026-11-06; implementación autorizada.
 
 ## Objetivo y requisitos de origen
 

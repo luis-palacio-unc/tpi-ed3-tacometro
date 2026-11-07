@@ -152,7 +152,7 @@ class ContratosB00(unittest.TestCase):
         self.assertIsNotNone(shutil.which("cc"), "Se requiere compilador host para S7")
         self.run_command(["cmake", "-S", args.source, "-B", self.tmp/"host",
                           "-DTPI_BUILD_ARM=OFF", "-DCMAKE_C_COMPILER="+str(shutil.which("cc"))])
-        self.run_command(["cmake", "--build", self.tmp/"host", "--parallel", "2"])
+        self.run_command(["cmake", "--build", self.tmp/"host", "--target", "firmware", "--parallel", "2"])
         objects = list((self.tmp/"host").rglob("*.o"))
         self.assertEqual(len(objects), 18)
         self.assertFalse(any("startup" in p.name for p in objects))

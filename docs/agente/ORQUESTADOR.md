@@ -35,8 +35,11 @@
 
 12. Actualizar tasks.md, state.yaml, ESTADO y MAPA_REQUISITOS con evidencia real.
     Actualizar CONTEXTO sólo ante decisiones duraderas, sin transcripciones.
-13. Si están autorizados commits del bloque, acordar firma, conservar hooks y crear
+13. El usuario autorizó commits al cerrar cada bloque acordado. Respetar configuración
+    de firma vigente, conservar hooks y crear
     commits pequeños tras controles. Push/merge/reescritura requieren permiso aparte.
+    Documentar las USW nuevas/modificadas con IDs y contratos Doxygen; verificar
+    documentación de los módulos desarrollados, ampliando el Doxyfile incremental.
 14. Distinguir implementado, verificado y aceptado. Sin aceptación del alcance,
     no sincronizar specs principales ni archivar. Una vez aceptado, sincronizar y
     mover a `archive/AAAA-MM-DD-<cambio>/`; no editar historial archivado.

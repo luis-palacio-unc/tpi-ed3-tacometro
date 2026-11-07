@@ -8,12 +8,13 @@
   "configurePresets": [
     {
       "name": "host-objects",
-      "displayName": "Objetos host (sin ejecucion de firmware)",
+      "displayName": "Objetos y pruebas de logica host",
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/host",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "TPI_BUILD_ARM": "OFF"
+        "TPI_BUILD_ARM": "OFF",
+        "BUILD_TESTING": "ON"
       }
     },
     {
@@ -43,6 +44,13 @@
     {
       "name": "lpc1769",
       "configurePreset": "lpc1769",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "host-objects",
+      "configurePreset": "host-objects",
       "output": {
         "outputOnFailure": true
       }

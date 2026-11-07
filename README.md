@@ -27,11 +27,12 @@ El build ejecuta automáticamente el verificador del ELF; CTest agrega casos neg
 `firmware.elf` es para el MCU: no se ejecuta como programa de escritorio.
 No está configurada todavía una sesión de depuración/flasheo de CLion.
 
-Perfil host, limitado a compilar objetos sin ejecutar main:
+Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, sin ejecutar main del firmware:
 
 ```sh
 cmake --preset host-objects
 cmake --build --preset host-objects
+ctest --preset host-objects
 ```
 
 Para mantener todos los resultados fuera del proyecto también se admite:
@@ -64,4 +65,23 @@ B00 aceptado y archivado. Publicación inicial en main autorizada por el usuario
 no extiende autorización a bloques futuros. [Contrato build vigente](openspec/specs/build/spec.md).
 
 Siguiente bloque: [B01 — gestión de modos](openspec/changes/b01-gestion-modos/proposal.md),
-propuesto y sin implementación.
+implementado y verificado; resultado pendiente de aceptación.
+
+## B01 y documentación incremental
+
+Procesamiento.h/.c implementan selección de modo/fuente y validez temporal de consignas,
+sin hardware ni regulación PI/PID. main sigue mínimo. Contratos, escenarios y evidencia
+están en openspec/changes/b01-gestion-modos/.
+
+Para instrumentar pruebas host (en un build independiente):
+
+```sh
+cmake -S . -B /tmp/ed3-host-san -DTPI_BUILD_ARM=OFF -DTPI_HOST_SANITIZERS=ON
+cmake --build /tmp/ed3-host-san --target pruebas_procesamiento
+ctest --test-dir /tmp/ed3-host-san --output-on-failure
+```
+
+Doxygen ya disponible en este entorno; no es requisito para compilar el firmware.
+Desde la raíz, `doxygen docs/doxygen/Doxyfile` genera HTML/XML parciales en
+build/doxygen/. Ver [convención documental](docs/doxygen/README.md). Estos resultados
+no constituyen aún la documentación final de todos los módulos.

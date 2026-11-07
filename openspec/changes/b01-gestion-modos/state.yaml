@@ -1,11 +1,16 @@
 block: B01
 change: b01-gestion-modos
-status: proposed
-scope_approved: false
+status: verified_pending_acceptance
+scope_approved: true
+scope_approved_on: 2026-11-06
 result_accepted: false
-phase: proposal
-implementation_started: false
+phase: verified
+implementation_started: true
+implementation_complete: true
+verification: passed_host_arm_link_and_doxygen
 main_specs_synced: false
-commit_authorized: false
+archived: false
+branch: main
+commit_authorized: true
 push_authorized: false
-next_action: Acordar alcance y aceptacion B01 antes de especificar e implementar.
+next_action: Revisar resultado B01 con usuario antes de sincronizar/archivar; no iniciar B02.

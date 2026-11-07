@@ -3,57 +3,52 @@
 ## Punto actual
 
 - Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`.
-- Rama `main`; identificador de revisión: consultar `git rev-parse HEAD` y
-  `git status --short --branch` al reanudar (no incrustar el propio hash en el commit).
-- Origin privado: `https://github.com/luis-palacio-unc/tpi-ed3-tacometro.git`.
-- Usuario aceptó B00 y autorizó commit/push de esta estructura inicial el 2026-11-06.
-  Esta autorización no se extiende a bloques posteriores.
-- B00 aceptado, especificación vigente en `openspec/specs/build/spec.md` y cambio
-  archivado en `openspec/changes/archive/2026-11-06-b00-build-lpc1769/`.
-- B01 propuesto en `openspec/changes/b01-gestion-modos/`, sin implementación.
-- Se respeta configuración de firma de Git: sin firma automática habilitada.
-- Sincronización remota: comprobar `git status -sb` y `git ls-remote origin refs/heads/main`
-  al reanudar; no depender del estado recordado en el chat.
+- Rama main. Base B01: a21cc1e; el commit actual se obtiene con `git rev-parse HEAD`.
+  Consultar `git status -sb` al reanudar: el commit B01 queda local, sin push.
+- Usuario autorizó commits al finalizar cada bloque acordado; no autorizó push B01.
+  Se conserva configuración Git de firma (sin firma automática) y hooks.
+- B00 aceptado/archivado; contrato vigente en openspec/specs/build/spec.md.
+- B01 implementado y verificado, pendiente de aceptación del resultado.
+  Artefactos en openspec/changes/b01-gestion-modos/. No sincronizar modos/archivar aún.
+- No se inició B02. Procesamiento tiene API lógica; main sigue sin integrar servicios.
+- Doxygen incremental: documentadas las 6 USW de Procesamiento y main; configuración
+  parcial en docs/doxygen/Doxyfile. Continuar este estilo en bloques siguientes.
 
-## Evidencia ejecutada
+## Evidencia realmente ejecutada
 
-| Comprobación | Resultado | Alcance |
-|---|---|---|
-| GCC ARM 13.2.1 / CMake 3.28.3, Debug | ELF, mapa, memoria.txt válidos | Compilación cruzada e inspección |
-| CTest Debug | 2/2 pruebas; suite de contratos 14/14 casos | Herramientas/build/ELF ejecutados en host |
-| Build Release desde directorio limpio | Correcto, verificación automática correcta | Optimizaciones y enlace ARM |
-| Build host dentro de la suite | Correcto, 18 objetos | Sin ejecución de main |
-| Fixture .data/.bss y revisión del startup | Correcto; llamada a main y límites coherentes | Inspección estática; no ejecución ARM |
-| Presets CMake | Host y LPC1769 reconocidos | Configuración |
-| Preservación | Drivers, servicios y dispositivos intactos | SHA-256 contra inicio B00 |
-| Copia limpia del índice para publicación | Build ARM correcto; CTest 2/2 y suite 14/14 | Sin archivos locales excluidos |
+| Verificación | Resultado |
+|---|---|
+| C host Debug + CTest | 1/1; 17/17 casos funcionales |
+| ASan/LeakSanitizer/UBSan | 17/17, sin hallazgos, fuera del sandbox |
+| ARM Debug + CTest | 3/3; incluye contratos B00 14/14 y enlace API B01 |
+| ARM Release | ELF y verificación estática correctos |
+| Doxygen 1.9.8 HTML/XML estricto | Correcto sin avisos; 7 USW identificadas en XML |
+| Doxygen sonda sin retorno | Rechazo esperado; controles habilitados |
+| Recursos ARM -O0 | Contexto 40 bytes; módulo sin heap/globals; camino de llamadas hasta 72 bytes estáticos |
+| Preservación | Drivers/Servicios/Dispositivos/archivo B00 intactos |
 
-Debug: huella flash 844 bytes; SRAM local asignada 2048 bytes (reserva de pila).
-Release: huella flash 840 bytes; misma reserva. No acredita profundidad real de pila.
-Artefactos/logs: `/tmp/ed3-b00-20261106-yyj_xnlc` (temporales, fuera del proyecto).
-Reproducción y matriz S1–S7 en el informe archivado; comandos de uso en README.
-Logs de publicación/copia limpia: `/tmp/ed3-publicacion-20261106-wu5a4yvx` (fuera del árbol versionado).
+Logs/artefactos: `/tmp/ed3-b01-20261106-02a8ln3f` (temporales, fuera del árbol versionado).
+Detalle y matriz S1–S9 en verify-report.md del cambio B01.
+Fallos iniciales registrados: LeakSanitizer incompatible con ptrace; Doxygen sólo XML
+no reconocía correctamente @return. Se corrigió entorno/formato manteniendo controles.
+No se ejecutó firmware ARM en placa o simulador ni se flasheó.
 
-Se corrigieron durante B00: nota GNU-stack ausente, comparación de nombre cosmético
-CPU y reescritura de fecha del ELF por objcopy. Se conservaron los logs de los fallos.
-No se ejecutaron unitarias funcionales del tacómetro, simulación ni pruebas físicas.
+## Pendientes y limitaciones
 
-## Limitaciones y pendientes
-
-- Sonda elegida: CMSIS-DAP integrado. Revisión PCB/silicio sin confirmar.
-- Sin sesión de depuración configurada ni GDB ARM/OpenOCD/pyOCD/LinkServer detectados
-  en PATH durante incorporación. No se instalaron dependencias ni se flasheó.
-- Boot físico, consumo real de pila, reloj y periféricos aún no validados.
-- Faltan conexiones/VREF, motor/driver, límites RPM, temporización, protocolo UART,
-  umbral y recuperación de alarma. No consta aprobación formal del anteproyecto.
-- La biblioteca CMSIS no se modificó; SystemInit y las suites heredadas no se ejecutan.
-- Sin CI. Sólo se autorizó publicación inicial; no se modificaron claves, firma o hooks.
-- `git diff --cached --check` inicial: 205 avisos heredados, todos de Drivers. Se
-  conserva biblioteca intacta y log completo; código propio/documentación pasan.
-- AGENTS.md sigue excluido por ignore global del usuario; no se forzó su inclusión.
-  El procedimiento y contexto compartidos están versionados en docs/agente/.
+- La secuencia lógica de recepción uint64_t no es tiempo; el integrador la asigna al
+  recibir, conserva en cola y serializa captura/llamadas. No se admite rollover;
+  reiniciar requiere inicialización y purga de colas. Esto aún no está integrado a ISR.
+- Mando manual 0..1000 por mil; RPM uint32_t validadas externamente. No se fijaron
+  rango físico del motor ni protocolo UART. La fuente automática habilita un regulador
+  futuro, no calcula PWM en B01.
+- Sin comprobación física de PCB/silicio, pines, VREF, reloj o sonda/configuración de
+  depuración. CMSIS-DAP integrado elegido. Sin sesiones de debug configuradas.
+- Faltan sensores, servicios, potencia, regulador, alarma y lazo principal integrados.
+- Sin CI. No consta aquí aprobación formal del anteproyecto.
+- Whitespace heredado de Drivers registrado en publicación B00; no se reformateó.
+- AGENTS.md y .atl siguen locales según exclusiones; procedimiento compartido en docs/agente/.
 
 ## Próxima acción
 
-Acordar alcance y criterio de aceptación de B01 antes de implementarlo. Al reanudar,
-comprobar HEAD/upstream; cualquier commit o push de otro bloque requiere autorización.
+Revisar B01 con el usuario. Tras aceptación, sincronizar/archivar. Acordar el siguiente
+bloque antes de implementarlo; push requiere autorización independiente.

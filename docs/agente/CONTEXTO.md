@@ -50,12 +50,13 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
 contratos aceptados; dominio build vigente desde el cierre de B00.
-Propuestas en `openspec/changes/`; B01 propuesto, todavía sin acuerdo.
+Cambios en `openspec/changes/`; B01 implementado/verificado, resultado pendiente de aceptación.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 Git local inicializado en main por acuerdo del usuario, con origin privado.
 El usuario autorizó commit y push de la estructura inicial al aceptar B00.
-No se infiere autorización para commits/push posteriores. Se conserva la configuración
-de firma de Git, actualmente sin firma automática habilitada.
+El usuario autorizó después commits al finalizar cada bloque acordado. El push sigue
+requiriendo autorización independiente. Se conserva configuración de firma Git,
+actualmente sin firma automática habilitada.
 
 ## Referencias de fabricante consultadas
 
@@ -73,3 +74,20 @@ Build explícito Cortex-M3/Thumb, main mínimo, startup propio y linker por banc
 Checksum de boot calculado al enlazar; palabra CRP 0xffffffff reservada.
 No se configura reloj/PLL ni se llama SystemInit. No asumir el reloj heredado
 del boot ROM/ISP. Las verificaciones son estáticas, sin aceptación física de arranque.
+
+## Decisiones B01 e integración futura
+
+Procesamiento expone Inicializar/Actualizar con contexto explícito, sin hardware ni
+estado global. Fuente CERO/MANUAL/AUTOMATICA única; manual entero 0..1000 por mil.
+La fuente automática entrega consigna para un controlador posterior; no calcula PWM.
+Órdenes uint64_t monotónicas sin rollover, asignadas por el integrador al recibir
+(eventos no traen esa autoridad desde PC), preservadas en cola. Captura y llamadas
+requieren serialización externa; integrar esto antes de habilitar recepción por ISR.
+Entrada automática establece barrera; consigna en la misma actualización no habilita.
+Reiniciar numeración requiere inicializar y purgar colas. API completa en Procesamiento.h.
+
+Documentar cada nueva ESW/USW con @file/@brief/@details/@note, IDs, parámetros, retornos,
+unidades, errores y concurrencia. Sin comentarios dentro de cuerpos de producción,
+según guía del TPI. Doxyfile parcial estricto; ampliar INPUT con cada módulo documentado.
+Doxygen instalado genera HTML/XML juntos; contenido español y etiquetas automáticas
+inglesas. No se instala ni actualiza Doxygen para generar la documentación final.
