@@ -1,0 +1,26 @@
+schema: spec-driven
+context: |
+  Proyecto: tacometro digital TPI EDIII; C11, CLion, LPC1769/OM13085.
+  Capas: Aplicacion, Servicios, Dispositivos; CMSISv2p00_LPC17xx existente.
+  Build: objetos host y ELF ARM Cortex-M3 con startup/linker propios, B00.
+  Pruebas B00: CTest 2/2 y suite 14/14; sin ejecucion ARM/simulacion/placa.
+  Sonda: CMSIS-DAP integrado confirmado; revision fisica pendiente.
+  Persistencia: archivos; B00 aceptado/archivado, B01 propuesto; leer ESTADO al reanudar.
+rules:
+  proposal:
+    - Vincular origen, alcance, exclusiones, dependencias y aceptacion verificable.
+  specs:
+    - Usar MUST/SHALL/SHOULD/MAY y escenarios Given/When/Then.
+    - Separar contratos candidatos de contratos vigentes aceptados.
+  design:
+    - Justificar unidades, limites, concurrencia y recursos pertinentes al bloque.
+  tasks:
+    - Usar checklist jerarquico y mantener bloques pequenos.
+  apply:
+    - Implementar solo el bloque acordado; preservar cambios locales y bibliotecas.
+    - No instalar, flashear ni cambiar configuracion sensible sin autorizacion.
+  verify:
+    - Registrar comandos ejecutados y distinguir host, ARM, simulacion y hardware.
+    - Revisar diff y mantener logs extensos fuera del arbol versionado.
+  archive:
+    - Sincronizar y archivar solo tras aceptacion; no editar archivos archivados.

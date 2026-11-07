@@ -1,0 +1,17 @@
+block: B00
+change: b00-build-lpc1769
+status: archived
+scope_approved: true
+scope_approved_on: 2026-11-06
+result_accepted: true
+accepted_on: 2026-11-06
+phase: archived
+implementation_complete: true
+verification: passed_static_build_scope
+main_specs_synced: true
+archived: true
+branch: main
+commit_authorized: true
+push_authorized: true
+authorization_scope: Estructura inicial y cierre B00 con propuesta B01, sin implementar B01.
+next_action: Acordar B01 antes de implementar.

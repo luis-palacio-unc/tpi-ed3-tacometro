@@ -1,0 +1,51 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "host-objects",
+      "displayName": "Objetos host (sin ejecucion de firmware)",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/host",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "TPI_BUILD_ARM": "OFF"
+      }
+    },
+    {
+      "name": "lpc1769",
+      "displayName": "LPC1769 - ARM Cortex-M3",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/lpc1769",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "TPI_BUILD_ARM": "ON",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/arm-none-eabi.cmake",
+        "BUILD_TESTING": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "host-objects",
+      "configurePreset": "host-objects"
+    },
+    {
+      "name": "lpc1769",
+      "configurePreset": "lpc1769"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "lpc1769",
+      "configurePreset": "lpc1769",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

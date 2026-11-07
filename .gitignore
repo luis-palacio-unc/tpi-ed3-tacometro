@@ -1,0 +1,5 @@
+# Entorno local y resultados generados
+/.idea/
+/.atl/
+/cmake-build-*/
+/build/
