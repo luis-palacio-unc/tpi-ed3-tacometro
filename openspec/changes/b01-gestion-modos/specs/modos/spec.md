@@ -1,6 +1,6 @@
 # Modos — contrato candidato B01
 
-Origen: R05/R06; interfaces parciales de R03/R04. Alcance autorizado el 2026-11-06.
+Origen: R05/R06 y R14 (aclaración del usuario: máximo 185 RPM); interfaces de R03/R04. Alcance autorizado el 2026-11-06.
 Sin aceptación del resultado todavía; no reemplaza el contrato build vigente.
 
 ## Requirements
@@ -43,12 +43,13 @@ consigna se observan en la misma actualización, MUST prevalecer la espera.
 
 ### Requirement B01-R3: Rechazo sin sustituir
 Consignas inválidas, anteriores/iguales al límite, duplicadas, fuera de orden o futuras
-MUST NOT activar automático ni sustituir una consigna activa. RPM son uint32_t,
-incluido cero; la validez y límites físicos corresponden al servicio futuro.
+MUST NOT activar automático ni sustituir una consigna activa. Las consignas MUST
+pertenecer a 0..185 RPM inclusive; valores superiores MUST descartarse aunque estén
+marcados válidos externamente. El dato de entrada es uint32_t; no se satura a 185.
 
 #### Scenario S6: Mensajes descartados
 - GIVEN espera o auto activo
-- WHEN se reciben eventos inválidos, antiguos, repetidos, desordenados o futuros
+- WHEN se reciben eventos inválidos, fuera de 0..185 RPM, antiguos, repetidos, desordenados o futuros
 - THEN se conserva espera o la consigna activa, respectivamente.
 
 ### Requirement B01-R4: Errores y límites C
@@ -64,9 +65,9 @@ llamadas/datos de recepción serializados por el integrador; no hay acceso concu
 - THEN error sin usar el mando anterior; recuperación automática exige nueva consigna.
 
 #### Scenario S8: Fronteras y aislamiento
-- GIVEN órdenes hasta UINT64_MAX, RPM hasta UINT32_MAX y contextos independientes
+- GIVEN órdenes hasta UINT64_MAX, entradas RPM 0/184/185/186/UINT32_MAX e instancias independientes
 - WHEN se actualizan sin rollover
-- THEN no hay desbordes, contaminación de contextos ni mezcla de fuentes.
+- THEN sólo se aceptan RPM 0..185, sin desbordes, contaminación ni mezcla de fuentes.
 
 ### Requirement B01-R5: Evidencia y documentación
 El módulo MUST compilar en C11 para host/ARM y documentar ESW/USW con Doxygen,

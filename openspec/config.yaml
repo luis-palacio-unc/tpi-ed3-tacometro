@@ -4,6 +4,7 @@ context: |
   Capas: Aplicacion, Servicios, Dispositivos; CMSISv2p00_LPC17xx existente.
   Build: objetos host y ELF ARM Cortex-M3 con startup/linker propios, B00.
   Pruebas B01: C host 17/17; CTest ARM 3/3, B00 14/14; Doxygen estricto.
+  Consigna: 0..185 RPM inclusive; maximo aclarado por el usuario.
   Sonda: CMSIS-DAP integrado confirmado; revision fisica pendiente.
   Persistencia: archivos; B00 aceptado/archivado, B01 verificado pendiente de aceptacion; leer ESTADO al reanudar.
 rules:

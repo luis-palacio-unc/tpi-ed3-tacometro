@@ -2,7 +2,7 @@
 
 ## Resultado y alcance
 
-PASS para lógica aislada, compilación/enlace y documentación. 11/11 tareas al cierre;
+PASS para lógica aislada, compilación/enlace y documentación. 14/14 tareas al cierre;
 resultado pendiente de aceptación. No sincronizar specs ni archivar aún.
 Base: a21cc1e3b001c9cdfdcf0379710e1694c924932e en main. Commit B01 autorizado;
 push no autorizado. Sin integración de servicios o main, control PI/PID ni hardware.
@@ -89,3 +89,27 @@ La secuencia se asignará por el integrador al recibir eventos, nunca por la PC 
 sacarlos de cola. Su captura de 64 bits y llamadas deben serializarse al integrar ISR.
 No se acreditan tiempos, boot físico, consumo real de pila, UART, PWM ni regulación.
 Ningún bloqueo pendiente dentro del alcance B01; esperar aceptación antes de archivar.
+
+## Corrección R14 — máximo 185 RPM (2026-11-06)
+
+El usuario fijó máximo de aceptación 185 RPM después del commit a83d87b. Esta
+aclaración reemplaza el contrato anterior que transportaba cualquier uint32_t
+marcado válido. Constante documentada PROCESAMIENTO_RPM_MAX=185U; guard en la USW
+Actualizar. No se cambió la medición ni se saturan consignas fuera de rango.
+
+Prueba LimitesRPM ampliada antes del guard: falló al aceptar 186 en espera
+(red-test.log). Tras corregir, 0/184/185 se aceptan; 186 y UINT32_MAX no habilitan
+automático ni sustituyen una consigna activa. Los demás casos usan consignas válidas
+menores a 185 para seguir comprobando sus motivos originales de descarte.
+
+Reejecutados: host CTest 1/1 (17/17 casos), ASan/LeakSanitizer/UBSan 17/17 fuera
+del sandbox, ARM Debug CTest 3/3 (B00 14/14 y fixture API), build Release y Doxygen
+estricto sin avisos. Constante 185U comprobada en XML. No hubo ejecución física.
+Logs actuales: `/tmp/ed3-rpm185-py52m3z4` (host/san/arm-test, release-build, doxygen, recursos).
+Cifras actualizadas a -O0: objeto Procesamiento text 748 bytes, data/bss 0; pila por
+función sin cambios (camino hasta 72 bytes estáticos). Fixture flash 1684 bytes,
+SRAM 2088; las cifras 740/1676 anteriores corresponden a a83d87b.
+
+Contrato/diseño/mapa/contexto actualizados. Archivo B00 preservado; B01 sigue
+pendiente de aceptación y su especificación no se promovió. Commit correctivo
+local autorizado por la política vigente de commits al cerrar bloques, sin push.

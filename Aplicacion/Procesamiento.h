@@ -23,6 +23,9 @@
 /** @brief Mando manual maximo: 1000 por mil equivale a 100 por ciento. */
 #define PROCESAMIENTO_MANDO_MAX 1000U
 
+/** @brief Maxima consigna aceptada en RPM, inclusive; aclaracion del usuario. */
+#define PROCESAMIENTO_RPM_MAX 185U
+
 /** @brief Modo logico entregado por el futuro servicio Mandos. */
 typedef enum {
     PROCESAMIENTO_MODO_MANUAL = 0, /**< Seleccion del potenciometro. */
@@ -45,7 +48,7 @@ typedef enum {
 
 /** @brief Evento de consigna recibido; no cambiar su marca al retirarlo de cola. */
 typedef struct {
-    uint32_t rpm; /**< Consigna en RPM; no fija el rango fisico del motor. */
+    uint32_t rpm; /**< Consigna en RPM: 0..185 inclusive; valores superiores se descartan. */
     uint64_t orden_recepcion; /**< Secuencia global capturada al recibir el mensaje. */
     bool valida; /**< Validacion externa de formato y rango; false descarta el evento. */
 } Procesamiento_Consigna;
@@ -100,7 +103,8 @@ bool Procesamiento_Inicializar(Procesamiento_Contexto *contexto,
  * y ultima consigna, y no mayor que orden_actual. Invalidos/antiguos/duplicados/futuros
  * no sustituyen la consigna activa. Un cambio de modo tiene precedencia: un evento
  * de la misma actualizacion no habilita automatico. RPM cero es una consigna valida
- * si el servicio la valida; UINT32_MAX se transporta, no habilita ese rango fisico.
+ * si el servicio la valida. Consignas mayores que 185 RPM se descartan aunque
+ * valida sea true; no se saturan ni sustituyen la consigna vigente.
  * @param[in,out] contexto Instancia inicializada; NULL devuelve error.
  * @param[in] entradas Datos estables y no solapados; NULL devuelve error.
  * @param[out] salida Resultado escribible no solapado; NULL devuelve error.

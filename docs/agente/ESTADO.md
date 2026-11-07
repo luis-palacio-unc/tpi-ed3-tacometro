@@ -8,7 +8,8 @@
 - Usuario autorizó commits al finalizar cada bloque acordado; no autorizó push B01.
   Se conserva configuración Git de firma (sin firma automática) y hooks.
 - B00 aceptado/archivado; contrato vigente en openspec/specs/build/spec.md.
-- B01 implementado y verificado, pendiente de aceptación del resultado.
+- B01 implementado/verificado y ajustado al máximo de 185 RPM aclarado por el usuario;
+  pendiente de aceptación del resultado. La corrección tiene commit local, sin push.
   Artefactos en openspec/changes/b01-gestion-modos/. No sincronizar modos/archivar aún.
 - No se inició B02. Procesamiento tiene API lógica; main sigue sin integrar servicios.
 - Doxygen incremental: documentadas las 6 USW de Procesamiento y main; configuración
@@ -28,7 +29,9 @@
 | Preservación | Drivers/Servicios/Dispositivos/archivo B00 intactos |
 
 Logs/artefactos: `/tmp/ed3-b01-20261106-02a8ln3f` (temporales, fuera del árbol versionado).
-Detalle y matriz S1–S9 en verify-report.md del cambio B01.
+Última corrección: /tmp/ed3-rpm185-py52m3z4; 17/17 casos normales/sanitizados,
+ARM CTest 3/3, Release y Doxygen correctos. La prueba nueva falló antes del cambio.
+Detalle y matriz S1–S9/R14 en verify-report.md del cambio B01.
 Fallos iniciales registrados: LeakSanitizer incompatible con ptrace; Doxygen sólo XML
 no reconocía correctamente @return. Se corrigió entorno/formato manteniendo controles.
 No se ejecutó firmware ARM en placa o simulador ni se flasheó.
@@ -38,8 +41,9 @@ No se ejecutó firmware ARM en placa o simulador ni se flasheó.
 - La secuencia lógica de recepción uint64_t no es tiempo; el integrador la asigna al
   recibir, conserva en cola y serializa captura/llamadas. No se admite rollover;
   reiniciar requiere inicialización y purga de colas. Esto aún no está integrado a ISR.
-- Mando manual 0..1000 por mil; RPM uint32_t validadas externamente. No se fijaron
-  rango físico del motor ni protocolo UART. La fuente automática habilita un regulador
+- Mando manual 0..1000 por mil; consignas aceptadas 0..185 RPM inclusive,
+  comprobadas en Procesamiento además de la validación externa. Protocolo UART pendiente.
+  La fuente automática habilita un regulador
   futuro, no calcula PWM en B01.
 - Sin comprobación física de PCB/silicio, pines, VREF, reloj o sonda/configuración de
   depuración. CMSIS-DAP integrado elegido. Sin sesiones de debug configuradas.

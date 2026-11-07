@@ -128,6 +128,7 @@ bool Procesamiento_Actualizar(Procesamiento_Contexto *contexto,
     }
     const Procesamiento_Consigna *consigna = entradas->consigna;
     if (consigna != NULL && consigna->valida &&
+        consigna->rpm <= PROCESAMIENTO_RPM_MAX &&
         consigna->orden_recepcion > contexto->orden_entrada_auto &&
         consigna->orden_recepcion > contexto->orden_ultima_consigna &&
         consigna->orden_recepcion <= contexto->orden_actual) {

@@ -21,6 +21,11 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
+R14 — aclaración del usuario (2026-11-06): aceptar consignas hasta **185 RPM**,
+inclusive. B01: Procesamiento.c/.h; prueba LimitesRPM cubre 0/184/185 aceptadas y
+186/UINT32_MAX rechazadas en espera y con consigna activa. Evidencia: corrección R14
+en verify-report.md. Se conserva consigna activa ante rechazo; no se satura.
+
 Aviso de temperatura en PC: opcional según AP; no ampliar alcance obligatorio.
 B00 aceptado y archivado para su alcance de build/inspección. R01 conserva aceptación
 física pendiente. B01 verificado en host y enlace ARM, sin aceptación todavía; no hay ensayos físicos.

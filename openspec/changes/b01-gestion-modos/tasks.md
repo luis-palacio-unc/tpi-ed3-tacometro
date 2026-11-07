@@ -20,3 +20,8 @@
 - [x] 4.2 Crear commit B01 con configuración de firma vigente y hooks; sin push.
 
 Resultado pendiente de aceptación antes de sincronizar/archivar. No comenzar B02.
+
+## 5. Aclaración del usuario: máximo 185 RPM
+- [x] 5.1 Actualizar contrato, tipos documentados y prueba de fronteras 0/184/185/186/UINT32_MAX.
+- [x] 5.2 Reproducir rechazo faltante y aplicar máximo inclusivo en Procesamiento.
+- [x] 5.3 Verificar host/ARM/Doxygen, actualizar contexto y crear commit sin push.

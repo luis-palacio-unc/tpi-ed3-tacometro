@@ -35,8 +35,9 @@ campos directamente ni consultar antes de inicializar.
 
 Consigna elegible sólo si válida y entrada_auto < orden_rx <= orden_actual,
 además de orden_rx > última_aceptada. Una consigna inválida no sustituye la vigente.
-RPM 0 y UINT32_MAX se transportan si el servicio las marca válidas; no son rangos
-físicos autorizados. Orden agotado no se incrementa internamente; un rollover se
+RPM 0..185 inclusive se aceptan si el servicio las marca válidas. El máximo 185
+fue aclarado por el usuario tras la primera implementación B01; Procesamiento lo
+comprueba aunque valida sea true. No saturar ni limitar la medición real de velocidad. Orden agotado no se incrementa internamente; un rollover se
 rechaza como regresión, con salida cero.
 
 Errores de modo/orden/mando manual o punteros: limpiar salida disponible, invalidar

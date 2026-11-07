@@ -8,6 +8,8 @@ phase: verified
 implementation_started: true
 implementation_complete: true
 verification: passed_host_arm_link_and_doxygen
+rpm_max: 185
+latest_clarification: R14 - maximo inclusivo confirmado por usuario
 main_specs_synced: false
 archived: false
 branch: main

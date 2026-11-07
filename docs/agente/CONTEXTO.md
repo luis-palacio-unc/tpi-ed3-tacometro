@@ -44,7 +44,8 @@ indica no comentar el cuerpo de las funciones para la evaluación.
   anterior ni comandos pendientes anteriores al cambio de modo.
 - Alarma de temperatura prioritaria, visual y acústica. No se ha requerido detener
   el motor por temperatura ni se ha acordado aún histéresis/enclavamiento.
-- No se ha elegido PI/PID, pines, frecuencias, rangos o protocolo de comunicación.
+- Consignas aceptadas: 0..185 RPM inclusive; máximo aclarado por el usuario.
+- No se ha elegido PI/PID, pines, frecuencias u otros límites/protocolo de comunicación.
 
 ## SDD y Git
 
@@ -80,6 +81,8 @@ del boot ROM/ISP. Las verificaciones son estáticas, sin aceptación física de 
 Procesamiento expone Inicializar/Actualizar con contexto explícito, sin hardware ni
 estado global. Fuente CERO/MANUAL/AUTOMATICA única; manual entero 0..1000 por mil.
 La fuente automática entrega consigna para un controlador posterior; no calcula PWM.
+Procesamiento descarta consignas >185 RPM aunque valida sea true; no las satura ni
+reemplaza la activa. Este límite de aceptación no recorta las mediciones reales.
 Órdenes uint64_t monotónicas sin rollover, asignadas por el integrador al recibir
 (eventos no traen esa autoridad desde PC), preservadas en cola. Captura y llamadas
 requieren serialización externa; integrar esto antes de habilitar recepción por ISR.
