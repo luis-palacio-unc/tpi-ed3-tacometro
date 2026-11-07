@@ -1,7 +1,7 @@
 # B05 — Temperatura independiente del sensor
 
-Estado: alcance acordado y aclarado por el usuario el 2026-11-07. Corrección de B05
-en curso; commit autorizado, sin push. Resultado pendiente de aceptación.
+Estado: resultado corregido aceptado por el usuario el 2026-11-07.
+Sincronización, archivo y publicación de los commits pendientes autorizados.
 
 ## Objetivo y origen
 

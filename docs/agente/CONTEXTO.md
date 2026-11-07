@@ -58,16 +58,16 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
 contratos aceptados: build (B00), modos (B01), comunicación (B02), medición (B03)
-y normalización manual (B04). B00–B04 aceptados y archivados. B05 implementado/verificado en `openspec/changes/`,
-pendiente de aceptación del resultado; contrato de temperatura todavía candidato.
+y normalización manual (B04). B00–B05 aceptados y archivados. Contrato de temperatura corregido vigente desde
+2026-11-07. Revisión independiente de B03 autorizada por el usuario, todavía no aceptada.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 Git local inicializado en main por acuerdo del usuario, con origin privado.
 El usuario autorizó commit y push de la estructura inicial al aceptar B00.
 El usuario autorizó después commits al finalizar cada bloque acordado. El push sigue
 requiriendo autorización independiente; el usuario autorizó publicar los commits B01
 y su cierre, y posteriormente B02 y su cierre. También autorizó publicar B03
-y su cierre al aceptarlo, y luego B04 y su cierre. Nuevas publicaciones requieren
-autorización independiente.
+y su cierre al aceptarlo, y luego B04 y su cierre. El usuario autorizó publicar B05, su corrección y cierre al aceptarlo el 2026-11-07.
+Nuevas publicaciones requieren autorización independiente.
 Se conserva configuración de firma Git,
 actualmente sin firma automática habilitada.
 
@@ -172,4 +172,4 @@ directo a dispositivos desde lógica de aplicación. No añadir callbacks hasta 
 Acceso serializado, sin frescura/alarma/main implementados.
 
 R15 transversal: Medicion_Velocidad aún contiene 60 pulsos/vuelta fijos en contrato
-B03 aceptado; registrar revisión futura por cambio SDD separado, sin editar su archivo.
+B03 aceptado; revisión por cambio SDD separado autorizada el 2026-11-07; no editar su archivo histórico.

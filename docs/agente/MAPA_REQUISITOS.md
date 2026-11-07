@@ -13,7 +13,7 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; lógica | Aplicacion/Procesamiento.* | B01 S1/S2 PASS (C host); integración física pendiente |
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01 aceptado; lógica | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | B01 S3/S4/S5/S6 PASS (C host); recepción real pendiente |
-| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido/verificado: servicio genérico + LM35; aceptación/alarma/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report activo); umbral/alarma física pendientes |
+| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; aceptación/alarma/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report activo); umbral/alarma física pendientes |
 | R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción lógica; resto pendiente | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 S1–S8 PASS host; UART física/telemetría pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
@@ -38,7 +38,7 @@ Sin evidencia de medición física; contrato vigente en openspec/specs/medicion-
 B04 aceptado/archivado: 15 casos C, recorridos/fronteras, sanitizadores y enlace ARM PASS.
 Contrato vigente de mandos; adquisición del potenciómetro y PWM físicos pendientes.
 
-B05 corregido/verificado: 10 casos del servicio genérico, 17 LM35 y 3 integración;
+B05 corregido, aceptado y archivado: 10 casos del servicio genérico, 17 LM35 y 3 integración;
 regresiones/sanitizadores/ARM/Doxygen PASS. Aclaración R15 incluye independencia
 de servicios, con curva específica en dispositivos. B03 se revisará por separado.
-Resultado pendiente de aceptación; adquisición y alarma aún pendientes.
+Contrato vigente de temperatura sincronizado; adquisición y alarma aún pendientes.

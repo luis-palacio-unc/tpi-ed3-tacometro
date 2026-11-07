@@ -68,8 +68,8 @@ B01 aceptado/archivado con límite 185 RPM. [Contrato de modos vigente](openspec
 B02 aceptado y archivado. [Contrato de comunicación vigente](openspec/specs/comunicacion/spec.md).
 B03 aceptado y archivado. [Contrato de medición vigente](openspec/specs/medicion-velocidad/spec.md).
 B04 aceptado y archivado. [Contrato de mandos vigente](openspec/specs/mandos/spec.md).
-B05 corregido/verificado, pendiente de aceptación del resultado.
-[Contrato candidato y evidencia](openspec/changes/b05-conversion-temperatura/verify-report.md).
+B05 corregido, aceptado y archivado. [Contrato de temperatura vigente](openspec/specs/temperatura/spec.md)
+y [evidencia](openspec/changes/archive/2026-11-07-b05-conversion-temperatura/verify-report.md).
 
 ## B01 y documentación incremental
 
@@ -148,6 +148,6 @@ El servicio compila y enlaza por separado, sin LM35; las pruebas adaptan datos d
 dispositivo al contrato genérico y conservan casos numéricos/fronteras de B05.
 La composición con adquisición real se resolverá después, sin acceso directo a
 dispositivos desde lógica de aplicación. ADC/DMA, alarma y main siguen pendientes.
-Ver [informe corregido](openspec/changes/b05-conversion-temperatura/verify-report.md);
-[informe inicial](openspec/changes/b05-conversion-temperatura/verify-report-inicial.md)
+Ver [informe corregido](openspec/changes/archive/2026-11-07-b05-conversion-temperatura/verify-report.md);
+[informe inicial](openspec/changes/archive/2026-11-07-b05-conversion-temperatura/verify-report-inicial.md)
 conserva la evidencia de la arquitectura anterior y no acredita la API actual.
