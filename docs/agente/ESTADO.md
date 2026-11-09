@@ -2,33 +2,34 @@
 
 ## Punto actual
 
-- Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`. Rama main; consultar HEAD/remoto con Git al incorporarse.
-- B00–B07 y B03-R1 aceptados/archivados. B07 aceptado el 2026-11-09;
-  contrato salidas-alarma sincronizado (cuatro requisitos/ocho escenarios).
-- Implementación B07: 92bfceadd7c6e34e3ea841007a3e996d220d296f.
-- Cierre/propuesta documental en commit `docs: aceptar B07 y proponer B08`.
-  Usuario autorizó push de pendientes/cierre y pidió propuesta B08. Antes de cerrar
-  esta orden, comprobar HEAD==origin/main==remoto; resultado en /tmp/ed3-cierre-b07-20261109-298bmkta/publicacion.log.
-- Cambio activo b08-mando-motor-portable: sólo propuesta, alcance pendiente de acuerdo;
-  implementación y publicación futura no autorizadas.
+- Repositorio: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`. Rama main; consultar HEAD con Git.
+- B00–B07 y B03-R1 aceptados/archivados. Base publicada B08: 501ab143ded9a59e4db39229733827b800213aab.
+- B08: alcance/criterio acordados; implementado/verificado, resultado pendiente de aceptación.
+  Cambio activo b08-mando-motor-portable. Contratos vigentes/archivos aceptados intactos.
+- Commit local autorizado con asunto `feat: aplicar mando de motor mediante salida portable`;
+  consultar Git para hash. Sin push autorizado; conservar hooks/firma/historial.
 
-## Evidencia aceptada
+## Evidencia ejecutada
 
-- B07: 131 casos C (12 servicio + cuatro integración), 11199 ternas B03-R1 y
-  sanitizadores PASS; ARM Debug 10/10, B07 Release 1/1 y Doxygen estricto 23 funciones.
-- Matriz SA1–SA4/S1–S8 y recursos en informe archivado B07.
-- Cierre/propuesta sólo documentales: contrato exacto, hashes de fuentes/historial,
-  manifiesto, YAML/enlaces y diff. No se repiten ni declaran pruebas nuevas de firmware.
-- Sin ejecución ARM, simulación o hardware; sin flasheo/instalación/cambios MCU.
-- Logs de cierre/propuesta/publicación: /tmp/ed3-cierre-b07-20261109-298bmkta; logs B07 en informe archivado.
+| Verificación | Resultado |
+|---|---|
+| Host/sanitizadores | CTest 13/13; 146 C (10 servicio + 5 integración B08) y 11199 ternas B03-R1; sin hallazgos |
+| ARM | Debug 11/11, fixture B08 Release PASS; APIs/proveedor retenidos y ELF válidos, sin ejecución |
+| Doxygen | Estricto sin avisos; 25 funciones/USW, nuevas USW.2.1.8.1/.2 y callback documentados |
+| Negativos | Detecta saturación de mando inválido y cero equivocado |
+| Recursos -O0 | Servicio .text 102, .data/.bss 0; pila propia Aplicar 16, ruta SolicitarCero 32 antes del proveedor; interfaz 8, enum 1 con ABI actual |
+| Preservación | Aplicación, otros servicios/dispositivos, Drivers, pruebas previas, startup/linker y contratos/archivos aceptados intactos |
 
-## Pendientes y próxima acción
+Matriz MM1–MM4/S1–S8, comandos y límites en verify-report.md activo B08.
+Logs externos: /tmp/ed3-b08-20261109-qk7i0zj2. La primera corrida san falló por ptrace/LeakSanitizer;
+repetición en proceso normal con todos los controles habilitados pasó 13/13; ambos resultados conservados.
+Sin ejecución ARM, simulador o placa; sin flasheo/instalación/cambios sensibles MCU.
 
-Acordar alcance/aceptación B08 propuesto: Driver_Motor con mando 0..1000 por mil,
-solicitud de cero y salida reemplazable; no confundir consigna RPM con PWM.
-Control automático, PWM/pines/frecuencia/potencia reales, adquisición, UART y main
-siguen pendientes; también GPIO/polaridad/tiempos reales de alarmas y patrón físico de fallo.
-CMSIS-DAP integrado; revisión PCB/silicio y montaje/pines/VREF sin verificar.
-Documentación final: diagramas de secuencia breves por servicios para el informe,
-después de implementar todos los ESW, como pidió el usuario. No elaborarlos todavía.
-No implementar B08 ni publicar trabajo futuro sin acuerdo.
+## Próxima acción y límites
+
+Revisar aceptación del resultado B08; sólo después sincronizar/archivar por orden.
+No publicar ni iniciar bloque posterior sin autorización.
+B08 solicita mando/cero y reporta proveedor; adaptación B04/B01 sólo en pruebas.
+PWM físico/pines/frecuencia/potencia, regulador, adquisición, UART y main pendientes.
+CMSIS-DAP integrado; revisión PCB/silicio, montaje/pines/VREF sin verificar.
+Diagramas de secuencia para el informe después de completar todos los ESW, según CONTEXTO.

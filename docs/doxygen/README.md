@@ -10,12 +10,12 @@ para generar documentación sin autorización.
   precondiciones y concurrencia. Tipos, miembros y constantes también documentados.
 - Mantener comentarios de contrato fuera del cuerpo de funciones de producción,
   como pide la guía del TPI.
-- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, LM35, Limites y Configuracion/Medicion.h. No usar EXTRACT_ALL para ocultar falta de documentación.
+- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, Driver_Motor, LM35, Limites y Configuracion/Medicion.h. No usar EXTRACT_ALL para ocultar falta de documentación.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
-Validación actual B07: 23 funciones/USW en XML (7 Procesamiento, 6 Comunicacion,
-2 Medicion_Velocidad, 2 Mandos, 2 Temperatura, 2 LM35, Driver_Alarmas y main), sin avisos.
+Validación actual B08: 25 funciones/USW en XML (7 Procesamiento, 6 Comunicacion,
+2 Medicion_Velocidad, 2 Mandos, 2 Temperatura, 2 LM35, Driver_Alarmas, 2 Driver_Motor y main), sin avisos.
 USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
 Documentar unidades físicas/estados en el servicio y conversión/errores específicos
 en LM35. La inclusión de archivos del dispositivo no introduce dependencia del servicio.
@@ -41,4 +41,9 @@ sin modificar controles estrictos. Proveedores emulados de tests no son unidades
 dispositivos de producción ni acreditan estado eléctrico.
 
 El plan de diagramas de secuencia para el informe final queda en
-[CONTEXTO](../agente/CONTEXTO.md#documentación-final-y-propuesta-b08); elaboración diferida hasta completar los ESW.
+[CONTEXTO](../agente/CONTEXTO.md#documentación-final-y-b08); elaboración diferida hasta completar los ESW.
+
+B08 agrega ESW.2.1.8/USW.2.1.8.1/.2: mando por mil, solicitud explícita de cero,
+interfaz/proveedor/contexto opacos, validación/rango, errores/recuperación y concurrencia.
+Doxyfile incluye Driver_Motor.h/.c; HTML/XML estricto pasa sin avisos. Las pruebas
+de composición no documentan PWM físico como implementado.

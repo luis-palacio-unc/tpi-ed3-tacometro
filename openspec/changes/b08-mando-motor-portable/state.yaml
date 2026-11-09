@@ -1,12 +1,16 @@
 block: B08
 change: b08-mando-motor-portable
-status: proposed
-phase: proposal
-scope_approved: false
+status: verified_pending_acceptance
+phase: verify
+scope_approved: true
 result_accepted: false
-implementation_started: false
-verification_passed: false
+implementation_started: true
+verification_passed: true
 main_specs_synced: false
-commit_authorized: false
+commit_authorized: true
 push_authorized: false
-next_action: Acordar alcance y criterio de aceptacion B08 antes de especificar e implementar.
+next_action: Revisar resultado B08; no sincronizar/archivar ni publicar sin orden
+  del usuario.
+scope_approved_on: '2026-11-09'
+base_commit: 501ab143ded9a59e4db39229733827b800213aab
+commit_subject: 'feat: aplicar mando de motor mediante salida portable'

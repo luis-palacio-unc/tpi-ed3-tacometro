@@ -220,12 +220,20 @@ Adaptación B06 en pruebas: sólo decisiones evaluables generan solicitud; ausen
 conserva diagnóstico y no emite órdenes. No integra main ni define patrón físico de fallo.
 Contrato de salidas-alarma vigente; interfaces de dispositivos siguen pendientes.
 
-## Documentación final y propuesta B08
+## Documentación final y B08
 
 Pedido del usuario 2026-11-09: una vez implementados todos los ESW, agregar al
 informe diagramas de secuencia pequeños que expliquen cómo cooperan aplicación,
 servicios y dispositivos, mostrando llamadas y retornos con lenguaje sencillo.
 Contrastar con implementación aceptada; no elaborarlos todavía ni tratarlos como prueba física.
-B08 sólo propuesto: Driver_Motor con mando por mil, solicitud de cero y salida
-reemplazable. Alcance/criterio en openspec/changes/b08-mando-motor-portable/proposal.md;
-sin decisión aceptada ni implementación nueva de ese bloque.
+B08 acordado e implementado/verificado el 2026-11-09; resultado pendiente de aceptación.
+Driver_Motor (ESW.2.1.8) expone Aplicar(uint16_t por_mil) y SolicitarCero con interfaz
+const de función bool(void*,uint16_t) y contexto opaco externo; dos USW .1/.2.
+Límite 1000 compartido en Limites.h; validar argumento antes de rango, rechazar sin
+envío/saturación, informar fallo del proveedor y recuperar en siguiente solicitud.
+Cero explícito solicita 0; no confirma detención. Sin init/heap/globals/esperas/reintentos.
+Interfaz/contextos vivos/estables/serializados; proveedor puede modificar su propio
+estado, debe retornar. Aceptación no es confirmación física; validar orígenes más
+amplios/con signo antes de convertir. Adaptación B04/B01 sólo en pruebas/fixture,
+sin tocar main: MANUAL válido, CERO y AUTOMATICA para futuro regulador, nunca RPM→PWM.
+Usuario autorizó completar bloque y commit local sin push; candidato activo B08.

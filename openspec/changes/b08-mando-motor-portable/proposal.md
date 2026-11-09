@@ -1,11 +1,12 @@
 # B08 — Mando de motor portable
 
-Estado: propuesta pendiente de acuerdo; sin implementación.
+Estado: alcance y aceptación acordados el 2026-11-09. Implementación y commit
+autorizados; sin push. Resultado pendiente de aceptación.
 
 ## Objetivo y origen
 
 R03 requiere que el mando manual determine PWM; R06 exige salida cero al entrar
-en automático hasta una nueva consigna. R10/R15 exigen independencia del hardware.
+en automático hasta una nueva consigna. R10/R15 exigen portabilidad.
 B01/B04 entregan fuente y mando normalizado.
 
 ## Alcance y comportamiento propuesto

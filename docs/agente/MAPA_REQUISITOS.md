@@ -9,16 +9,16 @@ Las rutas indican módulos previstos; no acreditan implementación.
 |---|---|---|---|---|
 | R01 AP | Ejecutar firmware en LPC1769/OM13085 | B00 aceptado: base de build | CMakeLists.txt, Aplicacion/main.c, cmake/, plataforma/ | S1/S3/S5/S6 PASS de build/inspección (verify-report B00); ejecución física pendiente |
 | R02 AP/APA | Medir RPM con disco de 60 ranuras | B03 aceptado/archivado; revisión B03-R1 aceptada/archivada; captura pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | B03-R1 S1–S10 PASS, 23 casos + oráculo 11199; revisión aceptada; señal real pendiente |
-| R03 AP | Potenciómetro determina PWM en manual | B04 aceptado/archivado para normalización; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.* | B04 S1–S7 PASS host/enlace ARM (verify-report archivado); ADC/PWM físicos pendientes |
+| R03 AP | Potenciómetro determina PWM en manual | B04 aceptado para normalización; B08 verificado/candidato para mando portable; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.* | B04 S1–S7 PASS host/enlace ARM (verify-report archivado); ADC/PWM físicos pendientes |
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; lógica | Aplicacion/Procesamiento.* | B01 S1/S2 PASS (C host); integración física pendiente |
-| R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01 aceptado; lógica | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | B01 S3/S4/S5/S6 PASS (C host); recepción real pendiente |
+| R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01 aceptado; B08 verificado/candidato para solicitud cero | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | B01 S3/S4/S5/S6 PASS (C host); recepción real pendiente |
 | R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; B06 aceptado/archivado para decisión; B07 aceptado/archivado para coordinación; actuación física/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); B06 S1–S8 y 13 casos PASS; resultado lógico aceptado; alarma física pendiente |
 | R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción lógica; resto pendiente | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 S1–S8 PASS host; UART física/telemetría pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B07: 23 funciones/USW incluyendo USW.2.1.6.1; Doxygen estricto PASS; resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B08: 25 funciones/USW incluyendo USW.2.1.6.1 y USW.2.1.8.1/.2; Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -60,7 +60,9 @@ de aplicación/dispositivos. SA1–SA4/S1–S8 PASS: 12 casos de servicio + cuat
 131 C totales y 11199 ternas de regresión; san/ARM/Doxygen PASS. Evidencia archivada B07 y contrato vigente salidas-alarma.
 Proveedores emulados no acreditan GPIO, polaridad, señalización real o prioridad temporal.
 
-B08 propuesto (R03/R06/R10/R11/R15): Driver_Motor validaría mando por mil y cero
-mediante salida reemplazable; tests/fixture/Doxygen previstos. Sin implementación
-ni evidencia aceptada; PWM/potencia y regulador automático permanecen pendientes.
-R11: planificación de diagramas acordada en [CONTEXTO](CONTEXTO.md#documentación-final-y-propuesta-b08); elaboración pendiente.
+B08 implementado/verificado (R03/R06/R10/R11/R15), resultado pendiente de aceptación:
+Driver_Motor valida/envía mando por mil y cero mediante salida reemplazable.
+MM1–MM4/S1–S8 PASS: 10 casos servicio + 5 integración B04/B01; 146 C y oráculo
+11199, host/san 13/13, ARM Debug 11/11 y fixture B08 Release; Doxygen 25 funciones.
+Matriz/evidencia en [informe B08](../../openspec/changes/b08-mando-motor-portable/verify-report.md); PWM/potencia/control/main aún pendientes.
+R11: planificación de diagramas acordada en [CONTEXTO](CONTEXTO.md#documentación-final-y-b08); elaboración pendiente.

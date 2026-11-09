@@ -27,7 +27,7 @@ El build ejecuta automáticamente el verificador del ELF; CTest agrega casos neg
 `firmware.elf` es para el MCU: no se ejecuta como programa de escritorio.
 No está configurada todavía una sesión de depuración/flasheo de CLion.
 
-Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura y LM35, incluida su integración, sin ejecutar main del firmware:
+Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, LM35, Driver_Alarmas y Driver_Motor, incluidas sus pruebas de integración, sin ejecutar main del firmware:
 
 ```sh
 cmake --preset host-objects
@@ -198,11 +198,25 @@ pasan en host/sanitizadores. ARM Debug 10/10, B07 Release 1/1; Doxygen estricto
 Ver [contrato vigente](openspec/specs/salidas-alarma/spec.md)
 y [evidencia B07](openspec/changes/archive/2026-11-09-b07-coordinacion-salidas-alarma/verify-report.md).
 
-## Próximo bloque propuesto
+## B08: mando de motor portable
 
-[B08: mando de motor portable](openspec/changes/b08-mando-motor-portable/proposal.md).
-Driver_Motor validaría mandos 0..1000 por mil y solicitud explícita de cero, con
-salida reemplazable y fallos observables. Alcance pendiente de acuerdo, sin código nuevo.
-PWM físico y control automático permanecen pendientes.
+B08 implementado/verificado, pendiente de aceptación. Driver_Motor_Aplicar recibe
+uint16_t 0..1000 por mil y una interfaz función/contexto externa. Valida argumento y
+rango antes de invocar una vez; rechaza excesos sin saturar ni emitir cero.
+Driver_Motor_SolicitarCero solicita 0 mediante el mismo contrato. ACEPTADA/error de
+argumento/rango/salida son resultados de esta solicitud, sin confirmación física.
 
-Plan de diagramas para el informe final: ver [CONTEXTO](docs/agente/CONTEXTO.md#documentación-final-y-propuesta-b08).
+Límite compartido con Mandos/B01. Servicio independiente de modos/RPM/MCU/dispositivos;
+sin init/heap/globals mutables/reintentos/esperas propias. Proveedor/contexto vivos y
+serializados, sin modificar interfaz. Pruebas componen B04→B01→Driver_Motor:
+MANUAL usa mando válido, CERO solicita cero y AUTOMATICA no envía RPM como PWM.
+main, PWM físico y regulador siguen pendientes.
+
+10 casos nuevos del servicio y 5 integración: 146 C totales + 11199 ternas B03-R1,
+host/sanitizadores 13/13, ARM Debug 11/11 y fixture B08 Release PASS.
+Doxygen estricto: 25 funciones/USW, nuevas USW.2.1.8.1/.2. No hubo ejecución ARM/física.
+Ver [candidato](openspec/changes/b08-mando-motor-portable/specs/mando-motor/spec.md)
+y [verificación B08](openspec/changes/b08-mando-motor-portable/verify-report.md).
+No se sincroniza/archiva ni publica B08 hasta la orden correspondiente.
+
+Plan de diagramas para el informe final: ver [CONTEXTO](docs/agente/CONTEXTO.md#documentación-final-y-b08).
