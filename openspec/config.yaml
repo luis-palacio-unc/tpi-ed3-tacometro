@@ -7,7 +7,7 @@ context: |
   Consigna: 0..185 RPM inclusive; maximo aclarado por el usuario.
   R15: servicios independientes de hardware; curva LM35 en dispositivo, servicio en Celsius/estado.
   Sonda: CMSIS-DAP integrado confirmado; revision fisica pendiente.
-  Persistencia: archivos; B00-B07 y B03-R1 aceptados/archivados; B08 verificado pendiente de aceptacion, commit local autorizado sin push; leer ESTADO al reanudar.
+  Persistencia: archivos; B00-B08 y B03-R1 aceptados/archivados; B09 propuesto sin implementacion autorizada; leer ESTADO al reanudar.
 rules:
   proposal:
     - Vincular origen, alcance, exclusiones, dependencias y aceptacion verificable.

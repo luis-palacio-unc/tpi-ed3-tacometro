@@ -200,7 +200,7 @@ y [evidencia B07](openspec/changes/archive/2026-11-09-b07-coordinacion-salidas-a
 
 ## B08: mando de motor portable
 
-B08 implementado/verificado, pendiente de aceptación. Driver_Motor_Aplicar recibe
+B08 aceptado/archivado el 2026-11-09; contrato vigente sincronizado. Driver_Motor_Aplicar recibe
 uint16_t 0..1000 por mil y una interfaz función/contexto externa. Valida argumento y
 rango antes de invocar una vez; rechaza excesos sin saturar ni emitir cero.
 Driver_Motor_SolicitarCero solicita 0 mediante el mismo contrato. ACEPTADA/error de
@@ -215,8 +215,15 @@ main, PWM físico y regulador siguen pendientes.
 10 casos nuevos del servicio y 5 integración: 146 C totales + 11199 ternas B03-R1,
 host/sanitizadores 13/13, ARM Debug 11/11 y fixture B08 Release PASS.
 Doxygen estricto: 25 funciones/USW, nuevas USW.2.1.8.1/.2. No hubo ejecución ARM/física.
-Ver [candidato](openspec/changes/b08-mando-motor-portable/specs/mando-motor/spec.md)
-y [verificación B08](openspec/changes/b08-mando-motor-portable/verify-report.md).
-No se sincroniza/archiva ni publica B08 hasta la orden correspondiente.
+Ver [contrato vigente](openspec/specs/mando-motor/spec.md)
+y [verificación B08](openspec/changes/archive/2026-11-09-b08-mando-motor-portable/verify-report.md).
+Cierre y publicación B08 autorizados al aceptar el resultado.
 
 Plan de diagramas para el informe final: ver [CONTEXTO](docs/agente/CONTEXTO.md#documentación-final-y-b08).
+
+## Próximo bloque propuesto
+
+[B09: codificación portable de telemetría](openspec/changes/b09-codificacion-telemetria/proposal.md).
+Preparar RPM/temperatura/estado en ASCII con buffer acotado y validez explícita;
+formato propuesto pendiente de acuerdo. UART física/transmisión/main quedan pendientes.
+Sin implementación nueva de B09.

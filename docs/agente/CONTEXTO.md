@@ -58,8 +58,8 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
 contratos aceptados: build (B00), modos (B01), comunicación (B02), medición
-(B03/B03-R1), mandos (B04), temperatura (B05), alarma lógica (B06) y salidas de
-alarma (B07). B00–B07 y B03-R1 aceptados y archivados.
+(B03/B03-R1), mandos (B04), temperatura (B05), alarma lógica (B06), salidas de
+alarma (B07) y mando de motor (B08). B00–B08 y B03-R1 aceptados y archivados.
 Contrato de temperatura corregido vigente desde
 2026-11-07. Revisión independiente B03-R1 aceptada y archivada el 2026-11-09; contrato sincronizado.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
@@ -72,7 +72,8 @@ y su cierre al aceptarlo, y luego B04 y su cierre. El usuario autorizó publicar
 Al aceptar B06 el 2026-11-09, autorizó publicar los commits pendientes
 (B03-R1, cierre/propuesta y B06) junto con el cierre B06.
 Al aceptar B07 el 2026-11-09, autorizó publicar los commits pendientes, su cierre
-y preparar la propuesta B08. Nuevas publicaciones futuras requieren autorización independiente.
+y preparar la propuesta B08. Al aceptar B08 el 2026-11-09, autorizó publicar su commit
+y el cierre y preparar la propuesta B09. Publicaciones futuras requieren autorización independiente.
 Se conserva configuración de firma Git,
 actualmente sin firma automática habilitada.
 
@@ -226,7 +227,7 @@ Pedido del usuario 2026-11-09: una vez implementados todos los ESW, agregar al
 informe diagramas de secuencia pequeños que expliquen cómo cooperan aplicación,
 servicios y dispositivos, mostrando llamadas y retornos con lenguaje sencillo.
 Contrastar con implementación aceptada; no elaborarlos todavía ni tratarlos como prueba física.
-B08 acordado e implementado/verificado el 2026-11-09; resultado pendiente de aceptación.
+B08 aceptado/archivado el 2026-11-09; contrato mando-motor vigente sincronizado.
 Driver_Motor (ESW.2.1.8) expone Aplicar(uint16_t por_mil) y SolicitarCero con interfaz
 const de función bool(void*,uint16_t) y contexto opaco externo; dos USW .1/.2.
 Límite 1000 compartido en Limites.h; validar argumento antes de rango, rechazar sin
@@ -236,4 +237,6 @@ Interfaz/contextos vivos/estables/serializados; proveedor puede modificar su pro
 estado, debe retornar. Aceptación no es confirmación física; validar orígenes más
 amplios/con signo antes de convertir. Adaptación B04/B01 sólo en pruebas/fixture,
 sin tocar main: MANUAL válido, CERO y AUTOMATICA para futuro regulador, nunca RPM→PWM.
-Usuario autorizó completar bloque y commit local sin push; candidato activo B08.
+Cierre/publicación B08 autorizados al aceptar resultado. B09 sólo propuesto: codificar
+telemetría en Comunicacion sin UART concreta. Alcance/formato/criterio pendientes de
+acuerdo; ampliar exclusión original B02-R5 al aceptar B09, sin alterar recepción.

@@ -1,7 +1,7 @@
 # B08 — Mando de motor portable
 
-Estado: alcance y aceptación acordados el 2026-11-09. Implementación y commit
-autorizados; sin push. Resultado pendiente de aceptación.
+Estado: resultado aceptado el 2026-11-09. Sincronización, archivo y publicación
+autorizados; propuesta B09 solicitada sin implementación.
 
 ## Objetivo y origen
 
