@@ -57,9 +57,10 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 ## SDD y Git
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
-contratos aceptados: build (B00), modos (B01), comunicación (B02), medición (B03)
-y normalización manual (B04). B00–B05 aceptados y archivados. Contrato de temperatura corregido vigente desde
-2026-11-07. Revisión independiente de B03 autorizada por el usuario, todavía no aceptada.
+contratos aceptados: build (B00), modos (B01), comunicación (B02), medición
+(B03/B03-R1), mandos (B04) y temperatura (B05). B00–B05 aceptados y archivados.
+Contrato de temperatura corregido vigente desde
+2026-11-07. Revisión independiente B03-R1 aceptada y archivada el 2026-11-09; contrato sincronizado.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 Git local inicializado en main por acuerdo del usuario, con origin privado.
 El usuario autorizó commit y push de la estructura inicial al aceptar B00.
@@ -128,9 +129,9 @@ Comunicacion.h; contrato vigente de comunicación y evidencia en archivo B02.
 ## Medición lógica B03 y revisión R1
 
 B03 original aceptado/archivado fija 60 pulsos/vuelta; ese historial es inmutable.
-Usuario autorizó revisarlo el 2026-11-07 bajo R15; B03-R1 implementado/verificado,
-pendiente de aceptación. Delta en openspec/changes/b03-factor-pulsos-configurable/;
-contrato vigente original se sincronizará sólo tras aceptación del nuevo resultado.
+Usuario autorizó revisarlo el 2026-11-07 bajo R15 y aceptó el resultado el
+2026-11-09. B03-R1 archivado; contrato vigente de medición actualizado por requisitos.
+Evidencia en openspec/changes/archive/2026-11-09-b03-factor-pulsos-configurable/.
 
 API actual Medicion_Velocidad_Actualizar recibe pulsos, duracion_us y factor
 pulsos_por_vuelta uint32_t explícitos por llamada. Servicio no incluye configuración
@@ -178,5 +179,15 @@ de estados/cota se demuestra en pruebas; composición real pendiente, sin acceso
 directo a dispositivos desde lógica de aplicación. No añadir callbacks hasta necesitar adquisición.
 Acceso serializado, sin frescura/alarma/main implementados.
 
-R15: corrección B05 aceptada y revisión B03-R1 verificada; no afirmar implementación
+R15: corrección B05 y revisión B03-R1 aceptadas; no afirmar implementación
 física completa de toda la capa de servicios. La adquisición y composición real siguen pendientes.
+
+## Alarma: configuración y propuesta B06
+
+Usuario confirmó el 2026-11-09 que el umbral será parámetro de configuración,
+sin valor fijo acordado. Propuesta B06: decisión lógica en Procesamiento con
+temperatura física/validez y umbral explícitos; servicio Driver_Alarmas aplicará
+solicitudes al integrar señalización. Alcance B06 pendiente de acuerdo.
+Anteproyecto pide superar el umbral, no fija número, histéresis ni respuesta física
+ante fallo de adquisición. No interpretar esa omisión como autorización para
+parar motor o inventar un patrón LED/buzzer. Prioridad temporal pendiente de integración.

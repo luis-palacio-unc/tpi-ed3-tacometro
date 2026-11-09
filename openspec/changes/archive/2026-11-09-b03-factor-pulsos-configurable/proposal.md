@@ -1,5 +1,8 @@
 # B03-R1 — Factor de pulsos por vuelta configurable
 
+Estado: resultado aceptado por el usuario el 2026-11-09; cierre SDD conforme al
+procedimiento acordado. Sin push autorizado.
+
 ## Objetivo y autorización
 
 R02 requiere disco de 60 ranuras; R15 exige servicios independientes del hardware.

@@ -1,0 +1,14 @@
+block: B06
+change: b06-logica-alarma-temperatura
+status: proposed
+phase: proposal
+scope_approved: false
+result_accepted: false
+threshold_as_configuration_parameter_confirmed_on: "2026-11-09"
+threshold_value_fixed: false
+implementation_started: false
+verification_passed: false
+main_specs_synced: false
+commit_authorized: false
+push_authorized: false
+next_action: Acordar alcance y criterio de aceptacion B06 antes de especificar e implementar.

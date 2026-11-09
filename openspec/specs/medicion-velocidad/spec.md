@@ -1,74 +1,86 @@
 # Medición de velocidad — contrato vigente
 
-Origen: R02, soporte lógico de R04/R09; R14 limita consignas, no mediciones.
-B03 aceptado por el usuario el 2026-11-06; alcance lógico, sin aceptación física.
+Origen R02/R15; soporte lógico de R04/R09. R14 limita consignas, no mediciones.
+B03 aceptado el 2026-11-06; revisión B03-R1 aceptada el 2026-11-09.
+Alcance lógico con factor explícito; captura y aceptación física pendientes.
 
 ## Requirements
 
 ### Requirement: MV1 — Conversión y unidades
 
-El servicio MUST convertir uint32_t pulsos y uint32_t duración en microsegundos
-de una instantánea coherente, para 60 pulsos/vuelta del eje portadisco (un flanco
-por ranura). MUST entregar uint32_t milésimas de RPM, sin limitar a 185 RPM.
-MUST redondear al entero más cercano, empates hacia arriba; error aritmético
-máximo 0,5 milésimas de RPM. Esto no garantiza precisión física del sensor/reloj.
+El servicio MUST recibir uint32_t pulsos, duración_us y pulsos_por_vuelta positivo
+de una instantánea/configuración coherente. MUST entregar uint32_t milésimas de
+RPM: pulsos×60000000000/(duración_us×pulsos_por_vuelta), cercano/empate arriba,
+sin redondeo intermedio ni recorte a 185 RPM. Error aritmético <=0,0005 RPM,
+sin afirmar precisión física. Antes el factor 60 era fijo; ahora MUST ser explícito.
+Configuración TPI MUST conservar 60 para un flanco/ranura, fuera del servicio.
 
-#### Scenario: S1 — Referencias, cero y valores superiores a la consigna
-- Given ventanas de 1 000 000 us con 0, 60, 185 y 200 pulsos.
-- When se actualiza la lectura.
-- Then MUST ser válida con 0, 60 000, 185 000 y 200 000 milésimas de RPM.
+#### Scenario: S1 — Referencias de TPI
+- Given factor 60, duración 1000000 us y 0/60/185/200 pulsos.
+- When se convierte.
+- Then MUST resultar 0/60000/185000/200000 válidos.
 
-#### Scenario: S2 — Ventanas equivalentes y redondeo
-- Given 3/20 000 y 300/2 000 000 pulsos/us; además 1/3 000 000,
-  1/6 000 000 y 1/16 000 000.
-- When se convierten las ventanas.
-- Then MUST producir 150 000, 150 000, 333, 167 y 63 milésimas respectivamente.
+#### Scenario: S2 — Equivalencias y redondeo
+- Given factor 60 y ventanas 3/20000, 300/2000000, 1/3000000, 1/6000000, 1/16000000.
+- When se convierten.
+- Then MUST resultar 150000/150000/333/167/63 respectivamente.
+
+#### Scenario: S8 — Configuraciones diferentes
+- Given factores 1/12/60/100/1024/MAX con igual número de pulsos y ventana de 1 s.
+- When se actualiza alternando factores por llamada.
+- Then MUST resultar 60000, sin modificar/recompilar el servicio.
 
 ### Requirement: MV2 — Disponibilidad y errores observables
 
-Inicializar MUST producir SIN_DATOS y valor cero. Una ventana positiva sin pulsos
-MUST ser válida, incluso si redondea a cero. Duración cero MUST producir
-ERROR_DURACION. Resultado redondeado mayor que UINT32_MAX MUST producir
-ERROR_RANGO. Todo error con salida escribible MUST reemplazar lectura anterior
-con cero y su estado de error; MUST permitir recuperación con la siguiente ventana.
+Inicializar MUST dejar SIN_DATOS/cero. Duración positiva y factor positivo sin
+pulsos MUST ser cero válido. Prioridad MUST ser NULL, duración cero, factor cero,
+resultado redondeado fuera de uint32_t. Factor cero MUST devolver
+ERROR_PULSOS_POR_VUELTA; otros errores conservan códigos anteriores.
+Todo error escribible MUST invalidar y borrar dato viejo; nueva ventana válida recupera.
 
-#### Scenario: S3 — Ausencia inicial y reinicio
-- Given una lectura nueva o previamente válida/errónea.
+#### Scenario: S3 — Ausencia y reinicio
+- Given registro nuevo o lectura previa válida/errónea.
 - When se inicializa.
-- Then MUST quedar SIN_DATOS y cero, distinto de cero válido.
+- Then MUST quedar SIN_DATOS/cero, distinto de cero válido.
 
-#### Scenario: S4 — Duración inválida, valor viejo y recuperación
-- Given una lectura válida y luego una ventana de duración cero.
-- When se actualiza y después se entrega 60 pulsos/1 s.
-- Then MUST informar ERROR_DURACION con cero y después 60 000 válidos.
+#### Scenario: S4 — Duración y recuperación
+- Given lectura válida y después duración cero.
+- When se actualiza y luego llegan 60 pulsos/1 s/factor 60.
+- Then MUST informar ERROR_DURACION/cero y después 60000 válido.
 
-#### Scenario: S5 — Extremos y representabilidad
-- Given pulsos UINT32_MAX y duraciones 1, UINT32_MAX, 1 000 000 000
-  y 999 999 999 us; también cero pulsos y 1 us.
-- When se actualiza.
-- Then MUST resultar error de rango, 1 000 000 000 válido, UINT32_MAX válido,
-  error de rango y cero válido, sin wrap ni división por cero.
+#### Scenario: S5 — Representabilidad de TPI
+- Given factor 60, pulsos MAX y duraciones 1/MAX/1000000000/999999999.
+- When se convierte.
+- Then MUST resultar error/1000000000/MAX/error sin overflow; cero pulsos es válido.
+
+#### Scenario: S9 — Factor inválido y prioridad
+- Given factor cero, datos previos, NULL y combinaciones de errores.
+- When se llama y luego se entrega factor válido.
+- Then MUST respetar prioridad, invalidar salida escribible y recuperar.
 
 ### Requirement: MV3 — API y aislamiento
 
-La API MUST ser C11 sin heap, coma flotante, periféricos ni estado global mutable.
-Salida NULL MUST devolver error sin acceso inválido (inicialización devuelve false).
-El llamador MUST serializar acceso a cada lectura y captura coherente; MUST detectar
-desbordes de adquisición antes de llamar. B03 MUST NOT decidir ventana física,
-filtrado, timeout de frescura, control, relación de engranajes o integración del main.
+La API MUST ser C11 sin heap, flotantes, periféricos, estado global mutable ni
+dependencia de configuración física. NULL MUST devolver ERROR_ARGUMENTO sin acceso
+(false al inicializar). Llamador MUST serializar captura/configuración/lectura y
+detectar overflow previo. MUST NOT decidir ventana, filtrado, timeout, engranajes o main.
 
-#### Scenario: S6 — Punteros nulos e instancias
-- Given salida NULL y dos lecturas independientes.
-- When se inicializan/actualizan alternadamente.
-- Then MUST rechazar NULL y mantener cada lectura independiente, sin arrastre de errores.
+#### Scenario: S6 — Punteros e instancias
+- Given NULL y dos lecturas con factores distintos.
+- When se actualizan alternadamente y falla una.
+- Then MUST rechazar NULL y conservar independiente la otra.
+
+#### Scenario: S10 — Dominio numérico completo
+- Given extremos uint32_t y ternas con numerador matemático superior a uint64_t.
+- When se compara con oráculo entero exacto.
+- Then MUST coincidir estado/valor, incluidos MAX/MAX/MAX →14 y valores diminutos →0.
 
 ### Requirement: MV4 — Evidencia de implementación
 
-B03 MUST pasar pruebas C host, sanitizadores, regresiones, enlace ARM completo
-de su API y Doxygen estricto con IDs ESW/USW. MUST distinguir verificación lógica
-y ELF de ejecución ARM, simulación o prueba física.
+B03-R1 MUST pasar host C, oráculo exacto independiente, sanitizadores, regresiones,
+enlace ARM y Doxygen ESW/USW. MUST distinguir ELF de ejecución física.
 
 #### Scenario: S7 — Verificación reproducible
-- Given código y documentación B03.
-- When se ejecutan CTest host/ARM, sanitizadores y Doxygen.
-- Then MUST pasar y registrar comandos/resultados; hardware y tiempos quedan pendientes.
+- Given servicio sin configuración/dispositivo y código/documentación nuevos.
+- When se ejecutan CTest host/ARM, sanitizadores, consumidor aislado y Doxygen.
+- Then MUST pasar y registrar evidencia; adquisición/tiempos físicos siguen pendientes.

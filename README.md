@@ -107,8 +107,8 @@ Con sanitizadores, ejecutar fuera de depurador/ptrace para que LeakSanitizer fun
 
 ## B03: cálculo lógico de velocidad
 
-B03 original está aceptado/archivado. La revisión B03-R1 está implementada y
-verificada, pendiente de aceptación. La API actual recibe pulsos, duración_us y
+B03 original y revisión B03-R1 están aceptados/archivados. Revisión aceptada
+el 2026-11-09; contrato vigente sincronizado. La API actual recibe pulsos, duración_us y
 pulsos_por_vuelta uint32_t explícitos; no conoce el disco ni incluye su configuración.
 El TPI mantiene 60 pulsos/vuelta en Configuracion/Medicion.h para un flanco/ranura.
 Cambiar factor no requiere recompilar el servicio ni cambiar unidades para aplicación.
@@ -124,7 +124,7 @@ sin captura física, timeout ni main integrado.
 Regresiones: 102 casos C totales; ARM Debug 8/8 y fixture B03 Release; Doxygen estricto.
 Servicio y consumidor aislados sin configuración/dispositivo. Cálculo uint64_t
 acotado y libgcc existente, sin libc en firmware. Compilar/enlazar no acredita
-ejecución física. Ver [revisión candidata](openspec/changes/b03-factor-pulsos-configurable/verify-report.md)
+ejecución física. Ver [verificación B03-R1 aceptada](openspec/changes/archive/2026-11-09-b03-factor-pulsos-configurable/verify-report.md)
 y [evidencia B03 original](openspec/changes/archive/2026-11-06-b03-medicion-velocidad/verify-report.md).
 
 ## B04: normalización del mando manual
@@ -157,3 +157,9 @@ dispositivos desde lógica de aplicación. ADC/DMA, alarma y main siguen pendien
 Ver [informe corregido](openspec/changes/archive/2026-11-07-b05-conversion-temperatura/verify-report.md);
 [informe inicial](openspec/changes/archive/2026-11-07-b05-conversion-temperatura/verify-report-inicial.md)
 conserva la evidencia de la arquitectura anterior y no acredita la API actual.
+
+## Próximo bloque propuesto
+
+[B06: evaluación lógica de alarma por temperatura](openspec/changes/b06-logica-alarma-temperatura/proposal.md).
+Umbral como parámetro de configuración confirmado por usuario; sin valor fijo.
+Alcance pendiente de acuerdo; no hay implementación ni accionamiento físico nuevo.
