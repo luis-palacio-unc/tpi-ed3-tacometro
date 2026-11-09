@@ -177,9 +177,23 @@ en host/sanitizadores. ARM Debug 9/9 y fixture B06 Release pasan sin ejecutar MC
 Ver [contrato vigente](openspec/specs/alarma-temperatura/spec.md)
 y [evidencia B06](openspec/changes/archive/2026-11-09-b06-logica-alarma-temperatura/verify-report.md).
 
-## Próximo bloque propuesto
+## B07: coordinación portable de salidas de alarma
 
-[B07: coordinación portable de salidas de alarma](openspec/changes/b07-coordinacion-salidas-alarma/proposal.md).
-Driver_Alarmas enviaría activar/desactivar a LED y buzzer mediante salidas
-reemplazables, con fallos observables y pruebas emuladas. Alcance pendiente de acuerdo;
-no hay implementación ni conexión GPIO/pines/polaridad nuevas.
+B07 implementado/verificado, pendiente de aceptación. Driver_Alarmas_Aplicar recibe
+activar/desactivar y una interfaz const de funciones/contextos para LED y buzzer.
+Valida toda la interfaz primero; intenta ambos canales una vez por llamada, LED
+antes de buzzer, incluso si LED falla. Retorna ACEPTADA, ERROR_ARGUMENTO, ERROR_LED,
+ERROR_BUZZER o ERROR_AMBOS, sin cachear órdenes ni resultados.
+
+ACEPTADA es aceptación declarada por funciones, sin confirmar estado eléctrico.
+El proveedor resuelve hardware/polaridad; el servicio no incluye aplicación o dispositivos.
+Pruebas de adaptación B06 sólo emiten para ACTIVA/INACTIVA: ausencia/error conserva
+diagnóstico y no emite apagado. Adaptación real/main y GPIO siguen pendientes.
+Interfaz/contextos deben permanecer válidos/estables; serialización externa y funciones
+que retornen. No hay registro global, init, heap, reintentos o timeout en el servicio.
+
+12 casos de servicio + cuatro integración: 131 C totales y 11199 ternas de regresión
+pasan en host/sanitizadores. ARM Debug 10/10, B07 Release 1/1; Doxygen estricto
+23 funciones/USW, incluida USW.2.1.6.1. Sin ejecución ARM o pruebas físicas.
+Ver [contrato candidato](openspec/changes/b07-coordinacion-salidas-alarma/specs/salidas-alarma/spec.md)
+y [evidencia B07](openspec/changes/b07-coordinacion-salidas-alarma/verify-report.md).

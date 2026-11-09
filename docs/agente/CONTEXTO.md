@@ -198,14 +198,23 @@ Aplicación incluye el contrato del servicio; no duplica enum de fuente ni conoc
 LM35/ADC. No requiere estructura de salida/contexto o inicialización nuevos.
 Serializar lectura del registro: const no da atomicidad ni frescura. Se preservan
 los seis cuerpos/tipos B01; fixture B01 agrega únicamente ruta de encabezados Servicios.
-Driver_Alarmas aplicará solicitudes después; señalización física/prioridad temporal,
+B07 coordina solicitudes mediante proveedores externos; señalización física/prioridad temporal,
 histéresis, timeout, enclavamiento y respuesta física a fallo siguen pendientes.
 No se ha acordado parar el motor por temperatura. Evidencia y cierre B06 en archivo; contrato de alarma-temperatura vigente.
 
-## Propuesta B07
+## Coordinación lógica de salidas B07
 
-B07 sólo propuesto: Driver_Alarmas coordinaría dos salidas reemplazables sin
-decidir temperatura/umbral ni depender de Aplicacion. Alcance/criterio detallados
-en openspec/changes/b07-coordinacion-salidas-alarma/proposal.md, pendientes de acuerdo.
-La respuesta física ante adquisición fallida, GPIO/polaridad y prioridad temporal
-siguen sin resolverse; no convertir la propuesta en decisión aceptada.
+Alcance acordado e implementado/verificado el 2026-11-09; resultado pendiente de aceptación.
+Driver_Alarmas_Aplicar (USW.2.1.6.1) recibe interfaz const con dos funciones
+bool(void*,bool) y contextos separados, más activar/desactivar. No registra configuración
+global ni requiere init/heap. Rechaza NULL/funciones ausentes antes de llamar; contextos
+NULL se admiten si los proveedores los soportan. Invoca LED→buzzer una vez cada uno,
+siempre intentando ambos, y clasifica aceptación/error LED/buzzer/ambos sin retención.
+
+ACEPTADA sólo acredita aceptación del proveedor, no nivel eléctrico. Servicio sin
+dependencia de aplicación, sensores, GPIO o MCU; funciones de salida deben retornar.
+Interfaz/contextos estables/vivos y acceso serializado externos; pila/tiempo total
+dependen de proveedores. Proveedor resuelve su polaridad/hardware, todavía no implementado.
+Adaptación B06 en pruebas: sólo decisiones evaluables generan solicitud; ausencia/error
+conserva diagnóstico y no emite órdenes. No integra main ni define patrón físico de fallo.
+Contrato de salidas-alarma todavía candidato; interfaces de dispositivos siguen pendientes.

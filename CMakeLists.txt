@@ -105,6 +105,11 @@ if(TPI_BUILD_ARM)
             "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b06-fixture" "-DBUILD_TYPE=$<CONFIG>"
             "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b06.cmake")
+        add_test(NAME b07.enlace_arm COMMAND "${CMAKE_COMMAND}"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b07-fixture" "-DBUILD_TYPE=$<CONFIG>"
+            "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b07.cmake")
     endif()
 else()
     if(CMAKE_CROSSCOMPILING)
@@ -139,10 +144,14 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
         Servicios/Temperatura.c Dispositivos/LM35.c)
     add_executable(pruebas_alarma_temperatura tests/host/test_alarma_temperatura.c
         Aplicacion/Procesamiento.c Servicios/Temperatura.c)
+    add_executable(pruebas_driver_alarmas tests/host/test_driver_alarmas.c
+        Servicios/Driver_Alarmas.c)
+    add_executable(pruebas_integracion_alarmas tests/host/test_integracion_alarmas.c
+        Servicios/Driver_Alarmas.c Aplicacion/Procesamiento.c Servicios/Temperatura.c)
     target_include_directories(pruebas_lm35 PRIVATE Dispositivos)
     target_include_directories(pruebas_integracion_temperatura PRIVATE Dispositivos)
-    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura)
-        if(prueba STREQUAL "consulta_medicion_velocidad")
+    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas)
+        if(prueba STREQUAL "consulta_medicion_velocidad" OR prueba STREQUAL "pruebas_driver_alarmas")
             target_include_directories(${prueba} PRIVATE Servicios)
         else()
             target_include_directories(${prueba} PRIVATE Aplicacion Servicios Configuracion)
@@ -168,4 +177,6 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_test(NAME b05.lm35 COMMAND pruebas_lm35)
     add_test(NAME b05.integracion_temperatura COMMAND pruebas_integracion_temperatura)
     add_test(NAME b06.alarma_temperatura COMMAND pruebas_alarma_temperatura)
+    add_test(NAME b07.driver_alarmas COMMAND pruebas_driver_alarmas)
+    add_test(NAME b07.integracion_alarmas COMMAND pruebas_integracion_alarmas)
 endif()

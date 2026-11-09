@@ -2,32 +2,43 @@
 
 ## Punto actual
 
-- Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`. Rama main; consultar HEAD y remoto con Git al incorporarse.
-- B00–B06 y B03-R1 aceptados/archivados. B06 aceptado el 2026-11-09;
-  contrato vigente alarma-temperatura sincronizado (cuatro requisitos/ocho escenarios).
-- B06 implementación 47ae9b5; cierre documental c09895576e129c12d32d7a5fc473293fbbd5ab6d.
-- Usuario autorizó publicar commits pendientes y cierre B06; esta actualización
-  incluye su propuesta B07 solicitada, sin código nuevo. Antes de cerrar la orden,
-  comprobar publicación con HEAD==origin/main y referencia remota. Log: /tmp/ed3-cierre-b06-20261109-gqz_d7bw/publicacion.log.
-- Cambio activo b07-coordinacion-salidas-alarma: sólo propuesta, alcance pendiente de
-  acuerdo. No hay autorización de implementación ni de publicación futura de B07.
+- Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`. Rama main; consultar HEAD con Git.
+- B00–B06 y B03-R1 aceptados/archivados. B06 y su cierre/propuesta publicados;
+  base conocida de B07: eb713e04cebd93068c08161cd67af9ede31d1388.
+- B07: alcance acordado, implementado/verificado, pendiente de aceptación del resultado.
+  Cambio activo b07-coordinacion-salidas-alarma; contratos vigentes/archivo sin cambios.
+- Commit local con asunto `feat: coordinar salidas de alarma mediante interfaz portable`;
+  consultar Git para hash. Sin push autorizado; hooks/firma/historial conservados.
 
-## Evidencia aceptada
+## Evidencia actual ejecutada
 
-- B06: 115 casos C (13 B06), 11199 ternas B03-R1 y sanitizadores PASS;
-  ARM Debug 9/9, B06 Release 1/1, Doxygen estricto 22 funciones/USW.
-- Matriz AT1–AT4/S1–S8 y recursos en informe archivado B06.
-- Cierre/propuesta sólo documentales: contrato exacto, preservación de fuentes/historial,
-  manifiesto, YAML/enlaces y diff. No se repiten ni declaran pruebas nuevas de firmware.
-- Sin ejecución ARM, simulación o hardware; sin instalaciones/flasheo/cambios MCU.
-- Logs de cierre/propuesta/publicación: /tmp/ed3-cierre-b06-20261109-gqz_d7bw; logs B06 en informe archivado.
+| Verificación | Resultado |
+|---|---|
+| Host/sanitizadores | CTest 11/11; 131 C (12 servicio + 4 integración B07) y 11199 ternas B03-R1, sin hallazgos |
+| ARM | Debug 10/10, B07 Release 1/1; APIs/proveedor retenidos, ELF válidos |
+| Doxygen | Estricto sin avisos; 23 funciones/USW, nueva USW.2.1.6.1 y callback documentados |
+| Negativos | Suite detecta buzzer siempre activo y cortocircuito tras fallo LED |
+| Recursos -O0 | Código 144; pila propia 24 bytes, .data/.bss 0; interfaz 16, enum 1 con toolchain actual |
+| Aislamiento/preservación | Servicio sólo necesita Servicios/std; aplicación, dispositivos, otros servicios, pruebas previas y contratos/archivos aceptados intactos |
 
-## Pendientes y próxima acción
+Matriz SA1–SA4/S1–S8, comandos y límites: verify-report.md activo B07.
+Logs: /tmp/ed3-b07-20261109-v_30cvtq, fuera del árbol versionado. Sin fallos funcionales pendientes.
+Sin ejecución ARM, simulación o hardware; sin flasheo/instalación/cambios MCU.
 
-Acordar alcance/aceptación B07 propuesto: solicitudes lógicas hacia salidas LED/buzzer
-reemplazables, verificables con emulación. No decidir umbral en servicios ni introducir
-Servicios→Aplicacion. Fallos/ausencia de B06 no se interpretarían como orden de apagado.
-GPIO/pines/polaridad, señales reales, respuesta física ante lectura fallida y prioridad
-temporal siguen pendientes; también adquisición, UART, PWM/control y main.
-CMSIS-DAP integrado; revisión física PCB/silicio y montaje/pines/VREF sin verificar.
-No implementar B07 hasta acuerdo; no inferir permisos para futuras publicaciones.
+## Decisiones y limitaciones
+
+Interfaz por llamada, funciones/contextos externos separados. Validación completa
+previa; LED→buzzer una vez cada uno aunque falle LED. ACEPTADA/error de argumento/
+LED/buzzer/ambos son resultados de llamada, no estado eléctrico confirmado.
+Sin heap/globals mutables/init/cache/reintentos/timeout; proveedores deben retornar,
+interfaz/contextos estables/vivos y acceso serializado. Pila/tiempo total dependen de ellos.
+Adaptación B06 sólo en pruebas/fixture, sin Servicios→Aplicacion. Sólo ACTIVA/INACTIVA
+emiten solicitudes; ausencia/error no emite apagado y conserva diagnóstico.
+GPIO/pines/polaridad, patrón físico de fallo y prioridad temporal siguen pendientes,
+al igual que adquisición, UART, PWM/control y main. CMSIS-DAP integrado;
+revisión física PCB/silicio y montaje/pines/VREF sin verificar.
+
+## Próxima acción
+
+Revisar aceptación del resultado B07. Sólo después sincronizar/archivar por orden.
+No publicar ni iniciar B08 sin autorización.

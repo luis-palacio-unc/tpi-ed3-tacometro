@@ -10,12 +10,12 @@ para generar documentación sin autorización.
   precondiciones y concurrencia. Tipos, miembros y constantes también documentados.
 - Mantener comentarios de contrato fuera del cuerpo de funciones de producción,
   como pide la guía del TPI.
-- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, LM35, Limites y Configuracion/Medicion.h. No usar EXTRACT_ALL para ocultar falta de documentación.
+- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, LM35, Limites y Configuracion/Medicion.h. No usar EXTRACT_ALL para ocultar falta de documentación.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
-Validación actual B06: 22 funciones/USW en XML (7 Procesamiento, 6 Comunicacion,
-2 Medicion_Velocidad, 2 Mandos, 2 Temperatura, 2 LM35 y main), sin avisos.
+Validación actual B07: 23 funciones/USW en XML (7 Procesamiento, 6 Comunicacion,
+2 Medicion_Velocidad, 2 Mandos, 2 Temperatura, 2 LM35, Driver_Alarmas y main), sin avisos.
 USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
 Documentar unidades físicas/estados en el servicio y conversión/errores específicos
 en LM35. La inclusión de archivos del dispositivo no introduce dependencia del servicio.
@@ -34,3 +34,8 @@ Doxygen estricto HTML/XML pasa; no agrega funciones de producción.
 B06 agrega USW.2.1.2.7: decisión por temperatura/validez del servicio y umbral
 configurable; enum completo, unidades, argumentos, ausencia/error y concurrencia
 documentados. Doxyfile ya cubre los archivos; no se cambia ni desactiva controles.
+
+B07 agrega ESW.2.1.6/USW.2.1.6.1: interfaz/callbacks/contextos, estados, validación
+previa y fallos parciales documentados. Doxyfile amplía INPUT con Driver_Alarmas.h/.c,
+sin modificar controles estrictos. Proveedores emulados de tests no son unidades de
+dispositivos de producción ni acreditan estado eléctrico.

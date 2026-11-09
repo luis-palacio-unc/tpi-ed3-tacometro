@@ -8,6 +8,7 @@ INPUT = Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacion/Procesamiento.c 
         Servicios/Medicion_Velocidad.h Servicios/Medicion_Velocidad.c \
         Servicios/Mandos.h Servicios/Mandos.c \
         Servicios/Temperatura.h Servicios/Temperatura.c \
+        Servicios/Driver_Alarmas.h Servicios/Driver_Alarmas.c \
         Dispositivos/LM35.h Dispositivos/LM35.c
 FILE_PATTERNS = *.c *.h
 INCLUDE_PATH = Aplicacion Servicios Configuracion Dispositivos
