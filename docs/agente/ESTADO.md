@@ -2,43 +2,33 @@
 
 ## Punto actual
 
-- Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`. Rama main; consultar HEAD con Git.
-- B00–B06 y B03-R1 aceptados/archivados. B06 y su cierre/propuesta publicados;
-  base conocida de B07: eb713e04cebd93068c08161cd67af9ede31d1388.
-- B07: alcance acordado, implementado/verificado, pendiente de aceptación del resultado.
-  Cambio activo b07-coordinacion-salidas-alarma; contratos vigentes/archivo sin cambios.
-- Commit local con asunto `feat: coordinar salidas de alarma mediante interfaz portable`;
-  consultar Git para hash. Sin push autorizado; hooks/firma/historial conservados.
+- Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`. Rama main; consultar HEAD/remoto con Git al incorporarse.
+- B00–B07 y B03-R1 aceptados/archivados. B07 aceptado el 2026-11-09;
+  contrato salidas-alarma sincronizado (cuatro requisitos/ocho escenarios).
+- Implementación B07: 92bfceadd7c6e34e3ea841007a3e996d220d296f.
+- Cierre/propuesta documental en commit `docs: aceptar B07 y proponer B08`.
+  Usuario autorizó push de pendientes/cierre y pidió propuesta B08. Antes de cerrar
+  esta orden, comprobar HEAD==origin/main==remoto; resultado en /tmp/ed3-cierre-b07-20261109-298bmkta/publicacion.log.
+- Cambio activo b08-mando-motor-portable: sólo propuesta, alcance pendiente de acuerdo;
+  implementación y publicación futura no autorizadas.
 
-## Evidencia actual ejecutada
+## Evidencia aceptada
 
-| Verificación | Resultado |
-|---|---|
-| Host/sanitizadores | CTest 11/11; 131 C (12 servicio + 4 integración B07) y 11199 ternas B03-R1, sin hallazgos |
-| ARM | Debug 10/10, B07 Release 1/1; APIs/proveedor retenidos, ELF válidos |
-| Doxygen | Estricto sin avisos; 23 funciones/USW, nueva USW.2.1.6.1 y callback documentados |
-| Negativos | Suite detecta buzzer siempre activo y cortocircuito tras fallo LED |
-| Recursos -O0 | Código 144; pila propia 24 bytes, .data/.bss 0; interfaz 16, enum 1 con toolchain actual |
-| Aislamiento/preservación | Servicio sólo necesita Servicios/std; aplicación, dispositivos, otros servicios, pruebas previas y contratos/archivos aceptados intactos |
+- B07: 131 casos C (12 servicio + cuatro integración), 11199 ternas B03-R1 y
+  sanitizadores PASS; ARM Debug 10/10, B07 Release 1/1 y Doxygen estricto 23 funciones.
+- Matriz SA1–SA4/S1–S8 y recursos en informe archivado B07.
+- Cierre/propuesta sólo documentales: contrato exacto, hashes de fuentes/historial,
+  manifiesto, YAML/enlaces y diff. No se repiten ni declaran pruebas nuevas de firmware.
+- Sin ejecución ARM, simulación o hardware; sin flasheo/instalación/cambios MCU.
+- Logs de cierre/propuesta/publicación: /tmp/ed3-cierre-b07-20261109-298bmkta; logs B07 en informe archivado.
 
-Matriz SA1–SA4/S1–S8, comandos y límites: verify-report.md activo B07.
-Logs: /tmp/ed3-b07-20261109-v_30cvtq, fuera del árbol versionado. Sin fallos funcionales pendientes.
-Sin ejecución ARM, simulación o hardware; sin flasheo/instalación/cambios MCU.
+## Pendientes y próxima acción
 
-## Decisiones y limitaciones
-
-Interfaz por llamada, funciones/contextos externos separados. Validación completa
-previa; LED→buzzer una vez cada uno aunque falle LED. ACEPTADA/error de argumento/
-LED/buzzer/ambos son resultados de llamada, no estado eléctrico confirmado.
-Sin heap/globals mutables/init/cache/reintentos/timeout; proveedores deben retornar,
-interfaz/contextos estables/vivos y acceso serializado. Pila/tiempo total dependen de ellos.
-Adaptación B06 sólo en pruebas/fixture, sin Servicios→Aplicacion. Sólo ACTIVA/INACTIVA
-emiten solicitudes; ausencia/error no emite apagado y conserva diagnóstico.
-GPIO/pines/polaridad, patrón físico de fallo y prioridad temporal siguen pendientes,
-al igual que adquisición, UART, PWM/control y main. CMSIS-DAP integrado;
-revisión física PCB/silicio y montaje/pines/VREF sin verificar.
-
-## Próxima acción
-
-Revisar aceptación del resultado B07. Sólo después sincronizar/archivar por orden.
-No publicar ni iniciar B08 sin autorización.
+Acordar alcance/aceptación B08 propuesto: Driver_Motor con mando 0..1000 por mil,
+solicitud de cero y salida reemplazable; no confundir consigna RPM con PWM.
+Control automático, PWM/pines/frecuencia/potencia reales, adquisición, UART y main
+siguen pendientes; también GPIO/polaridad/tiempos reales de alarmas y patrón físico de fallo.
+CMSIS-DAP integrado; revisión PCB/silicio y montaje/pines/VREF sin verificar.
+Documentación final: diagramas de secuencia breves por servicios para el informe,
+después de implementar todos los ESW, como pidió el usuario. No elaborarlos todavía.
+No implementar B08 ni publicar trabajo futuro sin acuerdo.

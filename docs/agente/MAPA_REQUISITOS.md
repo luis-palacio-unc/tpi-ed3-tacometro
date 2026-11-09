@@ -13,7 +13,7 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; lógica | Aplicacion/Procesamiento.* | B01 S1/S2 PASS (C host); integración física pendiente |
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01 aceptado; lógica | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | B01 S3/S4/S5/S6 PASS (C host); recepción real pendiente |
-| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; B06 aceptado/archivado para decisión; B07 verificado/candidato para coordinación; actuación física/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); B06 S1–S8 y 13 casos PASS; resultado lógico aceptado; alarma física pendiente |
+| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; B06 aceptado/archivado para decisión; B07 aceptado/archivado para coordinación; actuación física/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); B06 S1–S8 y 13 casos PASS; resultado lógico aceptado; alarma física pendiente |
 | R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción lógica; resto pendiente | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 S1–S8 PASS host; UART física/telemetría pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
@@ -54,8 +54,13 @@ AT1–AT4/S1–S8 PASS: 13 casos B06, 115 C totales + 11199 ternas de regresión
 san/ARM/Doxygen PASS. Informe archivado B06 y contrato vigente de alarma-temperatura. Señalización física/prioridad temporal
 y respuesta física ante fallo de lectura quedan para integración posterior.
 
-B07 implementado/verificado (R07/R10/R11/R15), pendiente de aceptación: servicio
+B07 aceptado/archivado (R07/R10/R11/R15): servicio
 Driver_Alarmas portable con interfaz reemplazable y fallos observables, sin dependencia
 de aplicación/dispositivos. SA1–SA4/S1–S8 PASS: 12 casos de servicio + cuatro integración,
-131 C totales y 11199 ternas de regresión; san/ARM/Doxygen PASS. Evidencia activa B07.
+131 C totales y 11199 ternas de regresión; san/ARM/Doxygen PASS. Evidencia archivada B07 y contrato vigente salidas-alarma.
 Proveedores emulados no acreditan GPIO, polaridad, señalización real o prioridad temporal.
+
+B08 propuesto (R03/R06/R10/R11/R15): Driver_Motor validaría mando por mil y cero
+mediante salida reemplazable; tests/fixture/Doxygen previstos. Sin implementación
+ni evidencia aceptada; PWM/potencia y regulador automático permanecen pendientes.
+R11: planificación de diagramas acordada en [CONTEXTO](CONTEXTO.md#documentación-final-y-propuesta-b08); elaboración pendiente.

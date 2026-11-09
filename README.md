@@ -179,7 +179,7 @@ y [evidencia B06](openspec/changes/archive/2026-11-09-b06-logica-alarma-temperat
 
 ## B07: coordinación portable de salidas de alarma
 
-B07 implementado/verificado, pendiente de aceptación. Driver_Alarmas_Aplicar recibe
+B07 aceptado/archivado el 2026-11-09; contrato vigente sincronizado. Driver_Alarmas_Aplicar recibe
 activar/desactivar y una interfaz const de funciones/contextos para LED y buzzer.
 Valida toda la interfaz primero; intenta ambos canales una vez por llamada, LED
 antes de buzzer, incluso si LED falla. Retorna ACEPTADA, ERROR_ARGUMENTO, ERROR_LED,
@@ -195,5 +195,14 @@ que retornen. No hay registro global, init, heap, reintentos o timeout en el ser
 12 casos de servicio + cuatro integración: 131 C totales y 11199 ternas de regresión
 pasan en host/sanitizadores. ARM Debug 10/10, B07 Release 1/1; Doxygen estricto
 23 funciones/USW, incluida USW.2.1.6.1. Sin ejecución ARM o pruebas físicas.
-Ver [contrato candidato](openspec/changes/b07-coordinacion-salidas-alarma/specs/salidas-alarma/spec.md)
-y [evidencia B07](openspec/changes/b07-coordinacion-salidas-alarma/verify-report.md).
+Ver [contrato vigente](openspec/specs/salidas-alarma/spec.md)
+y [evidencia B07](openspec/changes/archive/2026-11-09-b07-coordinacion-salidas-alarma/verify-report.md).
+
+## Próximo bloque propuesto
+
+[B08: mando de motor portable](openspec/changes/b08-mando-motor-portable/proposal.md).
+Driver_Motor validaría mandos 0..1000 por mil y solicitud explícita de cero, con
+salida reemplazable y fallos observables. Alcance pendiente de acuerdo, sin código nuevo.
+PWM físico y control automático permanecen pendientes.
+
+Plan de diagramas para el informe final: ver [CONTEXTO](docs/agente/CONTEXTO.md#documentación-final-y-propuesta-b08).

@@ -58,8 +58,8 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
 contratos aceptados: build (B00), modos (B01), comunicación (B02), medición
-(B03/B03-R1), mandos (B04), temperatura (B05) y alarma lógica (B06).
-B00–B06 y B03-R1 aceptados y archivados.
+(B03/B03-R1), mandos (B04), temperatura (B05), alarma lógica (B06) y salidas de
+alarma (B07). B00–B07 y B03-R1 aceptados y archivados.
 Contrato de temperatura corregido vigente desde
 2026-11-07. Revisión independiente B03-R1 aceptada y archivada el 2026-11-09; contrato sincronizado.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
@@ -71,7 +71,8 @@ y su cierre, y posteriormente B02 y su cierre. También autorizó publicar B03
 y su cierre al aceptarlo, y luego B04 y su cierre. El usuario autorizó publicar B05, su corrección y cierre al aceptarlo el 2026-11-07.
 Al aceptar B06 el 2026-11-09, autorizó publicar los commits pendientes
 (B03-R1, cierre/propuesta y B06) junto con el cierre B06.
-Nuevas publicaciones requieren autorización independiente.
+Al aceptar B07 el 2026-11-09, autorizó publicar los commits pendientes, su cierre
+y preparar la propuesta B08. Nuevas publicaciones futuras requieren autorización independiente.
 Se conserva configuración de firma Git,
 actualmente sin firma automática habilitada.
 
@@ -204,7 +205,7 @@ No se ha acordado parar el motor por temperatura. Evidencia y cierre B06 en arch
 
 ## Coordinación lógica de salidas B07
 
-Alcance acordado e implementado/verificado el 2026-11-09; resultado pendiente de aceptación.
+Resultado B07 aceptado/archivado el 2026-11-09; contrato vigente sincronizado.
 Driver_Alarmas_Aplicar (USW.2.1.6.1) recibe interfaz const con dos funciones
 bool(void*,bool) y contextos separados, más activar/desactivar. No registra configuración
 global ni requiere init/heap. Rechaza NULL/funciones ausentes antes de llamar; contextos
@@ -217,4 +218,14 @@ Interfaz/contextos estables/vivos y acceso serializado externos; pila/tiempo tot
 dependen de proveedores. Proveedor resuelve su polaridad/hardware, todavía no implementado.
 Adaptación B06 en pruebas: sólo decisiones evaluables generan solicitud; ausencia/error
 conserva diagnóstico y no emite órdenes. No integra main ni define patrón físico de fallo.
-Contrato de salidas-alarma todavía candidato; interfaces de dispositivos siguen pendientes.
+Contrato de salidas-alarma vigente; interfaces de dispositivos siguen pendientes.
+
+## Documentación final y propuesta B08
+
+Pedido del usuario 2026-11-09: una vez implementados todos los ESW, agregar al
+informe diagramas de secuencia pequeños que expliquen cómo cooperan aplicación,
+servicios y dispositivos, mostrando llamadas y retornos con lenguaje sencillo.
+Contrastar con implementación aceptada; no elaborarlos todavía ni tratarlos como prueba física.
+B08 sólo propuesto: Driver_Motor con mando por mil, solicitud de cero y salida
+reemplazable. Alcance/criterio en openspec/changes/b08-mando-motor-portable/proposal.md;
+sin decisión aceptada ni implementación nueva de ese bloque.

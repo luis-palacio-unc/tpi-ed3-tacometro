@@ -39,3 +39,6 @@ B07 agrega ESW.2.1.6/USW.2.1.6.1: interfaz/callbacks/contextos, estados, validac
 previa y fallos parciales documentados. Doxyfile amplía INPUT con Driver_Alarmas.h/.c,
 sin modificar controles estrictos. Proveedores emulados de tests no son unidades de
 dispositivos de producción ni acreditan estado eléctrico.
+
+El plan de diagramas de secuencia para el informe final queda en
+[CONTEXTO](../agente/CONTEXTO.md#documentación-final-y-propuesta-b08); elaboración diferida hasta completar los ESW.

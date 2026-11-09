@@ -1,16 +1,18 @@
 block: B07
 change: b07-coordinacion-salidas-alarma
-status: verified_pending_acceptance
-phase: verify
+status: archived
+phase: archive
 scope_approved: true
-result_accepted: false
+result_accepted: true
 implementation_started: true
 verification_passed: true
-main_specs_synced: false
+main_specs_synced: true
 commit_authorized: true
-push_authorized: false
-next_action: Revisar aceptacion del resultado B07 antes de sincronizar/archivar; sin
-  push.
+push_authorized: true
+next_action: Publicar cierre/propuesta solicitados y acordar alcance B08, sin implementacion
+  nueva.
 scope_approved_on: '2026-11-09'
 base_commit: eb713e04cebd93068c08161cd67af9ede31d1388
 commit_subject: 'feat: coordinar salidas de alarma mediante interfaz portable'
+accepted_on: '2026-11-09'
+implementation_commit: 92bfceadd7c6e34e3ea841007a3e996d220d296f

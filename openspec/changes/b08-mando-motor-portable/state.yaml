@@ -1,0 +1,12 @@
+block: B08
+change: b08-mando-motor-portable
+status: proposed
+phase: proposal
+scope_approved: false
+result_accepted: false
+implementation_started: false
+verification_passed: false
+main_specs_synced: false
+commit_authorized: false
+push_authorized: false
+next_action: Acordar alcance y criterio de aceptacion B08 antes de especificar e implementar.

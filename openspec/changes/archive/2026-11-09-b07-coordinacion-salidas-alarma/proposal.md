@@ -1,7 +1,7 @@
 # B07 — Coordinación portable de salidas de alarma
 
-Estado: alcance/criterio acordados por usuario 2026-11-09. Implementación y commit
-local autorizados, sin push. Resultado pendiente de aceptación.
+Estado: resultado aceptado por usuario el 2026-11-09. Sincronización, archivo y
+publicación de commits pendientes autorizados; propuesta B08 solicitada.
 
 ## Objetivo y origen
 
