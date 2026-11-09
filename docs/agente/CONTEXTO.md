@@ -201,3 +201,11 @@ los seis cuerpos/tipos B01; fixture B01 agrega únicamente ruta de encabezados S
 Driver_Alarmas aplicará solicitudes después; señalización física/prioridad temporal,
 histéresis, timeout, enclavamiento y respuesta física a fallo siguen pendientes.
 No se ha acordado parar el motor por temperatura. Evidencia y cierre B06 en archivo; contrato de alarma-temperatura vigente.
+
+## Propuesta B07
+
+B07 sólo propuesto: Driver_Alarmas coordinaría dos salidas reemplazables sin
+decidir temperatura/umbral ni depender de Aplicacion. Alcance/criterio detallados
+en openspec/changes/b07-coordinacion-salidas-alarma/proposal.md, pendientes de acuerdo.
+La respuesta física ante adquisición fallida, GPIO/polaridad y prioridad temporal
+siguen sin resolverse; no convertir la propuesta en decisión aceptada.

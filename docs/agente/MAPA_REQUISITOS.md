@@ -53,3 +53,8 @@ térmica en Procesamiento con lectura B05 y umbral explícito, sin modelo de sen
 AT1–AT4/S1–S8 PASS: 13 casos B06, 115 C totales + 11199 ternas de regresión;
 san/ARM/Doxygen PASS. Informe archivado B06 y contrato vigente de alarma-temperatura. Señalización física/prioridad temporal
 y respuesta física ante fallo de lectura quedan para integración posterior.
+
+B07 propuesto (R07/R10/R11/R15): Driver_Alarmas coordinaría solicitudes lógicas hacia
+LED/buzzer mediante interfaz reemplazable, con diagnóstico de fallos. Fuentes previstas:
+Servicios/Driver_Alarmas.*, pruebas host/fixture ARM y Doxygen. Sin implementación
+ni evidencia de aceptación; no acredita GPIO o señalización física.

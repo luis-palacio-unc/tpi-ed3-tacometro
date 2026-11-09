@@ -176,3 +176,10 @@ USW.2.1.2.7 documentada; Doxyfile existente cubre 22 funciones/USW sin avisos.
 en host/sanitizadores. ARM Debug 9/9 y fixture B06 Release pasan sin ejecutar MCU.
 Ver [contrato vigente](openspec/specs/alarma-temperatura/spec.md)
 y [evidencia B06](openspec/changes/archive/2026-11-09-b06-logica-alarma-temperatura/verify-report.md).
+
+## Próximo bloque propuesto
+
+[B07: coordinación portable de salidas de alarma](openspec/changes/b07-coordinacion-salidas-alarma/proposal.md).
+Driver_Alarmas enviaría activar/desactivar a LED y buzzer mediante salidas
+reemplazables, con fallos observables y pruebas emuladas. Alcance pendiente de acuerdo;
+no hay implementación ni conexión GPIO/pines/polaridad nuevas.
