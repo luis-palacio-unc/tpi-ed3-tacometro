@@ -1,7 +1,7 @@
 # B06 — Evaluación lógica de alarma por temperatura
 
-Estado: alcance y criterio acordados por el usuario el 2026-11-09; implementación
-y commit autorizados, sin push. Umbral configurable sin valor fijo definido.
+Estado: resultado aceptado por el usuario el 2026-11-09. Sincronización, archivo
+y publicación de commits pendientes autorizados. Umbral configurable sin valor fijo.
 
 ## Objetivo y origen
 

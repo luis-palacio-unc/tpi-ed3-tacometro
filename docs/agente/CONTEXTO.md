@@ -58,7 +58,8 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
 contratos aceptados: build (B00), modos (B01), comunicación (B02), medición
-(B03/B03-R1), mandos (B04) y temperatura (B05). B00–B05 aceptados y archivados.
+(B03/B03-R1), mandos (B04), temperatura (B05) y alarma lógica (B06).
+B00–B06 y B03-R1 aceptados y archivados.
 Contrato de temperatura corregido vigente desde
 2026-11-07. Revisión independiente B03-R1 aceptada y archivada el 2026-11-09; contrato sincronizado.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
@@ -68,6 +69,8 @@ El usuario autorizó después commits al finalizar cada bloque acordado. El push
 requiriendo autorización independiente; el usuario autorizó publicar los commits B01
 y su cierre, y posteriormente B02 y su cierre. También autorizó publicar B03
 y su cierre al aceptarlo, y luego B04 y su cierre. El usuario autorizó publicar B05, su corrección y cierre al aceptarlo el 2026-11-07.
+Al aceptar B06 el 2026-11-09, autorizó publicar los commits pendientes
+(B03-R1, cierre/propuesta y B06) junto con el cierre B06.
 Nuevas publicaciones requieren autorización independiente.
 Se conserva configuración de firma Git,
 actualmente sin firma automática habilitada.
@@ -184,8 +187,7 @@ física completa de toda la capa de servicios. La adquisición y composición re
 
 ## Alarma lógica B06
 
-Alcance acordado e implementado/verificado el 2026-11-09, resultado pendiente de
-aceptación. Umbral configurable int32_t en centésimas Celsius explícito, sin default.
+Resultado B06 aceptado y archivado el 2026-11-09; contrato vigente sincronizado. Umbral configurable int32_t en centésimas Celsius explícito, sin default.
 Procesamiento_EvaluarAlarmaTemperatura (USW.2.1.2.7) consume const Temperatura_Lectura*;
 retorna ACTIVA sólo con VALIDA y T>umbral, INACTIVA con T<=umbral. Ausencia,
 fallo de fuente y error de argumento son estados distintos, nunca temperatura normal.
@@ -198,4 +200,4 @@ Serializar lectura del registro: const no da atomicidad ni frescura. Se preserva
 los seis cuerpos/tipos B01; fixture B01 agrega únicamente ruta de encabezados Servicios.
 Driver_Alarmas aplicará solicitudes después; señalización física/prioridad temporal,
 histéresis, timeout, enclavamiento y respuesta física a fallo siguen pendientes.
-No se ha acordado parar el motor por temperatura. Contrato B06 todavía candidato.
+No se ha acordado parar el motor por temperatura. Evidencia y cierre B06 en archivo; contrato de alarma-temperatura vigente.

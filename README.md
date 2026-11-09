@@ -160,7 +160,7 @@ conserva la evidencia de la arquitectura anterior y no acredita la API actual.
 
 ## B06: evaluación lógica de alarma de temperatura
 
-B06 implementado/verificado, pendiente de aceptación. Nueva función
+B06 aceptado y archivado el 2026-11-09; contrato vigente sincronizado. Nueva función
 Procesamiento_EvaluarAlarmaTemperatura recibe la lectura genérica del servicio y
 umbral int32_t en centésimas Celsius como parámetro de configuración, sin default.
 Sólo una lectura válida superior al umbral produce ACTIVA; igual/inferior, INACTIVA.
@@ -174,5 +174,5 @@ USW.2.1.2.7 documentada; Doxyfile existente cubre 22 funciones/USW sin avisos.
 
 13 casos B06 + regresiones: 115 casos C y oráculo B03-R1 de 11199 ternas pasan
 en host/sanitizadores. ARM Debug 9/9 y fixture B06 Release pasan sin ejecutar MCU.
-Ver [contrato candidato](openspec/changes/b06-logica-alarma-temperatura/specs/alarma-temperatura/spec.md)
-y [evidencia B06](openspec/changes/b06-logica-alarma-temperatura/verify-report.md).
+Ver [contrato vigente](openspec/specs/alarma-temperatura/spec.md)
+y [evidencia B06](openspec/changes/archive/2026-11-09-b06-logica-alarma-temperatura/verify-report.md).

@@ -1,18 +1,20 @@
 block: B06
 change: b06-logica-alarma-temperatura
-status: verified_pending_acceptance
-phase: verify
+status: archived
+phase: archive
 scope_approved: true
-result_accepted: false
+result_accepted: true
 threshold_as_configuration_parameter_confirmed_on: '2026-11-09'
 threshold_value_fixed: false
 implementation_started: true
 verification_passed: true
-main_specs_synced: false
+main_specs_synced: true
 commit_authorized: true
-push_authorized: false
-next_action: Revisar aceptacion del resultado B06 antes de sincronizar/archivar; sin
-  push.
+push_authorized: true
+next_action: Publicar commits pendientes y cierre B06; preparar propuesta B07 sin
+  implementacion.
 scope_approved_on: '2026-11-09'
 base_commit: dd80d582e880b4867fe50019b43a5c1b5908daf3
 commit_subject: 'feat: evaluar alarma de temperatura configurable'
+accepted_on: '2026-11-09'
+implementation_commit: 47ae9b5e71d9ee233e5b99ac7adb0f4472c468e5
