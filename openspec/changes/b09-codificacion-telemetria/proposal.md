@@ -1,6 +1,7 @@
 # B09 — Codificación portable de telemetría
 
-Estado: propuesta pendiente de acuerdo; sin implementación.
+Estado: alcance/formato/criterio acordados el 2026-11-09. Implementación y commit
+local autorizados, sin push. Resultado pendiente de aceptación.
 
 ## Objetivo y origen
 

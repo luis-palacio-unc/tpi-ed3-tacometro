@@ -14,7 +14,7 @@ para generar documentación sin autorización.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
-Validación actual B08: 25 funciones/USW en XML (7 Procesamiento, 6 Comunicacion,
+Validación actual B09: 29 funciones/USW en XML (7 Procesamiento, 10 Comunicacion,
 2 Medicion_Velocidad, 2 Mandos, 2 Temperatura, 2 LM35, Driver_Alarmas, 2 Driver_Motor y main), sin avisos.
 USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
 Documentar unidades físicas/estados en el servicio y conversión/errores específicos
@@ -47,3 +47,8 @@ B08 agrega ESW.2.1.8/USW.2.1.8.1/.2: mando por mil, solicitud explícita de cero
 interfaz/proveedor/contexto opacos, validación/rango, errores/recuperación y concurrencia.
 Doxyfile incluye Driver_Motor.h/.c; HTML/XML estricto pasa sin avisos. Las pruebas
 de composición no documentan PWM físico como implementado.
+
+B09 agrega USW.2.1.7.7/.8/.9/.10: API de codificación, literales internos, entero y
+fracción fija. Instantánea/enums, unidades, cota de buffer, longitud, limpieza/prioridad
+de errores y no solapamiento documentados. Doxyfile ya incluye Comunicacion.h/.c;
+HTML/XML estricto pasa, sin avisos ni cambios de controles. snprintf sólo aparece en pruebas host.

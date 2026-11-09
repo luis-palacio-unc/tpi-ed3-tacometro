@@ -52,7 +52,7 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 - Alarma de temperatura prioritaria, visual y acústica. No se ha requerido detener
   el motor por temperatura ni se ha acordado aún histéresis/enclavamiento.
 - Consignas aceptadas: 0..185 RPM inclusive; máximo aclarado por el usuario.
-- No se ha elegido PI/PID, pines, frecuencias ni telemetría; recepción lógica ASCII en B02.
+- No se ha elegido PI/PID, pines o frecuencias; recepción ASCII B02 y formato lógico B09 acordados.
 
 ## SDD y Git
 
@@ -237,6 +237,22 @@ Interfaz/contextos vivos/estables/serializados; proveedor puede modificar su pro
 estado, debe retornar. Aceptación no es confirmación física; validar orígenes más
 amplios/con signo antes de convertir. Adaptación B04/B01 sólo en pruebas/fixture,
 sin tocar main: MANUAL válido, CERO y AUTOMATICA para futuro regulador, nunca RPM→PWM.
-Cierre/publicación B08 autorizados al aceptar resultado. B09 sólo propuesto: codificar
-telemetría en Comunicacion sin UART concreta. Alcance/formato/criterio pendientes de
-acuerdo; ampliar exclusión original B02-R5 al aceptar B09, sin alterar recepción.
+Cierre/publicación B08 autorizados al aceptar resultado.
+
+## Telemetría lógica B09
+
+Alcance/formato/criterio acordados el 2026-11-09; implementado/verificado, resultado
+pendiente de aceptación. Usuario autorizó commit local sin push. Delta activo B09
+amplía exclusión original B02-R5; contrato vigente/archivos aceptados aún intactos.
+Comunicacion_CodificarTelemetria (USW.2.1.7.7) recibe instantánea const y enums propios,
+buffer/capacidad y longitud. La aplicación reunirá magnitudes B03/B05 y estado B01;
+adaptación sólo en pruebas/fixture por ahora, sin cambiar Procesamiento o main.
+Formato ASCII RPM=valor;TEMP=valor;ESTADO=MANUAL/AUTO_ESPERA/AUTO_ACTIVO, terminado LF.
+RPM conserva tres decimales y temperatura dos/signo; ND/ERR distintos de cero.
+Máximo 53 bytes de trama, 54 con NUL; longitud excluye NUL. Punteros/enums/capacidad
+en esa prioridad; error limpia longitud y primer byte si escribibles, sin otros bytes
+modificados. Recuperable, sin estado propio ni init RX. Datos/destinos no solapados,
+vivos/coherentes/serializados. Sin heap/flotantes/libc nueva/UART/esperas/recorte 185.
+Helpers USW.2.1.7.8/.9/.10 y cota de construcción documentados; INT32_MIN usa magnitud
+unsigned definida. Codificación no acredita transmisión PC ni frescura física.
+RX B02 preservado; UART/envío/periodicidad/main y aviso térmico opcional fuera de B09.

@@ -221,9 +221,28 @@ Cierre y publicación B08 autorizados al aceptar el resultado.
 
 Plan de diagramas para el informe final: ver [CONTEXTO](docs/agente/CONTEXTO.md#documentación-final-y-b08).
 
-## Próximo bloque propuesto
+## B09: codificación portable de telemetría
 
-[B09: codificación portable de telemetría](openspec/changes/b09-codificacion-telemetria/proposal.md).
-Preparar RPM/temperatura/estado en ASCII con buffer acotado y validez explícita;
-formato propuesto pendiente de acuerdo. UART física/transmisión/main quedan pendientes.
-Sin implementación nueva de B09.
+B09 implementado/verificado, resultado pendiente de aceptación. Comunicacion recibe
+una instantánea lógica propia: RPM en milésimas, temperatura en centésimas Celsius,
+validez independiente y estado MANUAL/AUTO_ESPERA/AUTO_ACTIVO. Genera, por ejemplo:
+
+```text
+RPM=123.456;TEMP=25.34;ESTADO=MANUAL
+```
+
+LF termina la trama; NUL adicional no cuenta en longitud. ND/ERR representan
+ausencia/fallo, distintos de cero válido. No se recortan mediciones a 185 RPM.
+54 bytes de almacenamiento cubren el máximo; buffer corto/argumentos/enums inválidos
+devuelven error explícito con longitud cero y destino vacío si permite escribir.
+Sin trama parcial utilizable, heap, flotantes, libc nueva, UART o dependencia de aplicación.
+Memoria coherente/no solapada y acceso serializado externos. Recepción B02 intacta;
+composición B01/B03/B05 sólo en pruebas/fixture, sin modificar Procesamiento/main.
+
+11 casos codec + cuatro integración: 161 C totales, 5096 pares contra snprintf host
+y 11199 ternas B03-R1. Host/san 15/15, ARM Debug 12/12 y fixture B09 Release PASS;
+Doxygen estricto 29 funciones/USW, nuevas USW.2.1.7.7/.8/.9/.10.
+Ver [delta candidato](openspec/changes/b09-codificacion-telemetria/specs/comunicacion/spec.md)
+y [verificación](openspec/changes/b09-codificacion-telemetria/verify-report.md).
+Contrato vigente B02 conserva exclusión original hasta aceptar/sincronizar el delta B09.
+UART/envío/periodicidad/main físicos pendientes; sin ejecución ARM/simulador/placa.

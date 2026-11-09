@@ -15,10 +15,10 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01 aceptado; B08 aceptado/archivado para solicitud cero | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | B01 S3/S4/S5/S6 PASS (C host); recepción real pendiente |
 | R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; B06 aceptado/archivado para decisión; B07 aceptado/archivado para coordinación; actuación física/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); B06 S1–S8 y 13 casos PASS; resultado lógico aceptado; alarma física pendiente |
 | R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
-| R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 propuesto para codificación TX; UART/envío pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 S1–S8 PASS host; UART física/telemetría pendientes |
+| R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 verificado/candidato para codificación TX; UART/envío pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 S1–S8 PASS host; UART física/telemetría pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B08: 25 funciones/USW incluyendo USW.2.1.6.1 y USW.2.1.8.1/.2; Doxygen estricto PASS; resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B09: 29 funciones/USW, incluidas cuatro nuevas USW.2.1.7.7–.10; Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -67,6 +67,9 @@ MM1–MM4/S1–S8 PASS: 10 casos servicio + 5 integración B04/B01; 146 C y orá
 Matriz/evidencia en [informe B08](../../openspec/changes/archive/2026-11-09-b08-mando-motor-portable/verify-report.md); PWM/potencia/control/main aún pendientes.
 R11: planificación de diagramas acordada en [CONTEXTO](CONTEXTO.md#documentación-final-y-b08); elaboración pendiente.
 
-B09 propuesto (R09/R10/R11/R15): codificación de RPM/temperatura/estado en trama
-ASCII, validación/buffer acotado y adaptación de prueba B01/B03/B05. Formato y alcance
-sin acuerdo todavía; sin implementación/evidencia nueva. UART/envío/periodicidad pendientes.
+B09 implementado/verificado (R09/R10/R11/R15), resultado pendiente de aceptación:
+codificación ASCII RPM/temperatura/estado con ND/ERR y buffer acotado. CT1–CT4/B09-S1–S8
+y delta B02-R5/S9 PASS: 11 casos codec + cuatro integración B01/B03/B05/RX, 161 C,
+5096 pares codec y 11199 ternas B03-R1; host/san 15/15, ARM Debug 12/12 y fixture
+B09 Release; Doxygen 29 funciones/USW. [Matriz/evidencia](../../openspec/changes/b09-codificacion-telemetria/verify-report.md).
+UART/envío/periodicidad/main pendientes; no se acredita recepción física PC.
