@@ -14,7 +14,7 @@ para generar documentación sin autorización.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
-Validación B05 corregido: 21 funciones/USW en XML (6 Procesamiento, 6 Comunicacion,
+Validación actual B06: 22 funciones/USW en XML (7 Procesamiento, 6 Comunicacion,
 2 Medicion_Velocidad, 2 Mandos, 2 Temperatura, 2 LM35 y main), sin avisos.
 USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
 Documentar unidades físicas/estados en el servicio y conversión/errores específicos
@@ -26,7 +26,11 @@ el retorno en el XML. No se suprimió la comprobación de retornos.
 Referencia: [bloques documentales](https://www.doxygen.nl/manual/docblocks.html) y
 [configuración oficial](https://www.doxygen.nl/manual/config.html).
 
-B03-R1 mantiene 21 funciones/USW: API de velocidad con factor explícito, prioridad
+B03-R1 conserva sus dos USW: API de velocidad con factor explícito, prioridad
 de errores, unidades y aritmética acotada documentadas en USW.2.1.3.1/.2.
 Configuracion/Medicion.h documenta el factor físico del TPI fuera del servicio.
 Doxygen estricto HTML/XML pasa; no agrega funciones de producción.
+
+B06 agrega USW.2.1.2.7: decisión por temperatura/validez del servicio y umbral
+configurable; enum completo, unidades, argumentos, ausencia/error y concurrencia
+documentados. Doxyfile ya cubre los archivos; no se cambia ni desactiva controles.

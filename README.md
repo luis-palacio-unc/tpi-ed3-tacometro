@@ -158,8 +158,21 @@ Ver [informe corregido](openspec/changes/archive/2026-11-07-b05-conversion-tempe
 [informe inicial](openspec/changes/archive/2026-11-07-b05-conversion-temperatura/verify-report-inicial.md)
 conserva la evidencia de la arquitectura anterior y no acredita la API actual.
 
-## Próximo bloque propuesto
+## B06: evaluación lógica de alarma de temperatura
 
-[B06: evaluación lógica de alarma por temperatura](openspec/changes/b06-logica-alarma-temperatura/proposal.md).
-Umbral como parámetro de configuración confirmado por usuario; sin valor fijo.
-Alcance pendiente de acuerdo; no hay implementación ni accionamiento físico nuevo.
+B06 implementado/verificado, pendiente de aceptación. Nueva función
+Procesamiento_EvaluarAlarmaTemperatura recibe la lectura genérica del servicio y
+umbral int32_t en centésimas Celsius como parámetro de configuración, sin default.
+Sólo una lectura válida superior al umbral produce ACTIVA; igual/inferior, INACTIVA.
+Ausencia/error conservan categoría propia y no se presentan como temperatura normal.
+Cada retorno es una decisión completa, sin memoria o inicialización adicionales.
+
+La evaluación no modifica lectura, modos, mandos o consignas. Driver_Alarmas,
+LED/Buzzer, prioridad temporal y main se integrarán en bloques posteriores.
+La dependencia Aplicacion→Temperatura.h usa unidades/validez del servicio, sin LM35/ADC.
+USW.2.1.2.7 documentada; Doxyfile existente cubre 22 funciones/USW sin avisos.
+
+13 casos B06 + regresiones: 115 casos C y oráculo B03-R1 de 11199 ternas pasan
+en host/sanitizadores. ARM Debug 9/9 y fixture B06 Release pasan sin ejecutar MCU.
+Ver [contrato candidato](openspec/changes/b06-logica-alarma-temperatura/specs/alarma-temperatura/spec.md)
+y [evidencia B06](openspec/changes/b06-logica-alarma-temperatura/verify-report.md).

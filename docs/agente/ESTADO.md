@@ -3,37 +3,43 @@
 ## Punto actual
 
 - Proyecto: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`. Rama main; consultar HEAD con git log -1.
-- B00–B05 y B03-R1 aceptados/archivados. Revisión B03-R1 aceptada por usuario el
-  2026-11-09, contrato de medición sincronizado (cuatro requisitos, diez escenarios).
-- Implementación B03-R1: 8383e56e8f323a036d83849257cf6d1b2474b029.
-  Cierre/propuesta en commit `docs: aceptar B03-R1 y proponer B06`.
-- Base remota conocida origin/main=a11a97c1c8617fdc42007afa78d071e83b553512.
-  Revisión y cierre permanecen locales; no hay nueva autorización de push.
-- Cambio activo b06-logica-alarma-temperatura: sólo propuesta, alcance pendiente de acuerdo.
-  Usuario confirmó umbral como parámetro de configuración, sin valor fijo.
+- B00–B05 y B03-R1 aceptados/archivados. Base de B06: dd80d582e880b4867fe50019b43a5c1b5908daf3.
+- B06: alcance acordado, implementado/verificado, pendiente de aceptación del resultado.
+  Cambio activo b06-logica-alarma-temperatura; contratos principales/archivo sin cambios.
+- Commit local con asunto `feat: evaluar alarma de temperatura configurable`;
+  consultar Git para hash. Sin push autorizado. Conservar hooks/firma e historial.
+- Última base remota conocida origin/main=a11a97c1c8617fdc42007afa78d071e83b553512.
+  Revisión B03-R1, cierre/propuesta y B06 permanecen locales.
 
-## Evidencia aceptada
+## Evidencia actual ejecutada
 
-- B03-R1, ejecutada el 2026-11-07: 102 casos C (23 B03), 11199 ternas de oráculo
-  exacto y sanitizadores PASS. ARM Debug 8/8, B03 Release 1/1 y Doxygen estricto.
-- Aislamiento sin configuración/dispositivo, prioridades/recuperación y extremos
-  verificados; recursos/pila y matriz S1–S10 en informe archivado B03-R1.
-- Cierre 2026-11-09 sólo documental: fusión por requisito, hashes de código/historial,
-  YAML, enlaces y diff. No se ejecutan ni declaran pruebas nuevas de firmware.
-- Logs cierre: /tmp/ed3-cierre-b03-r1-20261109-7nh1jdsb; logs originales en informe archivado.
-- Sin ejecución ARM, simulación o prueba física. Sin instalación/flasheo ni cambios MCU.
+| Verificación | Resultado |
+|---|---|
+| Host/sanitizadores | CTest 9/9; 115 casos C (13 B06) + 11199 ternas B03-R1, sin hallazgos |
+| ARM | Debug 9/9 (B00 conserva 14 casos), B06 Release 1/1; APIs retenidas, ELF válidos |
+| Doxygen | Estricto sin avisos, 22 funciones/USW; nueva USW.2.1.2.7 |
+| Controles negativos | Suite detecta >= incorrecto y ausencia tratada como INACTIVA |
+| Nueva evaluación -O0 | Código 78, pila propia 16 bytes, sin auxiliares externos |
+| Preservación | Seis cuerpos/tipos/firmas B01 idénticos; servicios/dispositivos/contratos/archivos aceptados intactos |
 
-## Decisiones y pendientes
+Matriz AT1–AT4/S1–S8, comandos, recursos y límites: verify-report.md activo B06.
+Logs: /tmp/ed3-b06-20261109-baw2h0g0, fuera del árbol versionado. Sin fallos funcionales pendientes.
+El control de tamaños inicial suponía enum de 4 bytes; sizeof/símbolos ARM miden 1,
+coinciden tras corregir el comprobador. No se cambiaron ABI/flags o firmware por esto.
+Sin ejecución ARM, simulación o prueba física. No se instaló ni flasheó nada.
 
-Servicios independientes de modelo físico: Temperatura en Celsius/estado, velocidad
-con factor pulsos/vuelta explícito. TPI usa 60 en configuración externa al servicio.
-B06 propuesto: evaluar temperatura>umbral en Procesamiento y distinguir ausencia/error;
-no cambiar comportamiento B01 ni accionar dispositivos. Driver_Alarmas aplicará
-solicitudes en una integración posterior. Respuesta física a fallo, prioridad temporal,
-ADC/DMA, captura, UART, PWM/control y main siguen pendientes.
-CMSIS-DAP integrado; revisión física PCB/silicio, pines/VREF/montaje pendientes.
+## Decisiones y limitaciones
+
+Aplicación consume const Temperatura_Lectura* y umbral int32_t en centésimas Celsius
+configurable sin default. Retorno completo ACTIVA/INACTIVA/SIN_DATOS/ERROR_FUENTE/
+ERROR_ARGUMENTO. Sólo VALIDA evalúa T>umbral; igualdad inactiva, errores no son normalidad.
+Sin contexto/inicialización nuevos ni modificación de B01/motor. El llamador asigna
+el retorno y serializa lectura. Driver_Alarmas/LED/Buzzer y main siguen pendientes;
+sin prioridad temporal, histéresis, timeout, enclavamiento o política física ante fallo.
+ADC/DMA, captura, UART, PWM/control y montaje/pines/VREF también pendientes.
+CMSIS-DAP integrado; revisión física PCB/silicio sin verificar.
 
 ## Próxima acción
 
-Acordar alcance/aceptación B06. Después especificación, diseño, tareas e implementación
-por orden del usuario. No iniciar código B06 ni publicar commits sin autorización.
+Revisar aceptación del resultado B06. Sólo después sincronizar/archivar por orden.
+No publicar ni iniciar B07 sin autorización.

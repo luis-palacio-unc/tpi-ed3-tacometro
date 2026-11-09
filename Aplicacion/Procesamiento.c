@@ -1,6 +1,6 @@
 /**
  * @file Procesamiento.c
- * @brief Implementacion de la seleccion de mando y transiciones logicas.
+ * @brief Seleccion de mando, transiciones y decision termica sin actuacion fisica.
  * @details Sin perifericos, memoria dinamica, reloj o estado global mutable.
  * @note ESW.2.1.2. Contratos publicos en Procesamiento.h.
  */
@@ -142,6 +142,26 @@ bool Procesamiento_Actualizar(Procesamiento_Contexto *contexto,
         salida->consigna_rpm = contexto->consigna_rpm;
     }
     return true;
+}
+
+Procesamiento_EstadoAlarma Procesamiento_EvaluarAlarmaTemperatura(
+    const Temperatura_Lectura *lectura, int32_t umbral_centesimas_c)
+{
+    if (lectura == NULL) {
+        return PROCESAMIENTO_ALARMA_ERROR_ARGUMENTO;
+    }
+    switch (lectura->estado) {
+        case TEMPERATURA_VALIDA:
+            return lectura->centesimas_c > umbral_centesimas_c ?
+                   PROCESAMIENTO_ALARMA_ACTIVA : PROCESAMIENTO_ALARMA_INACTIVA;
+        case TEMPERATURA_SIN_DATOS:
+            return PROCESAMIENTO_ALARMA_SIN_DATOS;
+        case TEMPERATURA_ERROR_FUENTE:
+            return PROCESAMIENTO_ALARMA_ERROR_FUENTE;
+        case TEMPERATURA_ERROR_ARGUMENTO:
+        default:
+            return PROCESAMIENTO_ALARMA_ERROR_ARGUMENTO;
+    }
 }
 
 /** @} */

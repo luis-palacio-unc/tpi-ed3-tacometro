@@ -1,7 +1,7 @@
 # B06 — Evaluación lógica de alarma por temperatura
 
-Estado: propuesta pendiente de acuerdo; sin implementación. Umbral como parámetro
-de configuración confirmado por el usuario el 2026-11-09, sin valor fijo definido.
+Estado: alcance y criterio acordados por el usuario el 2026-11-09; implementación
+y commit autorizados, sin push. Umbral configurable sin valor fijo definido.
 
 ## Objetivo y origen
 
@@ -31,7 +31,7 @@ al integrar señalización/planificador; este bloque sólo expone el estado lóg
 B00–B05 y B03-R1 aceptados. Aplicacion/Procesamiento.h/.c, pruebas host y fixture
 ARM de integración, CMake/Doxyfile y seguimiento SDD. Servicios/Temperatura se usa
 como contrato de temperatura/validez; Driver_Alarmas/LED/Buzzer permanecen sin accionamiento.
-Sin bibliotecas nuevas. Antes de implementar: completar especificación/diseño/tareas.
+Sin bibliotecas nuevas. Especificación/diseño/tareas detallan el contrato acordado.
 
 ## Criterio de aceptación
 

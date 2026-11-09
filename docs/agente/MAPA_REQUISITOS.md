@@ -13,12 +13,12 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; lógica | Aplicacion/Procesamiento.* | B01 S1/S2 PASS (C host); integración física pendiente |
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01 aceptado; lógica | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | B01 S3/S4/S5/S6 PASS (C host); recepción real pendiente |
-| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; alarma/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); umbral/alarma física pendientes |
+| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; B06 verificado/candidato para decisión de alarma; actuación/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); B06 S1–S8 y 13 casos PASS; aceptación del resultado y alarma física pendientes |
 | R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción lógica; resto pendiente | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 S1–S8 PASS host; UART física/telemetría pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B05: 21 funciones/USW incluyendo main y LM35; Doxygen estricto PASS; resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B06: 22 funciones/USW incluyendo nueva USW.2.1.2.7; Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -48,7 +48,8 @@ B03-R1: factor TPI en Configuracion/Medicion.h, servicio genérico con factor ex
 ARM Debug/Release y Doxygen PASS. Revisión aceptada/archivada; contrato vigente
 sincronizado y archivo B03 original intacto. Captura/tiempos físicos siguen pendientes.
 
-B06 propuesto (R07/R10/R11/R15): evaluación lógica de temperatura/validez contra
-umbral configurable en Procesamiento. Umbral como parámetro confirmado por usuario;
-sin implementación ni evidencia de aceptación todavía. Señalización física/prioridad
-temporal y respuesta física ante fallo de lectura quedan para integración posterior.
+B06 implementado/verificado (R07/R10/R11/R15), pendiente de aceptación: decisión
+térmica en Procesamiento con lectura B05 y umbral explícito, sin modelo de sensor.
+AT1–AT4/S1–S8 PASS: 13 casos B06, 115 C totales + 11199 ternas de regresión;
+san/ARM/Doxygen PASS. Informe activo B06. Señalización física/prioridad temporal
+y respuesta física ante fallo de lectura quedan para integración posterior.

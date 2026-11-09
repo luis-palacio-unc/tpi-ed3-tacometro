@@ -1,20 +1,21 @@
 /**
  * @file Procesamiento.h
- * @brief Contrato de seleccion del mando y gestion de modos del tacometro.
- * @details B01 implementa la logica aislada de hardware. La integracion de servicios,
- * regulacion de velocidad y alarmas se incorporara en bloques posteriores.
+ * @brief Gestion de modos y evaluacion logica de alarma de temperatura.
+ * @details B01 selecciona la fuente de mando; B06 evalua temperatura/validez del
+ * servicio generico contra un umbral configurable. Regulacion/actuacion pendientes.
  * @note ESW.2.1.2. Funciones serializadas, sin heap ni acceso a perifericos.
  */
 #ifndef TPI_PROCESAMIENTO_H
 #define TPI_PROCESAMIENTO_H
 
 #include "Limites.h"
+#include "Temperatura.h"
 #include <stdbool.h>
 #include <stdint.h>
 
 /**
  * @defgroup procesamiento ESW.2.1.2 - Procesamiento
- * @brief Gestion de modos y seleccion exclusiva de la fuente de mando.
+ * @brief Gestion de modos/fuente de mando y evaluacion termica independiente.
  * @details El orden de eventos se captura al recibirlos y se conserva en cola.
  * No representa milisegundos y no permite rollover. Reiniciar la numeracion
  * requiere inicializar el contexto y purgar colas externas.
@@ -120,6 +121,36 @@ bool Procesamiento_Inicializar(Procesamiento_Contexto *contexto,
 bool Procesamiento_Actualizar(Procesamiento_Contexto *contexto,
                              const Procesamiento_Entradas *entradas,
                              Procesamiento_Salida *salida);
+
+/** @brief Decision termica completa; solo ACTIVA/INACTIVA son evaluaciones disponibles. */
+typedef enum {
+    PROCESAMIENTO_ALARMA_SIN_DATOS = 0, /**< Lectura todavia no disponible. */
+    PROCESAMIENTO_ALARMA_INACTIVA, /**< Lectura valida igual o inferior al umbral. */
+    PROCESAMIENTO_ALARMA_ACTIVA, /**< Lectura valida estrictamente superior al umbral. */
+    PROCESAMIENTO_ALARMA_ERROR_FUENTE, /**< Fuente fallida; no representa temperatura normal. */
+    PROCESAMIENTO_ALARMA_ERROR_ARGUMENTO /**< NULL, estado desconocido o error de argumento del servicio. */
+} Procesamiento_EstadoAlarma;
+
+/**
+ * @brief Evaluar alarma de temperatura usando lectura generica y umbral configurable.
+ * @details Con TEMPERATURA_VALIDA retorna ACTIVA solo si centesimas_c>umbral;
+ * igual/inferior retorna INACTIVA. SIN_DATOS, ERROR_FUENTE y ERROR_ARGUMENTO se
+ * conservan como categorias de alarma distintas; estado desconocido es argumento
+ * invalido. No usa el campo numerico de lecturas no validas ni guarda decision previa.
+ * El llamador reemplaza su decision con el retorno; solo ACTIVA/INACTIVA permiten
+ * interpretar la comparacion. Otros estados no ordenan apagar/encender actuadores.
+ * @param[in] lectura Lectura del servicio legible/coherente; NULL produce ERROR_ARGUMENTO.
+ * @param[in] umbral_centesimas_c Configuracion int32_t en centesimas Celsius,
+ * sin valor por defecto. Puede cambiar por llamada y admite todo el dominio int32_t.
+ * @return ACTIVA, INACTIVA, SIN_DATOS, ERROR_FUENTE o ERROR_ARGUMENTO segun lectura;
+ * NULL/estado desconocido devuelven ERROR_ARGUMENTO sin evaluacion numerica.
+ * @pre Serializar captura/escritura/lectura del registro; const no garantiza atomicidad.
+ * No pasar memoria no inicializada ni un puntero invalido distinto de NULL.
+ * @note USW.2.1.2.7. Sin estado mutable, heap, reloj, esperas o resta que pueda
+ * desbordar. No modifica lectura ni B01/motor, no detecta frescura ni acciona alarma fisica.
+ */
+Procesamiento_EstadoAlarma Procesamiento_EvaluarAlarmaTemperatura(
+    const Temperatura_Lectura *lectura, int32_t umbral_centesimas_c);
 
 /** @} */
 #endif /* TPI_PROCESAMIENTO_H */

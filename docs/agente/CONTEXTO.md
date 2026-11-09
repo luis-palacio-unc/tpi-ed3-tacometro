@@ -177,17 +177,25 @@ de otra fuente; no adquiere temperaturas negativas mediante LM35.
 Contratos propios evitan dependencia del dispositivo hacia el servicio. Adaptación
 de estados/cota se demuestra en pruebas; composición real pendiente, sin acceso
 directo a dispositivos desde lógica de aplicación. No añadir callbacks hasta necesitar adquisición.
-Acceso serializado, sin frescura/alarma/main implementados.
+B05 no implementa frescura, decision de alarma ni main; acceso serializado externo.
 
 R15: corrección B05 y revisión B03-R1 aceptadas; no afirmar implementación
 física completa de toda la capa de servicios. La adquisición y composición real siguen pendientes.
 
-## Alarma: configuración y propuesta B06
+## Alarma lógica B06
 
-Usuario confirmó el 2026-11-09 que el umbral será parámetro de configuración,
-sin valor fijo acordado. Propuesta B06: decisión lógica en Procesamiento con
-temperatura física/validez y umbral explícitos; servicio Driver_Alarmas aplicará
-solicitudes al integrar señalización. Alcance B06 pendiente de acuerdo.
-Anteproyecto pide superar el umbral, no fija número, histéresis ni respuesta física
-ante fallo de adquisición. No interpretar esa omisión como autorización para
-parar motor o inventar un patrón LED/buzzer. Prioridad temporal pendiente de integración.
+Alcance acordado e implementado/verificado el 2026-11-09, resultado pendiente de
+aceptación. Umbral configurable int32_t en centésimas Celsius explícito, sin default.
+Procesamiento_EvaluarAlarmaTemperatura (USW.2.1.2.7) consume const Temperatura_Lectura*;
+retorna ACTIVA sólo con VALIDA y T>umbral, INACTIVA con T<=umbral. Ausencia,
+fallo de fuente y error de argumento son estados distintos, nunca temperatura normal.
+NULL/enum desconocido producen ERROR_ARGUMENTO. No retiene decisión ni cambia B01.
+Consumidor asigna el retorno completo; sólo ACTIVA/INACTIVA son evaluaciones disponibles.
+
+Aplicación incluye el contrato del servicio; no duplica enum de fuente ni conoce
+LM35/ADC. No requiere estructura de salida/contexto o inicialización nuevos.
+Serializar lectura del registro: const no da atomicidad ni frescura. Se preservan
+los seis cuerpos/tipos B01; fixture B01 agrega únicamente ruta de encabezados Servicios.
+Driver_Alarmas aplicará solicitudes después; señalización física/prioridad temporal,
+histéresis, timeout, enclavamiento y respuesta física a fallo siguen pendientes.
+No se ha acordado parar el motor por temperatura. Contrato B06 todavía candidato.
