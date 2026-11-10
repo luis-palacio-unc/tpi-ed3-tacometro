@@ -24,7 +24,7 @@ set(TPI_SOURCES
     Dispositivos/Buzzer.c
     Dispositivos/UART.c
     Dispositivos/soporte/Adquisicion_ADC_DMA.c
-    Dispositivos/soporte/Base_Tiempos.c
+    Dispositivos/soporte/Timer.c
 )
 
 if(TPI_BUILD_ARM)
@@ -41,10 +41,13 @@ if(TPI_BUILD_ARM)
     find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
     add_executable(firmware ${TPI_SOURCES}
         plataforma/startup_lpc1769.S plataforma/cmsis_compat.c)
-    target_sources(firmware PRIVATE Dispositivos/soporte/Base_Tiempos_LPC1769.c)
+    target_sources(firmware PRIVATE
+        Drivers/CMSISv2p00_LPC17xx/Drivers/src/lpc17xx_timer.c
+        Drivers/CMSISv2p00_LPC17xx/Drivers/src/lpc17xx_clkpwr.c
+        Drivers/CMSISv2p00_LPC17xx/Drivers/src/lpc17xx_libcfg_default.c)
     set_target_properties(firmware PROPERTIES SUFFIX ".elf")
     target_include_directories(firmware SYSTEM PRIVATE
-        Drivers/CMSISv2p00_LPC17xx/inc)
+        Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
     target_compile_options(firmware PRIVATE
         -ffreestanding -ffunction-sections -fdata-sections -Wa,--noexecstack
         -fno-unwind-tables -fno-asynchronous-unwind-tables
@@ -141,6 +144,8 @@ else()
         message(FATAL_ERROR "Use TPI_BUILD_ARM=ON con el toolchain ARM, o un build host separado.")
     endif()
     add_library(firmware OBJECT ${TPI_SOURCES})
+    target_include_directories(firmware PRIVATE tests/host/cmsis_timer0)
+    target_include_directories(firmware SYSTEM PRIVATE Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
 endif()
 
 set_target_properties(firmware PROPERTIES
@@ -184,17 +189,21 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_executable(pruebas_selector tests/host/test_selector.c Servicios/Mandos.c)
     add_executable(pruebas_integracion_selector tests/host/test_integracion_selector.c
         Servicios/Mandos.c Aplicacion/Procesamiento.c Servicios/Driver_Motor.c)
+    set(TPI_HOST_TIMER_DRIVER Drivers/CMSISv2p00_LPC17xx/Drivers/src/lpc17xx_timer.c tests/host/Modelo_Drivers.c)
+    add_executable(pruebas_timer_driver tests/host/test_timer_driver.c tests/host/Modelo_Timer0.c ${TPI_HOST_TIMER_DRIVER})
     add_executable(pruebas_base_temporal_tc tests/host/test_base_temporal_tc.c tests/host/Modelo_Timer0.c
-        Dispositivos/soporte/Base_Tiempos.c Dispositivos/soporte/Base_Tiempos_LPC1769.c)
+        Dispositivos/soporte/Timer.c ${TPI_HOST_TIMER_DRIVER})
     add_executable(pruebas_tiempo tests/host/test_tiempo.c Servicios/Tiempo.c)
     add_executable(pruebas_integracion_tiempo tests/host/test_integracion_tiempo.c tests/host/Modelo_Timer0.c
-        Dispositivos/soporte/Base_Tiempos.c Dispositivos/soporte/Base_Tiempos_LPC1769.c
+        Dispositivos/soporte/Timer.c ${TPI_HOST_TIMER_DRIVER}
         Servicios/Tiempo.c Servicios/Mandos.c)
-    target_include_directories(pruebas_base_temporal_tc PRIVATE Dispositivos/soporte tests/host/cmsis_timer0)
-    target_include_directories(pruebas_integracion_tiempo PRIVATE Dispositivos/soporte tests/host/cmsis_timer0)
+    foreach(prueba pruebas_timer_driver pruebas_base_temporal_tc pruebas_integracion_tiempo)
+        target_include_directories(${prueba} PRIVATE Dispositivos/soporte tests/host/cmsis_timer0)
+        target_include_directories(${prueba} SYSTEM PRIVATE Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
+    endforeach()
     target_include_directories(pruebas_lm35 PRIVATE Dispositivos)
     target_include_directories(pruebas_integracion_temperatura PRIVATE Dispositivos)
-    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria pruebas_selector pruebas_integracion_selector pruebas_base_temporal_tc pruebas_tiempo pruebas_integracion_tiempo)
+    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria pruebas_selector pruebas_integracion_selector pruebas_base_temporal_tc pruebas_tiempo pruebas_integracion_tiempo pruebas_timer_driver)
         if(prueba STREQUAL "consulta_medicion_velocidad" OR prueba STREQUAL "pruebas_driver_alarmas" OR prueba STREQUAL "pruebas_tiempo")
             target_include_directories(${prueba} PRIVATE Servicios)
         elseif(prueba STREQUAL "pruebas_driver_motor" OR prueba STREQUAL "pruebas_telemetria" OR prueba STREQUAL "pruebas_selector")
@@ -231,6 +240,7 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_test(NAME b09.integracion_telemetria COMMAND pruebas_integracion_telemetria)
     add_test(NAME b10.selector COMMAND pruebas_selector)
     add_test(NAME b10.integracion_selector COMMAND pruebas_integracion_selector)
+    add_test(NAME b11.timer_driver COMMAND pruebas_timer_driver)
     add_test(NAME b11.base_temporal_tc COMMAND pruebas_base_temporal_tc)
     add_test(NAME b11.tiempo COMMAND pruebas_tiempo)
     add_test(NAME b11.integracion_tiempo COMMAND pruebas_integracion_tiempo)

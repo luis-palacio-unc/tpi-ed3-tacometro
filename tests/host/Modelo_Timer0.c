@@ -1,7 +1,8 @@
 #include "Modelo_Timer0.h"
 #include <string.h>
-LPC_TIM_TypeDef modelo_timer0,modelo_timer1;
+LPC_TIM_TypeDef modelo_timer0,modelo_timer1,modelo_timer2,modelo_timer3;
 LPC_SC_TypeDef modelo_sc;
+unsigned modelo_cambios_pclk,modelo_lecturas_pclk;
 Modelo_Evento modelo_eventos[32];
 size_t modelo_cantidad;
 bool modelo_irq_habilitada,modelo_irq_pendiente,modelo_error;
@@ -15,12 +16,14 @@ static void Registrar(char operacion)
 void Modelo_Limpiar(void)
 {
     memset(&modelo_timer0,0,sizeof(modelo_timer0)); memset(&modelo_timer1,0,sizeof(modelo_timer1));
+    memset(&modelo_timer2,0,sizeof(modelo_timer2)); memset(&modelo_timer3,0,sizeof(modelo_timer3));
+    modelo_cambios_pclk=0U; modelo_lecturas_pclk=0U;
     memset(&modelo_sc,0,sizeof(modelo_sc)); modelo_cantidad=0U;
     modelo_irq_habilitada=true; modelo_irq_pendiente=true; modelo_error=false;
 }
 void NVIC_DisableIRQ(int irq)
 {
-    if(irq!=TIMER0_IRQn || (LPC_SC->PCONP&2U)==0U || LPC_TIM0->TCR!=0U) { modelo_error=true; }
+    if(irq!=TIMER0_IRQn) { modelo_error=true; }
     modelo_irq_habilitada=false; Registrar('D');
 }
 void NVIC_ClearPendingIRQ(int irq)

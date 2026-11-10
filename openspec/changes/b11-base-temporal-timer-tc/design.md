@@ -1,80 +1,56 @@
-# Diseño B11 — TIMER0 continuo y Tiempo
+# Diseño B11 — corrección de drivers y nombres
 
-## Decisiones y flujo
+Origen: aclaración del usuario 2026-11-10 sobre reutilización y nombres cortos.
+Sustituye el diseño de 86107b9, cuyo informe/evidencia se conserva en Git.
+Contratos TC1–TC5/S1–S8 conservan unidades, límites, fallos y aislamiento.
 
-| Opción | Elección y motivo |
-|---|---|
-| ISR/contador software o TC | TIMER0 exclusivo, libre. Leer TC conserva cuenta sin depender de consultas/interrupciones. |
-| Registros en servicios | Sólo Base_Tiempos_LPC1769 conoce CMSIS. Tiempo consume proveedor reemplazable según B08. |
-| Cambiar unidades con resolución | Período entero ms, normalización TC*período modulo 2^32 en dispositivo; servicios siempre ms. |
-| Globales de aplicación/servicio | Ninguno nuevo. Dispositivo singleton contiene sólo período y estado, sin contador software. |
+## Módulos y APIs
 
-Prueba/fixture → Tiempo_Leer/Transcurrido → callback dispositivo → Base_Tiempos_Leer
-→ puerto LeerTC → TC. Main sigue mínimo; composición real de arranque posterior.
+Un único dispositivo `Dispositivos/soporte/Timer.h/.c`, ESW.2.1.17:
+`Timer_Init(pclk_hz,periodo_ms)`, `Timer_Read(lectura*)`, `Timer_Stop()` y
+`Timer_Source(void*,uint32_t*)`. Tipos Timer_Estado/Timer_Lectura, constantes TIMER_.
+USW .17.1/.2/.3/.9 conservan roles; retiradas .4–.8 SysTick y .10–.13 puerto.
+Se eliminan Base_Tiempos_Puerto y Base_Tiempos_LPC1769: no hay doble capa interna.
 
-## Contratos
+Servicios/Tiempo permanece independiente, sin modificaciones: Tiempo_Leer y
+Tiempo_Transcurrido usan proveedor, marcas ms y contextos opacos. Aplicación futura
+consultará Tiempo; dispositivo sólo conoce driver TIM/CMSIS, nunca servicio.
+Main y composición física se implementarán en un bloque posterior.
 
-Dispositivo: Inicializar(pclk_hz,periodo_ms), Leer(lectura*), Detener(); retornan
-SIN_DATOS=0, ACTIVA, DETENIDA, ERROR_ARGUMENTO, ERROR_RELOJ, ERROR_PERIODO,
-ERROR_PRESCALER. Lectura: uint32_t milisegundos y estado. ProveerMilisegundos(void*,
-uint32_t*) retorna bool, ignora contexto opaco (admite NULL), true sólo ACTIVA;
-salida escribible se limpia antes de intentar fuente. Dispositivo no incluye servicio.
+## Reutilización segura del driver
 
-Prioridad init: pclk 1..120000000, período 1..INT32_MAX, producto exacto/representable.
-uint64_t producto=pclk*período cabe bajo 2^58; exigir producto%1000=0,
-1<=producto/1000<=2^32, convertir N-1 a uint32_t. uint64_t es sólo cálculo acotado
-de configuración; lectura usa producto uint32_t modular. No saturar marcas.
-Inicializar siempre prepara/apaga/resetea timer, incluso error; período privado cero
-si inválido. Válido inicia desde cero. Detener sólo ACTIVA, preserva contador/otros
-estados; Leer SIN_DATOS/error no consulta TC, DETENIDA lee TC detenido. NULL no altera.
-Metadatos serializados desde lazo privilegiado, sin ISR ni máscara global de IRQ.
-TC es lectura alineada de 32 bits; no acceso concurrente a configuración.
+TIM_InitTimer existente fuerza PCLK=CCLK/4 y TIM_TICK no representa N=2^32.
+Agregar TIM_InitFreeRunning(TIMx,PR) al mismo driver, conservando APIs anteriores:
+alimenta con CLKPWR_ConfigPPWR; deshabilita; mantiene reset mientras limpia TC/PC,
+CTCR/MCR/CCR/EMR e IR=0x3f; configura PR crudo 0..UINT32_MAX; libera reset y deja
+detenido. No modifica PCLKSEL/PLL/flash/pines/MRx/otros timers. El llamador controla
+NVIC y exclusividad. Reusar TIM_Enable, TIM_Disable y TIM_ReadTimer para operar.
+Licencias intactas. Corregir includes `lpc17xx.h` a `LPC17xx.h` en encabezados
+usados para Linux. Mapeo de punteros privado con comparaciones portables equivalentes.
+Mantener CHECK_PARAM y enlazar check_failed existente; no desactivar aserciones.
 
-Servicio: Tiempo_Fuente={bool (*leer)(void*,uint32_t*),void* contexto}; Tiempo_Lectura
-={uint32_t milisegundos,Tiempo_Estado estado}. Estados NO_DISPONIBLE=0, VALIDO,
-ERROR_ARGUMENTO, ERROR_INTERVALO. Leer(fuente*,lectura*) prioriza destino y después
-interfaz, limpia salida y llama proveedor una vez con variable local. false ignora
-valor y publica NO_DISPONIBLE/cero. Transcurrido(fuente*,inicio_ms,intervalo*) usa
-Leer una vez, después delta uint32_t; >INT32_MAX produce ERROR_INTERVALO/cero.
-Fuente falla antes de comprobar rango. Contextos/interfaz/destinos vivos, estables,
-serializados/no solapados; proveedor debe retornar. Servicio sin estado propio/init.
+Timer_Init valida primero, con prioridad reloj/período/prescaler y producto uint64
+acotado; calcula PR=N-1 exacto, PCLK1..120MHz, período1..INT32_MAX, N1..2^32.
+Siempre deshabilita IRQ TIMER0, inicializa hardware detenido, limpia pendiente y
+sincroniza, incluso si inválido. Sólo configuración válida habilita timer; error
+conserva período cero y marca inválida. No hay ISR/contador software.
+Timer_Read hace una lectura TIM_ReadTimer y TC*período uint32 modular; no escrituras.
+Timer_Stop sólo actúa sobre ACTIVA; proveedor true sólo ACTIVA, incluido cero.
+Metadatos/PCONP/configuración serializados desde lazo privilegiado, timer exclusivo.
+Default1ms configurable; épocas y semirrango <2^31ms como candidato anterior.
 
-## Puerto y recursos
+## Verificación
 
-Cuatro operaciones privadas: Preparar, Iniciar(PR), LeerTC y Detener. Preparar:
-PCONP|bit1 conservando otros → TCR=0 → deshabilitar/limpiar NVIC TIMER0 → TCR=2
-→ TC=PC=0 → CTCR=MCR=CCR=EMR=0 → IR=0x3f → DSB. No leer-modificar-escribir IR.
-Iniciar escribe PR y TCR=1/DSB. Detener escribe TCR=0/DSB. LeerTC sólo lee TC.
-No tocar MRx (MCR deshabilita acciones), otros timers, pines, PCLKSEL, PLL o SysTick.
-No reutilizar helpers heredados que configuren relojes. Preservar Drivers/licencias.
-La cuenta hardware depende de PCLK activo; no prometer suspensión/debug/clock gating.
+Host compila Timer y fuente real lpc17xx_timer.c contra registros modelados.
+Sólo CLKPWR/PINSEL/check_failed son dobles: fallos abortan; la prueba no acredita
+CLKPWR físico. Agregar regresión de API anterior tick/us y nuevo modo en cuatro
+timers, no cambio de reloj, extremos PR, desactivación de match/captura y lectura.
+Mantener 16 casos TC, 9 wrapper independiente, 5 integración B10 y oráculo absoluto.
+Host de objetos incluye Timer y encabezados modelados; ARM usa CMSIS/CLKPWR reales.
+Verificar sanitizadores, ARM Debug/Release/vectores/indefinidos/recursos, Doxygen
+estricto, diff y preservación de contratos aceptados. Logs fuera del repositorio.
 
-## Archivos/USW
-
-- Rehacer cuatro Base_Tiempos.*; públicas .17.1/.2/.3 mantienen rol; retirar .17.4–.8
-  de candidato SysTick, proveedor nuevo .17.9 y puerto .17.10–.13. Ocho funciones.
-- Nuevos Servicios/Tiempo.h/.c: extensión local ESW.2.1.18, USW .18.1/.2.
-- Configuracion/Temporizacion.h: default TPI_BASE_TEMPORAL_MS=1, override de build
-  positivo <=INT32_MAX; no incluir configuración en servicio genérico.
-- Sustituir tests/modelos/fixture/verificador B11-SysTick por TC/Tiempo; CMake/Doxyfile
-  ampliados, contexto actualizado. No modificar contratos vigentes/archivos aceptados.
-
-## Verificación y transición
-
-Modelo CMSIS host compila backend real y avanza PCLK/PC/TC según PR, sin ISR/API;
-oráculo por tiempo absoluto y bases 1/2/3/5, límites PR=0/UINT32_MAX y errores.
-Prueba del wrapper compila sólo con Servicios y proveedores falsos. Integración
-incluye B10 sin cambiarlo. Sanitizadores con fugas fuera de ptrace. ARM Debug/Release
-retiene APIs, verifica handlers SysTick/TIMER0 por defecto, lectura TC/disassembly,
-memoria/pila/indefinidos y Doxygen estricto (42 funciones previstas).
-Negativos: PR fuera de uno y consulta que reinicia TC deben fallar en pruebas.
-
-Snapshot preserva planificación local ya existente y fuentes aceptadas; reemplazo
-por commit normal sobre db88286, sin reescritura/push. Antecedente SDD intacto salvo
-su estado/propuesta ya marcados sustituidos. Referencias: UM10360 rev.2 §21 y errata
-NXP 10.6 PCLKSELx.1 consultadas 2026-11-10. PCLK real/placa/revisión físicos pendientes.
-
-Adaptación de verificación: B00 S7 contaba 18 objetos. Tiempo añade el número 19;
-exigir conjunto exacto independiente de nombres y cantidad, sin quitar controles.
-PCONP requiere gestion de alimentacion serializada con otros propietarios; se
-conservan bits ajenos mediante read-modify-write bajo esa precondicion.
+Referencias: UM10360 §21; errata NXP ES_LPC176x 10.6 §3.11
+https://www.nxp.com/docs/en/errata/ES_LPC176X.pdf (consultada 2026-11-10).
+No modificar relojes después de PLL0 conectado. PCLK real/precisión/revisión física
+siguen pendientes; 25MHz del modelo es dato de prueba. Sin flasheo/push/archivo.

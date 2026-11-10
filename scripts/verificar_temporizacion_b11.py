@@ -24,9 +24,8 @@ def verificar(elf,prefix,api):
         if tipo!='W' or direccion!=default[1] or struct.unpack_from('<I',datos,indice*4)[0]!=(direccion|1):
             raise ValueError(nombre+' debe conservar alias debil por defecto, sin ISR propia B11.')
     if api:
-        for nombre in ('Base_Tiempos_Inicializar','Base_Tiempos_Leer','Base_Tiempos_Detener',
-                       'Base_Tiempos_ProveerMilisegundos','Base_Tiempos_Puerto_Preparar',
-                       'Base_Tiempos_Puerto_Iniciar','Base_Tiempos_Puerto_LeerTC','Base_Tiempos_Puerto_Detener',
+        for nombre in ('Timer_Init','Timer_Read','Timer_Stop',
+                       'Timer_Source','TIM_InitFreeRunning','TIM_Enable','TIM_Disable','TIM_ReadTimer',
                        'Tiempo_Leer','Tiempo_Transcurrido','Mandos_InicializarSelector','Mandos_ActualizarSelector'):
             if simbolos.get(nombre,('?',0))[0]!='T':
                 raise ValueError('API B11/B10 ausente: '+nombre)

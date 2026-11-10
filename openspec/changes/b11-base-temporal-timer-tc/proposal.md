@@ -14,8 +14,8 @@ Base inicial 1 ms configurable; conservar unidades ms de B10.
 
 - Reservar TIMER0 exclusivo: contador TC continuo, sin ISR periódica, acumulador
   software ni reinicio por consultas/match. Inicializar, leer, detener y reiniciar.
-- Accesos TC/prescaler/alimentación/modo sólo en Dispositivos/soporte/Base_Tiempos
-  y adaptador LPC1769. Retirar ISR propia y controles específicos SysTick.
+- Accesos TC/prescaler/alimentación/modo sólo en Dispositivos/soporte/Timer
+  mediante los drivers TIM/CLKPWR existentes, sin puerto intermedio. Retirar ISR propia y controles específicos SysTick.
 - Configuracion/Temporizacion.h: base predeterminada 1 ms; parámetro de inicialización
   en ms enteros positivos, fijo por época. Admitir otros valores representables
   (ejemplos 2/5 ms), rechazar cero/división inexacta/desbordes/configuración inválida.
@@ -33,10 +33,10 @@ PWM/regulación, arranque integrado y flasheo. No instala dependencias.
 
 ## Dependencias y archivos
 
-B00–B10/B03-R1 aceptados. Base_Tiempos.*, nuevos Tiempo.* y Temporizacion.h,
+B00–B10/B03-R1 aceptados. Timer.*, Tiempo.*, Temporizacion.h, driver TIM/soporte,
 tests/modelos/fixture, CMake, Doxygen y seguimiento. PCLK/configuración física
-pendientes de verificar; TIMER0 es reserva propuesta. API/errores/USW se detallarán
-al acordar el bloque. Antecedente SysTick conserva propuesta/spec/diseño/evidencia.
+pendientes de verificar; TIMER0 exclusivo reservado para B11. API/errores/USW
+en diseño y encabezados. Antecedente SysTick conserva propuesta/spec/diseño/evidencia.
 
 ## Secuencia y aceptación
 
@@ -54,3 +54,10 @@ al acordar el bloque. Antecedente SysTick conserva propuesta/spec/diseño/eviden
 
 PCLK incorrecto, menor resolución o épocas mezcladas: validación y límites explícitos.
 Revertir mediante commit inverso, preservando historia y trabajo ajeno.
+
+## Aclaración de alcance 2026-11-10
+
+Reutilizar drivers existentes y simplificar API en Timer_Init/Read/Stop/Source;
+consolidar soporte LPC1769 en Timer, retirar puerto. Extensión TIM compatible
+para preservar PCLK y representar PR completo. Aceptación TC1–TC5 vigente;
+regresión adicional de APIs previas del driver. Resultado sigue sin aceptar.

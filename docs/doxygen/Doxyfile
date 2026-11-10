@@ -12,8 +12,7 @@ INPUT = Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacion/Procesamiento.c 
         Servicios/Driver_Motor.h Servicios/Driver_Motor.c \
         Servicios/Tiempo.h Servicios/Tiempo.c Configuracion/Temporizacion.h \
         Dispositivos/LM35.h Dispositivos/LM35.c \
-        Dispositivos/soporte/Base_Tiempos.h Dispositivos/soporte/Base_Tiempos.c \
-        Dispositivos/soporte/Base_Tiempos_Puerto.h Dispositivos/soporte/Base_Tiempos_LPC1769.c
+        Dispositivos/soporte/Timer.h Dispositivos/soporte/Timer.c
 FILE_PATTERNS = *.c *.h
 INCLUDE_PATH = Aplicacion Servicios Configuracion Dispositivos Dispositivos/soporte
 OPTIMIZE_OUTPUT_FOR_C = YES

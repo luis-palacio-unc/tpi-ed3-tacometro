@@ -27,7 +27,7 @@ El build ejecuta automáticamente el verificador del ELF; CTest agrega casos neg
 `firmware.elf` es para el MCU: no se ejecuta como programa de escritorio.
 No está configurada todavía una sesión de depuración/flasheo de CLion.
 
-Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, LM35, Driver_Alarmas, Driver_Motor, Tiempo y Base_Tiempos, incluidas sus pruebas de integración, sin ejecutar main del firmware:
+Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, LM35, Driver_Alarmas, Driver_Motor, Tiempo y Timer, incluidas sus pruebas de integración, sin ejecutar main del firmware:
 
 ```sh
 cmake --preset host-objects
@@ -274,24 +274,26 @@ GPIO/base temporal/main y pruebas físicas pendientes; sin ejecución ARM/simula
 
 ## B11: timer continuo y wrapper temporal
 
-B11 TC/Tiempo implementado/verificado, resultado pendiente de aceptación.
-Dispositivos/soporte/Base_Tiempos administra TIMER0 continuo y consulta TC;
-no ISR periódica ni contador software. Inicializar recibe PCLK real explícito y
-período entero ms; Configuracion/Temporizacion.h define default1ms y permite override.
-Validación exacta del prescaler, estados/errores, lectura, parada y nueva época.
-Consultas no reinician contador; salida uint32_t ms modular aun con otra resolución.
+Implementado/verificado; resultado pendiente de aceptación. `Dispositivos/soporte/Timer`
+reúne el soporte del LPC1769 y reutiliza los drivers existentes:
 
-Servicios/Tiempo es wrapper sin CMSIS/configuración física/dispositivos: proveedor
-reemplazable, Leer y Transcurrido desde marca del consumidor. Sólo VALIDO habilita
-uso, ausencia/error limpia salida. Misma época y duración <2^31ms; reinicio exige
-marcas nuevas. Composición con Mandos/B10 sólo en pruebas/fixture, main sigue mínimo.
-Gestión de alimentación PCONP serializada; no modifica PLL/PCLKSEL/flash/pines.
+- `Timer_Init(pclk_hz, periodo_ms)`: valida y configura TIMER0 continuo.
+- `Timer_Read(&lectura)`: consulta TC mediante TIM_ReadTimer y entrega ms/estado.
+- `Timer_Stop()`: detiene la cuenta.
+- `Timer_Source(contexto, &ms)`: conecta el dispositivo con el wrapper Tiempo.
 
-Host/san20/20, 209 C; nuevo oráculo2048 muestras/1235 vueltasTC y regresiones previas.
-ARM Debug15/15 y fixture Debug/Release con API retenida/sin ISR propia; Doxygen42
-funciones/USW, diez de TC/Tiempo sin avisos. B00 S7 adapta expectativa a 19 objetos
-host incluyendo Tiempo; conserva sus 14 casos. Sin ejecución ARM/simulación MCU/placa.
+Servicios/Tiempo conserva proveedor reemplazable, Tiempo_Leer y Tiempo_Transcurrido,
+sin conocer registros/MCU. Default1ms configurable; otras bases conservan salida ms.
+No ISR periódica ni contador software. TIMER0 exclusivo; configuración serializada,
+PCLK real explícito, marcas de misma época e intervalos<2^31ms. Reiniciar exige marcas
+nuevas. Main aún no inicia el timer; composición sólo en pruebas.
+
+Se añadió TIM_InitFreeRunning al driver TIM para conservar PCLK y admitir PR completo;
+APIs heredadas preservadas. Detalles en el
+[diseño](openspec/changes/b11-base-temporal-timer-tc/design.md).
+Host21/21 y sanitizadores21/21 (212 casos C); ARM Debug/Release15/15 cada uno;
+Doxygen38 funciones propias documentadas sin avisos. Host usa registros modelados;
+no hubo ejecución ARM/simulación MCU/placa. PCLK/precisión física pendientes.
 Ver [candidato](openspec/changes/b11-base-temporal-timer-tc/specs/base-tiempos/spec.md)
 y [evidencia](openspec/changes/b11-base-temporal-timer-tc/verify-report.md).
-PCLK/precisión física e integración main pendientes; commit local sin push.
-Antecedente SysTick db88286 no aceptado; su evidencia permanece en cambio sustituido.
+Commit local autorizado; sin push ni sincronización/archivo hasta aceptación/orden.

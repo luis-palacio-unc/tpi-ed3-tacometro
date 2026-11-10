@@ -7,10 +7,12 @@ typedef struct {
     volatile uint32_t CTCR;
 } LPC_TIM_TypeDef;
 typedef struct { volatile uint32_t PCONP,PCLKSEL0,PCLKSEL1,PLL0CON,FLASHCFG; } LPC_SC_TypeDef;
-extern LPC_TIM_TypeDef modelo_timer0,modelo_timer1;
+extern LPC_TIM_TypeDef modelo_timer0,modelo_timer1,modelo_timer2,modelo_timer3;
 extern LPC_SC_TypeDef modelo_sc;
 #define LPC_TIM0 (&modelo_timer0)
 #define LPC_TIM1 (&modelo_timer1)
+#define LPC_TIM2 (&modelo_timer2)
+#define LPC_TIM3 (&modelo_timer3)
 #define LPC_SC (&modelo_sc)
 #define TIMER0_IRQn 1
 void NVIC_DisableIRQ(int irq);

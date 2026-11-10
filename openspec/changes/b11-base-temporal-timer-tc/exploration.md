@@ -1,6 +1,9 @@
 # Exploración — B11 con timer continuo y TC
 
-## Estado actual
+Exploración inicial conservada como antecedente. La corrección posterior del usuario
+reutiliza TIM/CLKPWR y consolida Timer; consultar design.md para el diseño vigente.
+
+## Estado al explorar
 
 HEAD db88286 implementa SysTick con contador software e ISR; resultado no aceptado,
 sin push. B00–B10/B03-R1 sí están aceptados. El usuario pide reemplazar B11 desde

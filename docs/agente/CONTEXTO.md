@@ -287,35 +287,29 @@ política física y reentrada tras fallo, GPIO/main quedan pendientes. B04/B01/B
 
 ## Base temporal B11 TC/Tiempo
 
-Alcance/criterio acordados 2026-11-10; implementado/verificado, resultado pendiente
-de aceptación. Commit local autorizado sin push. Candidato TC1–TC5/S1–S8 en
-openspec/changes/b11-base-temporal-timer-tc/; contratos vigentes intactos.
-Reemplaza SysTick db88286 no aceptado; antecedente SDD conserva diseño/spec/tareas/
-informe, sin reescritura. Planificación local previa preservada/incorporada.
+Alcance acordado y corregido por usuario 2026-11-10; implementado/verificado,
+resultado pendiente de aceptación. Candidato TC1–TC5/S1–S8, revisión3, sin push.
+Antecedentes no aceptados: SysTick db88286 y TC con puerto 86107b9; historia conservada.
+Contratos vigentes/archivos aceptados intactos; diseño candidato es el vigente del bloque.
 
-TIMER0 exclusivo en dispositivos; TC cuenta por hardware, sin ISR/acumulador software.
-Base_Tiempos Inicializar(pclk_hz,periodo_ms)/Leer/Detener y proveedor bool(void*,uint32_t*).
-PCLK1..120000000Hz real estable, período1..INT32_MAXms, fijo por época; N=PCLK*ms/1000
-exacto1..2^32 y PR=N-1. Producto uint64 acotado sólo al configurar; TC*período normaliza
-modulo2^32ms. Configuracion/Temporizacion.h default1ms, override positivo admitido;
-mayor período cambia resolución, no unidades. PCLK del fixture25MHz no es reloj TPI confirmado.
-Error init apaga/resetea con cero; prioridad reloj/período/prescaler. SIN_DATOS sin
-lectura TC; ACTIVA actual, DETENIDA congelada; NULL error sin efectos propios.
-Reiniciar abre época nueva y exige nuevas marcas/consumidores. APIs sólo lazo
-privilegiado serializado; gestión PCONP serializada con otros propietarios.
-Puerto alimenta/prepara TIMER0, cancela IRQ sólo TIMER0 y desactiva match/captura;
-lectura TC una palabra sin escrituras. No cambia PLL/PCLKSEL/flash/pines/SysTick.
-UM10360 §21 y errata10.6 PCLKSELx.1 consultados; frecuencia/precisión reales pendientes.
+TIMER0 exclusivo en `Dispositivos/soporte/Timer.h/.c`; API corta:
+Timer_Init(pclk_hz,periodo_ms), Timer_Read, Timer_Stop y Timer_Source.
+Se retiraron Base_Tiempos_Puerto y Base_Tiempos_LPC1769. Se reutilizan TIM_Enable,
+TIM_Disable, TIM_ReadTimer y CLKPWR_ConfigPPWR. Extensión compatible
+TIM_InitFreeRunning configura cuenta continua con PR crudo, sin cambiar PCLKSEL;
+TIM_InitTimer heredado sigue configurando CCLK/4. Licencias y aserciones conservadas.
+Biblioteca adaptada a Linux/includes y máscaras unsigned de 32 bits, sin quitar controles.
 
-Tiempo ESW.2.1.18 es wrapper con proveedor reemplazable según patrón B08, sin incluir
-o enlazar dispositivos/CMSIS/configuración. Leer consulta una vez; Transcurrido usa
-resta modular y rechaza delta>INT32_MAX. Misma época/duración real<2^31ms requeridas;
-no detecta todas las vueltas omitidas/reinicios. Estado VALIDO/NO_DISPONIBLE/
-ERROR_ARGUMENTO/ERROR_INTERVALO, salida inválida cero. Contextos vivos/serializados/
-no solapados y proveedor que retorne. No init/globales mutables/heap/esperas propias.
-Proveedor dispositivo ignora contexto, admite NULL y entrega true sólo ACTIVA.
-Extensiones locales: ESW17 ocho USW .1/.2/.3/.9–.13; retiradas .4–.8 SysTick;
-ESW18 dos USW .1/.2. No son módulos impuestos por el anexo B original.
-Composición con B10 sólo pruebas/fixture; main y servicios aceptados intactos.
-B00 S7 exige lista exacta de19 objetos por nuevo servicio, conserva14 casos.
-No implementar adquisición/ventanaRPM1s/planificador aquí. Diagramas finales diferidos.
+Default1ms configurable en Temporizacion.h, PCLK real explícito/estable. N=PCLK*ms/1000
+exacto1..2^32, PR=N-1; uint64 sólo al configurar. TC*período se normaliza a uint32 ms
+modular sin ISR/acumulador/reinicio por consulta. Estados/errores, parada y recuperación
+conservados; reinicio abre época nueva y exige nuevas marcas. APIs/metadatos/PCONP
+serializados desde lazo privilegiado. No modificar PLL/PCLKSEL/flash/pines/SysTick.
+
+Servicios/Tiempo ESW.2.1.18 sigue independiente del MCU, sin cambios: proveedor
+reemplazable, Tiempo_Leer y Tiempo_Transcurrido. Marcas siempre ms, misma época y
+duración real<2^31ms; no detecta épocas mezcladas/vueltas completas omitidas.
+Extensión local ESW17 conserva USW .1/.2/.3/.9; retiradas .4–.8 y .10–.13.
+ESW18 conserva .1/.2. Contrato Doxygen nuevo en el driver, sin asignarle USW del TPI.
+Main/composición física/adquisición/ventana RPM1s quedan para bloques posteriores.
+PCLK25MHz del modelo no es frecuencia confirmada de placa. Precisión física pendiente.

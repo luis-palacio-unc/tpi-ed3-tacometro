@@ -86,11 +86,13 @@ B11-SysTick sustituido, sin aceptación (R01/R02/R08/R09/R10/R11/R15):
 evidencia previa en [informe histórico](../../openspec/changes/b11-base-tiempos-lpc1769/verify-report.md),
 corresponde sólo a db88286: host/san 20/20 y 205 C, ARM 15/15/Release y 40 USW.
 
-B11 TC/Tiempo implementado/verificado (R01/R02/R08/R09/R10/R11/R15 y aclaración
-del usuario 2026-11-10), resultado pendiente de aceptación. TIMER0/TC sólo en
-dispositivos, wrapper Tiempo mediante proveedor reemplazable; default1ms configurable.
-TC1–TC5/S1–S8 PASS: 16 dispositivo +9 wrapper +5 integración; 209 C, host/san20/20,
-oráculo2048/1235 vueltasTC y regresiones11199/5096/4096. ARM Debug15/15 y fixture
-Debug/Release API completa; Doxygen42 funciones/USW. B00 conserva14 casos con S7
-adaptado a conjunto exacto19 objetos. [Matriz/evidencia](../../openspec/changes/b11-base-temporal-timer-tc/verify-report.md).
-No acredita adquisición, ventanaRPM1s, PCLK real, integración main o precisión física.
+B11 TC/Tiempo corregido con drivers/nombres (R01/R02/R08/R09/R10/R11/R15,
+aclaraciones usuario 2026-11-10), verificado pendiente de aceptación.
+TC1–TC5/S1–S8 PASS: Timer_Init/Read/Stop/Source en Dispositivos/soporte/Timer.*,
+TIM_InitFreeRunning y APIs TIM heredadas en driver existente; wrapper Tiempo intacto.
+16 casos TC +9 wrapper +5 integración +3 driver (cuatro periféricos), 212 C.
+Host/san21/21; oráculo2048/1235 vueltasTC y regresiones11199/5096/4096.
+ARM Debug15/15 y Release15/15; Doxygen38 funciones propias únicas, seis TC/Tiempo.
+B00 conserva14 casos, S7 exige19 objetos exactos con Timer renombrado.
+[Matriz/evidencia](../../openspec/changes/b11-base-temporal-timer-tc/verify-report.md).
+No acredita adquisición/ventanaRPM1s, PCLK real, main o precisión física.

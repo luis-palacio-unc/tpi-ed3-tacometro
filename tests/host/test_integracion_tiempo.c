@@ -1,10 +1,10 @@
 #include "Tiempo.h"
-#include "Base_Tiempos.h"
+#include "Timer.h"
 #include "Mandos.h"
 #include "Modelo_Timer0.h"
 #include <stdio.h>
 #define CHECK(e) do { if(!(e)) { fprintf(stderr,"%s:%d: %s\n",__FILE__,__LINE__,#e); return false; } } while(0)
-static const Tiempo_Fuente fuente={Base_Tiempos_ProveerMilisegundos,NULL};
+static const Tiempo_Fuente fuente={Timer_Source,NULL};
 static bool Actualizar(Mandos_Selector *s,Mandos_ModoSelector modo)
 {
     Tiempo_Lectura tiempo;
@@ -16,7 +16,7 @@ static bool FronteraConBases(void)
 {
     const uint32_t bases[]={1U,2U,5U};
     for(size_t i=0U;i<3U;++i) {
-        Modelo_Limpiar(); CHECK(Base_Tiempos_Inicializar(25000000U,bases[i])==BASE_TIEMPOS_ACTIVA);
+        Modelo_Limpiar(); CHECK(Timer_Init(25000000U,bases[i])==TIMER_ACTIVA);
         Mandos_Selector s; CHECK(Mandos_InicializarSelector(&s,20U));
         CHECK(Actualizar(&s,MANDOS_SELECTOR_MODO_MANUAL) && s.estado==MANDOS_SELECTOR_SIN_DATOS);
         Modelo_AvanzarPclk((uint64_t)(20U-bases[i])*25000U);
@@ -28,7 +28,7 @@ static bool FronteraConBases(void)
 }
 static bool DosConsumidores(void)
 {
-    Modelo_Limpiar(); CHECK(Base_Tiempos_Inicializar(25000000U,1U)==BASE_TIEMPOS_ACTIVA);
+    Modelo_Limpiar(); CHECK(Timer_Init(25000000U,1U)==TIMER_ACTIVA);
     Tiempo_Lectura a,b,l; CHECK(Tiempo_Leer(&fuente,&a)==TIEMPO_VALIDO);
     Modelo_AvanzarPclk(175000U); CHECK(Tiempo_Leer(&fuente,&b)==TIEMPO_VALIDO);
     Modelo_AvanzarPclk(325000U); CHECK(Tiempo_Transcurrido(&fuente,a.milisegundos,&l)==TIEMPO_VALIDO && l.milisegundos==20U);
@@ -37,21 +37,21 @@ static bool DosConsumidores(void)
 }
 static bool IndisponibilidadYRecuperacion(void)
 {
-    Modelo_Limpiar(); CHECK(Base_Tiempos_Inicializar(25000000U,1U)==BASE_TIEMPOS_ACTIVA);
+    Modelo_Limpiar(); CHECK(Timer_Init(25000000U,1U)==TIMER_ACTIVA);
     Mandos_Selector s; CHECK(Mandos_InicializarSelector(&s,5U));
     CHECK(Actualizar(&s,MANDOS_SELECTOR_MODO_MANUAL));
-    CHECK(Base_Tiempos_Detener()==BASE_TIEMPOS_DETENIDA); Modelo_AvanzarPclk(250000U);
+    CHECK(Timer_Stop()==TIMER_DETENIDA); Modelo_AvanzarPclk(250000U);
     CHECK(!Actualizar(&s,MANDOS_SELECTOR_MODO_AUTOMATICO) && s.estado==MANDOS_SELECTOR_SIN_DATOS);
-    CHECK(Base_Tiempos_Inicializar(0U,1U)==BASE_TIEMPOS_ERROR_RELOJ);
+    CHECK(Timer_Init(0U,1U)==TIMER_ERROR_RELOJ);
     Tiempo_Lectura l; CHECK(Tiempo_Leer(&fuente,&l)==TIEMPO_NO_DISPONIBLE && l.milisegundos==0U);
-    CHECK(Base_Tiempos_Inicializar(25000000U,1U)==BASE_TIEMPOS_ACTIVA);
+    CHECK(Timer_Init(25000000U,1U)==TIMER_ACTIVA);
     CHECK(Mandos_InicializarSelector(&s,5U)); CHECK(Actualizar(&s,MANDOS_SELECTOR_MODO_AUTOMATICO));
     Modelo_AvanzarPclk(125000U); CHECK(Actualizar(&s,MANDOS_SELECTOR_MODO_AUTOMATICO) && s.estado==MANDOS_SELECTOR_VALIDO);
     return true;
 }
 static bool RolloverEnServicioYMandos(void)
 {
-    Modelo_Limpiar(); CHECK(Base_Tiempos_Inicializar(25000000U,3U)==BASE_TIEMPOS_ACTIVA);
+    Modelo_Limpiar(); CHECK(Timer_Init(25000000U,3U)==TIMER_ACTIVA);
     LPC_TIM0->TC=UINT32_MAX-1U;
     Tiempo_Lectura inicio,l; CHECK(Tiempo_Leer(&fuente,&inicio)==TIEMPO_VALIDO);
     Mandos_Selector s; CHECK(Mandos_InicializarSelector(&s,6U));
@@ -63,13 +63,13 @@ static bool RolloverEnServicioYMandos(void)
 }
 static bool RebotesYReinicioDeEpoca(void)
 {
-    Modelo_Limpiar(); CHECK(Base_Tiempos_Inicializar(25000000U,1U)==BASE_TIEMPOS_ACTIVA);
+    Modelo_Limpiar(); CHECK(Timer_Init(25000000U,1U)==TIMER_ACTIVA);
     Mandos_Selector s; CHECK(Mandos_InicializarSelector(&s,5U));
     CHECK(Actualizar(&s,MANDOS_SELECTOR_MODO_MANUAL)); Modelo_AvanzarPclk(125000U);
     CHECK(Actualizar(&s,MANDOS_SELECTOR_MODO_MANUAL) && s.estado==MANDOS_SELECTOR_VALIDO);
     CHECK(Actualizar(&s,MANDOS_SELECTOR_MODO_AUTOMATICO)); Modelo_AvanzarPclk(100000U);
     CHECK(Actualizar(&s,MANDOS_SELECTOR_MODO_MANUAL) && s.modo==MANDOS_SELECTOR_MODO_MANUAL);
-    CHECK(Base_Tiempos_Inicializar(25000000U,5U)==BASE_TIEMPOS_ACTIVA);
+    CHECK(Timer_Init(25000000U,5U)==TIMER_ACTIVA);
     CHECK(Mandos_InicializarSelector(&s,5U)); CHECK(Actualizar(&s,MANDOS_SELECTOR_MODO_AUTOMATICO));
     Modelo_AvanzarPclk(125000U); CHECK(Actualizar(&s,MANDOS_SELECTOR_MODO_AUTOMATICO) && s.modo==MANDOS_SELECTOR_MODO_AUTOMATICO);
     return true;

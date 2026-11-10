@@ -1,7 +1,6 @@
 # Base temporal TC y wrapper — candidato B11
 
-Origen R01/R02/R08/R09/R10/R11/R15; usuario 2026-11-10.
-Alcance acordado; candidato sin aceptar.
+Origen R01/R02/R08/R09/R10/R11/R15; usuario 2026-11-10. Candidato sin aceptar.
 
 ## Requirements
 
@@ -16,14 +15,14 @@ dejar salida cero/inválida; reinicio válido MUST recuperar desde cero.
 MUST NOT modificar PLL/PCLKSEL/flash/pines ni otros recursos periféricos.
 
 #### Scenario: S1 — Prescaler y base
-- Given bases 1/2/5 ms, PCLK explícito y extremos N=1/2^32.
+- Given bases1/2/5ms y extremos N=1/2^32.
 - When se inicializa.
 - Then MUST configurar cuenta exacta y ACTIVA/cero, sin IRQ ni reset por match.
 
 #### Scenario: S2 — Configuración inválida
-- Given reloj/período nulos/excesivos o división inexacta/N fuera de rango.
-- When se inicializa desde cualquier estado y después se recupera.
-- Then MUST respetar prioridad, invalidar/deshabilitar y recuperar con configuración válida.
+- Given reloj/período inválido o N inexacto/excesivo.
+- When se inicializa y recupera.
+- Then MUST respetar prioridad, deshabilitar y recuperar.
 
 ### Requirement: TC2 — Lectura y ciclo de vida
 
@@ -35,14 +34,14 @@ abrir nueva época desde cero. NULL MUST producir ERROR_ARGUMENTO sin efectos pr
 Acceso MUST ser desde lazo privilegiado serializado y timer exclusivo.
 
 #### Scenario: S3 — Cuenta y consultas
-- Given timer activo que avanza por PCLK sin consultas/ISR y dos consumidores.
-- When leen repetidamente o calculan intervalos independientes.
+- Given timer activo sin consultas/ISR y dos consumidores.
+- When consultan tiempo/intervalos.
 - Then MUST reflejar TC real normalizado sin modificar registros ni marcas ajenas.
 
 #### Scenario: S4 — Ausencia/parada/reinicio
-- Given base no inicializada, activa, detenida o fallida y destinos NULL.
+- Given cualquier estado y destinos NULL.
 - When se lee/detiene/reinicia.
-- Then MUST distinguir cero activo de ausencia/error, congelar al parar y reiniciar época sin residuos.
+- Then MUST distinguir cero/ausencia/error, congelar y reiniciar época.
 
 ### Requirement: TC3 — Wrapper independiente del MCU
 
@@ -73,10 +72,14 @@ MUST NOT prometer detectar vueltas completas/épocas mezcladas o precisión fís
 
 ### Requirement: TC5 — Composición y evidencia
 
-MUST preservar B00–B10/B03-R1, main/startup/linker/Drivers y archivos aceptados.
+MUST preservar B00–B10/B03-R1, main/startup/linker y archivos aceptados.
+MUST reutilizar el driver TIM existente para configurar/leer/detener; MAY ampliarlo
+de forma compatible para cuenta continua sin cambiar PCLK. MUST usar un único
+módulo dispositivo Timer (Init/Read/Stop/Source), sin puerto intermedio.
 Sólo pruebas MAY componer proveedor→Tiempo→Mandos; MUST documentar USW y ejecutar
 host/sanitizadores/regresiones, ARM Debug/Release, inspección de recursos y Doxygen
-estricto. TC/IRQ/configuración MCU MUST quedar sólo en dispositivos.
+estricto. TC/IRQ/configuración MCU MUST quedar encapsulados por dispositivos y sus drivers,
+fuera del servicio.
 
 #### Scenario: S7 — Integración
 - Given proveedor real modelado y selector B10 con intervalo en ms.

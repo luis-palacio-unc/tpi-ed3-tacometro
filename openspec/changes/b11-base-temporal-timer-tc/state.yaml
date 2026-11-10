@@ -1,6 +1,6 @@
 block: B11
 change: b11-base-temporal-timer-tc
-revision: 2
+revision: 3
 status: verified_pending_acceptance
 phase: verify
 scope_approved: true
@@ -12,11 +12,10 @@ commit_authorized: true
 push_authorized: false
 supersedes: b11-base-tiempos-lpc1769
 proposed_on: '2026-11-10'
-next_action: Revisar resultado B11 TC; no sincronizar/archivar ni publicar sin orden.
+next_action: Revisar/aceptar B11 Timer corregido; sin sincronizar/archivar/push hasta orden.
 scope_approved_on: '2026-11-10'
-base_commit: db88286afb8a02dc855765a2a138c3a9280f1ede
-commit_subject: 'feat: reemplazar SysTick por TIMER0 y wrapper temporal'
+base_commit: 86107b930e535a06e5c1745c8054a58f241a22f2
+commit_subject: 'refactor: simplificar Timer y reutilizar drivers LPC17xx'
 verified_on: '2026-11-10'
-replaced_implementation_commit: db88286afb8a02dc855765a2a138c3a9280f1ede
-implementation_backend: TIMER0/TC y wrapper Tiempo; reemplazo verificado pendiente
-  de aceptacion
+replaced_implementation_commit: 86107b930e535a06e5c1745c8054a58f241a22f2
+implementation_backend: Timer con driver TIM/CLKPWR existente y wrapper Tiempo independiente

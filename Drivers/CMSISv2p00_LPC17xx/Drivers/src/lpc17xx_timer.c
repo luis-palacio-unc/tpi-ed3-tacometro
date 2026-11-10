@@ -110,13 +110,10 @@ static uint32_t converUSecToVal(uint32_t timerNum, uint32_t uSec) {
 }
 
 static uint32_t converPtrToTimeNum(LPC_TIM_TypeDef* TIMx) {
-    switch ((uintptr_t)TIMx) {
-        case (uintptr_t)LPC_TIM0: return 0;
-        case (uintptr_t)LPC_TIM1: return 1;
-        case (uintptr_t)LPC_TIM2: return 2;
-        case (uintptr_t)LPC_TIM3: return 3;
-        default: break;
-    }
+    if (TIMx == LPC_TIM0) { return 0; }
+    if (TIMx == LPC_TIM1) { return 1; }
+    if (TIMx == LPC_TIM2) { return 2; }
+    if (TIMx == LPC_TIM3) { return 3; }
     return 0xFFFFFFFF;
 }
 
@@ -163,6 +160,30 @@ void TIM_InitTimer(LPC_TIM_TypeDef* TIMx, const TIM_TIMERCFG_T* timerCfg) {
     }
 }
 
+void TIM_InitFreeRunning(LPC_TIM_TypeDef* TIMx, uint32_t prescaler) {
+    CHECK_PARAM(PARAM_TIMx(TIMx));
+    if (TIMx == LPC_TIM0) {
+        CLKPWR_ConfigPPWR(CLKPWR_PCONP_PCTIM0, ENABLE);
+    } else if (TIMx == LPC_TIM1) {
+        CLKPWR_ConfigPPWR(CLKPWR_PCONP_PCTIM1, ENABLE);
+    } else if (TIMx == LPC_TIM2) {
+        CLKPWR_ConfigPPWR(CLKPWR_PCONP_PCTIM2, ENABLE);
+    } else if (TIMx == LPC_TIM3) {
+        CLKPWR_ConfigPPWR(CLKPWR_PCONP_PCTIM3, ENABLE);
+    }
+    TIM_Disable(TIMx);
+    TIMx->TCR = TIM_RESET;
+    TIMx->TC = 0U;
+    TIMx->PC = 0U;
+    TIMx->CTCR = 0U;
+    TIMx->MCR = 0U;
+    TIMx->CCR = 0U;
+    TIMx->EMR = 0U;
+    TIMx->IR = 0x3FU;
+    TIMx->PR = prescaler;
+    TIMx->TCR = 0U;
+}
+
 void TIM_InitCounter(LPC_TIM_TypeDef* TIMx, const TIM_COUNTERCFG_T* counterCfg) {
     CHECK_PARAM(PARAM_TIMx(TIMx));
     CHECK_PARAM(PARAM_TIM_CAPTURE_CH(counterCfg->input));
@@ -198,7 +219,7 @@ void TIM_Enable(LPC_TIM_TypeDef* TIMx) {
 void TIM_Disable(LPC_TIM_TypeDef* TIMx) {
     CHECK_PARAM(PARAM_TIMx(TIMx));
 
-    TIMx->TCR &= ~1UL;
+    TIMx->TCR &= ~UINT32_C(1);
 }
 
 uint32_t TIM_ReadTimer(LPC_TIM_TypeDef* TIMx) {
@@ -254,7 +275,7 @@ void TIM_SetMatchExt(LPC_TIM_TypeDef* TIMx, TIM_MATCH_CH channel, TIM_EXTMATCH_O
     CHECK_PARAM(PARAM_TIM_MATCH_CH(channel));
     CHECK_PARAM(PARAM_TIM_EXTMATCH_OPT(type));
 
-    TIMx->EMR &= ~TIM_EMR_MASK(channel);
+    TIMx->EMR &= ~(uint32_t)TIM_EMR_MASK(channel);
     TIMx->EMR |= TIM_EM_SET(channel, type);
 }
 
@@ -297,28 +318,28 @@ FlagStatus TIM_GetIntStatus(LPC_TIM_TypeDef* TIMx, TIM_INT intFlag) {
 void TIM_PinConfig(TIM_PIN_OPTION option) {
     CHECK_PARAM(PARAM_TIM_PIN_OPTION(option));
 
-    static const PINSEL_CFG_T PinCfg[22] = {{PORT_1, PIN_26, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_1, PIN_27, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_1, PIN_28, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_3, PIN_25, PINSEL_FUNC_10, PINSEL_TRISTATE},
-                                            {PORT_1, PIN_29, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_3, PIN_26, PINSEL_FUNC_10, PINSEL_TRISTATE},
-                                            {PORT_1, PIN_18, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_1, PIN_19, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_1, PIN_22, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_1, PIN_25, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_0, PIN_4, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_0, PIN_5, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_0, PIN_6, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_4, PIN_28, PINSEL_FUNC_10, PINSEL_TRISTATE},
-                                            {PORT_0, PIN_7, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_4, PIN_29, PINSEL_FUNC_10, PINSEL_TRISTATE},
-                                            {PORT_0, PIN_8, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_0, PIN_9, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_0, PIN_23, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_0, PIN_24, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_0, PIN_10, PINSEL_FUNC_11, PINSEL_TRISTATE},
-                                            {PORT_0, PIN_11, PINSEL_FUNC_11, PINSEL_TRISTATE}};
+    static const PINSEL_CFG_T PinCfg[22] = {{PORT_1, PIN_26, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_1, PIN_27, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_1, PIN_28, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_3, PIN_25, PINSEL_FUNC_10, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_1, PIN_29, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_3, PIN_26, PINSEL_FUNC_10, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_1, PIN_18, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_1, PIN_19, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_1, PIN_22, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_1, PIN_25, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_0, PIN_4, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_0, PIN_5, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_0, PIN_6, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_4, PIN_28, PINSEL_FUNC_10, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_0, PIN_7, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_4, PIN_29, PINSEL_FUNC_10, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_0, PIN_8, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_0, PIN_9, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_0, PIN_23, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_0, PIN_24, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_0, PIN_10, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE},
+                                            {PORT_0, PIN_11, PINSEL_FUNC_11, PINSEL_TRISTATE, DISABLE}};
 
     PINSEL_ConfigPin(&PinCfg[option]);
 }
