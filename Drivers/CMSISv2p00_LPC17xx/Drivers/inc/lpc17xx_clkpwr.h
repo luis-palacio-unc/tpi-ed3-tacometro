@@ -28,7 +28,7 @@
 #define LPC17XX_CLKPWR_H_
 
 /* Includes ------------------------------------------------------------------- */
-#include "LPC17xx.h"
+#include "lpc17xx.h"
 #include "lpc_types.h"
 
 #ifdef __cplusplus
@@ -325,7 +325,7 @@ extern "C"
  * n: value of divider of peripheral clock  to be set */
 #define CLKPWR_PCLKSEL_SET(p,n)        _SBF(p,n)
 /** Macro to mask peripheral clock of each type */
-#define CLKPWR_PCLKSEL_BITMASK(p)    _SBF(p,UINT32_C(3))
+#define CLKPWR_PCLKSEL_BITMASK(p)    _SBF(p,0x03)
 /** Macro to get peripheral clock of each type */
 #define CLKPWR_PCLKSEL_GET(p, n)    ((uint32_t)((n>>p)&0x03))
 

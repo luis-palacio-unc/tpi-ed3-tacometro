@@ -319,20 +319,6 @@ typedef struct {
 void TIM_InitTimer(LPC_TIM_TypeDef* TIMx, const TIM_TIMERCFG_T* timerCfg);
 
 /**
- * @brief Configure a stopped, free-running timer without changing its PCLK divider.
- * @details TPI extension: enables peripheral power and resets TC/PC; selects timer
- * mode, disables match/capture/external actions, clears all six IR flags and sets PR.
- * Leaves TCR=0, preserving MR registers, other peripherals, PCLKSEL, PLL and pins.
- * Unlike TIM_InitTimer, accepts raw PR, including UINT32_MAX (divisor 2^32).
- * @param[in,out] TIMx Exclusive timer peripheral, LPC_TIM0/1/2/3.
- * @param[in] prescaler Raw PR value, divisor minus one, 0..UINT32_MAX PCLK cycles.
- * @pre Privileged serialized access; actual stable PCLK already configured.
- * Caller disables/clears the timer NVIC IRQ and synchronizes before enabling.
- * @note Additive API; existing TIM_InitTimer/TIM_InitCounter behavior is preserved.
- */
-void TIM_InitFreeRunning(LPC_TIM_TypeDef* TIMx, uint32_t prescaler);
-
-/**
  * @brief Initializes the timer in Counter Mode.
  *
  * Configures the Count Control Register (CTCR) to increment the Timer Counter (TC) based on

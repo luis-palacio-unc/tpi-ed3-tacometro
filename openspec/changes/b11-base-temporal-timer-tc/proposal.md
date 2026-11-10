@@ -1,3 +1,7 @@
+> RETIRADO por el usuario el 2026-11-10. Este documento conserva el trabajo
+> descartado como antecedente; no describe implementación ni aceptación actuales.
+> Timer/Tiempo eliminados. Definir juntos la responsabilidad del timer antes de continuar.
+
 # B11 replanteado — Timer continuo y wrapper temporal
 
 Estado: alcance/criterio acordados el 2026-11-10; implementación y commit local

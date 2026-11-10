@@ -27,7 +27,7 @@ El build ejecuta automáticamente el verificador del ELF; CTest agrega casos neg
 `firmware.elf` es para el MCU: no se ejecuta como programa de escritorio.
 No está configurada todavía una sesión de depuración/flasheo de CLion.
 
-Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, LM35, Driver_Alarmas, Driver_Motor, Tiempo y Timer, incluidas sus pruebas de integración, sin ejecutar main del firmware:
+Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, LM35, Driver_Alarmas, Driver_Motor, incluidas sus pruebas de integración, sin ejecutar main del firmware:
 
 ```sh
 cmake --preset host-objects
@@ -272,28 +272,24 @@ y [verificación](openspec/changes/archive/2026-11-09-b10-seleccion-estable-modo
 MA3 vigente permite selector lógico B10 y conserva exclusiones de hardware.
 GPIO/base temporal/main y pruebas físicas pendientes; sin ejecución ARM/simulador/placa.
 
-## B11: timer continuo y wrapper temporal
+## B11: wrappers Timer
 
-Implementado/verificado; resultado pendiente de aceptación. `Dispositivos/soporte/Timer`
-reúne el soporte del LPC1769 y reutiliza los drivers existentes:
+Alcance autorizado: `Dispositivos/Timer.h/.c` con tres funciones:
 
-- `Timer_Init(pclk_hz, periodo_ms)`: valida y configura TIMER0 continuo.
-- `Timer_Read(&lectura)`: consulta TC mediante TIM_ReadTimer y entrega ms/estado.
-- `Timer_Stop()`: detiene la cuenta.
-- `Timer_Source(contexto, &ms)`: conecta el dispositivo con el wrapper Tiempo.
+- `Timer_Init()`: configura TIMER0 mediante TIM_InitTimer, dejándolo detenido.
+- `Timer_Start()`: inicia la cuenta mediante TIM_Enable.
+- `Timer_Read()`: devuelve milisegundos mediante TIM_ReadTimer y TIMER_BASE_MS.
 
-Servicios/Tiempo conserva proveedor reemplazable, Tiempo_Leer y Tiempo_Transcurrido,
-sin conocer registros/MCU. Default1ms configurable; otras bases conservan salida ms.
-No ISR periódica ni contador software. TIMER0 exclusivo; configuración serializada,
-PCLK real explícito, marcas de misma época e intervalos<2^31ms. Reiniciar exige marcas
-nuevas. Main aún no inicia el timer; composición sólo en pruebas.
+`TIMER_BASE_MS` está en Timer.h: default1ms, configurable al compilar. Se eliminó
+Configuracion/Temporizacion.h. Header sólo con tipos estándar; detalles LPC1769 en .c.
+Llamar Init y Start antes de Read; timer exclusivo desde reset, reloj informado
+correcto y marcas de misma época. Servicios pueden restar lectura actual menos
+marca inicial, con duraciones reales<2^31ms. No se agregó servicio Tiempo.
 
-Se añadió TIM_InitFreeRunning al driver TIM para conservar PCLK y admitir PR completo;
-APIs heredadas preservadas. Detalles en el
-[diseño](openspec/changes/b11-base-temporal-timer-tc/design.md).
-Host21/21 y sanitizadores21/21 (212 casos C); ARM Debug/Release15/15 cada uno;
-Doxygen38 funciones propias documentadas sin avisos. Host usa registros modelados;
-no hubo ejecución ARM/simulación MCU/placa. PCLK/precisión física pendientes.
-Ver [candidato](openspec/changes/b11-base-temporal-timer-tc/specs/base-tiempos/spec.md)
-y [evidencia](openspec/changes/b11-base-temporal-timer-tc/verify-report.md).
-Commit local autorizado; sin push ni sincronización/archivo hasta aceptación/orden.
+Driver original intacto. Host17/17 y ARM13/13 son regresiones previas; el nuevo
+wrapper compila con headers reales y Doxygen35 funciones pasa sin avisos.
+Las operaciones del timer no se ejecutaron en host ni placa. Main sigue mínimo;
+enlace del conjunto de drivers y arranque real quedan para integración física.
+Ver [candidato](openspec/changes/b11-wrapper-timer/specs/timer/spec.md) y
+[verificación](openspec/changes/b11-wrapper-timer/verify-report.md).
+Resultado pendiente de aceptación, sin sincronizar/archivar/publicar.

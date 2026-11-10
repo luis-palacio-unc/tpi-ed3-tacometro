@@ -10,13 +10,13 @@ para generar documentación sin autorización.
   precondiciones y concurrencia. Tipos, miembros y constantes también documentados.
 - Mantener comentarios de contrato fuera del cuerpo de funciones de producción,
   como pide la guía del TPI.
-- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, Driver_Motor, LM35, Limites, Configuracion/Medicion.h y Timer, Tiempo y Temporizacion.h. No usar EXTRACT_ALL para ocultar falta de documentación.
+- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, Driver_Motor, LM35, Limites, Configuracion/Medicion.h y Timer. No usar EXTRACT_ALL para ocultar falta de documentación.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
-Validación actual B11 TC/Tiempo: 38 funciones/USW en XML (7 Procesamiento,
+Validación actual B11 wrapper Timer: 35 funciones/USW en XML (7 Procesamiento,
 10 Comunicacion, 2 Medicion_Velocidad, 5 Mandos, 2 Temperatura, 2 LM35,
-Driver_Alarmas, 2 Driver_Motor, cuatro Timer, dos Tiempo y main), sin avisos.
+Driver_Alarmas, 2 Driver_Motor, tres Timer y main), sin avisos.
 USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
 Documentar unidades físicas/estados en el servicio y conversión/errores específicos
 en LM35. La inclusión de archivos del dispositivo no introduce dependencia del servicio.
@@ -59,11 +59,11 @@ privado de invalidación. Documenta contexto, fuente/modo/estado, intervalo/tiem
 modular, errores/recuperación, cadencia y concurrencia. Doxyfile ya incluye Mandos;
 HTML/XML estricto pasa sin avisos. Las dos USW B04 conservan sus contratos.
 
-B11 TC conserva USW.2.1.17.1/.2/.3/.9 en Timer_Init/Read/Stop/Source.
-Retiradas .4–.8 SysTick y .10–.13 del puerto eliminado; no reciclar identificadores.
-Tiempo ESW.2.1.18 con USW .18.1/.2 permanece sin cambios y sin dependencia de MCU.
-Estas extensiones locales no son módulos impuestos por anexo B (.1–.16).
-Doxyfile incluye Timer.h/.c, Tiempo.h/.c y Temporizacion.h; 38 funciones propias
-únicas, seis TC/Tiempo, HTML/XML sin avisos ni controles relajados. El nuevo contrato
-TIM_InitFreeRunning se documenta en su encabezado de biblioteca y se revisa aparte;
-las funciones de la biblioteca no se cuentan como nuevas USW del TPI.
+Antecedente B11 retirado: se eliminaron Timer/Tiempo de INPUT y la documentación
+volvió al alcance B00–B10/B03-R1 (32 funciones). Contratos del diseño temporal
+retirado quedan sólo como antecedentes; no acreditar módulos eliminados como actuales.
+
+Nuevo B11 acotado: INPUT incluye Dispositivos/Timer.h/.c. USW.2.1.17.1 init,
+.17.2 lectura y .17.14 arranque; tres wrappers de biblioteca original, sin helpers.
+Header documenta base/unidades, precondiciones, épocas y modularidad. Doxygen35
+funciones propias únicas, HTML/XML sin avisos. Temporizacion.h y Tiempo no existen.

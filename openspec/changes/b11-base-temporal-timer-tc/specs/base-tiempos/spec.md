@@ -1,3 +1,7 @@
+> RETIRADO por el usuario el 2026-11-10. Este documento conserva el trabajo
+> descartado como antecedente; no describe implementación ni aceptación actuales.
+> Timer/Tiempo eliminados. Definir juntos la responsabilidad del timer antes de continuar.
+
 # Base temporal TC y wrapper — candidato B11
 
 Origen R01/R02/R08/R09/R10/R11/R15; usuario 2026-11-10. Candidato sin aceptar.

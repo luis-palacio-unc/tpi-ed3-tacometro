@@ -1,3 +1,7 @@
+> RETIRADO por el usuario el 2026-11-10. Este documento conserva el trabajo
+> descartado como antecedente; no describe implementación ni aceptación actuales.
+> Timer/Tiempo eliminados. Definir juntos la responsabilidad del timer antes de continuar.
+
 # Diseño B11 — corrección de drivers y nombres
 
 Origen: aclaración del usuario 2026-11-10 sobre reutilización y nombres cortos.

@@ -3,38 +3,38 @@
 ## Punto actual
 
 - Repositorio `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`;
-  rama main, consultar HEAD. Corrección de B11 sobre 86107b9, sin reescribir historia.
-- B00–B10/B03-R1 aceptados/archivados. B11 candidato revisión3 implementado/verificado;
-  resultado pendiente de aceptación, no sincronizado/archivado. Base publicada b4981c9.
-- Timer reemplaza Base_Tiempos/puerto/adapter; API Init/Read/Stop/Source. Usa driver
-  TIM existente y extensión compatible TIM_InitFreeRunning que conserva PCLK.
-  Tiempo wrapper independiente conserva API/implementación. Main aún mínimo.
-- Commit normal local autorizado al cierre: `refactor: simplificar Timer y reutilizar drivers LPC17xx`.
-  Consultar Git para hash; sin push autorizado.
+  rama main, consultar HEAD. Base de esta iteración51ab29e con retiradas locales previas.
+- B00–B10/B03-R1 aceptados/archivados. Candidatos anteriores B11 retirados, historial
+  conservado. Activo `b11-wrapper-timer`, alcance autorizado, resultado pendiente de aceptación.
+- Dispositivos/Timer.h/.c contiene sólo Timer_Init, Timer_Start y Timer_Read. Base
+  TIMER_BASE_MS=1 configurable en Timer.h, salida ms. Temporizacion.h eliminado.
+- Drivers restituidos por el usuario:90 archivos originales a21cc1e/origin/main.
+  Prohibido modificar cualquier archivo de Drivers; firmas originales reutilizadas.
+- Encabezado sólo stdint, TIMER0 oculto en .c. Sin Tiempo/proveedor/puerto/ISR/contador
+  software nuevo; main y servicios aceptados intactos. No implementar bloque posterior.
+- Commit normal local por autorización de bloques: `feat: agregar tres wrappers Timer con drivers originales`.
+  Conservar retiradas y restitución del usuario, sin reescritura ni push.
 
-## Evidencia actual ejecutada
+## Verificación actual
 
-| Modalidad | Resultado |
-|---|---|
-| Host y ASan/LSan/UBSan | 21/21 cada uno, 212 C: 16 TC +9 wrapper +5 integración +3 driver y179 previos |
-| Referencias | Tiempo2048 muestras/1235 vueltasTC; regresiones velocidad11199, codec5096, selector4096/400 vueltas |
-| ARM | Debug15/15 y Release15/15, fixture con APIs/drivers reales, vectores por defecto; sólo compilación/inspección |
-| Doxygen | 38 funciones propias únicas, seis TC/Tiempo, sin avisos; contrato nuevo driver revisado en header |
-| Negativos | Detecta PR fuera de uno, lectura que reinicia TC y cambio PCLK; bases1/2/5 PASS, cero rechazado |
-| Recursos fixture | Flash3684 Debug/2988 Release, SRAM2108 incluyendo pila2048; .bss Timer5, Tiempo0 antes de alineación |
-| Preservación | Aplicación/main/startup/linker/servicios/contratos/archivos aceptados intactos; driver extendido y licencias/aserciones conservadas |
+- Host Debug17/17 (179 C aceptados y oráculo Python), sin ejecutar periféricos.
+- ARM Debug13/13; nuevo Timer compila con headers originales. Sólo tres dependencias
+  externas del objeto: TIM_InitTimer/Enable/ReadTimer. Main elimina wrapper no utilizado.
+- Bases1/2/5 compilan ARM-O2;0 rechazado. Header compila sin CMSIS/driver.
+- Doxygen estricto35 funciones propias únicas,3 Timer, sin avisos.
+- Objeto propio ARM .text86 bytes, .data/.bss0. Drivers90 hashes intactos.
+- Sin ejecución ARM, simulación MCU, hardware, flasheo, instalación o pruebas físicas.
 
-Informe y comandos en `openspec/changes/b11-base-temporal-timer-tc/verify-report.md`.
-Logs externos: /tmp/ed3-b11-drivers-20261110-qhso3a72. Evidencia anterior corresponde a 86107b9 en Git;
-SysTick db88286 conserva su cambio superseded. Incidencias de compilación de biblioteca
-resueltas sin desactivar controles. No ejecución MCU/simulación/placa ni flasheo/instalación.
+Evidencia: openspec/changes/b11-wrapper-timer/verify-report.md.
+Logs/snapshot fuera del árbol: /tmp/ed3-b11-wrapper-timer-bwqdkfu3.
+No acreditar resultados de propuestas descartadas como pruebas actuales.
 
 ## Próxima acción y límites
 
-Revisar/aceptar B11 corregido antes de sincronizar/archivar/publicar por orden.
-No iniciar otro bloque. Timer0 exclusivo, APIs/PCONP serializados desde lazo privilegiado;
-PCLK real estable explícito, default1ms configurable, salida siempre ms, sin ISR/acumulador.
-Marcas misma época y duración real<2^31ms; reinicio exige marcas nuevas.
-Faltan PCLK/precisión/suspensión/debug físicos, revisión PCB/silicio/pines/VREF,
-adquisición/ventanaRPM1s, GPIO/selector, UART/TX, PWM/regulación y main integrado.
-CMSIS-DAP integrado confirmado; umbral térmico TPI/reentrada pendientes. Diagramas finales diferidos.
+Revisar/aceptar B11 wrapper; no sincronizar/archivar/publicar sin orden.
+Timer exclusivo desde reset y configuración sin match/captura previos, reloj informado
+correcto y período representable/exacto según driver. Init antes de Start/Read,
+acceso serializado, misma época e intervalos reales<2^31ms. Reinit exige marcas nuevas.
+Enlace del conjunto de biblioteca y arranque integrado pendientes de integración física;
+compilar el wrapper no acredita configurar/medir tiempo en placa. Hardware/reloj/pines,
+adquisiciónRPM1s/UART/PWM/regulación y main pendientes. Diagramas finales diferidos.

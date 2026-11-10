@@ -285,31 +285,21 @@ Rebotes no cambian modo de aplicación; entrada confirmada manual→auto exige c
 consigna posterior. Indisponibilidad no emite órdenes desde adaptador de prueba;
 política física y reentrada tras fallo, GPIO/main quedan pendientes. B04/B01/B08 intactos.
 
-## Base temporal B11 TC/Tiempo
+## B11: wrappers del driver original — 2026-11-10
 
-Alcance acordado y corregido por usuario 2026-11-10; implementado/verificado,
-resultado pendiente de aceptación. Candidato TC1–TC5/S1–S8, revisión3, sin push.
-Antecedentes no aceptados: SysTick db88286 y TC con puerto 86107b9; historia conservada.
-Contratos vigentes/archivos aceptados intactos; diseño candidato es el vigente del bloque.
+Diseños SysTick, TC/puerto y servicio Tiempo retirados; no retomarlos. Usuario
+restituyó Drivers:90 archivos iguales a a21cc1e/origin/main. Prohibido modificarlos.
+Nuevo alcance explícitamente autorizado: Dispositivos/Timer.c/.h con sólo
+Timer_Init→TIM_InitTimer, Timer_Start→TIM_Enable y Timer_Read→TIM_ReadTimer.
+TIMER0 sólo en .c; header sin CMSIS. TIMER_BASE_MS default1, configurable al
+compilar en Timer.h; Read normaliza a ms uint32 modular. Temporizacion.h eliminado.
+Sin estado mutable/ISR/acumulador/proveedor/puerto/servicio Tiempo. ESW17 y USW
+.17.1/.2 conservan init/lectura; .17.14 arranque nuevo, IDs retirados no reciclados.
 
-TIMER0 exclusivo en `Dispositivos/soporte/Timer.h/.c`; API corta:
-Timer_Init(pclk_hz,periodo_ms), Timer_Read, Timer_Stop y Timer_Source.
-Se retiraron Base_Tiempos_Puerto y Base_Tiempos_LPC1769. Se reutilizan TIM_Enable,
-TIM_Disable, TIM_ReadTimer y CLKPWR_ConfigPPWR. Extensión compatible
-TIM_InitFreeRunning configura cuenta continua con PR crudo, sin cambiar PCLKSEL;
-TIM_InitTimer heredado sigue configurando CCLK/4. Licencias y aserciones conservadas.
-Biblioteca adaptada a Linux/includes y máscaras unsigned de 32 bits, sin quitar controles.
-
-Default1ms configurable en Temporizacion.h, PCLK real explícito/estable. N=PCLK*ms/1000
-exacto1..2^32, PR=N-1; uint64 sólo al configurar. TC*período se normaliza a uint32 ms
-modular sin ISR/acumulador/reinicio por consulta. Estados/errores, parada y recuperación
-conservados; reinicio abre época nueva y exige nuevas marcas. APIs/metadatos/PCONP
-serializados desde lazo privilegiado. No modificar PLL/PCLKSEL/flash/pines/SysTick.
-
-Servicios/Tiempo ESW.2.1.18 sigue independiente del MCU, sin cambios: proveedor
-reemplazable, Tiempo_Leer y Tiempo_Transcurrido. Marcas siempre ms, misma época y
-duración real<2^31ms; no detecta épocas mezcladas/vueltas completas omitidas.
-Extensión local ESW17 conserva USW .1/.2/.3/.9; retiradas .4–.8 y .10–.13.
-ESW18 conserva .1/.2. Contrato Doxygen nuevo en el driver, sin asignarle USW del TPI.
-Main/composición física/adquisición/ventana RPM1s quedan para bloques posteriores.
-PCLK25MHz del modelo no es frecuencia confirmada de placa. Precisión física pendiente.
+Init deja detenido, luego Start; timer exclusivo desde reset sin match/captura
+previos y SystemCoreClock correcto. Base/PCLK representables/exactos según driver;
+no agregar configuración propia de reloj. APIs serializadas; reinit exige marcas
+nuevas, intervalos reales<2^31ms. Main, servicios aceptados y drivers intactos.
+El wrapper se compila con encabezados originales; no hay nueva prueba que repita
+las tres llamadas. Enlace de biblioteca original/arranque y prueba física pendientes
+de integración; no declarar funcionamiento eléctrico por compilación.

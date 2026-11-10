@@ -86,13 +86,16 @@ B11-SysTick sustituido, sin aceptación (R01/R02/R08/R09/R10/R11/R15):
 evidencia previa en [informe histórico](../../openspec/changes/b11-base-tiempos-lpc1769/verify-report.md),
 corresponde sólo a db88286: host/san 20/20 y 205 C, ARM 15/15/Release y 40 USW.
 
-B11 TC/Tiempo corregido con drivers/nombres (R01/R02/R08/R09/R10/R11/R15,
-aclaraciones usuario 2026-11-10), verificado pendiente de aceptación.
-TC1–TC5/S1–S8 PASS: Timer_Init/Read/Stop/Source en Dispositivos/soporte/Timer.*,
-TIM_InitFreeRunning y APIs TIM heredadas en driver existente; wrapper Tiempo intacto.
-16 casos TC +9 wrapper +5 integración +3 driver (cuatro periféricos), 212 C.
-Host/san21/21; oráculo2048/1235 vueltasTC y regresiones11199/5096/4096.
-ARM Debug15/15 y Release15/15; Doxygen38 funciones propias únicas, seis TC/Tiempo.
-B00 conserva14 casos, S7 exige19 objetos exactos con Timer renombrado.
-[Matriz/evidencia](../../openspec/changes/b11-base-temporal-timer-tc/verify-report.md).
-No acredita adquisición/ventanaRPM1s, PCLK real, main o precisión física.
+B11 retirado por el usuario 2026-11-10. Timer.c/.h y Tiempo.c/.h eliminados;
+TC1–TC5/S1–S8 describen una propuesta descartada, sin implementación actual.
+Su evidencia en el cambio SDD y Git es histórica, no aceptación vigente.
+R01/R02/R08/R09/R10/R11/R15 relacionados con temporización quedan por resolver;
+definir juntos la responsabilidad del timer antes de especificar/implementar.
+
+B11 wrapper Timer (R10/R15, aclaración y autorización usuario 2026-11-10):
+WT1–WT3/S1–S3 candidato, implementación sólo Dispositivos/Timer.h/.c. USW17.1 init,
+17.14 start,17.2 read. Drivers originales intactos; Temporizacion.h eliminado.
+Evidencia: compilación host/ARM, dependencias exactas TIM_InitTimer/Enable/ReadTimer,
+header aislado, overrides1/2/5 compilados y0 rechazado, Doxygen35. Regresiones
+host17/17, ARM13/13. Operación temporal/enlace de biblioteca/placa no ejecutados.
+[Matriz/evidencia](../../openspec/changes/b11-wrapper-timer/verify-report.md).

@@ -1,3 +1,7 @@
+> RETIRADO por el usuario el 2026-11-10. Este documento conserva el trabajo
+> descartado como antecedente; no describe implementación ni aceptación actuales.
+> Timer/Tiempo eliminados. Definir juntos la responsabilidad del timer antes de continuar.
+
 # Verificación B11 — corrección de drivers y nombres
 
 Fecha 2026-11-10. Base main/86107b9, revisión3 del candidato TC1–TC5/S1–S8.
