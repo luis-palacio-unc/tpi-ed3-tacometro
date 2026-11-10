@@ -1,6 +1,7 @@
 # B11 — Base de tiempos LPC1769
 
-Estado: propuesta del 2026-11-09; alcance/criterio pendientes de acuerdo.
+Estado: alcance/criterio acordados el 2026-11-09. Implementación y commit local
+autorizados; sin push, resultado pendiente de aceptación.
 
 ## Objetivo y origen
 

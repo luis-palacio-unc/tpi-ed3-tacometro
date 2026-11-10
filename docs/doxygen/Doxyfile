@@ -10,9 +10,11 @@ INPUT = Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacion/Procesamiento.c 
         Servicios/Temperatura.h Servicios/Temperatura.c \
         Servicios/Driver_Alarmas.h Servicios/Driver_Alarmas.c \
         Servicios/Driver_Motor.h Servicios/Driver_Motor.c \
-        Dispositivos/LM35.h Dispositivos/LM35.c
+        Dispositivos/LM35.h Dispositivos/LM35.c \
+        Dispositivos/soporte/Base_Tiempos.h Dispositivos/soporte/Base_Tiempos.c \
+        Dispositivos/soporte/Base_Tiempos_Puerto.h Dispositivos/soporte/Base_Tiempos_LPC1769.c
 FILE_PATTERNS = *.c *.h
-INCLUDE_PATH = Aplicacion Servicios Configuracion Dispositivos
+INCLUDE_PATH = Aplicacion Servicios Configuracion Dispositivos Dispositivos/soporte
 OPTIMIZE_OUTPUT_FOR_C = YES
 EXTRACT_ALL = NO
 EXTRACT_STATIC = YES

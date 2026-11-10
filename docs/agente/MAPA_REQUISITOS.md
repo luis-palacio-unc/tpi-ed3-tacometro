@@ -18,7 +18,7 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 aceptado/archivado para codificación lógica TX; UART/envío pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 RX y B09 CT1–CT4 PASS lógico; UART/envío físicos pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10: 32 funciones/USW, incluidas tres nuevas USW.2.1.5.3–.5; Doxygen estricto PASS; resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B11: 40 funciones/USW, incluidas ocho nuevas USW.2.1.17.1–.8; Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -82,7 +82,11 @@ Host/san 17/17 más refuerzo selector 1/1, ARM Debug 13/13 y fixture B10 Release
 Doxygen 32 funciones/USW. [Matriz/evidencia](../../openspec/changes/archive/2026-11-09-b10-seleccion-estable-modo/verify-report.md).
 GPIO/base temporal/main y antirrebote eléctrico pendientes; sin duración TPI impuesta.
 
-B11 propuesto (R01/R02/R08/R09/R10/R11/R15): soporte temporal para futuras
-adquisiciones/comunicaciones, con SysTick y frecuencia explícita. Diseño de soporte,
-no nuevo requisito de la consigna. Sin acuerdo, implementación ni evidencia nueva;
-no acredita ventana de medición RPM, períodos de adquisición o precisión física.
+B11 implementado/verificado (R01/R02/R08/R09/R10/R11/R15), resultado pendiente de aceptación:
+Base_Tiempos y puerto LPC1769 en Dispositivos/soporte, frecuencia CPU explícita,
+tick 1 ms atendido, snapshot/PRIMASK, parada/reinicio y pendientes antiguos.
+BT1–BT4/S1–S8 PASS: 18 casos base + cuatro integración B10 + cuatro puerto; 205 C,
+host/san 20/20, oráculos previos conservados; ARM Debug 15/15 y fixture Release,
+Doxygen 40 funciones/USW. [Matriz/evidencia](../../openspec/changes/b11-base-tiempos-lpc1769/verify-report.md).
+Soporte temporal no acredita ventana RPM de 1 s, adquisición/transmisión, latencias
+o precisión física. ESW.2.1.17 es extensión local de documentación, no módulo impuesto por APB.

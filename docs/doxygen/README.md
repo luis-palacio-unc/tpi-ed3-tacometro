@@ -10,12 +10,13 @@ para generar documentación sin autorización.
   precondiciones y concurrencia. Tipos, miembros y constantes también documentados.
 - Mantener comentarios de contrato fuera del cuerpo de funciones de producción,
   como pide la guía del TPI.
-- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, Driver_Motor, LM35, Limites y Configuracion/Medicion.h. No usar EXTRACT_ALL para ocultar falta de documentación.
+- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, Driver_Motor, LM35, Limites, Configuracion/Medicion.h y Base_Tiempos con su puerto LPC1769. No usar EXTRACT_ALL para ocultar falta de documentación.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
-Validación actual B10: 32 funciones/USW en XML (7 Procesamiento, 10 Comunicacion,
-2 Medicion_Velocidad, 5 Mandos, 2 Temperatura, 2 LM35, Driver_Alarmas, 2 Driver_Motor y main), sin avisos.
+Validación actual B11: 40 funciones/USW en XML (7 Procesamiento, 10 Comunicacion,
+2 Medicion_Velocidad, 5 Mandos, 2 Temperatura, 2 LM35, Driver_Alarmas, 2 Driver_Motor,
+ocho Base_Tiempos/puerto y main), sin avisos.
 USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
 Documentar unidades físicas/estados en el servicio y conversión/errores específicos
 en LM35. La inclusión de archivos del dispositivo no introduce dependencia del servicio.
@@ -57,3 +58,11 @@ B10 agrega USW.2.1.5.3/.4/.5: inicializar selector, actualizar estabilidad y hel
 privado de invalidación. Documenta contexto, fuente/modo/estado, intervalo/tiempo
 modular, errores/recuperación, cadencia y concurrencia. Doxyfile ya incluye Mandos;
 HTML/XML estricto pasa sin avisos. Las dos USW B04 conservan sus contratos.
+
+B11 agrega ESW.2.1.17 y USW.2.1.17.1–.8: API temporal, handler/helper y tres
+operaciones privadas de puerto. Extensión local para soporte compartido, no módulo
+impuesto por el anexo B original, que termina en .16. Documenta Hz/ms, épocas,
+estados/errores, cancelación de pendientes, acceso privilegiado/PRIMASK y límites
+de latencia/precisión. Doxyfile incluye los cuatro archivos, conserva controles y
+pasa HTML/XML estricto. Funciones void explican efectos sin usar @return; no se
+suprime validación. Ninguna documentación declara tiempo físico comprobado.

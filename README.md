@@ -272,9 +272,22 @@ y [verificación](openspec/changes/archive/2026-11-09-b10-seleccion-estable-modo
 MA3 vigente permite selector lógico B10 y conserva exclusiones de hardware.
 GPIO/base temporal/main y pruebas físicas pendientes; sin ejecución ARM/simulador/placa.
 
-## Próximo bloque propuesto
+## B11: base de tiempos LPC1769
 
-[B11: base de tiempos LPC1769](openspec/changes/b11-base-tiempos-lpc1769/proposal.md).
-Implementar referencia de milisegundos con SysTick dentro de Dispositivos/soporte,
-frecuencia explícita y sin configurar PLL. Alcance/criterio pendientes de acuerdo;
-sin implementación. Reloj realmente configurado y tiempos físicos aún sin verificar.
+B11 implementado/verificado; resultado pendiente de aceptación. Base_Tiempos en
+Dispositivos/soporte ofrece Inicializar, Leer y Detener; reiniciar usa Inicializar
+y abre época desde cero. Recibe frecuencia CPU real explícita, estable y múltiplo
+de 1000 entre 2000 y 120000000 Hz; no configura PLL, relojes o flash.
+SysTick exclusivo avanza milisegundos uint32_t por interrupción atendida, con rollover.
+ACTIVA habilita consumo; SIN_DATOS, DETENIDA y errores conservan diagnóstico propio.
+Parada/reinicio cancelan pendientes antiguos. Lectura coherente y PRIMASK preservado;
+APIs sólo desde lazo privilegiado serializado. Reiniciar consumidores entre épocas.
+
+Puerto LPC1769/CMSIS interno, servicios/aplicación intactos; composición B10 sólo
+en pruebas. main continúa mínimo y no inicia SysTick. No recupera ticks colapsados,
+ni mide durante suspensión/debug; frecuencia/latencias/precisión físicas pendientes.
+Host/san 20/20, 205 C; ARM Debug 15/15 y fixture Release; Doxygen 40 funciones/USW,
+ocho nuevas de soporte ESW.2.1.17 (extensión local, no numeración original del anexo).
+Ver [candidato](openspec/changes/b11-base-tiempos-lpc1769/specs/base-tiempos/spec.md)
+y [evidencia](openspec/changes/b11-base-tiempos-lpc1769/verify-report.md).
+Sin ejecución ARM/simulación MCU/placa, sin flasheo ni push.

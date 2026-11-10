@@ -284,8 +284,28 @@ Rebotes no cambian modo de aplicación; entrada confirmada manual→auto exige c
 consigna posterior. Indisponibilidad no emite órdenes desde adaptador de prueba;
 política física y reentrada tras fallo, GPIO/main quedan pendientes. B04/B01/B08 intactos.
 
-B11 sólo propuesto: base de tiempos en Dispositivos/soporte con SysTick, tick de 1 ms
-y frecuencia CPU explícita; sin PLL, main ni adquisición. Fuente temporal física,
-latencias y precisión no verificadas; servicios/aplicación conservan su abstracción.
-Alcance/criterio en openspec/changes/b11-base-tiempos-lpc1769/proposal.md; sin acuerdo
-ni implementación. Elección SysTick/resolución son decisiones propuestas.
+## Base temporal B11
+
+Alcance/criterio acordados el 2026-11-09; implementado/verificado el 2026-11-10,
+resultado pendiente de aceptación. Commit local autorizado sin push. Candidato
+BT1–BT4/S1–S8; contratos vigentes/archivos aceptados intactos.
+Soporte Base_Tiempos, ESW.2.1.17 como extensión local tras anexo B .16; ocho USW
+.17.1–.8. Único propietario SysTick, no cuarta capa. API Inicializar/Leer/Detener
+y handler fuerte; estado/contador privados volatile, sin heap/esperas.
+Frecuencia CPU explícita estable, 2000..120000000 Hz múltiplo de 1000, LOAD=Hz/1000-1.
+El mínimo responde a recarga representable, no acredita viabilidad temporal/eléctrica.
+No usa SystemCoreClock/CALIB ni configura PLL/reloj/flash. Inicializar abre época
+desde cero; error deshabilita con cero/ERROR_FRECUENCIA. Detener conserva contador,
+ACTIVA→DETENIDA; otros diagnósticos persisten. Leer retorna snapshot coherente,
+sólo ACTIVA habilita uso temporal. NULL devuelve ERROR_ARGUMENTO sin puerto/efectos.
+Estado inicial SIN_DATOS/cero; reiniciar también requiere reiniciar consumidores.
+PRIMASK previo preservado con barreras CPU/compilador; APIs sólo lazo privilegiado
+serializado, nunca ISR/NMI/RTOS concurrente. CTRL=0→VAL=0→ICSR=PENDSTCLR cancela
+pendientes antiguos; prioridad SysTick mínima 31, sin modificar prioridades ajenas.
+CMSIS antiguo sin memory clobber: puerto agrega barreras, Drivers preservados.
+Cada IRQ atendida incrementa uint32_t modular; ticks colapsados no detectables/
+recuperables. Latencia, reloj real, suspensión/debug y precisión quedan externos.
+Puerto ARM y modelo host privados; servicios/aplicación sin dependencia nueva.
+Composición con B10 sólo en pruebas/fixture; main no inicializa SysTick. No hay
+ventana RPM de 1 s, adquisición o planificador. Consultados UM10360 §23/34.4.3.4/
+34.4.4 y erratas 10.6; sin aceptación física. Diagramas finales siguen diferidos.
