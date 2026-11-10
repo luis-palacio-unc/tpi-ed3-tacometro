@@ -7,9 +7,7 @@
 #include "Buzzer.h"
 #include "lpc17xx_gpio.h"
 
-bool Buzzer_Write(void *contexto,bool activar)
+void Buzzer_Write(bool activar)
 {
-    (void)contexto;
     GPIO_SetPinState(PORT_2,PIN_7,activar?SET:RESET);
-    return true;
 }

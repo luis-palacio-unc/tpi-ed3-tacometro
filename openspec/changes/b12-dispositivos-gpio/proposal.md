@@ -12,8 +12,9 @@ en pines P2 distintos de EINTx. Alcance autorizado el2026-11-10; resultado pendi
   Entregar sólo actividad lógica; antirrebote y selección de modo siguen en Mandos.
 - LED_Write y Buzzer_Write: mando lógico mediante GPIO_SetPinState. BuzzerP2.7:
   activo→1, inactivo→0. LED rojoP0.22: activo→0, inactivo→1 según conexión de placa.
-- Firmas de salida compatibles con Driver_Alarmas existente, sin cambiar servicios.
-  Contexto opaco ignorado; aceptación de llamada no acredita estado eléctrico.
+- Salidas void LED_Write(bool activar) y void Buzzer_Write(bool activar), sin
+  contexto ni retorno ficticio. Corrección autorizada por usuario el2026-11-10.
+  Driver_Alarmas/B07 se revisará por separado; no adaptar ni cambiar servicios ahora.
 - Dispositivos interactúa con hardware y drivers directamente, con nombres cortos y Doxygen.
 - Comprobar traducción lógica, selección de bit y preservación de pines ajenos.
 
@@ -26,12 +27,13 @@ los wrappers en placa, que se hará en la integración final.
 
 ## Dependencias y criterio de aceptación
 
-B07/B10 y driver GPIO originales. Manual UM10360 rev4.1 tabla84/p120 confirma
+B10 y driver GPIO originales. B07 conserva su contrato aceptado hasta revisión
+posterior; sus callbacks actuales no admiten directamente estas firmas void(bool). Manual UM10360 rev4.1 tabla84/p120 confirma
 que P2.6/P2.7 no son EINT0–3; esquema OM13085 hoja2 confirma LED rojoP0.22 bajo.
 Revisión física de la placa y estado de máscaras/dirección se comprobarán al integrar.
 
 1. Selector distingue0/1 del bit asignado, ignorando los demás; no escribe GPIO.
-2. Activar/desactivar buzzer produce1/0, LED0/1, sólo en su pin y compone con B07.
+2. Activar/desactivar buzzer produce1/0, LED0/1, sólo en su pin, sin contexto ni retorno.
 3. Servicios conservan contrato lógico; Dispositivos usa las operaciones del driver,
    sin duplicar máscaras/escrituras SET/CLR ya resueltas por la biblioteca.
 4. Pruebas host de polaridad/aislamiento, compilación ARM de módulos, regresiones y

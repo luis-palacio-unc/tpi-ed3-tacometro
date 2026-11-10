@@ -320,7 +320,9 @@ no requiere transparencia respecto del MCU dentro de esa capa ni duplicación de
 de la biblioteca. Mantener independencia y contratos lógicos en Aplicación/Servicios.
 
 B12 implementa sólo Selector_Read (GPIO_ReadValue/P2.6 alto), LED_Write
-(GPIO_SetPinState/P0.22 bajo) y Buzzer_Write (GPIO_SetPinState/P2.7 alto). Firmas
-de salida B07, contexto ignorado, true significa llamada delegada; no prueba física.
+(GPIO_SetPinState/P0.22 bajo) y Buzzer_Write (GPIO_SetPinState/P2.7 alto).
+Corrección autorizada2026-11-10: ambas salidas void(bool activar), sin contexto
+ni retorno ficticio. Driver_Alarmas/B07 se revisará por separado; su firma actual
+no admite estas funciones directamente. No agregar adaptadores/casts temporales.
 Tres USW.13.1/.14.1/.15.1 documentadas. Sin estado mutable ni nuevos servicios.
 Inicialización/enlace y uso desde main se mantienen para integración final.

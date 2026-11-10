@@ -1,85 +1,77 @@
 # Verificación B12 — dispositivos GPIO
 
-2026-11-10. Alcance autorizado; resultado pendiente de aceptación. Base cb380bc
-con planificación local conservada. Commit normal local autorizado al cerrar,
-sin push/sincronizar/archivar. No avanzar bloque siguiente.
+2026-11-10. Corrección autorizada del resultado de4260249, pendiente de aceptación.
+Commit local autorizado; sin push/sincronización/archivo ni avance a otro bloque.
 
-## Cambios y contrato
+## Contrato comprobado
 
-Tres USW, anexoB: Selector_Read (.13.1) consulta GPIO_ReadValue(PORT_2) y aísla
-PIN_6 activo por alto; LED_Write (.14.1) usa GPIO_SetPinState(P0.22) bajo al activar;
-Buzzer_Write (.15.1) usa GPIO_SetPinState(P2.7) alto al activar. Headers y cuerpos
-documentados con Doxygen. Operaciones/set-clear delegadas a biblioteca original.
-LED/Buzzer aceptan contexto ignorado/NULL y retornan true tras delegar: aceptación
-de llamada compatible con B07, sin afirmar confirmación física ni inventar fallos.
+Selector_Read (.13.1) conserva lectura de P2.6 alto mediante GPIO_ReadValue.
+LED_Write (.14.1) y Buzzer_Write (.15.1) ahora son void(bool activar): sin contexto
+ni retorno ficticio. GPIO_SetPinState conserva LEDP0.22 activo bajo y buzzerP2.7 alto.
+Headers/cuerpos con Doxygen; no lectura de confirmación ni diagnósticos inventados.
+Sin cambios en Drivers, servicios, main, Timer/LM35 o contratos aceptados.
 
-Sin inicialización de GPIO, dirección, multiplexado, polarización, FIOMASK, reloj,
-main o enlace global. Los pines requieren configuración previa al uso físico.
-No se modificaron servicios, Timer/LM35 aceptados, startup ni biblioteca Drivers.
+Driver_Alarmas/B07 conserva bool(void*,bool). Esas firmas no admiten directamente
+las salidas nuevas: su revisión queda pendiente por instrucción del usuario.
+Se retiraron ContextosIgnorados (API eliminada) y ComposicionAlarmas (contrato por
+revisar), y el target GPIO ya no enlaza Driver_Alarmas. No se reemplazaron por
+adaptadores/casts ni se deshabilitaron las pruebas independientes B07, que pasan.
+Los siete casos directos conservan polaridad, bits ajenos, repetición e intercalado.
 
-## Evidencia realmente ejecutada
+## Evidencia ejecutada para esta corrección
 
-Logs/snapshot fuera del árbol: `/tmp/ed3-b12-gpio-implementacion-m6evumxd`. C11 estricto -Wall -Wextra -Werror
--Wconversion -Wshadow -Wstrict-prototypes; tests/módulos externos además
--pedantic-errors. No instalar dependencias ni desactivar controles.
+Logs fuera de Git: `/tmp/ed3-b12-salidas-simples-ns5j3oo1`.
+Build C11 estricto -Wall -Wextra -Werror -Wconversion -Wshadow
+-Wstrict-prototypes; pruebas/extras también -pedantic-errors. Sin controles relajados.
 
-| Control/modalidad | Resultado | Evidencia externa |
+| Control/modalidad | Resultado | Log externo |
 |---|---|---|
-| Tests antes del código | RED esperado por interfaces ausentes | red.log |
-| B12 individual | GREEN9 casos | b12-green.log |
-| Host completo |18/18,188 casos C (179 previos+9 B12) y oráculo Python | host-tests.log |
-| ASan/LSan/UBSan |18/18 sin hallazgos, fugas habilitadas fuera de ptrace | san-*.log |
-| ARM Debug build/regresiones |13/13; módulos con headers reales; no ejecución MCU | arm-*.log |
-| Módulos ARM-O0/O2 | Compilan, sólo símbolos externos GPIO_ReadValue/SetPinState | *-build/symbols/disassembly.log |
-| Headers aislados C11/C++17 | Compilan sin headers CMSIS ni drivers | *-header-*.log |
-| Doxygen HTML/XML estricto |38 funciones propias únicas,3 nuevas, sin avisos | doxygen.log |
-| Negativos externos | Detecta selector en bit7 y buzzer con polaridad invertida | extra-results.json, *-run.log |
-| Preservación |220 archivos protegidos intactos;90 Drivers originales a21cc1e | protected-before.json y revisión final |
+| Host Debug completo |18/18;186 casos C (179 previos+7 B12) y oráculo Python |host-*.log, host/Testing/Temporary/LastTest.log |
+| ASan/LSan/UBSan |18/18, sin hallazgos, detect_leaks=1 fuera de ptrace |san-*.log |
+| ARM Debug build y controles |13/13; compilación, sin ejecutar MCU |arm-*.log |
+| Dos salidas ARM-O0/O2 |Sólo símbolo externo GPIO_SetPinState |*-build/symbols/size.log |
+| Headers LED/Buzzer C11/C++17 |Aislados sin headers CMSIS, correctos |*-header-*.log |
+| Doxygen HTML/XML estricto |38 funciones únicas, sin avisos; ambas firmas void(bool), sin @return |doxygen.log |
+| Negativos en copias externas |Detecta inversión de polaridad de LED y buzzer |*-negativo-*.log |
+| Preservación |224 archivos protegidos intactos;90 Drivers iguales a a21cc1e; B07 intacto |before.json, preservation.json, diff |
 
-Nueve casos B12: SelectorNiveles, SelectorIgnoraOtrosBits (64 patrones de un bit
-alto/bajo), SelectorIgnoraOtrosPuertos, LedActivoBajo, BuzzerActivoAlto,
-ContextosIgnorados, RepeticionRestauraSalida, ComposicionAlarmas, SalidasIntercaladas.
-Las salidas se verifican con bancos iniciales0/MAX/alternos, preservando vecinos y
-otros puertos. Composición real con Driver_Alarmas y ambas polaridades opuestas;
-el selector vecino P2.6 conserva su valor al accionar buzzerP2.7.
-Regresiones:11199 ternas velocidad,5096 pares codec,4096 muestras/400 vueltas selector.
+Casos B12: SelectorNiveles, SelectorIgnoraOtrosBits (64 patrones),
+SelectorIgnoraOtrosPuertos, LedActivoBajo, BuzzerActivoAlto,
+RepeticionRestauraSalida y SalidasIntercaladas. Salidas sobre0/MAX/alternos,
+preservando otros pines/puertos y el selector vecino. Tests invocan void(bool).
+El doble host reemplaza API GPIO; no ejecuta biblioteca ni simula CPU/electricidad.
 
-## Matriz
+## Matriz de escenarios candidatos
 
-| Candidato | Evidencia | Resultado |
+| Contrato | Prueba ejecutada | Resultado |
 |---|---|---|
-| DG1/S1 | Tres casos selector +64 patrones independientes | Contacto alto/bajo correcto, bit6, sin escritura |
-| DG2/S2 | Dos casos de salida +contextos/repetición/intercalado | LED bajo y buzzer alto; pines ajenos preservados; sin caché |
-| DG2/S3 | Composición B07 con funciones reales de dispositivo | Acepta ambas órdenes, contextos ignorados, selector sin afectar |
-| DG3/S4 | Host/sanitizadores/ARM/Doxygen/aislamiento/hashes | Conforme por modalidad; sin ensayo eléctrico ni inicialización |
+| DG1/S1 lectura aislada |Tres casos selector |Conforme |
+| DG2/S2 polaridad/aislamiento |LedActivoBajo/BuzzerActivoAlto |Conforme |
+| DG2/S3 repetición/independencia |RepeticionRestauraSalida/SalidasIntercaladas |Conforme |
+| DG3/S4 evidencia y preservación |Host/san/ARM/Doxygen/hashes/diff |Conforme por modalidad |
 
-El doble host reemplaza sólo funciones de la API GPIO y modela valores de puertos;
-no ejecuta ni modifica el driver original, no simula CPU/bus/latencias/electricidad.
-Pruebas detectan traducción de polaridad, selección errónea de pin y contaminación
-de otras señales; no reproducen simplemente las llamadas de producción.
+## Recursos y límites
 
-## Recursos y revisión
+Objetos de las dos salidas: LED.text36/Buzzer30 bytes-O0;16/12-O2; .data/.bss0.
+Marcos propios16/16 bytes-O0,0/0-O2 por llamada de cola; no cota de pila total
+porque excluyen driver/caller/IRQ. Sin heap/estado/ISR/esperas/caché.
+Selector no cambió; su medición previa permanece en evidencia de4260249.
 
-Objetos propios ARM-O0: Selector.text30, LED40, Buzzer34, total104 bytes.
-ARM-O2:16/20/16,total52 bytes. Todos .data/.bss0. Marcos .su propios8/16/16
-bytes-O0 y8/8/8-O2; no cota total de pila porque excluyen driver/caller/IRQ.
-Sin heap, estado mutable propio, ISR, esperas, caché ni nuevo módulo genérico.
-Selector depende sólo de GPIO_ReadValue; las salidas sólo de GPIO_SetPinState.
-El firmware mínimo sigue sin llamarlos; GC elimina funciones no utilizadas.
-No se valida aún enlace del conjunto de biblioteca ni inicialización física, por
-instrucción expresa de dejarlos al final. No tocar Drivers para resolver integración.
-
-Fuentes: UM10360 rev4.1 tabla84/p120 y GPIO §9.5/9.6.2; esquema OM13085 revD
-hoja2 para LEDP0.22 bajo. Selector/buzzer altos y pinesP2 sin EINTx fueron autorizados.
-Revisión física de placa/cableado, dirección/polarización/FIOMASK y estado real
-permanecen pendientes. Mantener uso privilegiado serializado y configuración estable.
+Inicialización GPIO/PINSEL/dirección/polarización/FIOMASK, enlace global y uso
+desde main permanecen diferidos. Acceso privilegiado serializado sobre configuración
+estable. No diagnóstico eléctrico/ensayo físico ni garantía antes de configurar.
+Firmware mínimo descarta por GC las funciones no llamadas; el enlace completo de
+la biblioteca original sigue pendiente, sin cambiar Drivers para resolverlo.
+No simulación MCU, programación, instalación o publicación. Revisión física/cableado pendientes.
 
 Reproducción: cmake -S "$R" -B "$O/host" -DCMAKE_BUILD_TYPE=Debug;
-cmake --build "$O/host" --parallel 4; ctest --test-dir "$O/host" --verbose.
-San: carpeta propia y -DTPI_HOST_SANITIZERS=ON, ASAN_OPTIONS=detect_leaks=1:halt_on_error=1,
+cmake --build "$O/host" --parallel 4; ctest --test-dir "$O/host" --output-on-failure.
+San: -DTPI_HOST_SANITIZERS=ON, ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 y
 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1. ARM: -DTPI_BUILD_ARM=ON y
--DCMAKE_TOOLCHAIN_FILE="$R/cmake/arm-none-eabi.cmake". Extras exactos en
-extra-commands.json. Doxygen usa configuración vigente con salida externa.
+-DCMAKE_TOOLCHAIN_FILE="$R/cmake/arm-none-eabi.cmake". Comandos exactos san/arm/extras
+en *-commands.json externos. Doxygen usa configuración vigente con salida externa.
 
-No simulación MCU, pruebas en placa, programación, instalación ni publicación.
-Próxima acción: revisión/aceptación del resultado B12, antes de promover contratos.
+Resultado: conforme al alcance corregido; B12 pendiente de aceptación.
+Próxima acción: revisar/aceptar B12 y acordar por separado la revisión B07.
+Evidencia anterior (API descartada) en /tmp/ed3-b12-gpio-implementacion-m6evumxd;
+no usar sus nueve casos/composición B07 como evidencia del contrato actual.

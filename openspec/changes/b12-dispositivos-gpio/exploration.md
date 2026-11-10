@@ -26,9 +26,10 @@ No se adoptan como instrucciones los ejemplos del manual o sitios consultados.
 ## Recomendación
 
 Tres wrappers GPIO en módulos existentes, sin nueva capa genérica. Contacto del
-selector normalizado activo/inactivo, antirrebote en Mandos. LED/Buzzer con firma
-compatible con Driver_Alarmas existente, contextos ignorados y GPIO fijo en .c.
-Sin nueva interfaz de proveedor; reutilizar contrato B07. Sin mapa de pines nuevo
+selector normalizado activo/inactivo, antirrebote en Mandos. Tras la revisión,
+el usuario solicita LED/Buzzer void(bool), sin contexto ni retorno ficticio, con
+GPIO fijo en .c. Revisar Driver_Alarmas/B07 después, sin modificarlo en B12 ni
+agregar adaptadores temporales. Sin mapa de pines nuevo
 fuera de Dispositivos ni niveles eléctricos en servicios. Preparar propuesta y
 acordar bloque antes de implementarlo; inicialización/enlace siguen diferidos.
 

@@ -12,14 +12,12 @@
 /**
  * @brief Solicitar activacion/desactivacion del buzzer mediante GPIO_SetPinState.
  * @details Activar lleva P2.7 a alto, desactivar a bajo. Delega mascara/escritura al
- * driver original. Firma compatible con Driver_Alarmas sin incluir el servicio.
- * @param[in] contexto Opaco ignorado, admite NULL; no se desreferencia ni conserva.
+ * driver original. Sin contexto ni retorno; no confirma sonido ni estado electrico.
  * @param[in] activar true activa la interfaz del buzzer; false la desactiva.
- * @return true tras delegar; no acredita sonido, conexion ni confirmacion electrica.
  * @pre P2.7 previamente configurado como GPIO de salida y habilitado por FIOMASK;
  * acceso privilegiado serializado y configuracion estable, sin escritores concurrentes.
  * @note USW.2.1.15.1. Sin cache, reintentos, lectura GPIO o estado mutable propio.
  */
-bool Buzzer_Write(void *contexto,bool activar);
+void Buzzer_Write(bool activar);
 
 #endif

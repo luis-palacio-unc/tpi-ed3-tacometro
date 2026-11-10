@@ -1,7 +1,6 @@
 #include "Selector.h"
 #include "LED.h"
 #include "Buzzer.h"
-#include "Driver_Alarmas.h"
 #include "lpc17xx_gpio.h"
 #include <stdio.h>
 #include <string.h>
@@ -75,7 +74,7 @@ static bool SelectorIgnoraOtrosPuertos(void)
     return true;
 }
 
-static bool SalidaAislada(Driver_Alarmas_EscribirSalida escribir,unsigned port,
+static bool SalidaAislada(void (*escribir)(bool),unsigned port,
                          uint32_t mascara,bool activo_alto)
 {
     const uint32_t patrones[]={0U,UINT32_MAX,UINT32_C(0xAAAAAAAA),UINT32_C(0x55555555)};
@@ -86,7 +85,7 @@ static bool SalidaAislada(Driver_Alarmas_EscribirSalida escribir,unsigned port,
             const bool activar=valor!=0U;
             if(activar==activo_alto) { esperado[port]|=mascara; }
             else { esperado[port]&=~mascara; }
-            CHECK(escribir(NULL,activar));
+            escribir(activar);
             CHECK(memcmp(esperado,puertos,sizeof(esperado))==0);
             CHECK(lecturas==0U && escrituras==1U && !error_modelo);
         }
@@ -97,45 +96,14 @@ static bool SalidaAislada(Driver_Alarmas_EscribirSalida escribir,unsigned port,
 static bool LedActivoBajo(void) { return SalidaAislada(LED_Write,0U,LED_MASK,false); }
 static bool BuzzerActivoAlto(void) { return SalidaAislada(Buzzer_Write,2U,BUZZER_MASK,true); }
 
-static bool ContextosIgnorados(void)
-{
-    Preparar(); int contexto_led=123,contexto_buzzer=456;
-    CHECK(LED_Write(&contexto_led,true) && Buzzer_Write(&contexto_buzzer,true));
-    CHECK(LED_Write(&contexto_led,false) && Buzzer_Write(&contexto_buzzer,false));
-    CHECK(contexto_led==123 && contexto_buzzer==456);
-    CHECK((puertos[0]&LED_MASK)!=0U && (puertos[2]&BUZZER_MASK)==0U);
-    CHECK(escrituras==4U && !error_modelo);
-    return true;
-}
-
 static bool RepeticionRestauraSalida(void)
 {
     Preparar();
-    CHECK(LED_Write(NULL,true) && Buzzer_Write(NULL,true));
+    LED_Write(true); Buzzer_Write(true);
     puertos[0]|=LED_MASK; puertos[2]&=~BUZZER_MASK;
-    CHECK(LED_Write(NULL,true) && Buzzer_Write(NULL,true));
+    LED_Write(true); Buzzer_Write(true);
     CHECK((puertos[0]&LED_MASK)==0U && (puertos[2]&BUZZER_MASK)!=0U);
     CHECK(escrituras==4U && !error_modelo);
-    return true;
-}
-
-static bool ComposicionAlarmas(void)
-{
-    Preparar();
-    int contexto_led=11,contexto_buzzer=22;
-    const Driver_Alarmas_Salidas salidas={LED_Write,&contexto_led,Buzzer_Write,&contexto_buzzer};
-    const bool pedidos[]={true,false,false,true};
-    puertos[2]|=SELECTOR_MASK;
-    uint32_t esperado[5]; memcpy(esperado,puertos,sizeof(esperado));
-    for(unsigned i=0U;i<4U;++i) {
-        const bool activar=pedidos[i];
-        if(activar) { esperado[0]&=~LED_MASK; esperado[2]|=BUZZER_MASK; }
-        else { esperado[0]|=LED_MASK; esperado[2]&=~BUZZER_MASK; }
-        CHECK(Driver_Alarmas_Aplicar(&salidas,activar)==DRIVER_ALARMAS_ACEPTADA);
-        CHECK(memcmp(esperado,puertos,sizeof(esperado))==0);
-        CHECK(Selector_Read());
-    }
-    CHECK(contexto_led==11 && contexto_buzzer==22 && escrituras==8U && !error_modelo);
     return true;
 }
 
@@ -145,9 +113,9 @@ static bool SalidasIntercaladas(void)
     for(unsigned valor=0U;valor<2U;++valor) {
         if(valor==0U) { puertos[2]&=~SELECTOR_MASK; } else { puertos[2]|=SELECTOR_MASK; }
         const bool selector=Selector_Read();
-        CHECK(LED_Write(NULL,true) && Buzzer_Write(NULL,false));
+        LED_Write(true); Buzzer_Write(false);
         CHECK((puertos[0]&LED_MASK)==0U && (puertos[2]&BUZZER_MASK)==0U);
-        CHECK(LED_Write(NULL,false) && Buzzer_Write(NULL,true));
+        LED_Write(false); Buzzer_Write(true);
         CHECK((puertos[0]&LED_MASK)!=0U && (puertos[2]&BUZZER_MASK)!=0U);
         CHECK(Selector_Read()==selector);
     }
@@ -160,12 +128,12 @@ int main(void)
     const struct { const char *nombre; bool (*ejecutar)(void); } casos[]={
         {"SelectorNiveles",SelectorNiveles},{"SelectorIgnoraOtrosBits",SelectorIgnoraOtrosBits},
         {"SelectorIgnoraOtrosPuertos",SelectorIgnoraOtrosPuertos},{"LedActivoBajo",LedActivoBajo},
-        {"BuzzerActivoAlto",BuzzerActivoAlto},{"ContextosIgnorados",ContextosIgnorados},
-        {"RepeticionRestauraSalida",RepeticionRestauraSalida},{"ComposicionAlarmas",ComposicionAlarmas},
+        {"BuzzerActivoAlto",BuzzerActivoAlto},
+        {"RepeticionRestauraSalida",RepeticionRestauraSalida},
         {"SalidasIntercaladas",SalidasIntercaladas}};
     for(unsigned i=0U;i<sizeof(casos)/sizeof(casos[0]);++i) {
         if(!casos[i].ejecutar()) { fprintf(stderr,"FAIL %s\n",casos[i].nombre); return 1; }
     }
-    puts("PASS B12: 9 casos; GPIO modelado por API, sin ejecutar perifericos.");
+    puts("PASS B12: 7 casos; GPIO modelado por API, sin ejecutar perifericos.");
     return 0;
 }

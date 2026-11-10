@@ -3,43 +3,42 @@
 ## Punto actual
 
 - Repositorio `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`;
-  main, consultar HEAD. Base publicada cb380bc; planificación local previa preservada.
-- B00–B11/B03-R1 aceptados/archivados. Activo b12-dispositivos-gpio: alcance autorizado
-  el2026-11-10, implementado/verificado, resultado pendiente de aceptación.
-- Selector_Read/P2.6 y Buzzer_Write/P2.7 activos por alto, LED_Write/P0.22 por bajo.
-  Sólo GPIO_ReadValue/SetPinState originales; tres USW documentadas con Doxygen.
-  Salidas compatibles con B07; contextos ignorados/NULL, true sólo acredita delegación.
-- Prohibido modificar Drivers:90 archivos originales a21cc1e intactos. Dispositivos
-  accede al hardware directamente; servicios y aplicación aceptados sin cambios.
-- Inicialización de periféricos, enlace global y main diferidos al final por usuario;
-  b12-integracion-arranque-timer sigue deferred. No avanzar al siguiente bloque.
-- Commit local autorizado al cierre: `feat: implementar Selector LED y Buzzer con GPIO original`.
-  Sin push/sincronización/archivo hasta orden y aceptación correspondientes.
+  main, consultar HEAD. Publicado cb380bc; B12 original4260249 y corrección locales.
+- B00–B11/B03-R1 aceptados/archivados. Activo b12-dispositivos-gpio: alcance y
+  corrección autorizados, implementado/verificado; resultado pendiente de aceptación.
+- Selector_Read/P2.6 y Buzzer_Write/P2.7 activos altos; LED_Write/P0.22 bajo.
+  Salidas corregidas: void(bool activar), sin contexto ni retorno. Doxygen actualizado.
+- Driver_Alarmas/B07 permanece intacto; su bool(void*,bool) no admite estas salidas.
+  Revisión separada pendiente por pedido del usuario; sin adaptadores/casts temporales.
+- Drivers:90 originales a21cc1e intactos. Dispositivos usa biblioteca directamente;
+  servicios/aplicación aceptados conservados. Inicialización/enlace/main para el final.
+- Commit normal local autorizado al cierre de corrección; sin push/sincronizar/archivar
+  hasta orden y aceptación correspondientes. No avanzar otro bloque.
 
-## Verificación ejecutada
+## Verificación de la corrección ejecutada
 
 | Modalidad | Resultado |
 |---|---|
-| RED→GREEN | Interfaces ausentes detectadas;9 casos nuevos pasan |
-| Host/sanitizadores |18/18 cada uno,188 casos C + oráculo Python, sin hallazgos |
-| Regresiones |Velocidad11199 ternas, codec5096 pares, selector4096 muestras/400 vueltas |
-| ARM |Debug13/13; módulosO0/O2 compilados con headers originales, sin ejecución |
-| Doxygen |38 funciones propias únicas,3 nuevas, HTML/XML sin avisos |
-| Negativos |Detecta selector usando bit7 y buzzer con polaridad invertida en copias externas |
-| Recursos propios |.text104-O0/52-O2, .data/.bss0; marcos8/16/16-O0,8/8/8-O2 sin driver/IRQ |
-| Preservación |220 archivos protegidos intactos,90 Drivers originales; main/servicios/Timer/LM35/archivo aceptado conservados |
+| Host/sanitizadores |18/18 cada uno;186 casos C y oráculo Python, sin hallazgos |
+| B12 directo |7 casos: bits/polaridad/aislamiento/repetición; composición B07 pendiente |
+| ARM |Debug13/13; dos salidasO0/O2 compiladas con headers originales, sin ejecución |
+| Doxygen |38 funciones únicas HTML/XML sin avisos; salidas void(bool), sin @return |
+| Negativos externos |Inversión de polaridad LED/buzzer detectada |
+| Recursos de salidas |.text36/30-O0 y16/12-O2; .data/.bss0; pila propia16/16 y0/0, excluye driver/IRQ |
+| Preservación |224 archivos protegidos intactos,90 Drivers originales; B07/archivo aceptado sin cambios |
 
 Informe: openspec/changes/b12-dispositivos-gpio/verify-report.md.
-Logs/snapshot externos: /tmp/ed3-b12-gpio-implementacion-m6evumxd.
-No simulación MCU, ejecución ARM/placa, programación o instalación. El GPIO host
-es doble de API, no driver físico ni simulación de CPU. No declarar tiempos/estado
-eléctrico por compilación; firmware mínimo descarta por GC módulos no llamados.
+Logs externos: /tmp/ed3-b12-salidas-simples-ns5j3oo1.
+El doble GPIO no ejecuta biblioteca/CPU ni acredita estado eléctrico. Sin ensayo en
+placa, simulación MCU, flasheo, instalación o publicación. Firmware mínimo sin uso
+de módulos GPIO; no validar enlace global por compilación de objetos.
 
 ## Próxima acción y límites
 
-Revisar/aceptar B12 antes de sincronizar/archivar/publicar. GPIO requiere configuración
-previa: dirección, multiplexado, polarización y FIOMASK; acceso serializado privilegiado.
-LED según esquema OM13085 revD, revisión física/cableado pendientes. Antirrebote y
-modo se conservan en Mandos; condición térmica en aplicación/servicios existentes.
-Quedan Motor, Sensor_Optico, Potenciometro, UART y soporte ADC-DMA; LM35 tiene
-conversión numérica, adquisición pendiente. Integración/inicialización/enlace finales.
+Revisar/aceptar B12 corregido y acordar revisión separada de Driver_Alarmas/B07 para
+quitar contexto y retorno de proveedores; conexión real pendiente hasta entonces.
+GPIO exige configuración previa de dirección, mux, polarización y FIOMASK, acceso
+privilegiado serializado y configuración estable; revisión física/cableado pendientes.
+Antirrebote/modo siguen en Mandos; decisión térmica en aplicación/servicios.
+Quedan Motor, Sensor_Optico, Potenciometro, UART y soporte ADC-DMA; adquisición LM35
+pendiente. b12-integracion-arranque-timer sigue deferred por decisión del usuario.

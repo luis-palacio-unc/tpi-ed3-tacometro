@@ -103,7 +103,8 @@ host17/17, ARM13/13. Operación temporal/enlace de biblioteca/placa no ejecutado
 B12 de enlace/arranque pospuesto por usuario2026-11-10; no implementado.
 Nuevo B12 GPIO implementado/verificado, resultado pendiente de aceptación (R05/R07/R10/R11/R15): Selector/P2.6 y Buzzer/P2.7
 activos altos por corrección del usuario; LED rojo/P0.22 bajo según esquema NXP.
-DG1–DG3/S1–S4 candidatos verificados: nueve casos de polaridad/aislamiento/composición
-B07, host/san18/18 y188 C; ARM13/13, módulosO0/O2 y Doxygen38. Drivers intactos.
+DG1–DG3/S1–S4 corregidos por usuario: salidas void(bool), sin contexto/retorno.
+Siete casos de polaridad/aislamiento/repetición; host/san18/18 y186 C; ARM13/13,
+salidasO0/O2 y Doxygen38. Drivers/B07 intactos; composición pendiente de revisión B07.
 [Evidencia](../../openspec/changes/b12-dispositivos-gpio/verify-report.md).
 Manual UM10360 rev4.1 tabla84/p120 y cap9 revisados. Inicialización/enlace finales.

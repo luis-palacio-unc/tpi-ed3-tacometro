@@ -7,9 +7,7 @@
 #include "LED.h"
 #include "lpc17xx_gpio.h"
 
-bool LED_Write(void *contexto,bool activar)
+void LED_Write(bool activar)
 {
-    (void)contexto;
     GPIO_SetPinState(PORT_0,PIN_22,activar?RESET:SET);
-    return true;
 }

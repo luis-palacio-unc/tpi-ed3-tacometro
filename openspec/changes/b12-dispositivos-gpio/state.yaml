@@ -15,7 +15,7 @@ buzzer_pin: P2.7
 selector_buzzer_active_level: 1
 pin_choice_authorized: true
 led_reference: P0.22 activo bajo, esquema OM13085 revD
-next_action: Revisar/aceptar B12 GPIO antes de sincronizar/archivar; sin push.
+next_action: Revisar/aceptar B12 corregido; revisar B07 por separado, sin push.
 polarity_corrected_by_user_on: '2026-11-10'
 device_layer: Acceso directo a hardware mediante biblioteca original; sin duplicar logica.
 scope_approved_on: '2026-11-10'
@@ -24,4 +24,7 @@ commit_authorized: true
 verified_on: '2026-11-10'
 hardware_verified: false
 driver_library_link_verified: false
-commit_subject: 'feat: implementar Selector LED y Buzzer con GPIO original'
+commit_subject: 'refactor: simplificar salidas GPIO de B12'
+output_api: void(bool), sin contexto ni retorno
+output_api_correction_authorized_on: '2026-11-10'
+b07_revision_pending: true

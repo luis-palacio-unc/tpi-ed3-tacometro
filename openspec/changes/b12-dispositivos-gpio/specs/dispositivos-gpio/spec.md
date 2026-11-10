@@ -15,23 +15,27 @@ MUST NOT escribir GPIO, resolver modo de aplicación, antirrebote ni estados tem
 - Then MUST devolver false/true respectivamente, independiente de otros bits y sin escrituras.
 
 ### Requirement: DG2 — Polaridad propia de cada salida
-LED/Buzzer MUST exponer bool LED_Write(void *contexto,bool activar) y
-bool Buzzer_Write(void *contexto,bool activar), compatibles con B07. Contexto
-MUST ignorarse y MAY ser NULL. Pines fijos privados: LED rojoP0.22, buzzerP2.7.
-Buzzer activo por alto: true MUST solicitar1 y false0. LED rojo activo por bajo:
-true MUST solicitar0 y false1. MUST usar GPIO_SetPinState y retornar
-true tras delegar; driver void no declara fallos y esto MUST NOT presentarse como
-confirmación física. No agregar errores ficticios/caché/reintentos/estado propio.
+LED/Buzzer MUST exponer void LED_Write(bool activar) y
+void Buzzer_Write(bool activar), sin contexto ni valor de retorno. Pines fijos
+privados: LED rojoP0.22, buzzerP2.7. Buzzer activo por alto: true MUST solicitar1
+y false0. LED rojo activo por bajo: true MUST solicitar0 y false1. MUST usar
+GPIO_SetPinState. Estas operaciones MUST NOT declarar diagnóstico eléctrico.
+No agregar errores ficticios/caché/reintentos/estado propio ni lectura de confirmación.
 
 #### Scenario: S2 — Polaridad y aislamiento
 - Given salidas con estados de pines vecinos distintos.
 - When se solicita activar y desactivar cada dispositivo.
 - Then MUST solicitar buzzer1/0 y LED0/1 sólo en su pin, preservando vecinos y la otra salida.
 
-#### Scenario: S3 — Composición con alarma existente
-- Given interfaces B07 con LED_Write/Buzzer_Write y contextos NULL u opacos.
-- When Driver_Alarmas aplica activar/desactivar.
-- Then MUST solicitar ambas salidas, conservar B07 y no evaluar temperatura aquí.
+#### Scenario: S3 — Repetición e independencia
+- Given salidas accionadas y luego alteradas externamente o peticiones intercaladas.
+- When se repiten o alternan órdenes directas a cada dispositivo.
+- Then MUST aplicar cada orden sin caché y preservar la otra salida y el selector.
+
+Driver_Alarmas/B07 MUST permanecer intacto en este bloque. Su interfaz actual
+bool(void*,bool) es incompatible con las salidas void(bool); la composición con
+los dispositivos MUST quedar pendiente de revisión separada solicitada por el usuario.
+MUST NOT introducir adaptadores ni casts de funciones para conservar esa interfaz.
 
 ### Requirement: DG3 — Capas y alcance
 Dispositivos MUST interactuar con hardware mediante los drivers originales,

@@ -178,7 +178,7 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_executable(pruebas_integracion_selector tests/host/test_integracion_selector.c
         Servicios/Mandos.c Aplicacion/Procesamiento.c Servicios/Driver_Motor.c)
     add_executable(pruebas_dispositivos_gpio tests/host/test_dispositivos_gpio.c
-        Dispositivos/Selector.c Dispositivos/LED.c Dispositivos/Buzzer.c Servicios/Driver_Alarmas.c)
+        Dispositivos/Selector.c Dispositivos/LED.c Dispositivos/Buzzer.c)
     target_include_directories(pruebas_dispositivos_gpio PRIVATE Dispositivos)
     target_include_directories(pruebas_dispositivos_gpio SYSTEM PRIVATE
         Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)

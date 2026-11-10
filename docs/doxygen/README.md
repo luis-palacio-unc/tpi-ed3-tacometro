@@ -69,6 +69,7 @@ Header documenta base/unidades, precondiciones, épocas y modularidad. Doxygen35
 funciones propias únicas, HTML/XML sin avisos. Temporizacion.h y Tiempo no existen.
 
 B12 incluye Selector/LED/Buzzer.h/.c con USW.2.1.13.1/.14.1/.15.1. Documenta
-pines/niveles, delegación a biblioteca, configuración previa, contexto ignorado,
-aceptación de llamada sin confirmación física y serialización. HTML/XML estricto
-38 funciones propias únicas, sin avisos ni controles relajados.
+pines/niveles, delegación a biblioteca, configuración previa y serialización.
+Corrección: LED_Write/Buzzer_Write void(bool activar), sin contexto ni @return.
+Driver_Alarmas/B07 conserva contrato hasta revisión separada; composición pendiente.
+HTML/XML estricto38 funciones propias únicas, sin avisos ni controles relajados.
