@@ -1,0 +1,19 @@
+block: B13
+change: b13-dispositivo-uart
+status: proposed
+phase: tasks
+scope_approved: false
+result_accepted: false
+implementation_started: false
+verification_passed: false
+main_specs_synced: false
+proposed_on: '2026-11-10'
+base_commit: fe55aa9
+proposed_peripheral: UART0
+device_esw: ESW.2.1.16
+drivers_modification_prohibited: true
+push_authorized: false
+commit_authorized_on_agreed_block_completion: true
+hardware_verified: false
+initialization_deferred: true
+next_action: Acordar alcance/recurso y criterio B13 antes de implementar.

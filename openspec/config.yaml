@@ -7,7 +7,7 @@ context: |
   Consigna: 0..185 RPM inclusive; maximo aclarado por el usuario.
   R15: dispositivos acceden directamente al hardware usando drivers originales; aplicación/servicios independientes de hardware; curva LM35 en dispositivo, servicio en Celsius/estado.
   Sonda: CMSIS-DAP integrado confirmado; revision fisica pendiente.
-  Persistencia: archivos; B00-B12/B03-R1 aceptados/archivados; antecedentes B11-SysTick/TC-Tiempo descartados. B12 GPIO aceptado (selector P2.6, buzzer P2.7 altos; LED P0.22 bajo); salidas void(bool), host/san18/18, ARM13/13, Doxygen38. Activo B07-R1 con alcance acordado, implementado/verificado pendiente de aceptacion: callbacks void(bool) sin contextos, dos estados de despacho/argumento; composicion B12 directa probada; host/san18/18,183 C, ARM13/13/fixture Release, Doxygen38. Contratos aceptados aun sin sincronizar. Inicializacion/enlace para el final; leer ESTADO al reanudar.
+  Persistencia: archivos; B00-B12/B03-R1 aceptados/archivados; antecedentes B11-SysTick/TC-Tiempo descartados. B12 GPIO aceptado (selector P2.6, buzzer P2.7 altos; LED P0.22 bajo); salidas void(bool), host/san18/18, ARM13/13, Doxygen38. B07-R1 aceptado/archivado, salidas-alarma sincronizado: callbacks void(bool) sin contextos, ACEPTADA/ERROR_ARGUMENTO; host/san18/18,183 C, ARM13/13/fixture Release,Doxygen38. Activo B13 propuesto sin acuerdo ni implementacion: UART_Read/UART_Write por driver original NONE_BLOCKING, UART0 propuesto. Llamada desde aplicacion/main pendiente para el final. Inicializacion/enlace para el final; leer ESTADO al reanudar.
 rules:
   proposal:
     - Vincular origen, alcance, exclusiones, dependencias y aceptacion verificable.

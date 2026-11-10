@@ -213,8 +213,9 @@ No se ha acordado parar el motor por temperatura. Evidencia y cierre B06 en arch
 
 ## Coordinación lógica de salidas B07 y revisión R1
 
-B07 original aceptado/archivado2026-11-09, historial intacto. B07-R1 con alcance
-acordado2026-11-10 implementado/verificado; resultado pendiente de aceptación.
+B07 original aceptado/archivado2026-11-09; B07-R1 aceptado/archivado2026-11-10.
+Contrato salidas-alarma sincronizado, historial conservado. Llamada desde aplicación/
+main explícitamente pendiente para integración final, según usuario.
 Código actual: Driver_Alarmas_Aplicar (USW.2.1.6.1) recibe interfaz const de dos
 funciones void(bool), sin contextos. Valida ambas antes de llamar LED→buzzer una
 vez cada uno con el mismo activar; repeticiones también se despachan.
@@ -226,8 +227,8 @@ init/heap/estado global/esperas/reintentos. Interfaz/funciones estables y serial
 externas. La duración/pila total dependen de salidas; ACEPTADA no confirma electricidad.
 Composición B12 probada en host con funciones reales y doble GPIO, sin adaptadores/
 casts; no integra main. Adaptación B06 externa preserva diagnóstico ante ausencia/
-error sin emitir orden, ni define respuesta física. Contrato salidas-alarma anterior
-sigue vigente hasta aceptación/sincronización de R1; no usar archivo viejo como código actual.
+error sin emitir orden, ni define respuesta física. Contrato vigente salidas-alarma
+refleja R1; no usar archivo B07 original como código actual.
 
 ## Documentación final y B08
 
@@ -325,6 +326,12 @@ B12 implementa sólo Selector_Read (GPIO_ReadValue/P2.6 alto), LED_Write
 Corrección autorizada2026-11-10: ambas salidas void(bool activar), sin contexto
 ni retorno ficticio. B07-R1 ya implementa dos funciones void(bool), sin contextos,
 y ACEPTADA/ERROR_ARGUMENTO para despacho/validación. Composición directa B12
-verificada en host, resultado R1 pendiente de aceptación. Sin adaptadores/casts.
+verificada en host, R1 aceptado. Sin adaptadores/casts; no hay conexión desde main.
 Tres USW.13.1/.14.1/.15.1 documentadas. Sin estado mutable ni nuevos servicios.
 Inicialización/enlace y uso desde main se mantienen para integración final.
+
+B13 propuesto, sin acuerdo/implementación: dispositivo UART con dos transferencias
+no bloqueantes, buffers externos y conteo real de bytes; UART0 propuesto, no asignado
+por acuerdo todavía. Reutilizar driver original. Configuración/FIFO/DLAB/pines y
+exclusividad previas al uso físico; baudios/cableado, integración y diagnóstico de
+línea pendientes. No añadir init/colas/ISR ni modificar servicios en ese bloque.

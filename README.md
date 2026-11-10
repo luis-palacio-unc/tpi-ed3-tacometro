@@ -179,8 +179,8 @@ y [evidencia B06](openspec/changes/archive/2026-11-09-b06-logica-alarma-temperat
 
 ## B07: coordinación portable de salidas de alarma
 
-B07 original aceptado/archivado; revisión B07-R1 implementada/verificada con alcance
-acordado2026-11-10, resultado pendiente de aceptación. Driver_Alarmas_Aplicar recibe
+B07 original y B07-R1 aceptados/archivados; contrato vigente sincronizado
+el2026-11-10, incluida la simplificación de las salidas. Driver_Alarmas_Aplicar recibe
 activar/desactivar y una interfaz const con sólo dos funciones void(bool), sin contextos.
 Valida toda la interfaz antes de actuar y llama LED→buzzer una vez cada uno.
 Retorna sólo ACEPTADA (solicitud despachada) o ERROR_ARGUMENTO (interfaz NULL/
@@ -195,9 +195,9 @@ Interfaz/funciones estables y acceso serializado externos; sin init/heap/esperas
 Ocho casos de servicio, cuatro térmicos y ocho GPIO; host/sanitizadores18/18,
 183 casos C y oráculo Python. ARM Debug13/13 y fixture B07 Release válido, sin
 ejecución en MCU. Doxygen38 funciones, USW.2.1.6.1 revisada, sin avisos.
-Ver [evidencia B07-R1](openspec/changes/b07-r1-salidas-sin-contexto/verify-report.md).
-El [contrato aceptado anterior](openspec/specs/salidas-alarma/spec.md) se sincronizará
-al aceptar esta revisión; archivo B07 original conservado.
+Ver [evidencia B07-R1](openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/verify-report.md).
+Ver [contrato vigente](openspec/specs/salidas-alarma/spec.md); archivo B07 original
+conservado. Uso desde aplicación/main queda para la integración final.
 
 ## B08: mando de motor portable
 
@@ -305,7 +305,7 @@ existentes con llamadas directas a la biblioteca original:
 - `Buzzer_Write(activar)`: P2.7, activo por alto, mediante GPIO_SetPinState.
 
 Las salidas son void(bool), sin contexto ni retorno. La revisión B07-R1 ya
-comprueba conexión directa con Driver_Alarmas en host; resultado pendiente de aceptación.
+aceptada comprueba conexión directa con Driver_Alarmas en host; integración física pendiente.
 Lectura del selector sin antirrebote/mapeo de modo. Dispositivos usa los drivers
 originales directamente; el servicio se revisa por separado en B07-R1.
 
@@ -318,9 +318,17 @@ Ver [contrato vigente](openspec/specs/dispositivos-gpio/spec.md) y
 
 ## B07-R1: interfaz de alarmas simplificada
 
-Alcance acordado, implementado/verificado, pendiente de aceptación. Dos funciones
+Aceptado/archivado2026-11-10. Dos funciones
 void(bool), sin contextos ni errores de proveedor; validación previa conserva
 ACEPTADA/ERROR_ARGUMENTO y orden LED→buzzer. Biblioteca y código B06/B12 intactos.
 Se probaron composición directa y regresiones, sin inicialización/main/ensayo físico.
-Ver [cambio](openspec/changes/b07-r1-salidas-sin-contexto/proposal.md) e
-[informe](openspec/changes/b07-r1-salidas-sin-contexto/verify-report.md).
+Ver [cambio](openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/proposal.md) e
+[informe](openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/verify-report.md).
+
+## Propuesta B13: UART de dispositivos
+
+UART_Read/UART_Write con buffers externos, retorno de cantidad de bytes y driver
+original NONE_BLOCKING; UART0 propuesto. Sin init/colas propias/ISR/protocolo ni
+conexión a Comunicacion/main. Pruebas y Doxygen previstos, todavía no ejecutados.
+Baudios/formato/pines/cableado y uso por aplicación para integración final.
+Ver [propuesta](openspec/changes/b13-dispositivo-uart/proposal.md).

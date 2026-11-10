@@ -3,44 +3,36 @@
 ## Punto actual
 
 - Repo `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`,
-  main, consultar HEAD. Base local bae59e1; publicado cb380bc; commits locales sin push.
-- B00–B12/B03-R1 aceptados/archivados. Activo B07-R1 b07-r1-salidas-sin-contexto:
-  alcance autorizado2026-11-10, implementado/verificado; resultado sin aceptar.
-- Driver_Alarmas actual: dos funciones void(bool), sin contextos ni errores de
-  proveedor; ACEPTADA=despacho, ERROR_ARGUMENTO=interfaz incompleta sin efectos.
-  Validación previa completa y orden LED→buzzer, sin estado/cache/init/esperas.
-- Composición con LED_Write/Buzzer_Write real probada en host; sin adaptadores/casts.
-  Decisión B06 preservada, ausencia/error no emite orden desde adaptador de prueba.
-- Drivers90 originales a21cc1e intactos; código B06/B12, otros servicios/main y
-  archivos/contratos aceptados conservados. Servicio sin dependencia del MCU.
-- Commit local autorizado al terminar; sin push, sincronización o archivo del cambio
-  hasta aceptación/orden correspondientes. No iniciar bloque posterior.
+  main, consultar HEAD. Publicado cb380bc; fe55aa9 y cierres locales, sin push.
+- B00–B12/B03-R1/B07-R1 aceptados/archivados. B07-R1 cerrado2026-11-10:
+  contrato salidas-alarma sincronizado; nota de composición dispositivos-gpio actualizada.
+- Driver_Alarmas: dos funciones void(bool), sin contextos, ACEPTADA/ERROR_ARGUMENTO,
+  validación previa y LED→buzzer. Composición B12 probada en host; aplicación/main
+  explícitamente pendientes para el final por instrucción del usuario.
+- Activo propuesto b13-dispositivo-uart (B13), sin acuerdo/implementación/pruebas:
+  UART_Read/UART_Write, buffers externos y progreso uint32_t, driver NONE_BLOCKING.
+  UART0 propuesto. Propuesta/spec/diseño/tareas preparados; no implementar aún.
+- Biblioteca90 originales intactos, no modificar Drivers. Inicialización/enlace global/
+  configuración de periféricos/uso desde main y pruebas físicas se dejan para el final.
+  Sin push autorizado; no retomar b12-integracion-arranque-timer, deferred.
 
-## Verificación ejecutada B07-R1
+## Evidencia aceptada y cierre actual
 
-| Modalidad | Resultado |
-|---|---|
-| RED→GREEN |Incompatibilidad previa detectada;3 suites afectadas pasan |
-| Host/san |18/18 cada uno,183 casos C+oráculo Python; sin hallazgos |
-| Casos afectados |8 servicio,4 térmicos,8 GPIO (incluye composición nueva) |
-| Regresiones |11199 ternas velocidad,5096 pares codec,4096 muestras/400 vueltas selector |
-| ARM |Debug13/13 y fixture B07 Release; compilación/enlace, no ejecución |
-| Aislamiento |ServicioO0/O2 sólo headers Servicios, sin símbolos externos directos; header C11/C++17 |
-| Doxygen |38 funciones únicas HTML/XML sin avisos; USW6.1 revisada |
-| Negativos |Detectan orden invertido, omisión buzzer y actuación antes de validar |
-| Recursos propios |.text68/40 bytes-O0/O2,.data/.bss0,marco16 bytes sin salidas/caller/IRQ |
-| Preservación |245 archivos protegidos intactos,90 Drivers originales; B06/B12/historial conservados |
+B07-R1 fe55aa9: host/san18/18,183 casos C y oráculo Python;8 servicio,4 térmicos,
+8 GPIO. ARM13/13 y fixture Release; objetos/headers aislados, Doxygen38 sin avisos.
+Negativos detectan orden/omisión de buzzer/acción antes de validar; Drivers/B06/B12 intactos.
+[Informe](../../openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/verify-report.md).
 
-[Informe](../../openspec/changes/b07-r1-salidas-sin-contexto/verify-report.md).
-Logs externos: /tmp/ed3-b07r1-salidas-4pkq_eul.
-Host GPIO es doble API; sin biblioteca/CPU/electricidad simuladas. No pruebas
-físicas/ejecución ARM/flasheo/instalación/publicación. Sin modificar controles.
+Cierre sólo documental: correspondencia de requisitos, estructura/enlaces/hashes/diff;
+no se repiten pruebas de firmware ni se acredita B13. Fuentes/periféricos intactos.
+Logs externos: /tmp/ed3-cierre-b07r1-propuesta-b13-upsumg8j.
 
-## Próxima acción
+## Próxima acción y pendientes
 
-Revisar/aceptar resultado B07-R1 antes de sincronizar salidas-alarma y archivar;
-su contrato vigente todavía describe B07 anterior. Evidencia nueva en cambio activo.
-Inicialización GPIO/mux/dirección/polarización/FIOMASK, reloj/enlace global/main y
-pruebas físicas siguen diferidos al final. Acceso/funciones deben estar serializados
-y estables. Quedan Motor, Sensor_Optico, Potenciometro, UART, ADC-DMA/LM35 y
-regulación/integración. b12-integracion-arranque-timer deferred; no retomarlo ahora.
+Acordar [B13 UART](../../openspec/changes/b13-dispositivo-uart/proposal.md), incluido
+recurso UART0, antes de implementar. USW previstas .2.1.16.1/.2. Uso físico exige
+UART/FIFO/pines/reloj configurados, DLAB0 y acceso exclusivo/serializado con ISR/DMA.
+Baudios/formato, cableado/conversor, diagnóstico de línea, cola/cadencia e integración
+con Comunicacion/main quedan pendientes; no suponer USB serie por CMSIS-DAP.
+Quedan además Motor, Sensor_Optico, Potenciometro, ADC-DMA/LM35 y regulación.
+Diagramas completos del informe al terminar todos los ESW.

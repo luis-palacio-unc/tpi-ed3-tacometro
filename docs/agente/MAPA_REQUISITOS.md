@@ -105,12 +105,17 @@ B12 GPIO corregido aceptado/archivado2026-11-10 (R05/R07/R10/R11/R15): Selector/
 activos altos por corrección del usuario; LED rojo/P0.22 bajo según esquema NXP.
 DG1–DG3/S1–S4 corregidos por usuario: salidas void(bool), sin contexto/retorno.
 Siete casos de polaridad/aislamiento/repetición; host/san18/18 y186 C; ARM13/13,
-salidasO0/O2 y Doxygen38. Drivers/B07 originales intactos durante B12; composición resuelta en revisión R1 pendiente de aceptación.
+salidasO0/O2 y Doxygen38. Drivers/B07 originales intactos durante B12; composición resuelta en revisión R1 aceptada; aplicación/main pendientes.
 [Evidencia](../../openspec/changes/archive/2026-11-10-b12-dispositivos-gpio/verify-report.md).
 Manual UM10360 rev4.1 tabla84/p120 y cap9 revisados. Inicialización/enlace finales.
 
-B07-R1 alcance acordado, implementado/verificado, resultado pendiente de aceptación
+B07-R1 aceptado/archivado2026-11-10, contrato salidas-alarma sincronizado
 (R07/R10/R11/R15): void(bool), dos funciones sin contextos; sólo despacho/argumento.
 SA1–SA4/S1–S9 conformes:8 casos servicio+4 térmicos+8 GPIO; host/san18/18,183 C
 y oráculo Python; ARM13/13/fixture Release; Doxygen38. B06/B12/Drivers intactos.
-[Evidencia](../../openspec/changes/b07-r1-salidas-sin-contexto/verify-report.md).
+[Evidencia](../../openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/verify-report.md).
+
+B13 propuesto (R09/R10/R11/R15): Dispositivos/UART.h/.c, dos operaciones de bytes
+no bloqueantes con driver original; UART0 y UD1–UD4/S1–S6 candidatos, sin pruebas
+ejecutadas. Recepción/transmisión física y uso por Comunicacion/main pendientes.
+[Propuesta](../../openspec/changes/b13-dispositivo-uart/proposal.md).

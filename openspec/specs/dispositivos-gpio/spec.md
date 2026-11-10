@@ -33,10 +33,10 @@ No agregar errores ficticios/caché/reintentos/estado propio ni lectura de confi
 - When se repiten o alternan órdenes directas a cada dispositivo.
 - Then MUST aplicar cada orden sin caché y preservar la otra salida y el selector.
 
-Driver_Alarmas/B07 MUST permanecer intacto en este bloque. Su interfaz actual
-bool(void*,bool) es incompatible con las salidas void(bool); la composición con
-los dispositivos MUST quedar pendiente de revisión separada solicitada por el usuario.
-MUST NOT introducir adaptadores ni casts de funciones para conservar esa interfaz.
+Durante B12 se conservó Driver_Alarmas/B07 para revisarlo por separado.
+B07-R1 aceptado2026-11-10 ya permite composición directa void(bool), ver SA3/S9
+de salidas-alarma; se verificó en host. La llamada desde aplicación/main queda
+para integración final. MUST NOT introducir adaptadores ni casts de funciones.
 
 ### Requirement: DG3 — Capas y alcance
 Dispositivos MUST interactuar con hardware mediante los drivers originales,
