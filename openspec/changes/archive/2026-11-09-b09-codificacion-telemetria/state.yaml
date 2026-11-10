@@ -1,15 +1,17 @@
 block: B09
 change: b09-codificacion-telemetria
-status: verified_pending_acceptance
-phase: verify
+status: archived
+phase: archive
 scope_approved: true
-result_accepted: false
+result_accepted: true
 implementation_started: true
 verification_passed: true
-main_specs_synced: false
+main_specs_synced: true
 commit_authorized: true
-push_authorized: false
-next_action: Revisar resultado B09; no sincronizar/archivar ni publicar sin orden.
+push_authorized: true
+next_action: Publicar cierre/propuesta solicitados y acordar B10 antes de implementar.
 scope_approved_on: '2026-11-09'
 base_commit: 98635281ac6f79204a01dcf2946c92479e4824bf
 commit_subject: 'feat: codificar telemetria ASCII portable'
+accepted_on: '2026-11-09'
+implementation_commit: 84c51e296396f7c730ce4b18c2efc4c2cc1e57c4

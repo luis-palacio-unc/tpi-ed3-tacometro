@@ -57,9 +57,9 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 ## SDD y Git
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
-contratos aceptados: build (B00), modos (B01), comunicación (B02), medición
+contratos aceptados: build (B00), modos (B01), comunicación (B02/B09), medición
 (B03/B03-R1), mandos (B04), temperatura (B05), alarma lógica (B06), salidas de
-alarma (B07) y mando de motor (B08). B00–B08 y B03-R1 aceptados y archivados.
+alarma (B07) y mando de motor (B08). B00–B09 y B03-R1 aceptados y archivados.
 Contrato de temperatura corregido vigente desde
 2026-11-07. Revisión independiente B03-R1 aceptada y archivada el 2026-11-09; contrato sincronizado.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
@@ -73,7 +73,8 @@ Al aceptar B06 el 2026-11-09, autorizó publicar los commits pendientes
 (B03-R1, cierre/propuesta y B06) junto con el cierre B06.
 Al aceptar B07 el 2026-11-09, autorizó publicar los commits pendientes, su cierre
 y preparar la propuesta B08. Al aceptar B08 el 2026-11-09, autorizó publicar su commit
-y el cierre y preparar la propuesta B09. Publicaciones futuras requieren autorización independiente.
+y el cierre y preparar la propuesta B09. Al aceptar B09 el 2026-11-09, autorizó
+publicar su commit/cierre y proponer B10. Publicaciones futuras requieren autorización independiente.
 Se conserva configuración de firma Git,
 actualmente sin firma automática habilitada.
 
@@ -241,9 +242,8 @@ Cierre/publicación B08 autorizados al aceptar resultado.
 
 ## Telemetría lógica B09
 
-Alcance/formato/criterio acordados el 2026-11-09; implementado/verificado, resultado
-pendiente de aceptación. Usuario autorizó commit local sin push. Delta activo B09
-amplía exclusión original B02-R5; contrato vigente/archivos aceptados aún intactos.
+B09 aceptado/archivado el 2026-11-09. Contrato comunicación sincronizado: conserva
+B02-R1–R4, amplía B02-R5 y agrega CT1–CT4. Publicación del cierre autorizada.
 Comunicacion_CodificarTelemetria (USW.2.1.7.7) recibe instantánea const y enums propios,
 buffer/capacidad y longitud. La aplicación reunirá magnitudes B03/B05 y estado B01;
 adaptación sólo en pruebas/fixture por ahora, sin cambiar Procesamiento o main.
@@ -256,3 +256,8 @@ vivos/coherentes/serializados. Sin heap/flotantes/libc nueva/UART/esperas/recort
 Helpers USW.2.1.7.8/.9/.10 y cota de construcción documentados; INT32_MIN usa magnitud
 unsigned definida. Codificación no acredita transmisión PC ni frescura física.
 RX B02 preservado; UART/envío/periodicidad/main y aviso térmico opcional fuera de B09.
+
+B10 sólo propuesto: selección estable de modo en Mandos con intervalo configurable,
+tiempo/muestras externos y validez explícita; sin GPIO ni política nueva de parada.
+Alcance/criterio en openspec/changes/b10-seleccion-estable-modo/proposal.md; sin acuerdo
+ni implementación. Propuesta amplía exclusión MA3 de B04 sólo después de aceptar B10.
