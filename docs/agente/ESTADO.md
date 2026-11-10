@@ -2,31 +2,35 @@
 
 ## Punto actual
 
-- Repositorio: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`. Rama main; consultar HEAD/remoto al incorporarse.
-- B00–B09 y B03-R1 aceptados/archivados. B09 aceptado el 2026-11-09;
-  comunicación sincronizada: cuatro requisitos agregados, B02-R5 modificado;
-  B02-R1–R4 intactos, total nueve requisitos/17 escenarios.
-- Implementación B09: 84c51e296396f7c730ce4b18c2efc4c2cc1e57c4. Cierre/propuesta en commit
-  `docs: aceptar B09 y proponer B10`. Publicación autorizada en esta orden;
-  cotejo HEAD==origin/main==remoto en /tmp/ed3-cierre-b09-20261109-pufv9luj/publicacion.log al completarla.
-- Cambio activo b10-seleccion-estable-modo: sólo propuesta; alcance/criterio
-  pendientes de acuerdo, sin implementación ni publicación futura autorizadas.
+- Repositorio: `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`. Rama main; consultar HEAD con Git.
+- B00–B09 y B03-R1 aceptados/archivados. Base publicada B10: 9f53e73e0841123cfba29ec3dbbbb2bab567cf03.
+- B10: alcance/criterio acordados, implementado/verificado; resultado pendiente de aceptación.
+  Cambio activo b10-seleccion-estable-modo; contrato vigente/archivos aceptados intactos.
+- Commit local autorizado con asunto `feat: filtrar seleccion de modo con tiempo externo`;
+  consultar Git para hash. Sin push autorizado; conservar hooks/firma/historial.
 
-## Evidencia aceptada y cierre
+## Evidencia ejecutada
 
-- B09: host/san 15/15, 161 C (11 codec + cuatro integración), 5096 pares codec y
-  11199 ternas B03-R1; ARM Debug 12/12 y fixture B09 Release; Doxygen 29 funciones.
-- Matriz, recursos y límites en informe archivado B09.
-- Cierre documental: merge por requisitos, hashes/manifiesto, YAML/enlaces y diff;
-  sin cambios de firmware ni pruebas nuevas. Logs externos: /tmp/ed3-cierre-b09-20261109-pufv9luj.
-- Sin ejecución ARM, simulador o placa; sin flasheo/instalación/cambios sensibles MCU.
+| Verificación | Resultado |
+|---|---|
+| Host/san | 17/17; 179 C (14 selector + cuatro integración), referencia 4096 muestras/400 rollovers; codec 5096 y velocidad 11199 |
+| Refuerzo temporal | Sólo prueba ampliada, sin cambios productivos: selector host/san 1/1; sin hallazgos |
+| ARM | Debug 13/13 y fixture B10 Release PASS; API retenida/ELF válido, sin ejecución |
+| Doxygen | 32 funciones/USW, nuevas USW.2.1.5.3/.4/.5; sin avisos |
+| Negativos | Detecta falta de reinicio de candidato y frontera tardía |
+| Recursos -O0 | Selector .text 398, .data/.bss 0; pila propia anidada 40 excluye llamador/IRQ/otros; contexto 16 y enum 1 con ABI actual |
+| Preservación | B04 cuerpos/tipos/constantes/USW intactos; B01/B08/main/otros servicios/dispositivos/Drivers, pruebas anteriores y contratos/archivos aceptados intactos |
 
-## Pendientes y próxima acción
+Matriz MA3/S6 y SE1–SE4/B10-S1–S6 en verify-report.md activo. Logs externos: /tmp/ed3-b10-20261109-1jdibt8h.
+Sanitizadores sin ptrace, fugas habilitadas. Sin fallos pendientes; sin ejecución
+ARM, simulador o placa, flasheo/instalación/cambios sensibles MCU.
 
-Acordar B10 propuesto: completar selección estable de modo en Mandos con intervalo
-configurable, marcas temporales/muestras externas y estados explícitos. Tiempo
-distinto del orden de eventos B01. Normalización B04 y aplicación preservadas.
-GPIO/polaridad, base de tiempos, ADC/DMA/captura, UART/TX, PWM/potencia/regulación y
-main físicos pendientes. CMSIS-DAP integrado; revisión PCB/silicio/pines/VREF sin verificar.
+## Próxima acción y límites
+
+Revisar resultado B10; sólo después sincronizar/archivar por orden. No publicar ni
+iniciar otro bloque sin autorización. Selector lógico exige contexto inicializado,
+tiempo/muestras coherentes y acceso serializado; GPIO/timer/cadencia físicos y main
+pendientes. B01 usa orden distinto de ms; adaptación sólo en pruebas/fixture.
+Política física/reentrada tras pérdida, ADC/DMA/captura, UART/TX, PWM/regulación pendientes.
+CMSIS-DAP integrado; revisión PCB/silicio/pines/VREF sin verificar.
 Diagramas finales después de completar ESW, según CONTEXTO.
-No implementar B10 ni publicar trabajo futuro sin acuerdo.

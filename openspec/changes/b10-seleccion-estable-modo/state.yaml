@@ -1,12 +1,15 @@
 block: B10
 change: b10-seleccion-estable-modo
-status: proposed
-phase: proposal
-scope_approved: false
+status: verified_pending_acceptance
+phase: verify
+scope_approved: true
 result_accepted: false
-implementation_started: false
-verification_passed: false
+implementation_started: true
+verification_passed: true
 main_specs_synced: false
-commit_authorized: false
+commit_authorized: true
 push_authorized: false
-next_action: Acordar alcance y criterio B10 antes de especificar e implementar.
+next_action: Revisar resultado B10; no sincronizar/archivar ni publicar sin orden.
+scope_approved_on: '2026-11-09'
+base_commit: 9f53e73e0841123cfba29ec3dbbbb2bab567cf03
+commit_subject: 'feat: filtrar seleccion de modo con tiempo externo'

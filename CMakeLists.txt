@@ -120,6 +120,11 @@ if(TPI_BUILD_ARM)
             "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b09-fixture" "-DBUILD_TYPE=$<CONFIG>"
             "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b09.cmake")
+        add_test(NAME b10.enlace_arm COMMAND "${CMAKE_COMMAND}"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b10-fixture" "-DBUILD_TYPE=$<CONFIG>"
+            "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b10.cmake")
     endif()
 else()
     if(CMAKE_CROSSCOMPILING)
@@ -166,12 +171,15 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_executable(pruebas_integracion_telemetria tests/host/test_integracion_telemetria.c
         Servicios/Comunicacion.c Servicios/Medicion_Velocidad.c Servicios/Temperatura.c
         Aplicacion/Procesamiento.c)
+    add_executable(pruebas_selector tests/host/test_selector.c Servicios/Mandos.c)
+    add_executable(pruebas_integracion_selector tests/host/test_integracion_selector.c
+        Servicios/Mandos.c Aplicacion/Procesamiento.c Servicios/Driver_Motor.c)
     target_include_directories(pruebas_lm35 PRIVATE Dispositivos)
     target_include_directories(pruebas_integracion_temperatura PRIVATE Dispositivos)
-    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria)
+    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria pruebas_selector pruebas_integracion_selector)
         if(prueba STREQUAL "consulta_medicion_velocidad" OR prueba STREQUAL "pruebas_driver_alarmas")
             target_include_directories(${prueba} PRIVATE Servicios)
-        elseif(prueba STREQUAL "pruebas_driver_motor" OR prueba STREQUAL "pruebas_telemetria")
+        elseif(prueba STREQUAL "pruebas_driver_motor" OR prueba STREQUAL "pruebas_telemetria" OR prueba STREQUAL "pruebas_selector")
             target_include_directories(${prueba} PRIVATE Servicios Configuracion)
         else()
             target_include_directories(${prueba} PRIVATE Aplicacion Servicios Configuracion)
@@ -203,4 +211,6 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_test(NAME b08.integracion_motor COMMAND pruebas_integracion_motor)
     add_test(NAME b09.telemetria COMMAND pruebas_telemetria)
     add_test(NAME b09.integracion_telemetria COMMAND pruebas_integracion_telemetria)
+    add_test(NAME b10.selector COMMAND pruebas_selector)
+    add_test(NAME b10.integracion_selector COMMAND pruebas_integracion_selector)
 endif()

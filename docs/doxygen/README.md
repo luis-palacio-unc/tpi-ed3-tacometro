@@ -14,8 +14,8 @@ para generar documentación sin autorización.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
-Validación actual B09: 29 funciones/USW en XML (7 Procesamiento, 10 Comunicacion,
-2 Medicion_Velocidad, 2 Mandos, 2 Temperatura, 2 LM35, Driver_Alarmas, 2 Driver_Motor y main), sin avisos.
+Validación actual B10: 32 funciones/USW en XML (7 Procesamiento, 10 Comunicacion,
+2 Medicion_Velocidad, 5 Mandos, 2 Temperatura, 2 LM35, Driver_Alarmas, 2 Driver_Motor y main), sin avisos.
 USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
 Documentar unidades físicas/estados en el servicio y conversión/errores específicos
 en LM35. La inclusión de archivos del dispositivo no introduce dependencia del servicio.
@@ -52,3 +52,8 @@ B09 agrega USW.2.1.7.7/.8/.9/.10: API de codificación, literales internos, ente
 fracción fija. Instantánea/enums, unidades, cota de buffer, longitud, limpieza/prioridad
 de errores y no solapamiento documentados. Doxyfile ya incluye Comunicacion.h/.c;
 HTML/XML estricto pasa, sin avisos ni cambios de controles. snprintf sólo aparece en pruebas host.
+
+B10 agrega USW.2.1.5.3/.4/.5: inicializar selector, actualizar estabilidad y helper
+privado de invalidación. Documenta contexto, fuente/modo/estado, intervalo/tiempo
+modular, errores/recuperación, cadencia y concurrencia. Doxyfile ya incluye Mandos;
+HTML/XML estricto pasa sin avisos. Las dos USW B04 conservan sus contratos.

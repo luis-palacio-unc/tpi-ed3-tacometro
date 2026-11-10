@@ -11,14 +11,14 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R02 AP/APA | Medir RPM con disco de 60 ranuras | B03 aceptado/archivado; revisión B03-R1 aceptada/archivada; captura pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | B03-R1 S1–S10 PASS, 23 casos + oráculo 11199; revisión aceptada; señal real pendiente |
 | R03 AP | Potenciómetro determina PWM en manual | B04 aceptado para normalización; B08 aceptado/archivado para mando portable; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.* | B04 S1–S7 PASS host/enlace ARM (verify-report archivado); ADC/PWM físicos pendientes |
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
-| R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; lógica | Aplicacion/Procesamiento.* | B01 S1/S2 PASS (C host); integración física pendiente |
+| R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; B10 verificado/candidato para selector estable | Aplicacion/Procesamiento.* | B01 S1/S2 PASS (C host); integración física pendiente |
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01 aceptado; B08 aceptado/archivado para solicitud cero | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | B01 S3/S4/S5/S6 PASS (C host); recepción real pendiente |
 | R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; B06 aceptado/archivado para decisión; B07 aceptado/archivado para coordinación; actuación física/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); B06 S1–S8 y 13 casos PASS; resultado lógico aceptado; alarma física pendiente |
 | R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 aceptado/archivado para codificación lógica TX; UART/envío pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 RX y B09 CT1–CT4 PASS lógico; UART/envío físicos pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B09: 29 funciones/USW, incluidas cuatro nuevas USW.2.1.7.7–.10; Doxygen estricto PASS; resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10: 32 funciones/USW, incluidas tres nuevas USW.2.1.5.3–.5; Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -74,7 +74,10 @@ y delta B02-R5/S9 PASS: 11 casos codec + cuatro integración B01/B03/B05/RX, 161
 B09 Release; Doxygen 29 funciones/USW. [Matriz/evidencia](../../openspec/changes/archive/2026-11-09-b09-codificacion-telemetria/verify-report.md).
 UART/envío/periodicidad/main pendientes; no se acredita recepción física PC.
 
-B10 propuesto (R05/R06/R10/R11/R15): selector lógico estable en Mandos, con
-antirrebote configurable y composición de prueba B01/B08. Sin acuerdo, implementación
-o evidencia nueva; GPIO/base temporal/main físicos pendientes. El antirrebote y su
-contrato temporal son decisiones de diseño propuestas, sin duración TPI impuesta.
+B10 implementado/verificado (R05/R06/R10/R11/R15), resultado pendiente de aceptación:
+selector lógico estable en Mandos, intervalo configurable y reloj externo. MA3/S6 y
+SE1–SE4/B10-S1–S6 PASS: 14 casos selector + cuatro integración B01/B08; 179 C y
+referencia de 4096 muestras/400 rollovers, regresiones codec 5096/velocidad 11199.
+Host/san 17/17 más refuerzo selector 1/1, ARM Debug 13/13 y fixture B10 Release;
+Doxygen 32 funciones/USW. [Matriz/evidencia](../../openspec/changes/b10-seleccion-estable-modo/verify-report.md).
+GPIO/base temporal/main y antirrebote eléctrico pendientes; sin duración TPI impuesta.

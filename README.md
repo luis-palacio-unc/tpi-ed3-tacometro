@@ -247,9 +247,27 @@ y [verificación](openspec/changes/archive/2026-11-09-b09-codificacion-telemetri
 Contrato vigente conserva recepción B02 y agrega telemetría aceptada B09.
 UART/envío/periodicidad/main físicos pendientes; sin ejecución ARM/simulador/placa.
 
-## Próximo bloque propuesto
+## B10: selección estable de modo
 
-[B10: selección estable de modo](openspec/changes/b10-seleccion-estable-modo/proposal.md).
-Agregar antirrebote lógico configurable del selector en Mandos, independiente de GPIO
-y reloj concretos; composición B01/B08 sólo en pruebas. Alcance pendiente de acuerdo,
-sin implementación nueva. GPIO, base de tiempos física y main siguen pendientes.
+B10 implementado/verificado, resultado pendiente de aceptación. Mandos agrega
+InicializarSelector/ActualizarSelector con contexto por instancia, muestras de modo
+lógico/validez y tiempo uint32_t ms externos. Intervalo configurable 0..INT32_MAX,
+sin default TPI; cero confirma inmediatamente, otro valor exige estabilidad observada.
+Cada rebote reinicia candidato; conservar confirmado mientras se califica otro.
+Antes de confirmar o tras pérdida/error, modo NINGUNO y diagnóstico explícito.
+
+Tiempo modular admite iguales/rollover con avances <2^31 ms; error temporal descarta
+anclaje y exige recalificar en época nueva. Fuente desconocida no acepta tiempo;
+fuente ausente/fallida y modo inválido conservan el timestamp aceptado. Sin GPIO,
+reloj propio, esperas, heap o dependencia de aplicación. Acceso serializado externo.
+Normalización B04 intacta; composición B01/B08 sólo en pruebas. Transición confirmada
+manual→auto solicita cero y exige consigna nueva; rebotes no invalidan auto activo.
+
+14 casos nuevos + cuatro integración: 179 C; referencia de 4096 muestras/400 rollovers,
+5096 pares codec y 11199 ternas velocidad. Host/san 17/17; tras ampliar sólo aserciones
+temporales se repitió selector host/san 1/1. ARM Debug 13/13 y fixture B10 Release PASS;
+Doxygen estricto 32 funciones/USW, tres nuevas USW.2.1.5.3/.4/.5.
+Ver [delta candidato](openspec/changes/b10-seleccion-estable-modo/specs/mandos/spec.md)
+y [verificación](openspec/changes/b10-seleccion-estable-modo/verify-report.md).
+MA3 vigente conserva exclusión original hasta aceptar/sincronizar B10.
+GPIO/base temporal/main y pruebas físicas pendientes; sin ejecución ARM/simulador/placa.

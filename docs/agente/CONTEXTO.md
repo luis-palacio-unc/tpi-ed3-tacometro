@@ -257,7 +257,24 @@ Helpers USW.2.1.7.8/.9/.10 y cota de construcción documentados; INT32_MIN usa m
 unsigned definida. Codificación no acredita transmisión PC ni frescura física.
 RX B02 preservado; UART/envío/periodicidad/main y aviso térmico opcional fuera de B09.
 
-B10 sólo propuesto: selección estable de modo en Mandos con intervalo configurable,
-tiempo/muestras externos y validez explícita; sin GPIO ni política nueva de parada.
-Alcance/criterio en openspec/changes/b10-seleccion-estable-modo/proposal.md; sin acuerdo
-ni implementación. Propuesta amplía exclusión MA3 de B04 sólo después de aceptar B10.
+## Selector lógico B10
+
+Alcance/criterio acordados el 2026-11-09; implementado/verificado, resultado pendiente
+de aceptación. Usuario autorizó commit local sin push. Delta MA3/SE1–SE4 candidato;
+contrato vigente y archivos aceptados intactos. Mandos agrega tres USW .2.1.5.3/.4/.5.
+Mandos_Selector contiene salida estado/modo y metadatos internos por instancia.
+InicializarSelector configura intervalo 0..INT32_MAX ms sin default TPI, deja
+SIN_DATOS/NINGUNO. ActualizarSelector recibe modo/fuente y timestamp uint32_t ms;
+confirma en el intervalo exacto, cada cambio reinicia candidato, confirmado se
+conserva durante otro candidato pendiente. Cero inmediato. Sólo VALIDO permite consumo.
+Ausencia/fallo/error invalida confirmación/candidato. Prioridad: NULL, configuración,
+fuente desconocida, tiempo, disponibilidad y modo. Fuente desconocida no registra
+tiempo; ausencia/fallo/modo inválido conservan marca aceptada. Error temporal descarta
+anclaje y permite época nueva con recalificación completa. Configuración excesiva
+requiere reinicio válido. Resta modular, marcas iguales/wrap y avances <2^31 ms;
+cadencia, captura y serialización externas, sin detectar vueltas completas omitidas
+o rebotes entre muestras. Sin GPIO, reloj, heap, esperas o globals mutables.
+Adaptación B01/B08 sólo en pruebas/fixture; órdenes uint64_t B01 no son los ms.
+Rebotes no cambian modo de aplicación; entrada confirmada manual→auto exige cero y
+consigna posterior. Indisponibilidad no emite órdenes desde adaptador de prueba;
+política física y reentrada tras fallo, GPIO/main quedan pendientes. B04/B01/B08 intactos.

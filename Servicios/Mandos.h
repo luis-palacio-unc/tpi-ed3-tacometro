@@ -1,9 +1,9 @@
 /**
  * @file Mandos.h
- * @brief Normalizacion logica de la lectura del potenciometro a mando manual.
+ * @brief Mando manual normalizado y seleccion estable de modo, independientes de hardware.
  * @details Escala explicita, independiente de bits/VREF/canal del ADC. El mando
  * normalizado va de 0 a 1000 por mil, sin acceder a perifericos ni accionar PWM.
- * @note ESW.2.1.5. B04 no implementa selector, antirrebote, adquisicion o filtrado.
+ * @note ESW.2.1.5. B10 filtra selector logico con tiempo externo; adquisicion/PWM pendientes.
  */
 #ifndef TPI_MANDOS_H
 #define TPI_MANDOS_H
@@ -14,7 +14,7 @@
 
 /**
  * @defgroup mandos ESW.2.1.5 - Mandos
- * @brief Mando manual normalizado con validez explicita.
+ * @brief Mando manual y selector logico con validez explicita.
  * @details El integrador entrega lectura/escala coherentes y verifica errores de
  * adquisicion antes de llamar. Serializar escritura y lectura de cada salida;
  * no compartir directamente entre ISR y lazo. No se evalua frescura del dato.
@@ -70,6 +70,91 @@ bool Mandos_Inicializar(Mandos_MandoManual *mando);
  */
 Mandos_Estado Mandos_NormalizarManual(Mandos_MandoManual *mando,
                                     uint32_t lectura, uint32_t fondo_escala);
+
+/** @brief Mayor intervalo/avance temporal admitido, en ms: estrictamente menor que 2^31. */
+#define MANDOS_SELECTOR_INTERVALO_MAX_MS ((uint32_t)INT32_MAX)
+
+/** @brief Modo logico independiente del nivel/polaridad del selector fisico. */
+typedef enum {
+    MANDOS_SELECTOR_MODO_NINGUNO = 0, /**< Salida sin modo utilizable; no es una muestra valida. */
+    MANDOS_SELECTOR_MODO_MANUAL, /**< Seleccion logica manual. */
+    MANDOS_SELECTOR_MODO_AUTOMATICO /**< Seleccion logica automatica. */
+} Mandos_ModoSelector;
+
+/** @brief Disponibilidad de la muestra, adaptada externamente desde su origen. */
+typedef enum {
+    MANDOS_SELECTOR_FUENTE_SIN_DATOS = 0, /**< No hay muestra disponible; ignorar modo. */
+    MANDOS_SELECTOR_FUENTE_VALIDA, /**< Evaluar modo y estabilidad observada. */
+    MANDOS_SELECTOR_FUENTE_ERROR /**< Fuente fallida; ignorar modo y perder confirmacion. */
+} Mandos_FuenteSelector;
+
+/** @brief Resultado completo de selector; solo VALIDO permite consumir modo. */
+typedef enum {
+    MANDOS_SELECTOR_SIN_DATOS = 0, /**< Sin muestra o candidato aun no confirmado. */
+    MANDOS_SELECTOR_VALIDO, /**< Modo confirmado disponible, incluso al calificar otro. */
+    MANDOS_SELECTOR_ERROR_ARGUMENTO, /**< Selector NULL o enum de fuente desconocido. */
+    MANDOS_SELECTOR_ERROR_CONFIGURACION, /**< Intervalo superior al maximo; reinicializar. */
+    MANDOS_SELECTOR_ERROR_FUENTE, /**< Fuente declaro fallo; modo/candidato invalidados. */
+    MANDOS_SELECTOR_ERROR_MODO, /**< Fuente valida con modo distinto de MANUAL/AUTOMATICO. */
+    MANDOS_SELECTOR_ERROR_TIEMPO /**< Avance modular fuera de contrato; se descarta anclaje. */
+} Mandos_EstadoSelector;
+
+/**
+ * @brief Contexto de una instancia de selector; requiere inicializacion explicita.
+ * @details El consumidor lee estado/modo sin modificarlos; demas campos son internos.
+ * Memoria viva y acceso serializado entre actualizaciones/lecturas; sin proteccion ISR.
+ * No compartir ni solapar con otros registros o modificar configuracion directamente.
+ */
+typedef struct {
+    uint32_t intervalo_estable_ms; /**< Configuracion interna, 0..INT32_MAX ms; cambia al reiniciar. */
+    uint32_t ultimo_tiempo_ms; /**< Ultima marca temporal aceptada; no es orden de eventos B01. */
+    uint32_t inicio_candidato_ms; /**< Primera muestra del candidato actual, modulo uint32_t. */
+    Mandos_ModoSelector modo; /**< Salida: consumir solo con estado VALIDO; NINGUNO en otro caso. */
+    Mandos_ModoSelector candidato; /**< Modo interno en calificacion, o NINGUNO. */
+    Mandos_EstadoSelector estado; /**< Disponibilidad/diagnostico actual, tambien devuelto al actualizar. */
+    bool tiene_tiempo; /**< Hay anclaje temporal confiable para comparar proxima llamada. */
+} Mandos_Selector;
+
+/**
+ * @brief Inicializar/reiniciar selector sin suponer modo fisico ni reloj inicial.
+ * @details Borra confirmacion/candidato/anclaje. Intervalo valido deja SIN_DATOS y
+ * modo NINGUNO; cero permite confirmar la primera muestra valida inmediatamente.
+ * Intervalo excesivo deja objeto inicializado con ERROR_CONFIGURACION/NINGUNO;
+ * actualizarlo conserva ese error hasta reinicializar con un intervalo valido.
+ * @param[out] selector Contexto escribible exclusivo; NULL devuelve false sin acceso.
+ * @param[in] intervalo_estable_ms Configuracion 0..INT32_MAX ms, sin valor TPI por defecto.
+ * @return true si contexto/configuracion validos; false ante NULL o intervalo excesivo.
+ * @pre Memoria valida no solapada con otros registros; acceso serializado.
+ * @note USW.2.1.5.3. No inicializa GPIO/timer, ni modifica mando manual o motor.
+ */
+bool Mandos_InicializarSelector(Mandos_Selector *selector, uint32_t intervalo_estable_ms);
+
+/**
+ * @brief Actualizar disponibilidad y confirmar modo tras estabilidad observada.
+ * @details Cada cambio de candidato reinicia su fecha; conserva modo confirmado
+ * durante otro candidato pendiente. Antes de primera confirmacion retorna SIN_DATOS.
+ * Igualar el intervalo ya confirma. Fuente ausente/fallida o error invalida modo y
+ * candidato, exige nueva estabilidad y no elige un modo alternativo ni acciona motor.
+ * Valida NULL, configuracion, enum de fuente, tiempo, disponibilidad y modo en ese
+ * orden. Fuentes SIN_DATOS/ERROR ignoran modo pero registran timestamp aceptado;
+ * modo invalido tambien conserva ese tiempo. Fuente desconocida no acepta tiempo.
+ * ERROR_TIEMPO descarta anclaje; proxima llamada aceptada inicia nueva epoca y
+ * candidato sin restaurar un modo anterior. Reinicializar tambien descarta la epoca.
+ * @param[in,out] selector Contexto inicializado, vivo/estable y serializado; NULL es error.
+ * @param[in] modo MANUAL/AUTOMATICO logicos; ignorado si fuente no es VALIDA.
+ * @param[in] fuente Disponibilidad de muestra; enum desconocido es ERROR_ARGUMENTO.
+ * @param[in] tiempo_ms Marca uint32_t externa en ms, con avance modulo 2^32 menor
+ * que 2^31 desde la ultima aceptada. Iguales y rollover permitidos; primera libre.
+ * @return Estado actual tambien escrito en selector->estado si existe; NULL retorna
+ * ERROR_ARGUMENTO. Modo queda NINGUNO salvo VALIDO; leer ambos campos conjuntamente.
+ * @pre Capturar tiempo/muestra coherentes y serializar escrituras/lecturas. Llamar
+ * con suficiente cadencia: no detecta multiples vueltas omitidas, ausencia de llamadas
+ * o rebotes entre muestras; uint32_t no hace atomico al contexto completo.
+ * @note USW.2.1.5.4. Sin heap, reloj, esperas, globals mutables o dependencia de
+ * Aplicacion. Politica fisica ante indisponibilidad y ensamblado de main pendientes.
+ */
+Mandos_EstadoSelector Mandos_ActualizarSelector(Mandos_Selector *selector,
+    Mandos_ModoSelector modo, Mandos_FuenteSelector fuente, uint32_t tiempo_ms);
 
 /** @} */
 #endif /* TPI_MANDOS_H */

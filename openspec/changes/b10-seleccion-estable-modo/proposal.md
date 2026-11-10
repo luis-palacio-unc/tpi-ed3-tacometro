@@ -1,6 +1,7 @@
 # B10 — Selección estable de modo
 
-Estado: propuesta pendiente de acuerdo; sin implementación.
+Estado: alcance/criterio acordados el 2026-11-09. Implementación/commit local autorizados,
+sin push; resultado pendiente de aceptación.
 
 ## Objetivo y origen
 
