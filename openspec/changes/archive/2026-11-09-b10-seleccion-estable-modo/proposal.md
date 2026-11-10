@@ -1,7 +1,7 @@
 # B10 — Selección estable de modo
 
-Estado: alcance/criterio acordados el 2026-11-09. Implementación/commit local autorizados,
-sin push; resultado pendiente de aceptación.
+Estado: resultado aceptado el 2026-11-09. Sincronización, archivo y publicación
+autorizados; propuesta B11 solicitada sin implementación.
 
 ## Objetivo y origen
 

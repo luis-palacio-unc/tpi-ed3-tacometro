@@ -58,8 +58,8 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 
 Persistencia por archivos, sin instalar frameworks. `openspec/specs/` contiene sólo
 contratos aceptados: build (B00), modos (B01), comunicación (B02/B09), medición
-(B03/B03-R1), mandos (B04), temperatura (B05), alarma lógica (B06), salidas de
-alarma (B07) y mando de motor (B08). B00–B09 y B03-R1 aceptados y archivados.
+(B03/B03-R1), mandos (B04/B10), temperatura (B05), alarma lógica (B06), salidas de
+alarma (B07) y mando de motor (B08). B00–B10 y B03-R1 aceptados y archivados.
 Contrato de temperatura corregido vigente desde
 2026-11-07. Revisión independiente B03-R1 aceptada y archivada el 2026-11-09; contrato sincronizado.
 GitHub privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
@@ -74,7 +74,8 @@ Al aceptar B06 el 2026-11-09, autorizó publicar los commits pendientes
 Al aceptar B07 el 2026-11-09, autorizó publicar los commits pendientes, su cierre
 y preparar la propuesta B08. Al aceptar B08 el 2026-11-09, autorizó publicar su commit
 y el cierre y preparar la propuesta B09. Al aceptar B09 el 2026-11-09, autorizó
-publicar su commit/cierre y proponer B10. Publicaciones futuras requieren autorización independiente.
+publicar su commit/cierre y proponer B10. Al aceptar B10 el 2026-11-09, autorizó
+publicar su commit/cierre y proponer B11. Publicaciones futuras requieren autorización independiente.
 Se conserva configuración de firma Git,
 actualmente sin firma automática habilitada.
 
@@ -85,7 +86,9 @@ actualmente sin firma automática habilitada.
 - [Erratas LPC176x, rev. 10.6](https://www.nxp.com/docs/en/errata/ES_LPC176X.pdf).
 - [UM10360 rev.2, copia del manual NXP en Keil](https://www.keil.com/dd/docs/datashts/philips/lpc17xx_um.pdf):
   cap.2/32 revisados para B00. La rev.3.1 publicada en NXP requiere cuenta; revisar
-  documentación/erratas pertinentes antes de implementar periféricos.
+  documentación/erratas pertinentes antes de implementar periféricos. Para proponer
+  B11 se revisaron capítulos 23/34 (SysTick) y erratas 10.6 el 2026-11-09;
+  no acredita precisión temporal ni configuración real del reloj.
 
 B05 usa la transferencia nominal del
 [LM35 TI, §7.3.1](https://www.ti.com/lit/ds/symlink/lm35.pdf), consultada para separar
@@ -259,9 +262,9 @@ RX B02 preservado; UART/envío/periodicidad/main y aviso térmico opcional fuera
 
 ## Selector lógico B10
 
-Alcance/criterio acordados el 2026-11-09; implementado/verificado, resultado pendiente
-de aceptación. Usuario autorizó commit local sin push. Delta MA3/SE1–SE4 candidato;
-contrato vigente y archivos aceptados intactos. Mandos agrega tres USW .2.1.5.3/.4/.5.
+Resultado aceptado/archivado el 2026-11-09; publicación del cierre autorizada.
+Contrato mandos sincronizado: MA3/S6 modificado y SE1–SE4 agregados, conservando
+MA1/MA2/MA4. Mandos agrega tres USW .2.1.5.3/.4/.5.
 Mandos_Selector contiene salida estado/modo y metadatos internos por instancia.
 InicializarSelector configura intervalo 0..INT32_MAX ms sin default TPI, deja
 SIN_DATOS/NINGUNO. ActualizarSelector recibe modo/fuente y timestamp uint32_t ms;
@@ -278,3 +281,9 @@ Adaptación B01/B08 sólo en pruebas/fixture; órdenes uint64_t B01 no son los m
 Rebotes no cambian modo de aplicación; entrada confirmada manual→auto exige cero y
 consigna posterior. Indisponibilidad no emite órdenes desde adaptador de prueba;
 política física y reentrada tras fallo, GPIO/main quedan pendientes. B04/B01/B08 intactos.
+
+B11 sólo propuesto: base de tiempos en Dispositivos/soporte con SysTick, tick de 1 ms
+y frecuencia CPU explícita; sin PLL, main ni adquisición. Fuente temporal física,
+latencias y precisión no verificadas; servicios/aplicación conservan su abstracción.
+Alcance/criterio en openspec/changes/b11-base-tiempos-lpc1769/proposal.md; sin acuerdo
+ni implementación. Elección SysTick/resolución son decisiones propuestas.

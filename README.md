@@ -249,7 +249,7 @@ UART/envío/periodicidad/main físicos pendientes; sin ejecución ARM/simulador/
 
 ## B10: selección estable de modo
 
-B10 implementado/verificado, resultado pendiente de aceptación. Mandos agrega
+B10 aceptado/archivado el 2026-11-09; contrato mandos sincronizado. Mandos agrega
 InicializarSelector/ActualizarSelector con contexto por instancia, muestras de modo
 lógico/validez y tiempo uint32_t ms externos. Intervalo configurable 0..INT32_MAX,
 sin default TPI; cero confirma inmediatamente, otro valor exige estabilidad observada.
@@ -267,7 +267,14 @@ manual→auto solicita cero y exige consigna nueva; rebotes no invalidan auto ac
 5096 pares codec y 11199 ternas velocidad. Host/san 17/17; tras ampliar sólo aserciones
 temporales se repitió selector host/san 1/1. ARM Debug 13/13 y fixture B10 Release PASS;
 Doxygen estricto 32 funciones/USW, tres nuevas USW.2.1.5.3/.4/.5.
-Ver [delta candidato](openspec/changes/b10-seleccion-estable-modo/specs/mandos/spec.md)
-y [verificación](openspec/changes/b10-seleccion-estable-modo/verify-report.md).
-MA3 vigente conserva exclusión original hasta aceptar/sincronizar B10.
+Ver [contrato vigente](openspec/specs/mandos/spec.md)
+y [verificación](openspec/changes/archive/2026-11-09-b10-seleccion-estable-modo/verify-report.md).
+MA3 vigente permite selector lógico B10 y conserva exclusiones de hardware.
 GPIO/base temporal/main y pruebas físicas pendientes; sin ejecución ARM/simulador/placa.
+
+## Próximo bloque propuesto
+
+[B11: base de tiempos LPC1769](openspec/changes/b11-base-tiempos-lpc1769/proposal.md).
+Implementar referencia de milisegundos con SysTick dentro de Dispositivos/soporte,
+frecuencia explícita y sin configurar PLL. Alcance/criterio pendientes de acuerdo;
+sin implementación. Reloj realmente configurado y tiempos físicos aún sin verificar.
