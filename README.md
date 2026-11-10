@@ -274,7 +274,7 @@ GPIO/base temporal/main y pruebas físicas pendientes; sin ejecución ARM/simula
 
 ## B11: wrappers Timer
 
-Alcance autorizado: `Dispositivos/Timer.h/.c` con tres funciones:
+B11 aceptado y archivado el 2026-11-10: `Dispositivos/Timer.h/.c` con tres funciones:
 
 - `Timer_Init()`: configura TIMER0 mediante TIM_InitTimer, dejándolo detenido.
 - `Timer_Start()`: inicia la cuenta mediante TIM_Enable.
@@ -290,6 +290,13 @@ Driver original intacto. Host17/17 y ARM13/13 son regresiones previas; el nuevo
 wrapper compila con headers reales y Doxygen35 funciones pasa sin avisos.
 Las operaciones del timer no se ejecutaron en host ni placa. Main sigue mínimo;
 enlace del conjunto de drivers y arranque real quedan para integración física.
-Ver [candidato](openspec/changes/b11-wrapper-timer/specs/timer/spec.md) y
-[verificación](openspec/changes/b11-wrapper-timer/verify-report.md).
-Resultado pendiente de aceptación, sin sincronizar/archivar/publicar.
+Ver [contrato vigente](openspec/specs/timer/spec.md),
+[verificación](openspec/changes/archive/2026-11-10-b11-wrapper-timer/verify-report.md) y
+[cierre](openspec/changes/archive/2026-11-10-b11-wrapper-timer/archive-report.md).
+
+## B12 propuesto: enlace y arranque del timer
+
+Enlazar los drivers originales, actualizar la información del reloj con CMSIS y
+arrancar Timer desde la aplicación. API B11/biblioteca originales preservadas;
+propuesta pendiente de aceptación, sin implementación.
+Ver [alcance y aceptación](openspec/changes/b12-integracion-arranque-timer/proposal.md).

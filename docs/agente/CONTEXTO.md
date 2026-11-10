@@ -289,7 +289,7 @@ política física y reentrada tras fallo, GPIO/main quedan pendientes. B04/B01/B
 
 Diseños SysTick, TC/puerto y servicio Tiempo retirados; no retomarlos. Usuario
 restituyó Drivers:90 archivos iguales a a21cc1e/origin/main. Prohibido modificarlos.
-Nuevo alcance explícitamente autorizado: Dispositivos/Timer.c/.h con sólo
+B11 aceptado/archivado2026-11-10: Dispositivos/Timer.c/.h con sólo
 Timer_Init→TIM_InitTimer, Timer_Start→TIM_Enable y Timer_Read→TIM_ReadTimer.
 TIMER0 sólo en .c; header sin CMSIS. TIMER_BASE_MS default1, configurable al
 compilar en Timer.h; Read normaliza a ms uint32 modular. Temporizacion.h eliminado.
@@ -303,3 +303,8 @@ nuevas, intervalos reales<2^31ms. Main, servicios aceptados y drivers intactos.
 El wrapper se compila con encabezados originales; no hay nueva prueba que repita
 las tres llamadas. Enlace de biblioteca original/arranque y prueba física pendientes
 de integración; no declarar funcionamiento eléctrico por compilación.
+
+B12 propuesto, sin autorización de implementación: enlazar fuentes originales,
+actualizar SystemCoreClock mediante CMSIS tras memoria y antes de Timer, e Init/Start
+desde main. No SystemInit/cambios de PLL/flash, no GPIO/consumidores ficticios.
+Conservar biblioteca original; cualquier compatibilidad de build fuera de Drivers.

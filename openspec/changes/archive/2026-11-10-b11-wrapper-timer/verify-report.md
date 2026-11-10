@@ -61,15 +61,14 @@ con arm-none-eabi-gcc -DTIMER_BASE_MS=valor; sólo compilación, no ejecución A
 Próxima acción: revisar/aceptar el resultado del wrapper antes de promover specs.
 
 ## Corrección del encabezado posterior a39ab465
-+
-+Usuario informó «Cannot resolve symbol _Static_assert» en Timer.h. Reproducción:
-+header válido en C11, pero g++17 estricto rechaza _Static_assert en línea23.
-+Esto es compatible con una interpretación del header fuera de C11; no se observó
-+directamente el analizador de CLion. Se sustituyó por #if/#error equivalente:
-+misma validación positiva/conversión uint32, sin cambios de API ni runtime.
-+
-+Ejecutado después: header C11/C++17/ARM-C11 con default1 y bases2/5 PASS;0 y4294968
-+rechazados como corresponde en los tres modos. Timer.c ARM-C11 estricto compila;
-+host17/17 y Doxygen HTML/XML sin avisos. Drivers90 hashes intactos y originales.
-+No prueba física ni verificación visual de CLion. Logs: /tmp/ed3-timer-header-error-nleunr8u.
-+
+
+Usuario informó «Cannot resolve symbol _Static_assert» en Timer.h. Reproducción:
+header válido en C11, pero g++17 estricto rechaza _Static_assert en línea23.
+Esto es compatible con una interpretación del header fuera de C11; no se observó
+directamente el analizador de CLion. Se sustituyó por #if/#error equivalente:
+misma validación positiva/conversión uint32, sin cambios de API ni runtime.
+
+Ejecutado después: header C11/C++17/ARM-C11 con default1 y bases2/5 PASS;0 y4294968
+rechazados como corresponde en los tres modos. Timer.c ARM-C11 estricto compila;
+host17/17 y Doxygen HTML/XML sin avisos. Drivers90 hashes intactos y originales.
+No prueba física ni verificación visual de CLion. Logs: /tmp/ed3-timer-header-error-nleunr8u.

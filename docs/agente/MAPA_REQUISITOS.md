@@ -92,10 +92,14 @@ Su evidencia en el cambio SDD y Git es histórica, no aceptación vigente.
 R01/R02/R08/R09/R10/R11/R15 relacionados con temporización quedan por resolver;
 definir juntos la responsabilidad del timer antes de especificar/implementar.
 
-B11 wrapper Timer (R10/R15, aclaración y autorización usuario 2026-11-10):
-WT1–WT3/S1–S3 candidato, implementación sólo Dispositivos/Timer.h/.c. USW17.1 init,
+B11 wrapper Timer (R10/R15), aceptado/archivado2026-11-10:
+WT1–WT3/S1–S3 vigentes en openspec/specs/timer/spec.md, implementación sólo Dispositivos/Timer.h/.c. USW17.1 init,
 17.14 start,17.2 read. Drivers originales intactos; Temporizacion.h eliminado.
 Evidencia: compilación host/ARM, dependencias exactas TIM_InitTimer/Enable/ReadTimer,
 header aislado, overrides1/2/5 compilados y0 rechazado, Doxygen35. Regresiones
 host17/17, ARM13/13. Operación temporal/enlace de biblioteca/placa no ejecutados.
-[Matriz/evidencia](../../openspec/changes/b11-wrapper-timer/verify-report.md).
+[Matriz/evidencia](../../openspec/changes/archive/2026-11-10-b11-wrapper-timer/verify-report.md).
+
+B12 propuesto (R01/R10/R15): enlace real TIM/CMSIS, actualización RAM de reloj y
+arranque Timer. Candidatos WT3/IT1/IT2/B00-R3; ninguna evidencia de aceptación B12
+ejecutada. Conectar GPIO/selector y demás consumidores queda fuera de este bloque.
