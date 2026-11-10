@@ -296,20 +296,29 @@ Ver [contrato vigente](openspec/specs/timer/spec.md),
 
 ## B12: dispositivos GPIO
 
-Implementado/verificado; resultado pendiente de aceptación. Se completaron los módulos
+Aceptado y archivado el2026-11-10, incluida la corrección de las salidas. Se completaron los módulos
 existentes con llamadas directas a la biblioteca original:
 
 - `Selector_Read()`: contacto en P2.6, activo por alto, mediante GPIO_ReadValue.
-- `LED_Write(contexto, activar)`: rojoP0.22, activo por bajo, mediante GPIO_SetPinState.
-- `Buzzer_Write(contexto, activar)`: P2.7, activo por alto, mediante GPIO_SetPinState.
+- `LED_Write(activar)`: rojoP0.22, activo por bajo, mediante GPIO_SetPinState.
+- `Buzzer_Write(activar)`: P2.7, activo por alto, mediante GPIO_SetPinState.
 
-Las salidas son compatibles con Driver_Alarmas; contexto ignorado/NULL y retorno true
-tras delegar no acreditan estado eléctrico. Lectura del selector sin antirrebote/mapeo
+Las salidas son void(bool), sin contexto ni retorno. Driver_Alarmas conserva su
+interfaz anterior hasta la revisión B07-R1 propuesta; conexión directa pendiente.
+Lectura del selector sin antirrebote/mapeo
 de modo. Dispositivos usa hardware/drivers directamente; servicios aceptados intactos.
 
-Host/sanitizadores18/18 (188 C), nueve casos nuevos y regresiones; ARM13/13 y módulos
+Host/sanitizadores18/18 (186 C), siete casos GPIO y regresiones; ARM13/13 y módulos
 O0/O2 compilados, Doxygen38 funciones propias sin avisos.90 archivos Drivers originales
 intactos. No ejecución física ni enlace de biblioteca; GPIO/PINSEL/dirección/polarización/
 FIOMASK y main se configuran al integrar, que por instrucción del usuario queda al final.
-Ver [candidato](openspec/changes/b12-dispositivos-gpio/specs/dispositivos-gpio/spec.md)
-y [verificación](openspec/changes/b12-dispositivos-gpio/verify-report.md).
+Ver [contrato vigente](openspec/specs/dispositivos-gpio/spec.md) y
+[verificación B12](openspec/changes/archive/2026-11-10-b12-dispositivos-gpio/verify-report.md).
+
+## Propuesta B07-R1: simplificar Driver_Alarmas
+
+Callbacks void(bool) y dos funciones sin contextos; conservar sólo ACEPTADA y
+ERROR_ARGUMENTO para despacho/validación. Orden LED→buzzer e independencia del MCU
+conservados. Migrar pruebas/fixture y demostrar composición directa con B12 en host.
+Pendiente de acuerdo, sin código ni pruebas nuevos ejecutados.
+Ver [propuesta](openspec/changes/b07-r1-salidas-sin-contexto/proposal.md).

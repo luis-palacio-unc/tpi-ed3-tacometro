@@ -1,0 +1,17 @@
+block: B07-R1
+change: b07-r1-salidas-sin-contexto
+status: proposed
+phase: tasks
+scope_approved: false
+result_accepted: false
+implementation_started: false
+verification_passed: false
+main_specs_synced: false
+proposed_on: '2026-11-10'
+base_commit: 92b4d62
+dependencies: [B06, B07, B12]
+drivers_modification_prohibited: true
+push_authorized: false
+commit_authorized_on_agreed_block_completion: true
+hardware_verified: false
+next_action: Acordar alcance y criterio B07-R1 antes de implementar.

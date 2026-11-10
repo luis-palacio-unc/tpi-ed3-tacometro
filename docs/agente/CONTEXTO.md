@@ -223,10 +223,11 @@ siempre intentando ambos, y clasifica aceptación/error LED/buzzer/ambos sin ret
 ACEPTADA sólo acredita aceptación del proveedor, no nivel eléctrico. Servicio sin
 dependencia de aplicación, sensores, GPIO o MCU; funciones de salida deben retornar.
 Interfaz/contextos estables/vivos y acceso serializado externos; pila/tiempo total
-dependen de proveedores. Proveedor resuelve su polaridad/hardware, todavía no implementado.
+dependen de proveedores. B12 ya resuelve polaridad/hardware; su conexión al servicio
+requiere revisar este contrato mediante B07-R1, aún propuesto.
 Adaptación B06 en pruebas: sólo decisiones evaluables generan solicitud; ausencia/error
 conserva diagnóstico y no emite órdenes. No integra main ni define patrón físico de fallo.
-Contrato de salidas-alarma vigente; interfaces de dispositivos siguen pendientes.
+Contrato de salidas-alarma vigente; adaptación al nuevo B12 pendiente de B07-R1.
 
 ## Documentación final y B08
 
@@ -308,7 +309,7 @@ Nueva instrucción2026-11-10: inicialización de periféricos, enlace e integrac
 global se dejan para el final. Completar primero elementos de Dispositivos mediante
 wrappers de drivers originales; prohibición de modificar biblioteca vigente.
 La propuesta b12-integracion-arranque-timer está pospuesta, no aceptada.
-B12 activo b12-dispositivos-gpio: alcance autorizado, implementado/verificado, resultado sin aceptar.
+B12 corregido aceptado/archivado2026-11-10; contrato dispositivos-gpio vigente.
 Usuario corrige selector/buzzer a activos por alto, pines P2 sin funciones EINTx.
 Elegidos selectorP2.6 y buzzerP2.7; P2.10–13 reservados EINT0–3, P2.0–5 libres.
 LED rojoP0.22 activo bajo según esquema OM13085 revD; revisión física pendiente.
@@ -323,6 +324,9 @@ B12 implementa sólo Selector_Read (GPIO_ReadValue/P2.6 alto), LED_Write
 (GPIO_SetPinState/P0.22 bajo) y Buzzer_Write (GPIO_SetPinState/P2.7 alto).
 Corrección autorizada2026-11-10: ambas salidas void(bool activar), sin contexto
 ni retorno ficticio. Driver_Alarmas/B07 se revisará por separado; su firma actual
-no admite estas funciones directamente. No agregar adaptadores/casts temporales.
+no admite estas funciones directamente. Propuesta b07-r1-salidas-sin-contexto
+pendiente de acuerdo: dos funciones void(bool), sin contextos; conservar únicamente
+ACEPTADA/ERROR_ARGUMENTO para despacho/validación. No implementarla todavía.
+No agregar adaptadores/casts temporales.
 Tres USW.13.1/.14.1/.15.1 documentadas. Sin estado mutable ni nuevos servicios.
 Inicialización/enlace y uso desde main se mantienen para integración final.
