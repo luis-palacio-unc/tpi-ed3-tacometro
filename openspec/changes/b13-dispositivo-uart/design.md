@@ -10,7 +10,7 @@ de UART.h sobre buffers/interrupciones con una obligación de este bloque.
 | Decisión | Razón |
 |---|---|
 | Dos funciones UART_Read/UART_Write con uint32_t de progreso | Reflejan conteo real de driver y permiten binario/envío parcial sin estados ficticios. |
-| UART0 propuesto, macro del driver privada en .c | Recurso concreto en Dispositivos; evita otra capa genérica/proveedor/contexto. |
+| UART0 acordado, macro del driver privada en .c | Recurso concreto en Dispositivos; evita otra capa genérica/proveedor/contexto. |
 | Una llamada a Receive/Send con NONE_BLOCKING | La biblioteca ya resuelve FIFO, comprobaciones de disponibilidad y bucles. |
 | Guardar NULL/tamaño0 antes de delegar | Evita acceso inválido sin crear diagnósticos que hardware no proporciona. |
 | Sin colas/IRQ/init ahora | Mantiene el bloque verificable y respeta integración/configuración finales. |
@@ -33,7 +33,15 @@ no sirve para diferenciar error de línea ni confirma recepción por la PC.
 Precondiciones físicas: UART0 configurada, reloj correcto, pines habilitados,
 DLAB=0, RX/TX/FIFO activos, sin otro escritor/lector ISR/DMA. TX del driver escribe
 ráfagas hasta16 bytes al ver THRE; configurar FIFO antes de usar. Baudios/formato,
-cableado y conversor pendientes; PINSEL0 admite P0.2/P0.3, no configurar ahora.
+cableado y conversor pendientes. TX P0.2/RX P0.3 asignados, función01 según
+manual tabla80/p118 revisada en imagen; el driver ofrece UART_PinConfig para
+configurarlos al integrar. No configurar ahora ni duplicar PINSEL.
+
+Aclaración autorizada: UART_BAUDRATE en UART.h, default115200 con #ifndef para
+override de compilación. Validar >0 y <=UINT32_MAX con #if/#error (sin _Static_assert
+en header). Es un parámetro preparado para el UART_CFG_T.baudRate futuro;
+no es baudrate aplicado ni acredita divisores/error con reloj real. No añadir
+init/getter/setter, más archivos de configuración o macros de pines duplicadas.
 
 ## Archivos al implementar
 
@@ -56,6 +64,10 @@ Host/sanitizadores, regresiones y objetos ARM con headers originales; aislar hea
 revisar recursos propios/símbolos y Doxygen estricto. No enlazar conjunto de biblioteca
 o main ahora. No atribuir al test de doble el comportamiento eléctrico del driver.
 
-Pendiente de acuerdo del bloque/recurso UART0. No hace falta fijar baudios para
-probar estas operaciones, pero serán indispensables antes de su uso en placa.
+Alcance/UART0 acordados2026-11-10. Verificar default/overrides de UART_BAUDRATE
+y rechazar0/negativo/exceso. Aplicación de baudios/pinmux al hardware sigue pendiente.
 Hardware, errores de línea, cadencia/colas y aplicación se resuelven al integrar.
+
+Implementado/verificado según este diseño; resultado pendiente de aceptación.
+Pruebas realmente ejecutadas y límites en verify-report.md. No afirmar configuración
+de pines/baudios aplicada por haber asignado el recurso o compilado el parámetro.

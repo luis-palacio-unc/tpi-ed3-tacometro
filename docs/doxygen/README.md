@@ -10,13 +10,13 @@ para generar documentación sin autorización.
   precondiciones y concurrencia. Tipos, miembros y constantes también documentados.
 - Mantener comentarios de contrato fuera del cuerpo de funciones de producción,
   como pide la guía del TPI.
-- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, Driver_Motor, LM35, Limites, Configuracion/Medicion.h, Timer, Selector, LED y Buzzer. No usar EXTRACT_ALL para ocultar falta de documentación.
+- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, Driver_Motor, LM35, Limites, Configuracion/Medicion.h, Timer, Selector, LED, Buzzer y UART. No usar EXTRACT_ALL para ocultar falta de documentación.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
-Validación actual B12 GPIO:38 funciones/USW en XML (7 Procesamiento,
+Validación actual B13 UART:40 funciones/USW en XML (7 Procesamiento,
 10 Comunicacion, 2 Medicion_Velocidad, 5 Mandos, 2 Temperatura, 2 LM35,
-Driver_Alarmas, 2 Driver_Motor, tres Timer, Selector, LED, Buzzer y main), sin avisos.
+Driver_Alarmas, 2 Driver_Motor, tres Timer, Selector, LED, Buzzer, dos UART y main), sin avisos.
 USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
 Documentar unidades físicas/estados en el servicio y conversión/errores específicos
 en LM35. La inclusión de archivos del dispositivo no introduce dependencia del servicio.
@@ -78,3 +78,9 @@ B07-R1 conserva ESW.2.1.6/USW.2.1.6.1: dos funciones void(bool) sin contextos,
 enum ACEPTADA/ERROR_ARGUMENTO, validación completa previa/orden/retornos y acceso
 serializado documentados. Sin diagnósticos físicos de salida. Doxyfile ya cubre el
 servicio; HTML/XML estricto38 funciones sin avisos, sin relajar controles.
+
+B13 agrega ESW.2.1.16/USW.2.1.16.1/.2: UART_Read/Write y UART_BAUDRATE documentados.
+INPUT incluye UART.h/.c. P0.2 TX/P0.3 RX, modo no bloqueante, cantidades/bytes,
+NULL/cero, progreso parcial, vida/serialización y configuración previa documentados.
+Parámetro115200 modificable, no aplicado al hardware hasta inicialización final.
+Doxygen HTML/XML40 funciones sin avisos; no se relajan controles.

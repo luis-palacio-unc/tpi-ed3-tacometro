@@ -325,10 +325,20 @@ Se probaron composición directa y regresiones, sin inicialización/main/ensayo 
 Ver [cambio](openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/proposal.md) e
 [informe](openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/verify-report.md).
 
-## Propuesta B13: UART de dispositivos
+## B13: UART0 de dispositivos
 
-UART_Read/UART_Write con buffers externos, retorno de cantidad de bytes y driver
-original NONE_BLOCKING; UART0 propuesto. Sin init/colas propias/ISR/protocolo ni
-conexión a Comunicacion/main. Pruebas y Doxygen previstos, todavía no ejecutados.
-Baudios/formato/pines/cableado y uso por aplicación para integración final.
-Ver [propuesta](openspec/changes/b13-dispositivo-uart/proposal.md).
+Alcance/UART0 acordados, implementado/verificado; resultado pendiente de aceptación.
+UART_Read/UART_Write delegan una vez a UART_Receive/Send con NONE_BLOCKING y
+retornan cantidad real, permitiendo progreso parcial/cero. NULL/tamaño0 no accede
+al driver ni buffer; sin protocolo, estado propio, heap, colas o ISR nuevos.
+
+Asignación del manual UM10360 tabla80/p118: TXD0 P0.2 y RXD0 P0.3, función01.
+UART_BAUDRATE en Dispositivos/UART.h, default115200, editable u override -D del
+compilador; rechaza0/negativo/exceso uint32. El parámetro todavía no se aplica al
+hardware: pinmux, baudios/reloj/formato/FIFO y conexión a Comunicacion/main al final.
+
+Host/sanitizadores19/19,194 casos C+oráculo Python;11 casos UART nuevos. ARM13/13
+y objetos UART-O0/O2 compilados, Doxygen40 funciones sin avisos.90 archivos Drivers
+originales y otros módulos intactos. Sin ejecución MCU/simulación/ensayo eléctrico.
+Ver [cambio](openspec/changes/b13-dispositivo-uart/proposal.md) y
+[evidencia](openspec/changes/b13-dispositivo-uart/verify-report.md).

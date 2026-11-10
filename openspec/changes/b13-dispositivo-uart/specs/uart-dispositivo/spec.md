@@ -1,6 +1,6 @@
 # UART dispositivo — candidato B13
 
-Origen R09/R10/R11/R15. Propuesta pendiente de acuerdo; no contrato vigente.
+Origen R09/R10/R11/R15. Alcance/UART0 acordados2026-11-10; resultado sin aceptar.
 
 ## Requirements
 
@@ -61,6 +61,17 @@ reloj, colas propias, ISR/DMA, heap o globals mutables. Configuración UART/pine
 reloj/FIFO/DLAB=0 y exclusividad con ISR/DMA MUST ser precondiciones externas.
 MUST documentar ESW/USW, probar límites/bytes/progreso en host y compilar ARM.
 MUST separar prueba con doble de API de funcionamiento físico/tiempos reales.
+
+Asignación MUST ser UART0, TX P0.2/RX P0.3, PINSEL0 función01 según tabla80
+del manual. UART_BAUDRATE MUST ser parámetro entero positivo uint32_t configurable
+al compilar en UART.h, default115200. Cero/negativo/exceso MUST rechazarse al compilar;
+esta validación MUST NOT afirmar tasa físicamente realizable. Parámetro/pines se
+aplicarán al configurar periféricos en integración final, no mediante init nuevo aquí.
+
+#### Scenario: S7 — Pines y parámetro configurables
+- Given manual y compilaciones con default/overrides positivos o inválidos.
+- When se documenta asignación y se compila el header/módulo.
+- Then MUST conservar TX P0.2/RX P0.3, aceptar overrides representables y rechazar inválidos, sin iniciar hardware.
 
 #### Scenario: S6 — Verificación y alcance
 - Given funciones con driver emulado y headers originales para compilar módulos.

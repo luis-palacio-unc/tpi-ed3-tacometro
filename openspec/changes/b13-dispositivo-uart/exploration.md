@@ -24,3 +24,10 @@ Recomendación: UART0 como recurso propuesto y dos funciones de transferencia si
 esperas añadidas. Son operaciones síncronas de duración dependiente del tamaño,
 no un sistema de comunicación completo ni una garantía temporal. Diagnóstico de
 overrun/paridad/framing y política de colas/servicio quedan pendientes de integración.
+
+Acuerdo2026-11-10: UART0 confirmado; usuario pide pines del manual y baudios
+configurables. Tabla80/p118 renderizada e inspeccionada: P0.2 TXD0/P0.3 RXD0,
+función01. Driver UART_PinConfig ya contempla esos pines; reservar su uso para
+inicialización final. UART_BAUDRATE default115200 modificable en UART.h; sin init
+nuevo ni afirmar baudios aplicados. Render Poppler produjo avisos de caché fontconfig
+por falta de ruta escribible; imagen generada/inspeccionada legible, sin ocultarlos.

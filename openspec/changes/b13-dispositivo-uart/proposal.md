@@ -1,6 +1,6 @@
 # B13 — Lectura y escritura UART mediante el driver existente
 
-Estado: propuesta pendiente de acuerdo; no implementar todavía.
+Estado: alcance/UART0 acordados2026-11-10, implementación autorizada; resultado pendiente de aceptación.
 
 ## Objetivo y origen
 
@@ -22,17 +22,20 @@ reutilizando UART_Receive/UART_Send con NONE_BLOCKING, sin protocolo en el dispo
 Archivos: Dispositivos/UART.h/.c, tests/host/test_uart.c, CMakeLists.txt,
 docs/doxygen/Doxyfile, README y seguimiento SDD. Drivers/servicios/otros dispositivos intactos.
 
-Excluye inicialización UART/PINSEL/reloj/FIFO, baudios/formato físico, buffers/IRQ/DMA,
+Excluye inicialización UART/PINSEL/reloj/FIFO y aplicar baudios/formato físico, buffers/IRQ/DMA,
 timeouts/diagnóstico de línea, conexión a Comunicacion/main y ensayos físicos.
+Aclaración del usuario: asignar P0.2/TXD0 y P0.3/RXD0 confirmados en manual;
+UART_BAUDRATE configurable en UART.h (inicial115200), aplicado al inicializar al final.
 El comentario del esqueleto sobre buffers/interrupciones es una intención previa,
 no requisito implementado; se resolverá al integrar si es necesario.
 
 ## Dependencias, pendientes y aceptación
 
-UART0 es la elección propuesta de periférico; P0.2/TXD0 y P0.3/RXD0 son opciones
-documentadas, sin configurar/reservar cableado ahora. Uso físico requiere reloj,
+UART0 y pines P0.2/TXD0/P0.3/RXD0 quedan asignados; PINSEL0 función01
+según manual tabla80/p118, verificado en imagen. No se configura hardware ahora. Uso físico requiere reloj,
 pines, UART/FIFO habilitados y DLAB=0; sin otro consumidor ISR/DMA concurrente.
-Baudios, trama, cableado/conversor y cadencia se acordarán en integración final.
+El parámetro de baudios se deja preparado; trama, cableado/conversor y cadencia
+se acordarán en integración final, junto con aplicar su configuración física.
 
 1. Lecturas/envíos completos, parciales y cero conservan orden/bytes binarios y
    devuelven el progreso real; RX preserva canarios/cola, TX no modifica origen.

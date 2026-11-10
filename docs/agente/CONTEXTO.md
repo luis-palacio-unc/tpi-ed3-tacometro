@@ -330,8 +330,11 @@ verificada en host, R1 aceptado. Sin adaptadores/casts; no hay conexión desde m
 Tres USW.13.1/.14.1/.15.1 documentadas. Sin estado mutable ni nuevos servicios.
 Inicialización/enlace y uso desde main se mantienen para integración final.
 
-B13 propuesto, sin acuerdo/implementación: dispositivo UART con dos transferencias
-no bloqueantes, buffers externos y conteo real de bytes; UART0 propuesto, no asignado
-por acuerdo todavía. Reutilizar driver original. Configuración/FIFO/DLAB/pines y
-exclusividad previas al uso físico; baudios/cableado, integración y diagnóstico de
-línea pendientes. No añadir init/colas/ISR ni modificar servicios en ese bloque.
+B13 con alcance/UART0 acordados2026-11-10, implementado/verificado; resultado
+pendiente de aceptación. UART_Read/Write retornan uint32_t bytes, delegación única
+a Receive/Send NONE_BLOCKING; NULL/tamaño0 sin accesos, sin buffers/estado propios.
+TX P0.2/RX P0.3 función01 asignados según manual tabla80/p118 inspeccionada.
+UART_BAUDRATE en UART.h, default115200 con override -D, positivo representable;
+no aplicado al hardware. PinConfig/Init/reloj/formato/FIFO/DLAB y exclusividad previos
+al uso físico se resolverán en integración final. Sin servicios/main/colas/ISR
+nuevos ni cambios en Drivers. Diagnóstico de línea y cableado/conversor pendientes.

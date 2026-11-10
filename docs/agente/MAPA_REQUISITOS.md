@@ -115,7 +115,9 @@ SA1–SA4/S1–S9 conformes:8 casos servicio+4 térmicos+8 GPIO; host/san18/18,1
 y oráculo Python; ARM13/13/fixture Release; Doxygen38. B06/B12/Drivers intactos.
 [Evidencia](../../openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/verify-report.md).
 
-B13 propuesto (R09/R10/R11/R15): Dispositivos/UART.h/.c, dos operaciones de bytes
-no bloqueantes con driver original; UART0 y UD1–UD4/S1–S6 candidatos, sin pruebas
-ejecutadas. Recepción/transmisión física y uso por Comunicacion/main pendientes.
-[Propuesta](../../openspec/changes/b13-dispositivo-uart/proposal.md).
+B13 alcance/UART0 acordados, implementado/verificado, resultado sin aceptar
+(R09/R10/R11/R15): UART_Read/Write, TX P0.2/RX P0.3 función01 asignados y
+UART_BAUDRATE configurable. UD1–UD4/S1–S7:11 casos UART; host/san19/19,194 C
+y oráculo; ARM13/13/O0/O2; Doxygen40. Parámetro/pinmux aún sin aplicar; integración/
+ensayo físico pendientes, Drivers/servicios intactos.
+[Evidencia](../../openspec/changes/b13-dispositivo-uart/verify-report.md).
