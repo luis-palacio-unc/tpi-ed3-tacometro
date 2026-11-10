@@ -2,37 +2,45 @@
 
 ## Punto actual
 
-- Repo `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`, main;
-  consultar HEAD. Publicado cb380bc;4260249/92b4d62 y cierre documental locales.
-- B00–B12/B03-R1 aceptados/archivados. B12 corregido aceptado2026-11-10: contrato
-  openspec/specs/dispositivos-gpio/spec.md; archivo2026-11-10-b12-dispositivos-gpio.
-- Selector_Read bool(void) P2.6 alto; LED_Write/Buzzer_Write void(bool), P0.22 bajo/
-  P2.7 alto, sin contexto/retorno. Doxygen vigente. Biblioteca90 originales intactos.
-- Activo propuesto: b07-r1-salidas-sin-contexto, B07-R1. Alcance pendiente de acuerdo;
-  sin implementación/pruebas de revisión. Propuesta/spec/diseño/tareas preparados.
-- Driver_Alarmas aún bool(void*,bool)/contextos/5 estados. B07-R1 propone void(bool),
-  dos callbacks sin contextos y sólo ACEPTADA/ERROR_ARGUMENTO (despacho/validación).
-  Servicio seguirá sin dependencia del MCU. Conexión B12 pendiente hasta implementar.
-- Inicialización/enlace global/main/hardware para el final. No modificar Drivers;
-  b12-integracion-arranque-timer deferred. Sin push autorizado.
+- Repo `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`,
+  main, consultar HEAD. Base local bae59e1; publicado cb380bc; commits locales sin push.
+- B00–B12/B03-R1 aceptados/archivados. Activo B07-R1 b07-r1-salidas-sin-contexto:
+  alcance autorizado2026-11-10, implementado/verificado; resultado sin aceptar.
+- Driver_Alarmas actual: dos funciones void(bool), sin contextos ni errores de
+  proveedor; ACEPTADA=despacho, ERROR_ARGUMENTO=interfaz incompleta sin efectos.
+  Validación previa completa y orden LED→buzzer, sin estado/cache/init/esperas.
+- Composición con LED_Write/Buzzer_Write real probada en host; sin adaptadores/casts.
+  Decisión B06 preservada, ausencia/error no emite orden desde adaptador de prueba.
+- Drivers90 originales a21cc1e intactos; código B06/B12, otros servicios/main y
+  archivos/contratos aceptados conservados. Servicio sin dependencia del MCU.
+- Commit local autorizado al terminar; sin push, sincronización o archivo del cambio
+  hasta aceptación/orden correspondientes. No iniciar bloque posterior.
 
-## Evidencia aceptada y cierre
+## Verificación ejecutada B07-R1
 
-B12 (92b4d62): host/san18/18,186 casos C y oráculo Python;7 casos GPIO directos.
-ARM13/13 y salidasO0/O2 compiladas, no ejecutadas. Doxygen38 sin avisos.
-Negativos de polaridad detectados, Drivers/B06/B07 conservados; sin ensayo físico.
-[Evidencia B12](../../openspec/changes/archive/2026-11-10-b12-dispositivos-gpio/verify-report.md).
+| Modalidad | Resultado |
+|---|---|
+| RED→GREEN |Incompatibilidad previa detectada;3 suites afectadas pasan |
+| Host/san |18/18 cada uno,183 casos C+oráculo Python; sin hallazgos |
+| Casos afectados |8 servicio,4 térmicos,8 GPIO (incluye composición nueva) |
+| Regresiones |11199 ternas velocidad,5096 pares codec,4096 muestras/400 vueltas selector |
+| ARM |Debug13/13 y fixture B07 Release; compilación/enlace, no ejecución |
+| Aislamiento |ServicioO0/O2 sólo headers Servicios, sin símbolos externos directos; header C11/C++17 |
+| Doxygen |38 funciones únicas HTML/XML sin avisos; USW6.1 revisada |
+| Negativos |Detectan orden invertido, omisión buzzer y actuación antes de validar |
+| Recursos propios |.text68/40 bytes-O0/O2,.data/.bss0,marco16 bytes sin salidas/caller/IRQ |
+| Preservación |245 archivos protegidos intactos,90 Drivers originales; B06/B12/historial conservados |
 
-Cierre actual sólo documental: sincronización normativa DG1–DG3/S1–S4, archivo,
-hashes/enlaces/estructura/diff. No se repiten pruebas de firmware ni se atribuyen
-las previas a B07-R1. Logs externos: /tmp/ed3-cierre-b12-propuesta-b07r1-eh97fprw.
+[Informe](../../openspec/changes/b07-r1-salidas-sin-contexto/verify-report.md).
+Logs externos: /tmp/ed3-b07r1-salidas-4pkq_eul.
+Host GPIO es doble API; sin biblioteca/CPU/electricidad simuladas. No pruebas
+físicas/ejecución ARM/flasheo/instalación/publicación. Sin modificar controles.
 
-## Próxima acción y límites
+## Próxima acción
 
-Acordar [B07-R1](../../openspec/changes/b07-r1-salidas-sin-contexto/proposal.md).
-Después implementar/migrar consumidores, verificar y commit local; no comenzar aún.
-Contrato salidas-alarma sigue vigente hasta aceptación de la revisión. No casts/
-adaptadores temporales. GPIO exige dirección/mux/polarización/FIOMASK previos y
-acceso serializado. Revisión física/cableado/configuración/enlace pendientes.
-Quedan Motor, Sensor_Optico, Potenciometro, UART, ADC-DMA/adquisición LM35 y
-regulación/integración. Diagramas del informe al completar todos los ESW.
+Revisar/aceptar resultado B07-R1 antes de sincronizar salidas-alarma y archivar;
+su contrato vigente todavía describe B07 anterior. Evidencia nueva en cambio activo.
+Inicialización GPIO/mux/dirección/polarización/FIOMASK, reloj/enlace global/main y
+pruebas físicas siguen diferidos al final. Acceso/funciones deben estar serializados
+y estables. Quedan Motor, Sensor_Optico, Potenciometro, UART, ADC-DMA/LM35 y
+regulación/integración. b12-integracion-arranque-timer deferred; no retomarlo ahora.

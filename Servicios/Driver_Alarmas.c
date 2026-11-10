@@ -1,9 +1,9 @@
 /**
  * @file Driver_Alarmas.c
  * @brief Validacion y envio coordinado de solicitudes a dos salidas abstractas.
- * @details Funciones invocadas en instrucciones separadas para evitar cortocircuito
- * de la segunda salida ante fallo de la primera. Resultado de esta llamada solamente.
- * @note ESW.2.1.6. Proveedores externos; sin dependencia de aplicacion o dispositivos.
+ * @details Valida ambas funciones antes de invocar LED y luego buzzer, sin contexto
+ * ni retorno de proveedor. El resultado informa solo argumento valido y despacho.
+ * @note ESW.2.1.6. Sin dependencia de aplicacion, dispositivos o biblioteca del MCU.
  */
 #include "Driver_Alarmas.h"
 #include <stddef.h>
@@ -18,17 +18,8 @@ Driver_Alarmas_Estado Driver_Alarmas_Aplicar(const Driver_Alarmas_Salidas *salid
     if (salidas == NULL || salidas->escribir_led == NULL || salidas->escribir_buzzer == NULL) {
         return DRIVER_ALARMAS_ERROR_ARGUMENTO;
     }
-    const bool led_ok = salidas->escribir_led(salidas->contexto_led, activar);
-    const bool buzzer_ok = salidas->escribir_buzzer(salidas->contexto_buzzer, activar);
-    if (!led_ok && !buzzer_ok) {
-        return DRIVER_ALARMAS_ERROR_AMBOS;
-    }
-    if (!led_ok) {
-        return DRIVER_ALARMAS_ERROR_LED;
-    }
-    if (!buzzer_ok) {
-        return DRIVER_ALARMAS_ERROR_BUZZER;
-    }
+    salidas->escribir_led(activar);
+    salidas->escribir_buzzer(activar);
     return DRIVER_ALARMAS_ACEPTADA;
 }
 

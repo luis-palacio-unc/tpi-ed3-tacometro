@@ -1,3 +1,4 @@
+#include "Driver_Alarmas.h"
 #include "Selector.h"
 #include "LED.h"
 #include "Buzzer.h"
@@ -123,6 +124,27 @@ static bool SalidasIntercaladas(void)
     return true;
 }
 
+static bool ComposicionAlarmasSinAdaptadores(void)
+{
+    const Driver_Alarmas_Salidas salidas = {LED_Write, Buzzer_Write};
+    const bool pedidos[] = {true, false, false, true};
+    const uint32_t patrones[] = {0U, UINT32_MAX, UINT32_C(0xAAAAAAAA), UINT32_C(0x55555555)};
+    for (size_t p = 0U; p < sizeof(patrones) / sizeof(patrones[0]); ++p) {
+        Preparar(); puertos[0] = patrones[p]; puertos[2] = patrones[p];
+        uint32_t esperado[5]; memcpy(esperado, puertos, sizeof(esperado));
+        const bool selector = (patrones[p] & SELECTOR_MASK) != 0U;
+        for (size_t i = 0U; i < sizeof(pedidos) / sizeof(pedidos[0]); ++i) {
+            if (pedidos[i]) { esperado[0] &= ~LED_MASK; esperado[2] |= BUZZER_MASK; }
+            else { esperado[0] |= LED_MASK; esperado[2] &= ~BUZZER_MASK; }
+            CHECK(Driver_Alarmas_Aplicar(&salidas, pedidos[i]) == DRIVER_ALARMAS_ACEPTADA);
+            CHECK(memcmp(esperado, puertos, sizeof(esperado)) == 0);
+            CHECK(Selector_Read() == selector);
+            CHECK(escrituras == 2U * (i + 1U) && !error_modelo);
+        }
+    }
+    return true;
+}
+
 int main(void)
 {
     const struct { const char *nombre; bool (*ejecutar)(void); } casos[]={
@@ -130,10 +152,11 @@ int main(void)
         {"SelectorIgnoraOtrosPuertos",SelectorIgnoraOtrosPuertos},{"LedActivoBajo",LedActivoBajo},
         {"BuzzerActivoAlto",BuzzerActivoAlto},
         {"RepeticionRestauraSalida",RepeticionRestauraSalida},
-        {"SalidasIntercaladas",SalidasIntercaladas}};
+        {"SalidasIntercaladas",SalidasIntercaladas},
+        {"S9 ComposicionAlarmasSinAdaptadores",ComposicionAlarmasSinAdaptadores}};
     for(unsigned i=0U;i<sizeof(casos)/sizeof(casos[0]);++i) {
         if(!casos[i].ejecutar()) { fprintf(stderr,"FAIL %s\n",casos[i].nombre); return 1; }
     }
-    puts("PASS B12: 7 casos; GPIO modelado por API, sin ejecutar perifericos.");
+    puts("PASS B12/B07-R1: 8 casos; GPIO modelado por API, sin ejecutar perifericos.");
     return 0;
 }

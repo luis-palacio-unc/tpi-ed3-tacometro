@@ -1,6 +1,6 @@
 # Delta candidato B07-R1 — salidas de alarma
 
-Origen R07/R10/R11/R15 y corrección usuario2026-11-10. Propuesta sin acuerdo;
+Origen R07/R10/R11/R15 y corrección usuario2026-11-10. Alcance acordado;
 no sustituye el contrato vigente hasta implementar, verificar y aceptar el resultado.
 
 ## MODIFIED Requirements

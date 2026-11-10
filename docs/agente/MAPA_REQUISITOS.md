@@ -105,11 +105,12 @@ B12 GPIO corregido aceptado/archivado2026-11-10 (R05/R07/R10/R11/R15): Selector/
 activos altos por corrección del usuario; LED rojo/P0.22 bajo según esquema NXP.
 DG1–DG3/S1–S4 corregidos por usuario: salidas void(bool), sin contexto/retorno.
 Siete casos de polaridad/aislamiento/repetición; host/san18/18 y186 C; ARM13/13,
-salidasO0/O2 y Doxygen38. Drivers/B07 intactos; composición pendiente de revisión B07.
+salidasO0/O2 y Doxygen38. Drivers/B07 originales intactos durante B12; composición resuelta en revisión R1 pendiente de aceptación.
 [Evidencia](../../openspec/changes/archive/2026-11-10-b12-dispositivos-gpio/verify-report.md).
 Manual UM10360 rev4.1 tabla84/p120 y cap9 revisados. Inicialización/enlace finales.
 
-B07-R1 propuesta, sin acuerdo/implementación (R07/R10/R11/R15): callbacks void(bool),
-dos funciones sin contextos ni errores de proveedor; despacho/argumentos válidos
-comprobables y composición B12. S1–S9 candidatos, pruebas pendientes.
-[Propuesta](../../openspec/changes/b07-r1-salidas-sin-contexto/proposal.md).
+B07-R1 alcance acordado, implementado/verificado, resultado pendiente de aceptación
+(R07/R10/R11/R15): void(bool), dos funciones sin contextos; sólo despacho/argumento.
+SA1–SA4/S1–S9 conformes:8 casos servicio+4 térmicos+8 GPIO; host/san18/18,183 C
+y oráculo Python; ARM13/13/fixture Release; Doxygen38. B06/B12/Drivers intactos.
+[Evidencia](../../openspec/changes/b07-r1-salidas-sin-contexto/verify-report.md).

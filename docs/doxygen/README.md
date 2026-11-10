@@ -71,5 +71,10 @@ funciones propias únicas, HTML/XML sin avisos. Temporizacion.h y Tiempo no exis
 B12 incluye Selector/LED/Buzzer.h/.c con USW.2.1.13.1/.14.1/.15.1. Documenta
 pines/niveles, delegación a biblioteca, configuración previa y serialización.
 Corrección: LED_Write/Buzzer_Write void(bool activar), sin contexto ni @return.
-Driver_Alarmas/B07 conserva contrato hasta revisión separada; composición pendiente.
+B07-R1 documenta su nueva interfaz void(bool); composición directa verificada en host.
 HTML/XML estricto38 funciones propias únicas, sin avisos ni controles relajados.
+
+B07-R1 conserva ESW.2.1.6/USW.2.1.6.1: dos funciones void(bool) sin contextos,
+enum ACEPTADA/ERROR_ARGUMENTO, validación completa previa/orden/retornos y acceso
+serializado documentados. Sin diagnósticos físicos de salida. Doxyfile ya cubre el
+servicio; HTML/XML estricto38 funciones sin avisos, sin relajar controles.

@@ -1,6 +1,6 @@
 # B07-R1 — Simplificar la interfaz de salidas de alarma
 
-Estado: propuesta pendiente de acuerdo; no implementar todavía.
+Estado: alcance/criterio acordados2026-11-10; implementación autorizada, resultado pendiente de aceptación.
 
 ## Objetivo y origen
 

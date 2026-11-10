@@ -56,6 +56,6 @@ ASan/LSan/UBSan y regresiones. ARM: build y fixture adaptado, no ejecución.
 Header/servicio aislado con sólo include de Servicios; Doxygen HTML/XML estricto,
 hashes de biblioteca/B12/B06 y revisión de memoria/pila apropiada al código final.
 
-Sin hardware necesario para aceptar la lógica. Configuración/enlace global y
-comprobación eléctrica siguen para integración final. Ninguna prueba de esta
-revisión está ejecutada todavía. Pendiente: acuerdo del alcance/criterio propuesto.
+Implementado según este diseño y verificado tras acuerdo2026-11-10; evidencia
+real en verify-report.md. Configuración/enlace global y comprobación eléctrica
+siguen para integración final. Resultado pendiente de aceptación.

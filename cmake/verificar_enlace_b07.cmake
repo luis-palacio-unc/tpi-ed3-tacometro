@@ -19,15 +19,18 @@ static Temperatura_Lectura lectura;
 static volatile int32_t temperatura = 2534;
 static volatile int32_t umbral = 2500;
 static volatile Driver_Alarmas_Estado resultado;
-static bool EscribirSalidaEmulada(void *contexto, bool activar)
+static void EscribirLedEmulado(bool activar)
 {
-    SalidaEmulada *salida = contexto;
-    salida->ultima_solicitud = activar;
-    ++salida->llamadas;
-    return true;
+    led.ultima_solicitud = activar;
+    ++led.llamadas;
+}
+static void EscribirBuzzerEmulado(bool activar)
+{
+    buzzer.ultima_solicitud = activar;
+    ++buzzer.llamadas;
 }
 static const Driver_Alarmas_Salidas salidas = {
-    EscribirSalidaEmulada, &led, EscribirSalidaEmulada, &buzzer
+    EscribirLedEmulado, EscribirBuzzerEmulado
 };
 int main(void)
 {
@@ -72,7 +75,7 @@ if(NOT result EQUAL 0)
     message(FATAL_ERROR "No se pudieron inspeccionar simbolos B07: ${errors}")
 endif()
 foreach(required_symbol Driver_Alarmas_Aplicar Procesamiento_EvaluarAlarmaTemperatura
-        Temperatura_Inicializar Temperatura_Actualizar EscribirSalidaEmulada)
+        Temperatura_Inicializar Temperatura_Actualizar EscribirLedEmulado EscribirBuzzerEmulado)
     if(NOT symbols MATCHES "[ \t]${required_symbol}[\r\n]")
         message(FATAL_ERROR "API/proveedor B07 ausente: ${required_symbol}")
     endif()

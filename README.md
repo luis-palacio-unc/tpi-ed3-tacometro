@@ -179,24 +179,25 @@ y [evidencia B06](openspec/changes/archive/2026-11-09-b06-logica-alarma-temperat
 
 ## B07: coordinación portable de salidas de alarma
 
-B07 aceptado/archivado el 2026-11-09; contrato vigente sincronizado. Driver_Alarmas_Aplicar recibe
-activar/desactivar y una interfaz const de funciones/contextos para LED y buzzer.
-Valida toda la interfaz primero; intenta ambos canales una vez por llamada, LED
-antes de buzzer, incluso si LED falla. Retorna ACEPTADA, ERROR_ARGUMENTO, ERROR_LED,
-ERROR_BUZZER o ERROR_AMBOS, sin cachear órdenes ni resultados.
+B07 original aceptado/archivado; revisión B07-R1 implementada/verificada con alcance
+acordado2026-11-10, resultado pendiente de aceptación. Driver_Alarmas_Aplicar recibe
+activar/desactivar y una interfaz const con sólo dos funciones void(bool), sin contextos.
+Valida toda la interfaz antes de actuar y llama LED→buzzer una vez cada uno.
+Retorna sólo ACEPTADA (solicitud despachada) o ERROR_ARGUMENTO (interfaz NULL/
+incompleta, sin llamadas). No diagnostica fallos físicos ni retiene resultados.
 
-ACEPTADA es aceptación declarada por funciones, sin confirmar estado eléctrico.
-El proveedor resuelve hardware/polaridad; el servicio no incluye aplicación o dispositivos.
-Pruebas de adaptación B06 sólo emiten para ACTIVA/INACTIVA: ausencia/error conserva
-diagnóstico y no emite apagado. Adaptación real/main y GPIO siguen pendientes.
-Interfaz/contextos deben permanecer válidos/estables; serialización externa y funciones
-que retornen. No hay registro global, init, heap, reintentos o timeout en el servicio.
+El servicio no incluye aplicación, dispositivos o biblioteca del MCU. La prueba
+de composición conecta directamente LED_Write/Buzzer_Write sin adaptadores/casts.
+Adaptación térmica B06 sólo emite para ACTIVA/INACTIVA; ausencia/error conserva
+diagnóstico sin emitir apagado. Uso desde main/configuración física siguen pendientes.
+Interfaz/funciones estables y acceso serializado externos; sin init/heap/esperas.
 
-12 casos de servicio + cuatro integración: 131 C totales y 11199 ternas de regresión
-pasan en host/sanitizadores. ARM Debug 10/10, B07 Release 1/1; Doxygen estricto
-23 funciones/USW, incluida USW.2.1.6.1. Sin ejecución ARM o pruebas físicas.
-Ver [contrato vigente](openspec/specs/salidas-alarma/spec.md)
-y [evidencia B07](openspec/changes/archive/2026-11-09-b07-coordinacion-salidas-alarma/verify-report.md).
+Ocho casos de servicio, cuatro térmicos y ocho GPIO; host/sanitizadores18/18,
+183 casos C y oráculo Python. ARM Debug13/13 y fixture B07 Release válido, sin
+ejecución en MCU. Doxygen38 funciones, USW.2.1.6.1 revisada, sin avisos.
+Ver [evidencia B07-R1](openspec/changes/b07-r1-salidas-sin-contexto/verify-report.md).
+El [contrato aceptado anterior](openspec/specs/salidas-alarma/spec.md) se sincronizará
+al aceptar esta revisión; archivo B07 original conservado.
 
 ## B08: mando de motor portable
 
@@ -303,22 +304,23 @@ existentes con llamadas directas a la biblioteca original:
 - `LED_Write(activar)`: rojoP0.22, activo por bajo, mediante GPIO_SetPinState.
 - `Buzzer_Write(activar)`: P2.7, activo por alto, mediante GPIO_SetPinState.
 
-Las salidas son void(bool), sin contexto ni retorno. Driver_Alarmas conserva su
-interfaz anterior hasta la revisión B07-R1 propuesta; conexión directa pendiente.
-Lectura del selector sin antirrebote/mapeo
-de modo. Dispositivos usa hardware/drivers directamente; servicios aceptados intactos.
+Las salidas son void(bool), sin contexto ni retorno. La revisión B07-R1 ya
+comprueba conexión directa con Driver_Alarmas en host; resultado pendiente de aceptación.
+Lectura del selector sin antirrebote/mapeo de modo. Dispositivos usa los drivers
+originales directamente; el servicio se revisa por separado en B07-R1.
 
-Host/sanitizadores18/18 (186 C), siete casos GPIO y regresiones; ARM13/13 y módulos
+Evidencia al aceptar B12: host/sanitizadores18/18 (186 C), siete casos GPIO y regresiones; ARM13/13 y módulos
 O0/O2 compilados, Doxygen38 funciones propias sin avisos.90 archivos Drivers originales
 intactos. No ejecución física ni enlace de biblioteca; GPIO/PINSEL/dirección/polarización/
 FIOMASK y main se configuran al integrar, que por instrucción del usuario queda al final.
 Ver [contrato vigente](openspec/specs/dispositivos-gpio/spec.md) y
 [verificación B12](openspec/changes/archive/2026-11-10-b12-dispositivos-gpio/verify-report.md).
 
-## Propuesta B07-R1: simplificar Driver_Alarmas
+## B07-R1: interfaz de alarmas simplificada
 
-Callbacks void(bool) y dos funciones sin contextos; conservar sólo ACEPTADA y
-ERROR_ARGUMENTO para despacho/validación. Orden LED→buzzer e independencia del MCU
-conservados. Migrar pruebas/fixture y demostrar composición directa con B12 en host.
-Pendiente de acuerdo, sin código ni pruebas nuevos ejecutados.
-Ver [propuesta](openspec/changes/b07-r1-salidas-sin-contexto/proposal.md).
+Alcance acordado, implementado/verificado, pendiente de aceptación. Dos funciones
+void(bool), sin contextos ni errores de proveedor; validación previa conserva
+ACEPTADA/ERROR_ARGUMENTO y orden LED→buzzer. Biblioteca y código B06/B12 intactos.
+Se probaron composición directa y regresiones, sin inicialización/main/ensayo físico.
+Ver [cambio](openspec/changes/b07-r1-salidas-sin-contexto/proposal.md) e
+[informe](openspec/changes/b07-r1-salidas-sin-contexto/verify-report.md).

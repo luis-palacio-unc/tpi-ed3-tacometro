@@ -211,23 +211,23 @@ B07 coordina solicitudes mediante proveedores externos; señalización física/p
 histéresis, timeout, enclavamiento y respuesta física a fallo siguen pendientes.
 No se ha acordado parar el motor por temperatura. Evidencia y cierre B06 en archivo; contrato de alarma-temperatura vigente.
 
-## Coordinación lógica de salidas B07
+## Coordinación lógica de salidas B07 y revisión R1
 
-Resultado B07 aceptado/archivado el 2026-11-09; contrato vigente sincronizado.
-Driver_Alarmas_Aplicar (USW.2.1.6.1) recibe interfaz const con dos funciones
-bool(void*,bool) y contextos separados, más activar/desactivar. No registra configuración
-global ni requiere init/heap. Rechaza NULL/funciones ausentes antes de llamar; contextos
-NULL se admiten si los proveedores los soportan. Invoca LED→buzzer una vez cada uno,
-siempre intentando ambos, y clasifica aceptación/error LED/buzzer/ambos sin retención.
+B07 original aceptado/archivado2026-11-09, historial intacto. B07-R1 con alcance
+acordado2026-11-10 implementado/verificado; resultado pendiente de aceptación.
+Código actual: Driver_Alarmas_Aplicar (USW.2.1.6.1) recibe interfaz const de dos
+funciones void(bool), sin contextos. Valida ambas antes de llamar LED→buzzer una
+vez cada uno con el mismo activar; repeticiones también se despachan.
+Sólo ACEPTADA/ERROR_ARGUMENTO: despacho completo o interfaz NULL/incompleta sin
+llamadas. Se eliminan errores de proveedor porque esas funciones no dan diagnóstico.
 
-ACEPTADA sólo acredita aceptación del proveedor, no nivel eléctrico. Servicio sin
-dependencia de aplicación, sensores, GPIO o MCU; funciones de salida deben retornar.
-Interfaz/contextos estables/vivos y acceso serializado externos; pila/tiempo total
-dependen de proveedores. B12 ya resuelve polaridad/hardware; su conexión al servicio
-requiere revisar este contrato mediante B07-R1, aún propuesto.
-Adaptación B06 en pruebas: sólo decisiones evaluables generan solicitud; ausencia/error
-conserva diagnóstico y no emite órdenes. No integra main ni define patrón físico de fallo.
-Contrato de salidas-alarma vigente; adaptación al nuevo B12 pendiente de B07-R1.
+Servicio sin dependencia de aplicación, sensores, GPIO, dispositivos o MCU; sin
+init/heap/estado global/esperas/reintentos. Interfaz/funciones estables y serialización
+externas. La duración/pila total dependen de salidas; ACEPTADA no confirma electricidad.
+Composición B12 probada en host con funciones reales y doble GPIO, sin adaptadores/
+casts; no integra main. Adaptación B06 externa preserva diagnóstico ante ausencia/
+error sin emitir orden, ni define respuesta física. Contrato salidas-alarma anterior
+sigue vigente hasta aceptación/sincronización de R1; no usar archivo viejo como código actual.
 
 ## Documentación final y B08
 
@@ -323,10 +323,8 @@ de la biblioteca. Mantener independencia y contratos lógicos en Aplicación/Ser
 B12 implementa sólo Selector_Read (GPIO_ReadValue/P2.6 alto), LED_Write
 (GPIO_SetPinState/P0.22 bajo) y Buzzer_Write (GPIO_SetPinState/P2.7 alto).
 Corrección autorizada2026-11-10: ambas salidas void(bool activar), sin contexto
-ni retorno ficticio. Driver_Alarmas/B07 se revisará por separado; su firma actual
-no admite estas funciones directamente. Propuesta b07-r1-salidas-sin-contexto
-pendiente de acuerdo: dos funciones void(bool), sin contextos; conservar únicamente
-ACEPTADA/ERROR_ARGUMENTO para despacho/validación. No implementarla todavía.
-No agregar adaptadores/casts temporales.
+ni retorno ficticio. B07-R1 ya implementa dos funciones void(bool), sin contextos,
+y ACEPTADA/ERROR_ARGUMENTO para despacho/validación. Composición directa B12
+verificada en host, resultado R1 pendiente de aceptación. Sin adaptadores/casts.
 Tres USW.13.1/.14.1/.15.1 documentadas. Sin estado mutable ni nuevos servicios.
 Inicialización/enlace y uso desde main se mantienen para integración final.
