@@ -35,6 +35,7 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 
 - Aplicacion: main y Procesamiento; Servicios: Medicion_Velocidad, Temperatura,
   Mandos, Driver_Alarmas, Comunicacion y Driver_Motor; Dispositivos: los 8 del anexo B.
+  Tiempo es el wrapper candidato agregado en B11, extension local del servicio temporal.
 - Aplicación accede a dispositivos sólo mediante servicios. Procesamiento integra
   modos y regulación; Driver_Motor es el intermediario para accionar el motor.
 - Soporte compartido aceptado por el usuario: ADC/DMA y base de tiempos, dentro
@@ -284,28 +285,37 @@ Rebotes no cambian modo de aplicación; entrada confirmada manual→auto exige c
 consigna posterior. Indisponibilidad no emite órdenes desde adaptador de prueba;
 política física y reentrada tras fallo, GPIO/main quedan pendientes. B04/B01/B08 intactos.
 
-## Base temporal B11
+## Base temporal B11 TC/Tiempo
 
-Alcance/criterio acordados el 2026-11-09; implementado/verificado el 2026-11-10,
-resultado pendiente de aceptación. Commit local autorizado sin push. Candidato
-BT1–BT4/S1–S8; contratos vigentes/archivos aceptados intactos.
-Soporte Base_Tiempos, ESW.2.1.17 como extensión local tras anexo B .16; ocho USW
-.17.1–.8. Único propietario SysTick, no cuarta capa. API Inicializar/Leer/Detener
-y handler fuerte; estado/contador privados volatile, sin heap/esperas.
-Frecuencia CPU explícita estable, 2000..120000000 Hz múltiplo de 1000, LOAD=Hz/1000-1.
-El mínimo responde a recarga representable, no acredita viabilidad temporal/eléctrica.
-No usa SystemCoreClock/CALIB ni configura PLL/reloj/flash. Inicializar abre época
-desde cero; error deshabilita con cero/ERROR_FRECUENCIA. Detener conserva contador,
-ACTIVA→DETENIDA; otros diagnósticos persisten. Leer retorna snapshot coherente,
-sólo ACTIVA habilita uso temporal. NULL devuelve ERROR_ARGUMENTO sin puerto/efectos.
-Estado inicial SIN_DATOS/cero; reiniciar también requiere reiniciar consumidores.
-PRIMASK previo preservado con barreras CPU/compilador; APIs sólo lazo privilegiado
-serializado, nunca ISR/NMI/RTOS concurrente. CTRL=0→VAL=0→ICSR=PENDSTCLR cancela
-pendientes antiguos; prioridad SysTick mínima 31, sin modificar prioridades ajenas.
-CMSIS antiguo sin memory clobber: puerto agrega barreras, Drivers preservados.
-Cada IRQ atendida incrementa uint32_t modular; ticks colapsados no detectables/
-recuperables. Latencia, reloj real, suspensión/debug y precisión quedan externos.
-Puerto ARM y modelo host privados; servicios/aplicación sin dependencia nueva.
-Composición con B10 sólo en pruebas/fixture; main no inicializa SysTick. No hay
-ventana RPM de 1 s, adquisición o planificador. Consultados UM10360 §23/34.4.3.4/
-34.4.4 y erratas 10.6; sin aceptación física. Diagramas finales siguen diferidos.
+Alcance/criterio acordados 2026-11-10; implementado/verificado, resultado pendiente
+de aceptación. Commit local autorizado sin push. Candidato TC1–TC5/S1–S8 en
+openspec/changes/b11-base-temporal-timer-tc/; contratos vigentes intactos.
+Reemplaza SysTick db88286 no aceptado; antecedente SDD conserva diseño/spec/tareas/
+informe, sin reescritura. Planificación local previa preservada/incorporada.
+
+TIMER0 exclusivo en dispositivos; TC cuenta por hardware, sin ISR/acumulador software.
+Base_Tiempos Inicializar(pclk_hz,periodo_ms)/Leer/Detener y proveedor bool(void*,uint32_t*).
+PCLK1..120000000Hz real estable, período1..INT32_MAXms, fijo por época; N=PCLK*ms/1000
+exacto1..2^32 y PR=N-1. Producto uint64 acotado sólo al configurar; TC*período normaliza
+modulo2^32ms. Configuracion/Temporizacion.h default1ms, override positivo admitido;
+mayor período cambia resolución, no unidades. PCLK del fixture25MHz no es reloj TPI confirmado.
+Error init apaga/resetea con cero; prioridad reloj/período/prescaler. SIN_DATOS sin
+lectura TC; ACTIVA actual, DETENIDA congelada; NULL error sin efectos propios.
+Reiniciar abre época nueva y exige nuevas marcas/consumidores. APIs sólo lazo
+privilegiado serializado; gestión PCONP serializada con otros propietarios.
+Puerto alimenta/prepara TIMER0, cancela IRQ sólo TIMER0 y desactiva match/captura;
+lectura TC una palabra sin escrituras. No cambia PLL/PCLKSEL/flash/pines/SysTick.
+UM10360 §21 y errata10.6 PCLKSELx.1 consultados; frecuencia/precisión reales pendientes.
+
+Tiempo ESW.2.1.18 es wrapper con proveedor reemplazable según patrón B08, sin incluir
+o enlazar dispositivos/CMSIS/configuración. Leer consulta una vez; Transcurrido usa
+resta modular y rechaza delta>INT32_MAX. Misma época/duración real<2^31ms requeridas;
+no detecta todas las vueltas omitidas/reinicios. Estado VALIDO/NO_DISPONIBLE/
+ERROR_ARGUMENTO/ERROR_INTERVALO, salida inválida cero. Contextos vivos/serializados/
+no solapados y proveedor que retorne. No init/globales mutables/heap/esperas propias.
+Proveedor dispositivo ignora contexto, admite NULL y entrega true sólo ACTIVA.
+Extensiones locales: ESW17 ocho USW .1/.2/.3/.9–.13; retiradas .4–.8 SysTick;
+ESW18 dos USW .1/.2. No son módulos impuestos por el anexo B original.
+Composición con B10 sólo pruebas/fixture; main y servicios aceptados intactos.
+B00 S7 exige lista exacta de19 objetos por nuevo servicio, conserva14 casos.
+No implementar adquisición/ventanaRPM1s/planificador aquí. Diagramas finales diferidos.

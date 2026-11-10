@@ -27,7 +27,7 @@ El build ejecuta automáticamente el verificador del ELF; CTest agrega casos neg
 `firmware.elf` es para el MCU: no se ejecuta como programa de escritorio.
 No está configurada todavía una sesión de depuración/flasheo de CLion.
 
-Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, LM35, Driver_Alarmas y Driver_Motor, incluidas sus pruebas de integración, sin ejecutar main del firmware:
+Perfil host: compila objetos y ejecuta pruebas C de Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, LM35, Driver_Alarmas, Driver_Motor, Tiempo y Base_Tiempos, incluidas sus pruebas de integración, sin ejecutar main del firmware:
 
 ```sh
 cmake --preset host-objects
@@ -272,22 +272,26 @@ y [verificación](openspec/changes/archive/2026-11-09-b10-seleccion-estable-modo
 MA3 vigente permite selector lógico B10 y conserva exclusiones de hardware.
 GPIO/base temporal/main y pruebas físicas pendientes; sin ejecución ARM/simulador/placa.
 
-## B11: base de tiempos LPC1769
+## B11: timer continuo y wrapper temporal
 
-B11 implementado/verificado; resultado pendiente de aceptación. Base_Tiempos en
-Dispositivos/soporte ofrece Inicializar, Leer y Detener; reiniciar usa Inicializar
-y abre época desde cero. Recibe frecuencia CPU real explícita, estable y múltiplo
-de 1000 entre 2000 y 120000000 Hz; no configura PLL, relojes o flash.
-SysTick exclusivo avanza milisegundos uint32_t por interrupción atendida, con rollover.
-ACTIVA habilita consumo; SIN_DATOS, DETENIDA y errores conservan diagnóstico propio.
-Parada/reinicio cancelan pendientes antiguos. Lectura coherente y PRIMASK preservado;
-APIs sólo desde lazo privilegiado serializado. Reiniciar consumidores entre épocas.
+B11 TC/Tiempo implementado/verificado, resultado pendiente de aceptación.
+Dispositivos/soporte/Base_Tiempos administra TIMER0 continuo y consulta TC;
+no ISR periódica ni contador software. Inicializar recibe PCLK real explícito y
+período entero ms; Configuracion/Temporizacion.h define default1ms y permite override.
+Validación exacta del prescaler, estados/errores, lectura, parada y nueva época.
+Consultas no reinician contador; salida uint32_t ms modular aun con otra resolución.
 
-Puerto LPC1769/CMSIS interno, servicios/aplicación intactos; composición B10 sólo
-en pruebas. main continúa mínimo y no inicia SysTick. No recupera ticks colapsados,
-ni mide durante suspensión/debug; frecuencia/latencias/precisión físicas pendientes.
-Host/san 20/20, 205 C; ARM Debug 15/15 y fixture Release; Doxygen 40 funciones/USW,
-ocho nuevas de soporte ESW.2.1.17 (extensión local, no numeración original del anexo).
-Ver [candidato](openspec/changes/b11-base-tiempos-lpc1769/specs/base-tiempos/spec.md)
-y [evidencia](openspec/changes/b11-base-tiempos-lpc1769/verify-report.md).
-Sin ejecución ARM/simulación MCU/placa, sin flasheo ni push.
+Servicios/Tiempo es wrapper sin CMSIS/configuración física/dispositivos: proveedor
+reemplazable, Leer y Transcurrido desde marca del consumidor. Sólo VALIDO habilita
+uso, ausencia/error limpia salida. Misma época y duración <2^31ms; reinicio exige
+marcas nuevas. Composición con Mandos/B10 sólo en pruebas/fixture, main sigue mínimo.
+Gestión de alimentación PCONP serializada; no modifica PLL/PCLKSEL/flash/pines.
+
+Host/san20/20, 209 C; nuevo oráculo2048 muestras/1235 vueltasTC y regresiones previas.
+ARM Debug15/15 y fixture Debug/Release con API retenida/sin ISR propia; Doxygen42
+funciones/USW, diez de TC/Tiempo sin avisos. B00 S7 adapta expectativa a 19 objetos
+host incluyendo Tiempo; conserva sus 14 casos. Sin ejecución ARM/simulación MCU/placa.
+Ver [candidato](openspec/changes/b11-base-temporal-timer-tc/specs/base-tiempos/spec.md)
+y [evidencia](openspec/changes/b11-base-temporal-timer-tc/verify-report.md).
+PCLK/precisión física e integración main pendientes; commit local sin push.
+Antecedente SysTick db88286 no aceptado; su evidencia permanece en cambio sustituido.

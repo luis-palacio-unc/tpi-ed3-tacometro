@@ -3,11 +3,11 @@ context: |
   Proyecto: tacometro digital TPI EDIII; C11, CLion, LPC1769/OM13085.
   Capas: Aplicacion, Servicios, Dispositivos; CMSISv2p00_LPC17xx existente.
   Build: objetos host y ELF ARM Cortex-M3 con startup/linker propios, B00.
-  Pruebas B11: host/san 20/20, 205 C; selector 4096/400, codec 5096 y velocidad 11199; ARM 15/15 y Release, Doxygen 40 USW.
+  B11 TC/Tiempo: host/san20/20, 209 C; temporal2048/1235 vueltas, regresiones11199/5096/4096; ARM15/15 y Release, Doxygen42 USW.
   Consigna: 0..185 RPM inclusive; maximo aclarado por el usuario.
   R15: servicios independientes de hardware; curva LM35 en dispositivo, servicio en Celsius/estado.
   Sonda: CMSIS-DAP integrado confirmado; revision fisica pendiente.
-  Persistencia: archivos; B00-B10 y B03-R1 aceptados/archivados; B11 verificado pendiente de aceptacion, commit local autorizado sin push; leer ESTADO al reanudar.
+  Persistencia: archivos; B00-B10 y B03-R1 aceptados/archivados; B11-SysTick sustituido sin aceptacion; B11 TC/Tiempo verificado pendiente de aceptacion, commit local autorizado sin push; leer ESTADO al reanudar.
 rules:
   proposal:
     - Vincular origen, alcance, exclusiones, dependencias y aceptacion verificable.

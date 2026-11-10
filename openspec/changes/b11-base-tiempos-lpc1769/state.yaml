@@ -1,6 +1,6 @@
 block: B11
 change: b11-base-tiempos-lpc1769
-status: verified_pending_acceptance
+status: superseded
 phase: verify
 scope_approved: true
 result_accepted: false
@@ -9,8 +9,11 @@ verification_passed: true
 main_specs_synced: false
 commit_authorized: true
 push_authorized: false
-next_action: Revisar resultado B11; no sincronizar/archivar ni publicar sin orden.
+next_action: No continuar este candidato SysTick; consultar propuesta B11 de timer
+  continuo/TC, pendiente de acuerdo.
 scope_approved_on: '2026-11-09'
 base_commit: b4981c92a300243c8b7d960d09a99aa81c1ce300
 commit_subject: 'feat: agregar base temporal SysTick con reloj explicito'
 verified_on: '2026-11-10'
+superseded_on: '2026-11-10'
+superseded_by: b11-base-temporal-timer-tc

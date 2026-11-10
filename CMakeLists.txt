@@ -14,6 +14,7 @@ set(TPI_SOURCES
     Servicios/Driver_Alarmas.c
     Servicios/Comunicacion.c
     Servicios/Driver_Motor.c
+    Servicios/Tiempo.c
     Dispositivos/Motor.c
     Dispositivos/Sensor_Optico.c
     Dispositivos/LM35.c
@@ -126,8 +127,8 @@ if(TPI_BUILD_ARM)
             "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b10-fixture" "-DBUILD_TYPE=$<CONFIG>"
             "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b10.cmake")
-        add_test(NAME b11.vector_systick COMMAND "${Python3_EXECUTABLE}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/scripts/verificar_vector_b11.py"
+        add_test(NAME b11.sin_isr COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/scripts/verificar_temporizacion_b11.py"
             "$<TARGET_FILE:firmware>" --tool-prefix "${TPI_TOOL_PREFIX}")
         add_test(NAME b11.enlace_arm COMMAND "${CMAKE_COMMAND}"
             "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
@@ -183,18 +184,18 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_executable(pruebas_selector tests/host/test_selector.c Servicios/Mandos.c)
     add_executable(pruebas_integracion_selector tests/host/test_integracion_selector.c
         Servicios/Mandos.c Aplicacion/Procesamiento.c Servicios/Driver_Motor.c)
-    add_executable(pruebas_base_tiempos tests/host/test_base_tiempos.c tests/host/Modelo_Base_Tiempos.c)
-    add_executable(pruebas_integracion_base_tiempos tests/host/test_integracion_base_tiempos.c
-        tests/host/Modelo_Base_Tiempos.c Dispositivos/soporte/Base_Tiempos.c Servicios/Mandos.c)
-    add_executable(pruebas_puerto_base_tiempos tests/host/test_puerto_base_tiempos.c
-        Dispositivos/soporte/Base_Tiempos_LPC1769.c)
-    target_include_directories(pruebas_base_tiempos PRIVATE Dispositivos/soporte)
-    target_include_directories(pruebas_integracion_base_tiempos PRIVATE Dispositivos/soporte)
-    target_include_directories(pruebas_puerto_base_tiempos PRIVATE Dispositivos/soporte tests/host/cmsis_base_tiempos)
+    add_executable(pruebas_base_temporal_tc tests/host/test_base_temporal_tc.c tests/host/Modelo_Timer0.c
+        Dispositivos/soporte/Base_Tiempos.c Dispositivos/soporte/Base_Tiempos_LPC1769.c)
+    add_executable(pruebas_tiempo tests/host/test_tiempo.c Servicios/Tiempo.c)
+    add_executable(pruebas_integracion_tiempo tests/host/test_integracion_tiempo.c tests/host/Modelo_Timer0.c
+        Dispositivos/soporte/Base_Tiempos.c Dispositivos/soporte/Base_Tiempos_LPC1769.c
+        Servicios/Tiempo.c Servicios/Mandos.c)
+    target_include_directories(pruebas_base_temporal_tc PRIVATE Dispositivos/soporte tests/host/cmsis_timer0)
+    target_include_directories(pruebas_integracion_tiempo PRIVATE Dispositivos/soporte tests/host/cmsis_timer0)
     target_include_directories(pruebas_lm35 PRIVATE Dispositivos)
     target_include_directories(pruebas_integracion_temperatura PRIVATE Dispositivos)
-    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria pruebas_selector pruebas_integracion_selector pruebas_base_tiempos pruebas_integracion_base_tiempos pruebas_puerto_base_tiempos)
-        if(prueba STREQUAL "consulta_medicion_velocidad" OR prueba STREQUAL "pruebas_driver_alarmas")
+    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria pruebas_selector pruebas_integracion_selector pruebas_base_temporal_tc pruebas_tiempo pruebas_integracion_tiempo)
+        if(prueba STREQUAL "consulta_medicion_velocidad" OR prueba STREQUAL "pruebas_driver_alarmas" OR prueba STREQUAL "pruebas_tiempo")
             target_include_directories(${prueba} PRIVATE Servicios)
         elseif(prueba STREQUAL "pruebas_driver_motor" OR prueba STREQUAL "pruebas_telemetria" OR prueba STREQUAL "pruebas_selector")
             target_include_directories(${prueba} PRIVATE Servicios Configuracion)
@@ -230,7 +231,7 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_test(NAME b09.integracion_telemetria COMMAND pruebas_integracion_telemetria)
     add_test(NAME b10.selector COMMAND pruebas_selector)
     add_test(NAME b10.integracion_selector COMMAND pruebas_integracion_selector)
-    add_test(NAME b11.base_tiempos COMMAND pruebas_base_tiempos)
-    add_test(NAME b11.integracion_base_tiempos COMMAND pruebas_integracion_base_tiempos)
-    add_test(NAME b11.puerto_lpc1769 COMMAND pruebas_puerto_base_tiempos)
+    add_test(NAME b11.base_temporal_tc COMMAND pruebas_base_temporal_tc)
+    add_test(NAME b11.tiempo COMMAND pruebas_tiempo)
+    add_test(NAME b11.integracion_tiempo COMMAND pruebas_integracion_tiempo)
 endif()

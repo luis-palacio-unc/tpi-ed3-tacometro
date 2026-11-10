@@ -154,7 +154,13 @@ class ContratosB00(unittest.TestCase):
                           "-DTPI_BUILD_ARM=OFF", "-DCMAKE_C_COMPILER="+str(shutil.which("cc"))])
         self.run_command(["cmake", "--build", self.tmp/"host", "--target", "firmware", "--parallel", "2"])
         objects = list((self.tmp/"host").rglob("*.o"))
-        self.assertEqual(len(objects), 18)
+        expected = {"main.c.o", "Procesamiento.c.o", "Medicion_Velocidad.c.o", "Temperatura.c.o",
+                    "Mandos.c.o", "Driver_Alarmas.c.o", "Comunicacion.c.o", "Driver_Motor.c.o",
+                    "Tiempo.c.o", "Motor.c.o", "Sensor_Optico.c.o", "LM35.c.o", "Potenciometro.c.o",
+                    "Selector.c.o", "LED.c.o", "Buzzer.c.o", "UART.c.o", "Adquisicion_ADC_DMA.c.o",
+                    "Base_Tiempos.c.o"}
+        self.assertEqual({p.name for p in objects}, expected)
+        self.assertEqual(len(objects), len(expected))
         self.assertFalse(any("startup" in p.name for p in objects))
 
 

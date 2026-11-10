@@ -1,4 +1,4 @@
-# Retener APIs B11/B10 y backend CMSIS real; inspeccion estatica, sin ejecutar MCU.
+# Retener APIs TIMER0/Tiempo/B10 y backend CMSIS real; inspeccion estatica, sin ejecutar MCU.
 foreach(required SOURCE_DIR OUTPUT_DIR TOOL_PREFIX PYTHON)
     if(NOT DEFINED ${required})
         message(FATAL_ERROR "Falta parametro ${required}")
@@ -12,21 +12,29 @@ endif()
 file(MAKE_DIRECTORY "${OUTPUT_DIR}")
 file(WRITE "${OUTPUT_DIR}/main_fixture.c" [=[
 #include "Base_Tiempos.h"
+#include "Tiempo.h"
 #include "Mandos.h"
-static Base_Tiempos_Lectura lectura;
+#include "Temporizacion.h"
+#include <stddef.h>
+static const Tiempo_Fuente fuente={Base_Tiempos_ProveerMilisegundos,NULL};
+static Tiempo_Lectura lectura,intervalo;
+static Base_Tiempos_Lectura lectura_base;
 static Mandos_Selector selector;
-static volatile uint32_t reloj_fixture = 4000000U;
-static volatile Base_Tiempos_Estado resultado;
+static volatile uint32_t reloj_fixture=25000000U,periodo_fixture=TPI_BASE_TEMPORAL_MS;
+static volatile Base_Tiempos_Estado resultado_base;
+static volatile Tiempo_Estado resultado_tiempo;
 static volatile Mandos_EstadoSelector resultado_selector;
 int main(void)
 {
-    resultado = Base_Tiempos_Inicializar(reloj_fixture);
-    resultado = Base_Tiempos_Leer(&lectura);
-    if (Mandos_InicializarSelector(&selector, 20U) && resultado == BASE_TIEMPOS_ACTIVA) {
-        resultado_selector = Mandos_ActualizarSelector(&selector, MANDOS_SELECTOR_MODO_MANUAL,
-            MANDOS_SELECTOR_FUENTE_VALIDA, lectura.milisegundos);
+    resultado_base=Base_Tiempos_Inicializar(reloj_fixture,periodo_fixture);
+    resultado_base=Base_Tiempos_Leer(&lectura_base);
+    resultado_tiempo=Tiempo_Leer(&fuente,&lectura);
+    resultado_tiempo=Tiempo_Transcurrido(&fuente,lectura.milisegundos,&intervalo);
+    if(Mandos_InicializarSelector(&selector,20U) && resultado_tiempo==TIEMPO_VALIDO) {
+        resultado_selector=Mandos_ActualizarSelector(&selector,MANDOS_SELECTOR_MODO_MANUAL,
+            MANDOS_SELECTOR_FUENTE_VALIDA,lectura.milisegundos);
     }
-    resultado = Base_Tiempos_Detener();
+    resultado_base=Base_Tiempos_Detener();
     return 0;
 }
 ]=])
@@ -39,6 +47,7 @@ execute_process(COMMAND "${TOOL_PREFIX}gcc"
     -isystem "${SOURCE_DIR}/Drivers/CMSISv2p00_LPC17xx/inc"
     "${OUTPUT_DIR}/main_fixture.c" "${SOURCE_DIR}/Dispositivos/soporte/Base_Tiempos.c"
     "${SOURCE_DIR}/Dispositivos/soporte/Base_Tiempos_LPC1769.c" "${SOURCE_DIR}/Servicios/Mandos.c"
+    "${SOURCE_DIR}/Servicios/Tiempo.c"
     "${SOURCE_DIR}/plataforma/startup_lpc1769.S"
     -nostdlib "-T${SOURCE_DIR}/plataforma/lpc1769.ld"
     -Wl,--gc-sections -Wl,--build-id=none -Wl,--fatal-warnings -Wl,-z,noexecstack
@@ -47,9 +56,9 @@ execute_process(COMMAND "${TOOL_PREFIX}gcc"
 if(NOT result EQUAL 0)
     message(FATAL_ERROR "Fallo enlace B11/B10: ${output} ${errors}")
 endif()
-foreach(verificador verificar_elf.py verificar_vector_b11.py)
+foreach(verificador verificar_elf.py verificar_temporizacion_b11.py)
     set(extra)
-    if(verificador STREQUAL "verificar_vector_b11.py")
+    if(verificador STREQUAL "verificar_temporizacion_b11.py")
         set(extra --api)
     endif()
     execute_process(COMMAND "${PYTHON}" "${SOURCE_DIR}/scripts/${verificador}"

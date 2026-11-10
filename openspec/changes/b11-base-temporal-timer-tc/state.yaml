@@ -1,0 +1,22 @@
+block: B11
+change: b11-base-temporal-timer-tc
+revision: 2
+status: verified_pending_acceptance
+phase: verify
+scope_approved: true
+result_accepted: false
+implementation_started: true
+verification_passed: true
+main_specs_synced: false
+commit_authorized: true
+push_authorized: false
+supersedes: b11-base-tiempos-lpc1769
+proposed_on: '2026-11-10'
+next_action: Revisar resultado B11 TC; no sincronizar/archivar ni publicar sin orden.
+scope_approved_on: '2026-11-10'
+base_commit: db88286afb8a02dc855765a2a138c3a9280f1ede
+commit_subject: 'feat: reemplazar SysTick por TIMER0 y wrapper temporal'
+verified_on: '2026-11-10'
+replaced_implementation_commit: db88286afb8a02dc855765a2a138c3a9280f1ede
+implementation_backend: TIMER0/TC y wrapper Tiempo; reemplazo verificado pendiente
+  de aceptacion

@@ -1,7 +1,9 @@
 # B11 — Base de tiempos LPC1769
 
-Estado: alcance/criterio acordados el 2026-11-09. Implementación y commit local
-autorizados; sin push, resultado pendiente de aceptación.
+Estado: candidato SysTick sustituido el 2026-11-10, sin aceptación ni archivo.
+Implementación local db88286 permanece hasta acordar/reemplazarla. Propuesta nueva:
+[base temporal con timer/TC](../b11-base-temporal-timer-tc/proposal.md).
+Contenido siguiente corresponde al alcance anterior y su evidencia histórica.
 
 ## Objetivo y origen
 
