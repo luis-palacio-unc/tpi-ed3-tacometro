@@ -10,13 +10,13 @@ para generar documentación sin autorización.
   precondiciones y concurrencia. Tipos, miembros y constantes también documentados.
 - Mantener comentarios de contrato fuera del cuerpo de funciones de producción,
   como pide la guía del TPI.
-- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, Driver_Motor, LM35, Limites, Configuracion/Medicion.h y Timer. No usar EXTRACT_ALL para ocultar falta de documentación.
+- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, Driver_Motor, LM35, Limites, Configuracion/Medicion.h, Timer, Selector, LED y Buzzer. No usar EXTRACT_ALL para ocultar falta de documentación.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
-Validación actual B11 wrapper Timer: 35 funciones/USW en XML (7 Procesamiento,
+Validación actual B12 GPIO:38 funciones/USW en XML (7 Procesamiento,
 10 Comunicacion, 2 Medicion_Velocidad, 5 Mandos, 2 Temperatura, 2 LM35,
-Driver_Alarmas, 2 Driver_Motor, tres Timer y main), sin avisos.
+Driver_Alarmas, 2 Driver_Motor, tres Timer, Selector, LED, Buzzer y main), sin avisos.
 USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
 Documentar unidades físicas/estados en el servicio y conversión/errores específicos
 en LM35. La inclusión de archivos del dispositivo no introduce dependencia del servicio.
@@ -67,3 +67,8 @@ Nuevo B11 acotado: INPUT incluye Dispositivos/Timer.h/.c. USW.2.1.17.1 init,
 .17.2 lectura y .17.14 arranque; tres wrappers de biblioteca original, sin helpers.
 Header documenta base/unidades, precondiciones, épocas y modularidad. Doxygen35
 funciones propias únicas, HTML/XML sin avisos. Temporizacion.h y Tiempo no existen.
+
+B12 incluye Selector/LED/Buzzer.h/.c con USW.2.1.13.1/.14.1/.15.1. Documenta
+pines/niveles, delegación a biblioteca, configuración previa, contexto ignorado,
+aceptación de llamada sin confirmación física y serialización. HTML/XML estricto
+38 funciones propias únicas, sin avisos ni controles relajados.

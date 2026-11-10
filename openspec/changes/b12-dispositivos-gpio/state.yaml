@@ -1,0 +1,27 @@
+block: B12
+change: b12-dispositivos-gpio
+status: verified_pending_acceptance
+phase: verify
+scope_approved: true
+result_accepted: false
+implementation_started: true
+verification_passed: true
+main_specs_synced: false
+drivers_modification_prohibited: true
+push_authorized: false
+proposed_on: '2026-11-10'
+selector_pin: P2.6
+buzzer_pin: P2.7
+selector_buzzer_active_level: 1
+pin_choice_authorized: true
+led_reference: P0.22 activo bajo, esquema OM13085 revD
+next_action: Revisar/aceptar B12 GPIO antes de sincronizar/archivar; sin push.
+polarity_corrected_by_user_on: '2026-11-10'
+device_layer: Acceso directo a hardware mediante biblioteca original; sin duplicar logica.
+scope_approved_on: '2026-11-10'
+base_commit: cb380bc
+commit_authorized: true
+verified_on: '2026-11-10'
+hardware_verified: false
+driver_library_link_verified: false
+commit_subject: 'feat: implementar Selector LED y Buzzer con GPIO original'

@@ -304,7 +304,23 @@ El wrapper se compila con encabezados originales; no hay nueva prueba que repita
 las tres llamadas. Enlace de biblioteca original/arranque y prueba física pendientes
 de integración; no declarar funcionamiento eléctrico por compilación.
 
-B12 propuesto, sin autorización de implementación: enlazar fuentes originales,
-actualizar SystemCoreClock mediante CMSIS tras memoria y antes de Timer, e Init/Start
-desde main. No SystemInit/cambios de PLL/flash, no GPIO/consumidores ficticios.
-Conservar biblioteca original; cualquier compatibilidad de build fuera de Drivers.
+Nueva instrucción2026-11-10: inicialización de periféricos, enlace e integración
+global se dejan para el final. Completar primero elementos de Dispositivos mediante
+wrappers de drivers originales; prohibición de modificar biblioteca vigente.
+La propuesta b12-integracion-arranque-timer está pospuesta, no aceptada.
+B12 activo b12-dispositivos-gpio: alcance autorizado, implementado/verificado, resultado sin aceptar.
+Usuario corrige selector/buzzer a activos por alto, pines P2 sin funciones EINTx.
+Elegidos selectorP2.6 y buzzerP2.7; P2.10–13 reservados EINT0–3, P2.0–5 libres.
+LED rojoP0.22 activo bajo según esquema OM13085 revD; revisión física pendiente.
+Manual aportado: UM10360 rev4.1 (2016-12-19), tabla84/p120 y cap9/p132/150 revisados.
+Lectura/accionamiento sólo; multiplexado/dirección/polarización/FIOMASK y arranque finales.
+
+Dispositivos interactúa directamente con el hardware usando los drivers disponibles;
+no requiere transparencia respecto del MCU dentro de esa capa ni duplicación de lógica
+de la biblioteca. Mantener independencia y contratos lógicos en Aplicación/Servicios.
+
+B12 implementa sólo Selector_Read (GPIO_ReadValue/P2.6 alto), LED_Write
+(GPIO_SetPinState/P0.22 bajo) y Buzzer_Write (GPIO_SetPinState/P2.7 alto). Firmas
+de salida B07, contexto ignorado, true significa llamada delegada; no prueba física.
+Tres USW.13.1/.14.1/.15.1 documentadas. Sin estado mutable ni nuevos servicios.
+Inicialización/enlace y uso desde main se mantienen para integración final.

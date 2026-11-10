@@ -294,9 +294,22 @@ Ver [contrato vigente](openspec/specs/timer/spec.md),
 [verificación](openspec/changes/archive/2026-11-10-b11-wrapper-timer/verify-report.md) y
 [cierre](openspec/changes/archive/2026-11-10-b11-wrapper-timer/archive-report.md).
 
-## B12 propuesto: enlace y arranque del timer
+## B12: dispositivos GPIO
 
-Enlazar los drivers originales, actualizar la información del reloj con CMSIS y
-arrancar Timer desde la aplicación. API B11/biblioteca originales preservadas;
-propuesta pendiente de aceptación, sin implementación.
-Ver [alcance y aceptación](openspec/changes/b12-integracion-arranque-timer/proposal.md).
+Implementado/verificado; resultado pendiente de aceptación. Se completaron los módulos
+existentes con llamadas directas a la biblioteca original:
+
+- `Selector_Read()`: contacto en P2.6, activo por alto, mediante GPIO_ReadValue.
+- `LED_Write(contexto, activar)`: rojoP0.22, activo por bajo, mediante GPIO_SetPinState.
+- `Buzzer_Write(contexto, activar)`: P2.7, activo por alto, mediante GPIO_SetPinState.
+
+Las salidas son compatibles con Driver_Alarmas; contexto ignorado/NULL y retorno true
+tras delegar no acreditan estado eléctrico. Lectura del selector sin antirrebote/mapeo
+de modo. Dispositivos usa hardware/drivers directamente; servicios aceptados intactos.
+
+Host/sanitizadores18/18 (188 C), nueve casos nuevos y regresiones; ARM13/13 y módulos
+O0/O2 compilados, Doxygen38 funciones propias sin avisos.90 archivos Drivers originales
+intactos. No ejecución física ni enlace de biblioteca; GPIO/PINSEL/dirección/polarización/
+FIOMASK y main se configuran al integrar, que por instrucción del usuario queda al final.
+Ver [candidato](openspec/changes/b12-dispositivos-gpio/specs/dispositivos-gpio/spec.md)
+y [verificación](openspec/changes/b12-dispositivos-gpio/verify-report.md).

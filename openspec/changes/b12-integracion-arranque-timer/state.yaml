@@ -1,6 +1,6 @@
 block: B12
 change: b12-integracion-arranque-timer
-status: proposed
+status: deferred
 phase: proposal
 scope_approved: false
 result_accepted: false
@@ -11,4 +11,7 @@ drivers_modification_prohibited: true
 push_authorized: false
 proposed_on: '2026-11-10'
 depends_on: B11 aceptado y archivado
-next_action: Acordar alcance y criterio de B12 antes de implementar.
+next_action: Reconsiderar en integracion final, despues de los dispositivos; no implementar ahora.
+deferred_by_user_on: '2026-11-10'
+reason: Inicializacion de perifericos y enlace se dejan para lo ultimo.
+current_proposal: b12-dispositivos-gpio

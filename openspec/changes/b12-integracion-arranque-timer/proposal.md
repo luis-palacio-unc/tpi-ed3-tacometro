@@ -1,3 +1,7 @@
+> POSPUESTO por el usuario el 2026-11-10: inicialización e integración de enlace
+> quedan para el final. Esta propuesta no fue aceptada ni implementada.
+> La propuesta activa B12 es b12-dispositivos-gpio.
+
 # B12 — enlace y arranque de Timer
 
 ## Objetivo y origen

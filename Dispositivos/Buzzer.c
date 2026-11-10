@@ -1,3 +1,15 @@
+/**
+ * @file Buzzer.c
+ * @brief Mando de buzzer P2.7 mediante el driver GPIO original.
+ * @details Traduce activar logico a nivel alto sin reimplementar operaciones GPIO.
+ * @note ESW.2.1.15. No configura perifericos ni modifica la biblioteca.
+ */
 #include "Buzzer.h"
+#include "lpc17xx_gpio.h"
 
-/* Pendiente: implementar el accionamiento GPIO del buzzer. */
+bool Buzzer_Write(void *contexto,bool activar)
+{
+    (void)contexto;
+    GPIO_SetPinState(PORT_2,PIN_7,activar?SET:RESET);
+    return true;
+}

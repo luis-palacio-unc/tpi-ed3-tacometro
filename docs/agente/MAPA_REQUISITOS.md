@@ -18,7 +18,7 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 aceptado/archivado para codificación lógica TX; UART/envío pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 RX y B09 CT1–CT4 PASS lógico; UART/envío físicos pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11 TC/Tiempo candidato: 42 funciones/USW y Doxygen estricto PASS; resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11 wrapper aceptado:35 funciones/USW y Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -100,6 +100,10 @@ header aislado, overrides1/2/5 compilados y0 rechazado, Doxygen35. Regresiones
 host17/17, ARM13/13. Operación temporal/enlace de biblioteca/placa no ejecutados.
 [Matriz/evidencia](../../openspec/changes/archive/2026-11-10-b11-wrapper-timer/verify-report.md).
 
-B12 propuesto (R01/R10/R15): enlace real TIM/CMSIS, actualización RAM de reloj y
-arranque Timer. Candidatos WT3/IT1/IT2/B00-R3; ninguna evidencia de aceptación B12
-ejecutada. Conectar GPIO/selector y demás consumidores queda fuera de este bloque.
+B12 de enlace/arranque pospuesto por usuario2026-11-10; no implementado.
+Nuevo B12 GPIO implementado/verificado, resultado pendiente de aceptación (R05/R07/R10/R11/R15): Selector/P2.6 y Buzzer/P2.7
+activos altos por corrección del usuario; LED rojo/P0.22 bajo según esquema NXP.
+DG1–DG3/S1–S4 candidatos verificados: nueve casos de polaridad/aislamiento/composición
+B07, host/san18/18 y188 C; ARM13/13, módulosO0/O2 y Doxygen38. Drivers intactos.
+[Evidencia](../../openspec/changes/b12-dispositivos-gpio/verify-report.md).
+Manual UM10360 rev4.1 tabla84/p120 y cap9 revisados. Inicialización/enlace finales.

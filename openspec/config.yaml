@@ -5,9 +5,9 @@ context: |
   Build: objetos host y ELF ARM Cortex-M3 con startup/linker propios, B00.
   B11 wrapper Timer aceptado/archivado: tres funciones en Dispositivos, driver original intacto, Temporizacion.h eliminado; host17/17, ARM13/13, Doxygen35; pruebas físicas/enlace de biblioteca pendientes.
   Consigna: 0..185 RPM inclusive; maximo aclarado por el usuario.
-  R15: servicios independientes de hardware; curva LM35 en dispositivo, servicio en Celsius/estado.
+  R15: dispositivos acceden directamente al hardware usando drivers originales; aplicación/servicios independientes de hardware; curva LM35 en dispositivo, servicio en Celsius/estado.
   Sonda: CMSIS-DAP integrado confirmado; revision fisica pendiente.
-  Persistencia: archivos; B00-B11/B03-R1 aceptados/archivados; antecedentes B11-SysTick/TC-Tiempo descartados. Activo B12 propuesto enlace/arranque Timer, sin implementar; leer ESTADO al reanudar.
+  Persistencia: archivos; B00-B11/B03-R1 aceptados/archivados; antecedentes B11-SysTick/TC-Tiempo descartados. Activo B12 GPIO implementado/verificado pendiente de aceptacion (selector P2.6, buzzer P2.7 altos; LED P0.22 bajo); host/san18/18, ARM13/13, Doxygen38. Inicializacion/enlace para el final; leer ESTADO al reanudar.
 rules:
   proposal:
     - Vincular origen, alcance, exclusiones, dependencias y aceptacion verificable.
