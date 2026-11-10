@@ -60,7 +60,7 @@ Se preservan `Aplicacion/`, `Servicios/`, `Dispositivos/` y `Drivers/`.
 La biblioteca de Drivers no se compila completa en B00; se verifican sus encabezados
 CMSIS. Los demás módulos del tacómetro siguen pendientes de implementación.
 
-Repositorio privado: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
+Repositorio público: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 B00 aceptado y archivado. Publicación inicial en main autorizada por el usuario;
 no extiende autorización a bloques futuros. [Contrato build vigente](openspec/specs/build/spec.md).
 

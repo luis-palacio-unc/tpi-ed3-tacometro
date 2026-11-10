@@ -64,7 +64,8 @@ Contrato de temperatura corregido vigente desde
 2026-11-07. Revisión independiente B03-R1 aceptada y archivada el 2026-11-09; contrato sincronizado.
 GitHub público, verificado el 2026-11-09: https://github.com/luis-palacio-unc/tpi-ed3-tacometro
 Git local inicializado en main por acuerdo del usuario; origin se creó privado.
-El remoto bd7bc0b de Luis actualiza esa visibilidad en README.
+El cambio bd7bc0b de Luis actualiza esa visibilidad en README. El usuario
+autorizó integrarlo en main y completar la publicación B10, conservando historia.
 El usuario autorizó commit y push de la estructura inicial al aceptar B00.
 El usuario autorizó después commits al finalizar cada bloque acordado. El push sigue
 requiriendo autorización independiente; el usuario autorizó publicar los commits B01
