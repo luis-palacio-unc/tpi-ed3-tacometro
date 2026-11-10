@@ -6,3 +6,4 @@
 - [x] 4. Verificar host/ARM, configuración, aislamiento y documentación.
 - [x] 5. Actualizar estado/evidencia y revisar diff; no sincronizar/archivar/push.
 - [x] 6. Crear commit normal local preservando restauración y retiradas previas, sin push.
+- [x] 7. Corregir aviso _Static_assert de Timer.h mediante #if/#error; verificar límites/C11/C++17/ARM y regresiones.

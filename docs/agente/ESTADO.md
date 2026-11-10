@@ -3,7 +3,7 @@
 ## Punto actual
 
 - Repositorio `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`;
-  rama main, consultar HEAD. Base de esta iteración51ab29e con retiradas locales previas.
+  rama main, consultar HEAD. Base del wrapper39ab465; corrección posterior del encabezado.
 - B00–B10/B03-R1 aceptados/archivados. Candidatos anteriores B11 retirados, historial
   conservado. Activo `b11-wrapper-timer`, alcance autorizado, resultado pendiente de aceptación.
 - Dispositivos/Timer.h/.c contiene sólo Timer_Init, Timer_Start y Timer_Read. Base
@@ -22,6 +22,10 @@
   externas del objeto: TIM_InitTimer/Enable/ReadTimer. Main elimina wrapper no utilizado.
 - Bases1/2/5 compilan ARM-O2;0 rechazado. Header compila sin CMSIS/driver.
 - Doxygen estricto35 funciones propias únicas,3 Timer, sin avisos.
+- Aviso CLion _Static_assert en Timer.h: reemplazado por #if/#error equivalente.
+  Header validado C11/C++17/ARM-C11, bases1/2/5 admitidas y0/excesiva rechazadas.
+  Timer ARM y host17/17/Doxygen repetidos PASS; sin observación visual del IDE.
+  Logs de corrección: /tmp/ed3-timer-header-error-nleunr8u.
 - Objeto propio ARM .text86 bytes, .data/.bss0. Drivers90 hashes intactos.
 - Sin ejecución ARM, simulación MCU, hardware, flasheo, instalación o pruebas físicas.
 

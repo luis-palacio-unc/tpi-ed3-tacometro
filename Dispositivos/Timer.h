@@ -20,8 +20,9 @@
 #ifndef TIMER_BASE_MS
 #define TIMER_BASE_MS UINT32_C(1)
 #endif
-_Static_assert(TIMER_BASE_MS>0 && TIMER_BASE_MS<=UINT32_MAX/UINT32_C(1000),
-               "TIMER_BASE_MS debe ser positivo y convertible a microsegundos uint32.");
+#if TIMER_BASE_MS<=0 || TIMER_BASE_MS>UINT32_MAX/UINT32_C(1000)
+#error "TIMER_BASE_MS debe ser positivo y convertible a microsegundos uint32."
+#endif
 
 /**
  * @brief Configurar el timer con el periodo elegido, dejandolo detenido.
