@@ -7,8 +7,10 @@
   mandos sincronizado: MA3/S6 modificado, SE1–SE4 agregados; MA1/MA2/MA4
   conservados, total ocho requisitos/13 escenarios.
 - Implementación B10: 25f423ecb8311afd09e7c4ec50e0ed6bc416c3dc. Cierre/propuesta en commit
-  `docs: aceptar B10 y proponer B11`. Publicación autorizada en esta orden;
-  cotejo HEAD==origin/main==remoto en /tmp/ed3-cierre-b10-20261109-_2p72mp4/publicacion.log al completarla.
+  `docs: aceptar B10 y proponer B11` (eeef43a). Push autorizado pero rechazado:
+  remoto avanzó a bd7bc0b (README: repositorio público). Integración prevista sin
+  conflictos, sólo esa línea; merge pendiente de autorización separada del usuario.
+  Rechazo/vista previa en /tmp/ed3-cierre-b10-20261109-_2p72mp4.
 - Cambio activo b11-base-tiempos-lpc1769: sólo propuesta; alcance/criterio
   pendientes de acuerdo, sin implementación ni publicación futura autorizadas.
 
