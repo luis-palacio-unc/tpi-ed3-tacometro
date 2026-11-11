@@ -177,3 +177,17 @@ Cierre documental: producción/pruebas/build/Drivers y contratos anteriores inta
 [cierre](../../openspec/changes/archive/2026-11-11-b17-regulador-velocidad/archive-report.md).
 Integración/cadencia/sintonía/pruebas físicas pendientes a cargo de Claude.
 Codex no inicia otro bloque. Commit/push de cierre autorizados.
+
+B18/I2 (integración, pendiente de revisión; R02–R07, R09–R11, R15): servicios
+simples que llaman a sus dispositivos y `main` real. R02: `Medicion_Velocidad`
+(`i2.medicion_velocidad`). R03/R05/R06: `Mandos`, modos de 3 estados y
+`Driver_Motor` (`i2.mandos`, `i2.procesamiento`, `i2.drivers`, `i2.aplicacion`
+S2–S4). R04: PI de B17 compuesto en `main` (`i2.aplicacion` S1/S7). R07:
+`Temperatura` filtrada, alarma 45/43 °C y `Driver_Alarmas` (`i2.temperatura`,
+`i2.procesamiento`, `i2.aplicacion` S5). R09: `Comunicacion` sobre UART
+(`i2.comunicacion`). R10: `i2.capas` impide que Aplicación incluya Dispositivos.
+R11: 60 funciones documentadas, USW nuevos sin reutilizar retirados. R01: firmware
+enlazado con la biblioteca, 19 636 B de flash en Debug. Los contratos B01–B10 de
+servicios y aplicación quedan como historial; evidencia en el
+[informe B18](../../openspec/changes/b18-integracion/verify-report.md), sección I2.
+Todo en host/ARM estático; aceptación física pendiente (I4).

@@ -1,334 +1,144 @@
+/* Pruebas host del servicio Comunicacion (B18/I2) con dispositivos simulados. */
 #include "Comunicacion.h"
-#include "Procesamiento.h"
-#include <stddef.h>
-#include <stdio.h>
+#include "fakes_dispositivos.h"
 #include <string.h>
 
-#define CHECK(expr) do { if (!(expr)) { \
-    fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #expr); return false; \
-} } while (0)
-
-static Comunicacion_Resultado Enviar(Comunicacion_Contexto *ctx, const char *texto,
-                                    uint64_t *orden)
+static void Preparar(void)
 {
-    Comunicacion_Resultado resultado = COMUNICACION_OK;
-    while (*texto != '\0') {
-        ++*orden;
-        Comunicacion_Resultado actual = Comunicacion_RecibirByte(ctx, (uint8_t)*texto, *orden);
-        if (actual != COMUNICACION_OK) {
-            resultado = actual;
-        }
-        ++texto;
-    }
-    return resultado;
+    Fakes_Reiniciar();
+    Comunicacion_Init();
 }
 
-static bool ValidarEvento(Comunicacion_Contexto *ctx, uint32_t rpm, uint64_t orden)
+/* Recibe texto y exige exactamente una consigna con el valor dado. */
+static bool UnaConsigna(const char *texto, uint32_t esperada)
 {
-    Comunicacion_Consigna evento;
-    CHECK(Comunicacion_ExtraerConsigna(ctx, &evento) == COMUNICACION_EXTRAIDA);
-    CHECK(evento.rpm == rpm && evento.orden_recepcion == orden);
+    uint32_t rpm = 999U;
+    Fakes_Recibir(texto);
+    CHECK(Comunicacion_RecibirConsigna(&rpm) && rpm == esperada);
+    CHECK(!Comunicacion_RecibirConsigna(&rpm) && rpm == esperada);
     return true;
 }
 
-static bool TramasValidas(void)
+/* Recibe texto y exige que no produzca ninguna consigna ni toque el destino. */
+static bool Ninguna(const char *texto)
 {
-    const char *textos[] = {"RPM 0\n", "RPM 001\n", "RPM 184\n", "RPM 185\n", "RPM 000\r\n"};
-    const uint32_t valores[] = {0U, 1U, 184U, 185U, 0U};
-    Comunicacion_Contexto ctx;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(COMUNICACION_RPM_MAX == 185U && PROCESAMIENTO_RPM_MAX == 185U);
-    for (size_t i = 0U; i < sizeof(valores) / sizeof(valores[0]); ++i) {
-        CHECK(Enviar(&ctx, textos[i], &orden) == COMUNICACION_ENCOLADA);
-        CHECK(ValidarEvento(&ctx, valores[i], orden));
-    }
+    uint32_t rpm = 999U;
+    Fakes_Recibir(texto);
+    CHECK(!Comunicacion_RecibirConsigna(&rpm) && rpm == 999U);
+    CHECK(fakes.rx_leidos == fakes.rx_bytes);
     return true;
 }
 
-static bool FragmentadaYCRLF(void)
+static bool S1_ConsignasValidas(void)
 {
-    Comunicacion_Contexto ctx;
-    Comunicacion_Consigna evento;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Enviar(&ctx, "R", &orden) == COMUNICACION_OK);
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-    CHECK(Enviar(&ctx, "PM 18", &orden) == COMUNICACION_OK);
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-    CHECK(Enviar(&ctx, "5\r", &orden) == COMUNICACION_OK);
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-    CHECK(Enviar(&ctx, "\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(orden == 9U);
-    CHECK(ValidarEvento(&ctx, 185U, 9U));
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
+    static const char *const orden[] = {"UART0_Init", NULL};
+    Preparar();
+    CHECK(Fakes_LlamadasSon(orden));
+    CHECK(UnaConsigna("RPM 0\n", 0U));
+    CHECK(UnaConsigna("RPM 7\r\n", 7U));
+    CHECK(UnaConsigna("RPM 100\n", 100U));
+    CHECK(UnaConsigna("RPM 184\n", 184U));
+    CHECK(UnaConsigna("RPM 185\r\n", 185U));
+    CHECK(UnaConsigna("RPM 007\n", 7U));
     return true;
 }
 
-static bool ConsecutivasYMarcasOriginales(void)
+static bool S2_LineasInvalidas(void)
 {
-    Comunicacion_Contexto ctx;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Enviar(&ctx, "RPM 0\nRPM 185\r\nRPM 25\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(orden == 22U);
-    CHECK(ValidarEvento(&ctx, 0U, 6U));
-    CHECK(ValidarEvento(&ctx, 185U, 15U));
-    CHECK(ValidarEvento(&ctx, 25U, 22U));
-    return true;
-}
-
-static bool ValoresFueraDeRango(void)
-{
-    Comunicacion_Contexto ctx;
-    Comunicacion_Consigna evento;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Enviar(&ctx, "RPM 186\n", &orden) == COMUNICACION_ERROR_RANGO);
-    CHECK(Enviar(&ctx, "RPM 999\r\n", &orden) == COMUNICACION_ERROR_RANGO);
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-    CHECK(Enviar(&ctx, "RPM 185\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(ValidarEvento(&ctx, 185U, orden));
-    return true;
-}
-
-static bool FormatosInvalidos(void)
-{
-    const char *malas[] = {"\n", "RPM \n", "RPM -1\n", "RPM +1\n", "RPM 1.5\n", "rpm 5\n",
-                          " RPM 1\n", "RPM 1 \n", "RPM  1\n", "RPM 1x\n", "RPM 1000\n",
-                          "RPM 1\r\r\n", "RPM\t1\n", "RPM 1\r2\n"};
-    Comunicacion_Contexto ctx;
-    Comunicacion_Consigna evento;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    for (size_t i = 0U; i < sizeof(malas) / sizeof(malas[0]); ++i) {
-        CHECK(Enviar(&ctx, malas[i], &orden) == COMUNICACION_ERROR_FORMATO);
-        CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-    }
-    CHECK(Enviar(&ctx, "RPM 10\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(ValidarEvento(&ctx, 10U, orden));
-    return true;
-}
-
-static bool TodosLosBytesEnCampoNumerico(void)
-{
-    for (uint16_t valor = 0U; valor <= 255U; ++valor) {
-        Comunicacion_Contexto ctx;
-        Comunicacion_Consigna evento;
-        uint64_t orden = 0U;
-        CHECK(Comunicacion_Inicializar(&ctx, orden));
-        CHECK(Enviar(&ctx, "RPM ", &orden) == COMUNICACION_OK);
-        CHECK(Comunicacion_RecibirByte(&ctx, (uint8_t)valor, ++orden) != COMUNICACION_ENCOLADA);
-        Comunicacion_Resultado fin = Enviar(&ctx, "\n", &orden);
-        if (valor >= 48U && valor <= 57U) {
-            CHECK(fin == COMUNICACION_ENCOLADA);
-            CHECK(ValidarEvento(&ctx, (uint32_t)(valor - 48U), orden));
-        } else {
-            CHECK(fin == COMUNICACION_ERROR_FORMATO);
-            CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-        }
+    static const char *const invalidas[] = {
+        "RPM 186\n", "RPM 999\n", "RPM 1000\n", "RPM x\n", "RPM 1x\n", "RPM \n", "RPM\n",
+        "RPM  10\n", "rpm 10\n", "RPM=10\n", "RPM -1\n", "RPM 10 \n", " RPM 10\n", "\n", "\r\n",
+        "RPM 10\r\r\n", "RPM 0100\n", "RPM 1850\r\n", "RPM 100 y mucho texto de mas\n", "XXXXXXXXXRPM 1\n"
+    };
+    Preparar();
+    for (unsigned i = 0U; i < sizeof(invalidas) / sizeof(invalidas[0]); ++i) {
+        CHECK(Ninguna(invalidas[i]));
+        CHECK(UnaConsigna("RPM 42\n", 42U));
     }
     return true;
 }
 
-static bool ExcesoLongitudYRecuperacion(void)
+static bool S3_LineaPartidaYVarias(void)
 {
-    Comunicacion_Contexto ctx;
-    Comunicacion_Consigna evento;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Enviar(&ctx, "AAAAAAAA", &orden) == COMUNICACION_OK);
-    CHECK(Comunicacion_RecibirByte(&ctx, (uint8_t)'A', ++orden) == COMUNICACION_ERROR_LONGITUD);
-    CHECK(Enviar(&ctx, "RPM 185\n", &orden) == COMUNICACION_OK);
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-    CHECK(Enviar(&ctx, "RPM 185\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(ValidarEvento(&ctx, 185U, orden));
+    uint32_t rpm = 999U;
+    Preparar();
+    CHECK(Ninguna("RP"));
+    CHECK(Ninguna("M 1"));
+    CHECK(UnaConsigna("23\r\n", 123U));
+    Fakes_Recibir("RPM 10\nRPM 300\nRPM 20\r\nRPM 3");
+    CHECK(Comunicacion_RecibirConsigna(&rpm) && rpm == 10U);
+    CHECK(Comunicacion_RecibirConsigna(&rpm) && rpm == 20U);
+    CHECK(!Comunicacion_RecibirConsigna(&rpm) && rpm == 20U);
+    CHECK(UnaConsigna("0\n", 30U));
     return true;
 }
 
-static bool EnterosExtremosNoDesbordan(void)
+static bool S4_Descartar(void)
 {
-    Comunicacion_Contexto ctx;
-    Comunicacion_Consigna evento;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Enviar(&ctx, "RPM 4294967295\n", &orden) == COMUNICACION_ERROR_LONGITUD);
-    CHECK(Enviar(&ctx, "RPM 18446744073709551616\n", &orden) == COMUNICACION_ERROR_LONGITUD);
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-    CHECK(Enviar(&ctx, "RPM 0\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(ValidarEvento(&ctx, 0U, orden));
+    Preparar();
+    CHECK(Ninguna("RPM 1"));
+    Comunicacion_Descartar();
+    CHECK(Ninguna("50\n"));
+    Fakes_Recibir("RPM 60\nRPM 7");
+    Comunicacion_Descartar();
+    CHECK(fakes.rx_leidos == fakes.rx_bytes);
+    CHECK(Ninguna("0\n"));
+    CHECK(UnaConsigna("RPM 80\n", 80U));
+    CHECK(Ninguna("RPM 9"));
+    Comunicacion_Init();
+    CHECK(UnaConsigna("RPM 5\n", 5U));
     return true;
 }
 
-static bool ColaLlenaConservaFIFOYRecupera(void)
+static bool Trama(uint32_t rpm, int32_t temperatura, Comunicacion_Estado estado,
+                  const char *esperada)
 {
-    Comunicacion_Contexto ctx;
-    Comunicacion_Consigna evento;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Enviar(&ctx, "RPM 0\nRPM 1\nRPM 2\nRPM 3\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(Enviar(&ctx, "RPM 4\n", &orden) == COMUNICACION_ERROR_COLA_LLENA);
-    CHECK(ValidarEvento(&ctx, 0U, 6U));
-    CHECK(Enviar(&ctx, "RPM 5\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(ValidarEvento(&ctx, 1U, 12U));
-    CHECK(ValidarEvento(&ctx, 2U, 18U));
-    CHECK(ValidarEvento(&ctx, 3U, 24U));
-    CHECK(ValidarEvento(&ctx, 5U, 36U));
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
+    Fakes_VaciarTx();
+    CHECK(Comunicacion_EnviarTelemetria(rpm, temperatura, estado));
+    CHECK(strcmp(fakes.tx, esperada) == 0 && fakes.tx_bytes == strlen(esperada));
     return true;
 }
 
-static bool ColaCircularRepetida(void)
+static bool S5_TelemetriaExacta(void)
 {
-    Comunicacion_Contexto ctx;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    for (unsigned int i = 0U; i < 100U; ++i) {
-        CHECK(Enviar(&ctx, "RPM 100\n", &orden) == COMUNICACION_ENCOLADA);
-        CHECK(ValidarEvento(&ctx, 100U, orden));
-    }
+    Preparar();
+    CHECK(Trama(0U, 0, COMUNICACION_ESTADO_MANUAL, "RPM=0.000;TEMP=0.00;ESTADO=MANUAL\n"));
+    CHECK(Trama(100000U, 2500, COMUNICACION_ESTADO_AUTO_ACTIVO,
+                "RPM=100.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n"));
+    CHECK(Trama(2000U, 4501, COMUNICACION_ESTADO_AUTO_ESPERA,
+                "RPM=2.000;TEMP=45.01;ESTADO=AUTO_ESPERA\n"));
+    CHECK(Trama(185007U, 5, COMUNICACION_ESTADO_MANUAL, "RPM=185.007;TEMP=0.05;ESTADO=MANUAL\n"));
+    CHECK(Trama(1U, -50, COMUNICACION_ESTADO_MANUAL, "RPM=0.001;TEMP=-0.50;ESTADO=MANUAL\n"));
+    CHECK(Trama(12340U, -1234, COMUNICACION_ESTADO_MANUAL, "RPM=12.340;TEMP=-12.34;ESTADO=MANUAL\n"));
+    CHECK(Trama(UINT32_MAX, INT32_MIN, COMUNICACION_ESTADO_AUTO_ACTIVO,
+                "RPM=4294967.295;TEMP=-21474836.48;ESTADO=AUTO_ACTIVO\n"));
+    CHECK(fakes.tx_bytes == COMUNICACION_TELEMETRIA_MAX);
+    CHECK(Trama(0U, INT32_MAX, COMUNICACION_ESTADO_MANUAL, "RPM=0.000;TEMP=21474836.47;ESTADO=MANUAL\n"));
     return true;
 }
 
-static bool OrdenRepetidoYRegresivo(void)
+static bool S6_SinLugarEnTransmision(void)
 {
-    Comunicacion_Contexto ctx;
-    Comunicacion_Consigna evento;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Enviar(&ctx, "RPM 1\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(Comunicacion_RecibirByte(&ctx, (uint8_t)'R', ++orden) == COMUNICACION_OK);
-    CHECK(Comunicacion_RecibirByte(&ctx, (uint8_t)'P', orden) == COMUNICACION_ERROR_ORDEN);
-    CHECK(Comunicacion_RecibirByte(&ctx, (uint8_t)'M', 1U) == COMUNICACION_ERROR_ORDEN);
-    CHECK(Enviar(&ctx, " 20\n", &orden) == COMUNICACION_OK);
-    CHECK(ValidarEvento(&ctx, 1U, 6U));
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-    CHECK(Enviar(&ctx, "RPM 30\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(ValidarEvento(&ctx, 30U, orden));
-    return true;
-}
-
-static bool OrdenInvalidoEnTerminador(void)
-{
-    Comunicacion_Contexto ctx;
-    Comunicacion_Consigna evento;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Enviar(&ctx, "RPM 1", &orden) == COMUNICACION_OK);
-    CHECK(Comunicacion_RecibirByte(&ctx, (uint8_t)'\n', orden) == COMUNICACION_ERROR_ORDEN);
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-    CHECK(Enviar(&ctx, "RPM 2\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(ValidarEvento(&ctx, 2U, orden));
-    return true;
-}
-
-static bool OrdenMaximoYRollover(void)
-{
-    Comunicacion_Contexto ctx;
-    uint64_t orden = UINT64_MAX - 6U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Enviar(&ctx, "RPM 0\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(orden == UINT64_MAX);
-    CHECK(Comunicacion_RecibirByte(&ctx, (uint8_t)'R', 0U) == COMUNICACION_ERROR_ORDEN);
-    CHECK(ValidarEvento(&ctx, 0U, UINT64_MAX));
-    return true;
-}
-
-static bool ParametrosNulosYVacio(void)
-{
-    Comunicacion_Contexto ctx;
-    Comunicacion_Consigna evento = {185U, 999U};
-    uint64_t orden = 0U;
-    CHECK(!Comunicacion_Inicializar(NULL, 0U));
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Comunicacion_RecibirByte(NULL, 0U, 1U) == COMUNICACION_ERROR_ARGUMENTO);
-    CHECK(Comunicacion_ExtraerConsigna(NULL, &evento) == COMUNICACION_ERROR_ARGUMENTO);
-    CHECK(evento.rpm == 0U && evento.orden_recepcion == 0U);
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, NULL) == COMUNICACION_ERROR_ARGUMENTO);
-    CHECK(Enviar(&ctx, "RPM 7\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, NULL) == COMUNICACION_ERROR_ARGUMENTO);
-    CHECK(ValidarEvento(&ctx, 7U, orden));
-    return true;
-}
-
-static bool ReinicioPurgaColaYTrama(void)
-{
-    Comunicacion_Contexto ctx;
-    Comunicacion_Consigna evento;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Enviar(&ctx, "RPM 1\nRPM 18", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(Comunicacion_Inicializar(&ctx, orden));
-    CHECK(Comunicacion_ExtraerConsigna(&ctx, &evento) == COMUNICACION_VACIA);
-    CHECK(Enviar(&ctx, "5\n", &orden) == COMUNICACION_ERROR_FORMATO);
-    CHECK(Enviar(&ctx, "RPM 2\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(ValidarEvento(&ctx, 2U, orden));
-    return true;
-}
-
-static bool InstanciasIndependientes(void)
-{
-    Comunicacion_Contexto a, b;
-    uint64_t oa = 0U, ob = 100U;
-    CHECK(Comunicacion_Inicializar(&a, oa)); CHECK(Comunicacion_Inicializar(&b, ob));
-    CHECK(Enviar(&a, "RPM 1", &oa) == COMUNICACION_OK);
-    CHECK(Enviar(&b, "RPM 2\n", &ob) == COMUNICACION_ENCOLADA);
-    CHECK(Enviar(&a, "\n", &oa) == COMUNICACION_ENCOLADA);
-    CHECK(ValidarEvento(&a, 1U, oa)); CHECK(ValidarEvento(&b, 2U, ob));
-    return true;
-}
-
-static bool IntegracionAntiguaYNuevaConB01(void)
-{
-    Comunicacion_Contexto rx;
-    Procesamiento_Contexto app;
-    Comunicacion_Consigna evento;
-    Procesamiento_Salida salida;
-    uint64_t orden = 0U;
-    CHECK(Comunicacion_Inicializar(&rx, orden));
-    CHECK(Procesamiento_Inicializar(&app, PROCESAMIENTO_MODO_MANUAL, orden));
-    CHECK(Enviar(&rx, "RPM 50\n", &orden) == COMUNICACION_ENCOLADA);
-    Procesamiento_Entradas entrada = {PROCESAMIENTO_MODO_AUTOMATICO, 0U, ++orden, NULL};
-    CHECK(Procesamiento_Actualizar(&app, &entrada, &salida));
-    CHECK(salida.fuente == PROCESAMIENTO_FUENTE_CERO);
-    CHECK(Comunicacion_ExtraerConsigna(&rx, &evento) == COMUNICACION_EXTRAIDA);
-    Procesamiento_Consigna cmd = {evento.rpm, evento.orden_recepcion, true};
-    entrada.consigna = &cmd;
-    CHECK(Procesamiento_Actualizar(&app, &entrada, &salida));
-    CHECK(salida.fuente == PROCESAMIENTO_FUENTE_CERO);
-    CHECK(Enviar(&rx, "RPM 185\n", &orden) == COMUNICACION_ENCOLADA);
-    CHECK(Comunicacion_ExtraerConsigna(&rx, &evento) == COMUNICACION_EXTRAIDA);
-    cmd.rpm = evento.rpm; cmd.orden_recepcion = evento.orden_recepcion;
-    entrada.orden_actual = orden;
-    CHECK(Procesamiento_Actualizar(&app, &entrada, &salida));
-    CHECK(salida.fuente == PROCESAMIENTO_FUENTE_AUTOMATICA && salida.consigna_rpm == 185U);
+    Preparar();
+    fakes.tx_libres = 33U;
+    CHECK(!Comunicacion_EnviarTelemetria(0U, 0, COMUNICACION_ESTADO_MANUAL));
+    CHECK(fakes.tx_bytes == 33U);
+    fakes.tx_libres = 34U;
+    fakes.tx_bytes = 0U;
+    CHECK(Comunicacion_EnviarTelemetria(0U, 0, COMUNICACION_ESTADO_MANUAL));
+    CHECK(fakes.tx_bytes == 34U);
     return true;
 }
 
 int main(void)
 {
-    const struct { const char *nombre; bool (*ejecutar)(void); } casos[] = {
-        {"S1 limites/ceros iniciales", TramasValidas}, {"S3 fragmentada/CRLF", FragmentadaYCRLF},
-        {"S3 consecutivas/marcas FIFO", ConsecutivasYMarcasOriginales},
-        {"S2 rango", ValoresFueraDeRango}, {"S2 formato", FormatosInvalidos},
-        {"S2 todos los bytes", TodosLosBytesEnCampoNumerico},
-        {"S5 exceso y resincronizacion", ExcesoLongitudYRecuperacion},
-        {"S2 enteros extremos", EnterosExtremosNoDesbordan},
-        {"S6 cola llena/FIFO", ColaLlenaConservaFIFOYRecupera},
-        {"S6 anillo repetido", ColaCircularRepetida}, {"S4 orden repetido/regresivo", OrdenRepetidoYRegresivo},
-        {"S4 terminador con orden invalido", OrdenInvalidoEnTerminador},
-        {"S4 frontera UINT64_MAX", OrdenMaximoYRollover}, {"S7 NULL/vacio", ParametrosNulosYVacio},
-        {"S7 reinicio", ReinicioPurgaColaYTrama}, {"S7 instancias", InstanciasIndependientes},
-        {"S8 integracion B01", IntegracionAntiguaYNuevaConB01}
+    const Caso casos[] = {
+        {"S1 consignas validas", S1_ConsignasValidas},
+        {"S2 lineas invalidas, fuera de rango o largas", S2_LineasInvalidas},
+        {"S3 linea partida y varias consignas", S3_LineaPartidaYVarias},
+        {"S4 descartar", S4_Descartar},
+        {"S5 telemetria exacta", S5_TelemetriaExacta},
+        {"S6 sin lugar en transmision", S6_SinLugarEnTransmision}
     };
-    for (size_t i = 0U; i < sizeof(casos) / sizeof(casos[0]); ++i) {
-        if (!casos[i].ejecutar()) {
-            fprintf(stderr, "FAIL %s\n", casos[i].nombre);
-            return 1;
-        }
-        printf("PASS %s\n", casos[i].nombre);
-    }
-    printf("%zu/%zu casos correctos\n", sizeof(casos) / sizeof(casos[0]), sizeof(casos) / sizeof(casos[0]));
-    return 0;
+    EJECUTAR_CASOS(casos);
 }

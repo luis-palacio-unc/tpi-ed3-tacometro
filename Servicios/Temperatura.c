@@ -1,51 +1,29 @@
 /**
  * @file Temperatura.c
- * @brief Disponibilidad y errores genericos de una temperatura fisica.
- * @details La conversion especifica pertenece al proveedor. El servicio solo
- * conserva Celsius/validez o invalida un dato anterior cuando la fuente falla.
- * @note ESW.2.1.4. Sin dependencia de dispositivos concretos ni estado global mutable.
+ * @brief Promedio movil de las lecturas del LM35.
+ * @details Ventana circular de cuatro lecturas en memoria estatica.
+ * @note ESW.2.1.4. Contrato publico en Temperatura.h.
  */
 #include "Temperatura.h"
-#include <stddef.h>
+#include "LM35.h"
 
-/** @addtogroup temperatura
- * @{
- */
+/** @brief Ultimas lecturas del LM35, en centesimas de grado. */
+static int32_t Temperatura_Lecturas[TEMPERATURA_MUESTRAS];
+/** @brief Lecturas validas en la ventana: 0 al arrancar, hasta TEMPERATURA_MUESTRAS. */
+static uint32_t Temperatura_Cantidad;
+/** @brief Posicion de la proxima lectura dentro de la ventana. */
+static uint32_t Temperatura_Siguiente;
 
-bool Temperatura_Inicializar(Temperatura_Lectura *lectura)
+int32_t Temperatura_Leer(void)
 {
-    if (lectura == NULL) {
-        return false;
+    Temperatura_Lecturas[Temperatura_Siguiente] = LM35_Read();
+    Temperatura_Siguiente = (Temperatura_Siguiente + 1U) % TEMPERATURA_MUESTRAS;
+    if (Temperatura_Cantidad < TEMPERATURA_MUESTRAS) {
+        ++Temperatura_Cantidad;
     }
-    lectura->centesimas_c = 0;
-    lectura->estado = TEMPERATURA_SIN_DATOS;
-    return true;
+    int32_t suma = 0;
+    for (uint32_t i = 0U; i < Temperatura_Cantidad; ++i) {
+        suma += Temperatura_Lecturas[i];
+    }
+    return suma / (int32_t)Temperatura_Cantidad;
 }
-
-Temperatura_Estado Temperatura_Actualizar(Temperatura_Lectura *lectura,
-                                        int32_t centesimas_c,
-                                        Temperatura_EstadoFuente fuente)
-{
-    if (lectura == NULL) {
-        return TEMPERATURA_ERROR_ARGUMENTO;
-    }
-    lectura->centesimas_c = 0;
-    switch (fuente) {
-        case TEMPERATURA_FUENTE_VALIDA:
-            lectura->centesimas_c = centesimas_c;
-            lectura->estado = TEMPERATURA_VALIDA;
-            break;
-        case TEMPERATURA_FUENTE_SIN_DATOS:
-            lectura->estado = TEMPERATURA_SIN_DATOS;
-            break;
-        case TEMPERATURA_FUENTE_ERROR:
-            lectura->estado = TEMPERATURA_ERROR_FUENTE;
-            break;
-        default:
-            lectura->estado = TEMPERATURA_ERROR_ARGUMENTO;
-            break;
-    }
-    return lectura->estado;
-}
-
-/** @} */

@@ -14,16 +14,24 @@
 
 ## Integración en curso (B18)
 
-- I1 (arranque y periféricos) **implementado y verificado en host/ARM, pendiente de
-  revisión de Claude y de commit**; rama `integracion-i1`, base 6072762.
-  Cambio `openspec/changes/b18-integracion/` (vía rápida aprobada por el usuario).
-- Host/san 36/36 y host 36/36; ARM Debug 17/17 y Release 17/17; Doxygen 62 sin
-  avisos; `Drivers/` sin cambios. Nada ejecutado en placa.
-- El reloj lo configura `Reloj_Init` (FLASHCFG a 5 ciclos, `SystemInit`,
-  `SystemCoreClockUpdate`); el startup no cambió. I2 debe llamarla primero en main.
+- I1 (arranque y periféricos) revisado por Claude y en `main` (ff07e3e).
+- I2 (servicios simples, Aplicación y `main`) **implementado y verificado en
+  host/ARM, pendiente de revisión de Claude y de commit**; rama `integracion-i2`,
+  base ff07e3e. Cambio `openspec/changes/b18-integracion/` (vía rápida).
+- Capas: Aplicación → Servicios → Dispositivos, comprobado por `i2.capas`. Cada
+  servicio llama a sus dispositivos; sin contextos, callbacks ni enums de error.
+  `Sistema_Init` arranca reloj y ADC/DMA. Modos de 3 estados; alarma 45/43 °C con
+  promedio de 4 lecturas; PI de B17 sin cambios. Lazo: alarma → modo → mando →
+  telemetría cada 500 ms; en MANUAL el potenciómetro actúa en cada vuelta.
+- Host/san 29/29 y host 29/29; ARM Debug 9/9 y Release 9/9; Doxygen 60 funciones
+  sin avisos; `Drivers/` y `Dispositivos/` sin cambios. Firmware Debug 19 636 B de
+  flash y 2 456 B de SRAM (Release 13 124 / 2 448). 45 de 48 mutantes detectados,
+  3 equivalentes. Nada ejecutado en placa.
   [Informe](../../openspec/changes/b18-integracion/verify-report.md).
-- Specs vigentes sin sincronizar; `Aplicacion/`, `Servicios/` y `main.c` intactos.
-  Siguen I2 (servicios simples, Aplicación y main) e I3 (MCUXpresso).
+- Contratos de mandos, medicion-velocidad, temperatura (servicio), mando-motor,
+  salidas-alarma, comunicacion, modos y alarma-temperatura reemplazados por delta
+  specs en el cambio, más `sistema`; specs vigentes sin sincronizar hasta cerrar.
+  Sigue I3 (MCUXpresso) e I4 (puesta en marcha en placa).
 
 ## Evidencia aceptada
 

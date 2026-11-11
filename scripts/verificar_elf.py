@@ -11,6 +11,8 @@ import tempfile
 
 FLASH_END = 0x80000
 RAM_START, RAM_END = 0x10000000, 0x10008000
+# main -> Aplicacion_Inicializar -> Sistema_Init -> Reloj_Init
+CLOCK_CHAIN_MAX = 3
 
 
 def require(condition, message):
@@ -26,7 +28,11 @@ def tool(prefix, name, *args):
 
 
 def require_clock(elf, prefix, symbols, text):
-    """Exigir Reloj_Init fuerte que escriba FLASHCFG y llame SystemInit y SystemCoreClockUpdate."""
+    """Exigir Reloj_Init fuerte que escriba FLASHCFG y llame SystemInit y SystemCoreClockUpdate.
+
+    Reloj_Init debe ser lo primero que se llama desde main: directamente o como primera
+    llamada de la primera funcion llamada, hasta CLOCK_CHAIN_MAX niveles.
+    """
     strong = set(re.findall(r"^[0-9a-fA-F]+\s+T\s+(\S+)$",
                             tool(prefix, "nm", "--defined-only", elf), re.M))
     for name in ("Reloj_Init", "SystemInit", "SystemCoreClockUpdate"):
@@ -41,10 +47,15 @@ def require_clock(elf, prefix, symbols, text):
     before = listing.split("<SystemInit>")[0]
     require(re.search(r"\sstr(?:\.w)?\s", before),
             "Reloj_Init no escribe FLASHCFG antes de SystemInit.")
-    main_listing = tool(prefix, "objdump", "-d", "--disassemble=main", elf)
-    main_calls = re.findall(r"\sbl\s+[0-9a-f]+\s+<(\w+)>", main_listing)
-    require(main_calls[:1] == ["Reloj_Init"],
-            "main no llama Reloj_Init como primera funcion: " + ", ".join(main_calls[:3]))
+    chain = ["main"]
+    while chain[-1] != "Reloj_Init" and len(chain) <= CLOCK_CHAIN_MAX:
+        function_listing = tool(prefix, "objdump", "-d", "--disassemble=" + chain[-1], elf)
+        first_call = re.findall(r"\sbl\s+[0-9a-f]+\s+<(\w+)>", function_listing)[:1]
+        require(first_call and first_call[0] not in chain,
+                "main no llama Reloj_Init como primera funcion: " + " -> ".join(chain))
+        chain += first_call
+    require(chain[-1] == "Reloj_Init",
+            "main no llama Reloj_Init como primera funcion: " + " -> ".join(chain))
 
 
 def inspect(elf, prefix, exigir_reloj=False):
@@ -155,7 +166,7 @@ def inspect(elf, prefix, exigir_reloj=False):
             f"SRAM local (.data + .bss + pila): {ram_used}/32768 bytes\n"
             f"Pila reservada: {top-bottom} bytes; no acredita profundidad real\n"
             "AHB0/AHB1: sin secciones asignadas en B00\n" + size_output + "\n"
-            + ("Reloj: main llama primero Reloj_Init, que fija FLASHCFG y llama SystemInit\n"
+            + ("Reloj: la primera llamada de main lleva a Reloj_Init, que fija FLASHCFG y llama SystemInit\n"
                if exigir_reloj else "")
             + "No se ejecuto firmware en hardware ni simulacion.\n")
 
@@ -166,7 +177,7 @@ def main():
     parser.add_argument("--tool-prefix", default="arm-none-eabi-")
     parser.add_argument("--report", type=Path)
     parser.add_argument("--exigir-reloj", action="store_true",
-                        help="exigir Reloj_Init como primera llamada de main, con SystemInit")
+                        help="exigir que la primera llamada de main lleve a Reloj_Init, con SystemInit")
     args = parser.parse_args()
     try:
         report = inspect(args.elf, args.tool_prefix, args.exigir_reloj)

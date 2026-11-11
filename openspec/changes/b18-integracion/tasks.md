@@ -21,13 +21,34 @@
   `test_dispositivos_gpio.c`.
 - [x] 1.11 Doxygen de cada función/ISR con capítulo/tabla del manual; Doxyfile ampliado.
 - [x] 1.12 Delta specs de I1, verify-report y ESTADO.
-- [ ] 1.13 Revisión de Claude del diff contra UM10360 y commit local.
+- [x] 1.13 Revisión de Claude del diff contra UM10360 y commit local (ff07e3e).
 
 ## I2 — Servicios simples, Aplicación y main
 
-- [ ] 2.1 Pendiente; se detalla al iniciar I2.
-- [ ] 2.2 `main` llama `Reloj_Init` como primera acción; activar `--exigir-reloj`
-  en el firmware (post-build y `b00.imagen` de `CMakeLists.txt`).
+- [x] 2.1 Leer el diseño detallado de I2, el análisis de simplificación, I1 y el
+  código/specs vigentes.
+- [x] 2.2 `main` llega a `Reloj_Init` como primera acción (main →
+  `Aplicacion_Inicializar` → `Sistema_Init` → `Reloj_Init`); `--exigir-reloj` activo
+  en el post-build del firmware y en `b00.imagen`; `verificar_elf.py` sigue la
+  cadena de primeras llamadas.
+- [x] 2.3 Servicios simples que llaman a sus dispositivos: `Sistema` (nuevo),
+  `Mandos`, `Medicion_Velocidad`, `Temperatura`, `Driver_Motor`, `Driver_Alarmas`
+  y `Comunicacion`, con estado `static` y sin contextos, callbacks ni enums de error.
+- [x] 2.4 `Procesamiento`: modos de 3 estados y alarma con histéresis 45/43 °C
+  (`Configuracion/Alarma.h`); regulador PI de B17 sin cambios.
+- [x] 2.5 `main.c`/`main.h`: `Aplicacion_Inicializar` y `Aplicacion_Iterar`;
+  `main()` sólo las encadena. Aplicación sin encabezados de Dispositivos.
+- [x] 2.6 Pruebas host con dispositivos simulados (`fakes_dispositivos`): una suite
+  por servicio, `i2.procesamiento` y la prueba de sistema `i2.aplicacion`.
+- [x] 2.7 Control automático de capas `i2.capas` (`scripts/verificar_capas.py`).
+- [x] 2.8 Build: `Sistema.c` en el firmware; fixture `b17` reducido al regulador,
+  `b05.lm35` adaptado, `i2.firmware` nuevo; eliminación de suites, oráculos y
+  fixtures obsoletos de B01–B10; `pruebas_b00.py` con `Sistema.c.o` y S11 automático.
+- [x] 2.9 Doxygen con USW nuevos (sin reutilizar IDs retirados) y Doxyfile ampliado.
+- [x] 2.10 Delta specs de I2 (9 dominios nuevos o reemplazados, más build,
+  temperatura, sensor-optico y regulacion-velocidad), verify-report, ESTADO y MAPA.
+- [x] 2.11 Mutación manual fuera del árbol: 48 mutantes.
+- [ ] 2.12 Revisión de Claude del diff y commit local.
 
 ## I3 — Proyecto MCUXpresso
 

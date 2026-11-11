@@ -1,33 +1,19 @@
 /**
  * @file Driver_Motor.c
- * @brief Validacion del mando por mil y envio a una funcion de salida externa.
- * @details Rechaza argumentos/rango antes de invocar; traduce aceptacion del proveedor.
- * La operacion explicita de cero reutiliza el mismo contrato de envio y errores.
- * @note ESW.2.1.8. Sin dependencia de aplicacion, dispositivos, reloj o PWM concreto.
+ * @brief Mando del motor limitado a 1000 por mil.
+ * @details Sin estado propio.
+ * @note ESW.2.1.8. Contratos publicos en Driver_Motor.h.
  */
 #include "Driver_Motor.h"
-#include <stddef.h>
+#include "Limites.h"
+#include "Motor.h"
 
-/** @addtogroup driver_motor
- * @{
- */
-
-Driver_Motor_Estado Driver_Motor_Aplicar(const Driver_Motor_Salida *salida,
-                                      uint16_t mando_por_mil)
+void Driver_Motor_Init(void)
 {
-    if (salida == NULL || salida->escribir == NULL) {
-        return DRIVER_MOTOR_ERROR_ARGUMENTO;
-    }
-    if (mando_por_mil > DRIVER_MOTOR_MANDO_MAX) {
-        return DRIVER_MOTOR_ERROR_RANGO;
-    }
-    return salida->escribir(salida->contexto, mando_por_mil)
-        ? DRIVER_MOTOR_ACEPTADA : DRIVER_MOTOR_ERROR_SALIDA;
+    Motor_Init();
 }
 
-Driver_Motor_Estado Driver_Motor_SolicitarCero(const Driver_Motor_Salida *salida)
+void Driver_Motor_Aplicar(uint16_t por_mil)
 {
-    return Driver_Motor_Aplicar(salida, 0U);
+    (void)Motor_Write(por_mil > TPI_MANDO_MANUAL_MAX ? (uint16_t)TPI_MANDO_MANUAL_MAX : por_mil);
 }
-
-/** @} */

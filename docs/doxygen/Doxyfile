@@ -3,8 +3,9 @@
 PROJECT_NAME = "TPI EDIII - Firmware"
 OUTPUT_DIRECTORY = build/doxygen
 OUTPUT_LANGUAGE = English
-INPUT = Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacion/Procesamiento.c \
-        Servicios/Comunicacion.h Servicios/Comunicacion.c Configuracion/Limites.h Configuracion/Medicion.h Configuracion/Analogica.h Configuracion/Control.h \
+INPUT = Aplicacion/main.h Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacion/Procesamiento.c \
+        Servicios/Comunicacion.h Servicios/Comunicacion.c Configuracion/Limites.h Configuracion/Medicion.h Configuracion/Analogica.h Configuracion/Control.h Configuracion/Alarma.h \
+        Servicios/Sistema.h Servicios/Sistema.c \
         Servicios/Medicion_Velocidad.h Servicios/Medicion_Velocidad.c \
         Servicios/Mandos.h Servicios/Mandos.c \
         Servicios/Temperatura.h Servicios/Temperatura.c \

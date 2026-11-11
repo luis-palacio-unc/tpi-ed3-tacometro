@@ -1,6 +1,7 @@
 # Delta B18/I1 — sensor-optico
 
-Candidato de la vía rápida B18. SO1, SO3 y SO4 sin cambios (SensorOptico_Read intacto).
+Candidato de la vía rápida B18. SO1 y SO4 sin cambios (SensorOptico_Read intacto).
+I2 modifica SO3: la conversión a RPM dejó de ser un servicio con factor explícito.
 
 ## MODIFIED Requirements
 
@@ -16,6 +17,22 @@ serializado.)
 - Given un conteo y luego más eventos entre consultas.
 - When se lee varias veces.
 - Then MUST conservar la referencia acumulada y reflejar el avance sin reset propio.
+
+### Requirement: SO3 — Compatibilidad con la medición (I2)
+Conteo MUST permitir obtener los pulsos de una ventana como diferencia uint32_t
+modular de dos muestras de la misma época, con menos de 2^32 eventos entre ellas.
+La diferencia la calcula el ISR de Timer (WT4) y la conversión a RPM el servicio
+Medicion_Velocidad (MV2). (Antes: prueba de composición con B03 y factor explícito.)
+
+#### Scenario: S3 — Ventana de referencia
+- Given dos muestras separadas por 0, 60, 185 o 200 eventos.
+- When se resta.
+- Then MUST obtenerse esa cantidad de pulsos, sin leer la base de tiempos.
+
+#### Scenario: S4 — Rollover de conteo
+- Given anterior = MAX−29 y actual = 30, misma época.
+- When se calcula la diferencia modular.
+- Then MUST obtener 60 pulsos, sin overflow indefinido ni reset.
 
 ## ADDED Requirements
 

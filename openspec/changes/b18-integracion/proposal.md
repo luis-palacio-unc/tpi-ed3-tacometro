@@ -10,7 +10,11 @@ propuesta previa ni ronda de revisión aparte; las delta specs se revisan con el
   de cada dispositivo con la biblioteca original, ISR de TIMER0/UART0/DMA, UART con
   buffers circulares, ventana de medición de 500 ms, adquisición ADC/DMA y enlace
   ARM con la biblioteca.
-- **I2:** servicios simples, Aplicación y `main` (se agrega a este cambio).
+- **I2:** servicios simples que llaman a sus dispositivos, Aplicación (modos de 3
+  estados, alarma con histéresis 45/43 °C, PI de B17 sin cambios) y `main` real.
+  Reemplaza los contratos de mandos, medicion-velocidad, temperatura (servicio),
+  mando-motor, salidas-alarma, comunicacion, modos y alarma-temperatura, y agrega
+  `sistema`. Retira la excepción O5: Aplicación no incluye Dispositivos.
 - **I3:** proyecto MCUXpresso (se agrega a este cambio).
 
 ## Exclusiones de I1

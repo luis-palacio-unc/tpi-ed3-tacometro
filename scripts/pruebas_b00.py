@@ -35,9 +35,10 @@ class ContratosB00(unittest.TestCase):
             self.assertRegex(result.stdout, diagnostic)
         return result.stdout
 
-    def verify(self, elf, expected=0, diagnostic=None):
+    def verify(self, elf, expected=0, diagnostic=None, extra=()):
         return self.run_command([sys.executable, args.source/"scripts/verificar_elf.py",
-                                 elf, "--tool-prefix", args.tool_prefix], expected, diagnostic)
+                                 elf, "--tool-prefix", args.tool_prefix, *extra],
+                                expected, diagnostic)
 
     def mutate_section(self, name, data):
         content = self.tmp/"section.bin"
@@ -82,6 +83,12 @@ class ContratosB00(unittest.TestCase):
         self.verify(args.elf, diagnostic="verificacion estatica correcta")
         self.assertEqual(args.elf.read_bytes(), before[0], "Contenido del ELF modificado")
         self.assertEqual(args.elf.stat().st_mtime_ns, before[1], "Fecha del ELF modificada")
+
+    def test_reloj_exigido(self):
+        self.verify(args.elf, diagnostic="lleva a Reloj_Init", extra=["--exigir-reloj"])
+        elf = self.fixture("int main(void) { return 0; }\n")
+        self.verify(elf)
+        self.verify(elf, 1, "Falta simbolo fuerte de reloj: Reloj_Init", extra=["--exigir-reloj"])
 
     def test_elf_truncado(self):
         target = self.tmp/"truncado.elf"
@@ -158,7 +165,7 @@ class ContratosB00(unittest.TestCase):
                     "Mandos.c.o", "Driver_Alarmas.c.o", "Comunicacion.c.o", "Driver_Motor.c.o",
                     "Timer.c.o", "Motor.c.o", "Sensor_Optico.c.o", "LM35.c.o", "Potenciometro.c.o",
                     "Selector.c.o", "LED.c.o", "Buzzer.c.o", "UART.c.o", "Adquisicion_ADC_DMA.c.o",
-                    "Reloj.c.o"}
+                    "Reloj.c.o", "Sistema.c.o"}
         self.assertEqual({p.name for p in objects}, expected)
         self.assertEqual(len(objects), len(expected))
         self.assertFalse(any("startup" in p.name for p in objects))

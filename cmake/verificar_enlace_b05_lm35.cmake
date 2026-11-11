@@ -14,15 +14,10 @@ file(WRITE "${OUTPUT_DIR}/main_fixture.c" [=[
 #include "LM35.h"
 #include "Temperatura.h"
 #include "Adquisicion_ADC_DMA.h"
-static Temperatura_Lectura servicio;
 int main(void)
 {
-    if (!Temperatura_Inicializar(&servicio)) {
-        return 1;
-    }
     ADC_DMA_LM35 = UINT32_C(0xFFFF200F);
-    return Temperatura_Actualizar(&servicio, LM35_Read(),
-           TEMPERATURA_FUENTE_VALIDA) == TEMPERATURA_VALIDA && servicio.centesimas_c == 2500 ? 0 : 1;
+    return LM35_Read() == 2500 && Temperatura_Leer() == 2500 ? 0 : 1;
 }
 ]=])
 execute_process(COMMAND "${TOOL_PREFIX}gcc"
@@ -53,7 +48,7 @@ execute_process(COMMAND "${TOOL_PREFIX}nm" --defined-only "${OUTPUT_DIR}/fixture
 if(NOT result EQUAL 0)
     message(FATAL_ERROR "No se pudieron inspeccionar simbolos B05: ${errors}")
 endif()
-foreach(required_symbol LM35_Read ADC_DMA_LM35 Temperatura_Inicializar Temperatura_Actualizar)
+foreach(required_symbol LM35_Read ADC_DMA_LM35 Temperatura_Leer)
     if(NOT symbols MATCHES "[ \t]${required_symbol}[\r\n]")
         message(FATAL_ERROR "API/auxiliar B05 eliminado o ausente: ${required_symbol}")
     endif()

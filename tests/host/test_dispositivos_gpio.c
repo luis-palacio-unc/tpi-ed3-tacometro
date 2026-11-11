@@ -149,7 +149,6 @@ static bool SalidasIntercaladas(void)
 
 static bool ComposicionAlarmasSinAdaptadores(void)
 {
-    const Driver_Alarmas_Salidas salidas = {LED_Write, Buzzer_Write};
     const bool pedidos[] = {true, false, false, true};
     const uint32_t patrones[] = {0U, UINT32_MAX, UINT32_C(0xAAAAAAAA), UINT32_C(0x55555555)};
     for (size_t p = 0U; p < sizeof(patrones) / sizeof(patrones[0]); ++p) {
@@ -159,7 +158,7 @@ static bool ComposicionAlarmasSinAdaptadores(void)
         for (size_t i = 0U; i < sizeof(pedidos) / sizeof(pedidos[0]); ++i) {
             if (pedidos[i]) { esperado[0] &= ~LED_MASK; esperado[2] |= BUZZER_MASK; }
             else { esperado[0] |= LED_MASK; esperado[2] &= ~BUZZER_MASK; }
-            CHECK(Driver_Alarmas_Aplicar(&salidas, pedidos[i]) == DRIVER_ALARMAS_ACEPTADA);
+            Driver_Alarmas_Aplicar(pedidos[i]);
             CHECK(memcmp(esperado, puertos, sizeof(esperado)) == 0);
             CHECK(Selector_Read() == selector);
             CHECK(escrituras == 2U * (i + 1U) && !error_modelo);

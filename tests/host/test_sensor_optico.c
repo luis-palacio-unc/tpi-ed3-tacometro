@@ -1,6 +1,4 @@
 #include "Sensor_Optico.h"
-#include "Medicion_Velocidad.h"
-#include "Medicion.h"
 #include "lpc17xx_pinsel.h"
 #include "lpc17xx_timer.h"
 #include <stdbool.h>
@@ -94,23 +92,15 @@ static bool RepeticionYAvance(void)
 
 static bool VentanaUnSegundo(void)
 {
-    const struct { uint32_t pulsos; uint32_t rpm_milesimas; } casos[] = {
-        {0U, 0U}, {60U, 60000U}, {185U, 185000U}, {200U, 200000U}
-    };
+    const struct { uint32_t pulsos; } casos[] = {{0U}, {60U}, {185U}, {200U}};
     for (size_t i = 0U; i < sizeof(casos) / sizeof(casos[0]); ++i) {
         Preparar();
-        Medicion_Velocidad_Lectura lectura;
-        CHECK(Medicion_Velocidad_Inicializar(&lectura));
         cuenta_eventos = 12345U;
         const uint32_t anterior = SensorOptico_Read();
-        CHECK(lectura.estado == MEDICION_VELOCIDAD_SIN_DATOS);
         cuenta_eventos = 12345U + casos[i].pulsos;
         const uint32_t actual = SensorOptico_Read();
         const uint32_t pulsos = actual - anterior;
         CHECK(pulsos == casos[i].pulsos);
-        CHECK(Medicion_Velocidad_Actualizar(&lectura, pulsos, 1000000U,
-            TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_VALIDA);
-        CHECK(lectura.estado == MEDICION_VELOCIDAD_VALIDA && lectura.rpm_milesimas == casos[i].rpm_milesimas);
         CHECK(cuenta_eventos == actual && consultas_eventos == 2U && consultas_base == 0U && !error_modelo);
     }
     return true;
@@ -124,11 +114,7 @@ static bool VentanaCruzaRollover(void)
     cuenta_eventos = 30U;
     const uint32_t actual = SensorOptico_Read();
     const uint32_t pulsos = actual - anterior;
-    Medicion_Velocidad_Lectura lectura;
     CHECK(pulsos == 60U);
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, pulsos, 1000000U,
-        TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_VALIDA);
-    CHECK(lectura.estado == MEDICION_VELOCIDAD_VALIDA && lectura.rpm_milesimas == 60000U);
     CHECK(cuenta_eventos == 30U && cuenta_base == UINT32_C(0xA5A5A5A5));
     CHECK(consultas_eventos == 2U && consultas_base == 0U && !error_modelo);
     return true;
@@ -144,11 +130,7 @@ static bool NuevaEpocaReferenciaExterna(void)
     cuenta_eventos = 60U;
     const uint32_t actual = SensorOptico_Read();
     const uint32_t pulsos = actual - nueva_referencia;
-    Medicion_Velocidad_Lectura lectura;
-    CHECK(pulsos == 60U);
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, pulsos, 1000000U,
-        TPI_MEDICION_PULSOS_POR_VUELTA) == MEDICION_VELOCIDAD_VALIDA);
-    CHECK(lectura.rpm_milesimas == 60000U && cuenta_eventos == 60U);
+    CHECK(pulsos == 60U && cuenta_eventos == 60U);
     CHECK(consultas_eventos == 3U && consultas_base == 0U && !error_modelo);
     return true;
 }
@@ -161,10 +143,7 @@ static bool DuracionYFactorExplicitos(void)
     cuenta_eventos = 112U;
     const uint32_t actual = SensorOptico_Read();
     const uint32_t pulsos = actual - anterior;
-    Medicion_Velocidad_Lectura lectura;
-    CHECK(pulsos == 12U);
-    CHECK(Medicion_Velocidad_Actualizar(&lectura, pulsos, 2000000U, 12U) == MEDICION_VELOCIDAD_VALIDA);
-    CHECK(lectura.rpm_milesimas == 30000U && cuenta_eventos == 112U);
+    CHECK(pulsos == 12U && cuenta_eventos == 112U);
     CHECK(consultas_eventos == 2U && consultas_base == 0U && !error_modelo);
     return true;
 }
@@ -191,9 +170,9 @@ int main(void)
         {"I1 inicializacion acordada", InicializacionAcordada},
         {"S1 lecturas exactas/base independiente", LecturasExactasYBaseIndependiente},
         {"S2 repeticion/avance", RepeticionYAvance},
-        {"S3 ventana 1s/B03", VentanaUnSegundo}, {"S4 rollover/B03", VentanaCruzaRollover},
+        {"S3 ventana de referencia", VentanaUnSegundo}, {"S4 rollover", VentanaCruzaRollover},
         {"S2 nueva referencia externa", NuevaEpocaReferenciaExterna},
-        {"S3 duracion/factor explicitos", DuracionYFactorExplicitos}
+        {"S3 diferencia de conteo", DuracionYFactorExplicitos}
     };
     for (size_t i = 0U; i < sizeof(casos) / sizeof(casos[0]); ++i) {
         if (!casos[i].ejecutar()) { fprintf(stderr, "FAIL %s\n", casos[i].nombre); return 1; }

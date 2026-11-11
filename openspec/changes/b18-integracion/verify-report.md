@@ -128,9 +128,182 @@ ella, sin que este informe afirme su contenido: ADC en modo ráfaga con DMA y
 exactitud del ADC; UART (THRE/FIFO y divisor fraccional); PWM (errata PWM.1 citada
 en B15, mando igual a MR0); PLL0/arranque del oscilador principal.
 
-## I2
+## I2 — Servicios simples, Aplicación y main
 
-Pendiente.
+Fecha: 2026-11-11. Rama `integracion-i2`, base ff07e3e (I1), cambios sin commit.
+Entorno: el de I1. Salidas de build fuera del árbol (`<out>`).
+**Sólo host y compilación/enlace ARM. Nada se ejecutó en MCU, simulador ni placa.**
+
+### Comandos y resultados
+
+| Modalidad | Comando (desde la raíz) | Resultado |
+|---|---|---|
+| Host + ASan/UBSan | `cmake -S . -B <out>/host -DTPI_BUILD_ARM=OFF -DTPI_HOST_SANITIZERS=ON && cmake --build <out>/host -j && ctest --test-dir <out>/host --output-on-failure` | 29/29 suites, 0 avisos de compilación |
+| Host sin sanitizadores | ídem sin `-DTPI_HOST_SANITIZERS=ON`, en `<out>/host-nosan` | 29/29 suites |
+| ARM Debug | `cmake -S . -B <out>/arm -DTPI_BUILD_ARM=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=$PWD/cmake/arm-none-eabi.cmake && cmake --build <out>/arm -j && ctest --test-dir <out>/arm --output-on-failure` | 9/9 controles, 0 avisos |
+| ARM Release | ídem con `-DCMAKE_BUILD_TYPE=Release`, en `<out>/arm-release` | 9/9 controles, 0 avisos |
+| Doxygen | `{ cat docs/doxygen/Doxyfile; echo 'OUTPUT_DIRECTORY = <out>/doxygen'; } \| doxygen -` | 0 avisos; 60 funciones documentadas |
+| Preservación | `git status --short -- Drivers`; `git diff --quiet ff07e3e -- Drivers Dispositivos plataforma Configuracion/Control.h tests/host/test_regulador.c tests/host/consulta_regulador.c tests/host/verificar_regulador.py tests/host/verificar_configuracion_control.py` | sin cambios |
+
+Suites host (29): B17 `b17.regulador` (10 casos), `b17.oraculo_planta`,
+`b17.configuracion_control`; I2 `i2.capas`, `i2.sistema` (3), `i2.mandos` (2),
+`i2.medicion_velocidad` (3), `i2.temperatura` (2), `i2.temperatura_lm35` (1),
+`i2.drivers` (2), `i2.comunicacion` (6), `i2.procesamiento` (5), `i2.aplicacion`
+(8); dispositivos sin cambios de alcance: `b05.lm35`, 5 × `b05r1.lm35_vref_*`,
+`b05r1.oraculo_lm35`, `b05r1.configuracion_lm35`, `b12.dispositivos_gpio` (11),
+`b13.uart`, `i1.timer`, `i1.reloj`, `i1.adquisicion_adc_dma`, `b14.sensor_optico`
+(7), `b15.motor`, `b16.potenciometro`.
+Controles ARM (9): `b00.imagen` (con `--exigir-reloj`), `i2.firmware`, `i2.capas`,
+`b00.contratos` (15 pruebas, 1 nueva), `b17.enlace_arm`, `b17.enlace_arm_release`,
+`i1.enlace_arm`, `i1.enlace_arm_release`, `b05.lm35_enlace_arm`.
+
+De 36 a 29 suites host y de 17 a 9 controles ARM: bajan porque se eliminan las
+suites y fixtures de las APIs retiradas (ver "Eliminados"), no porque se desactive
+algún control vigente.
+
+### Escenarios de la prueba de sistema (`i2.aplicacion`)
+
+main.c, Procesamiento.c y los 7 servicios reales, con los dispositivos simulados
+de `tests/host/fakes_dispositivos.*` (no simulan la biblioteca). `main.c` se
+compila con `-Dmain=Aplicacion_MainFirmware`; la prueba llama
+`Aplicacion_Inicializar` y `Aplicacion_Iterar`.
+
+| Caso | Qué comprueba |
+|---|---|
+| S1 | Orden exacto de inicialización; arranque en AUTO con mando 0 y alarma apagada; sin tramas ni escrituras entre ventanas; `RPM 100` → AUTO_ACTIVO con mando 400 y luego 100; tramas exactas; 50 pulsos → `RPM=100.000`, 1 pulso → `RPM=2.000` |
+| S2 | La consigna del periodo de entrada a AUTO y la línea parcial pendiente se descartan; el potenciómetro no actúa en AUTO; una consigna posterior activa |
+| S3 | MANUAL: potenciómetro 0/2048/4095 → mando 0/500/1000 entre periodos; consignas ignoradas; `ESTADO=MANUAL` |
+| S4 | AUTO → MANUAL → AUTO: vuelve a ESPERA con mando 0, sin reutilizar la consigna, y con el PI reiniciado (400, no 700) |
+| S5 | Histéresis sobre el promedio de 4: 45,00 no enciende; 45,01 enciende; 44,00 y 43,04 siguen; 43,00 apaga; 45,00 no reenciende; alarma activa no detiene el motor y funciona en AUTO |
+| S6 | `RPM 186`, `RPM x`, línea larga, `RPM 1000`, minúsculas se ignoran; `RPM 0` es válida (AUTO_ACTIVO, mando 0); gana la última consigna válida del periodo |
+| S7 | Consigna 185 con eje detenido: el mando llega a 1000 y no lo supera |
+| S8 | Fallo de `Sistema_Init`: retorno false, motor 0, alarma encendida, resto sin inicializar |
+
+### Firmware ARM
+
+| Build | FLASH (imagen) | SRAM local (.data + .bss + pila de 2048) | text / data / bss |
+|---|---|---|---|
+| Debug (-O0 -g) | 19 636 / 524 288 bytes (3,7 %) | 2 456 / 32 768 bytes (7,5 %) | 19 040 / 36 / 2 420 |
+| Release (-O3) | 13 124 / 524 288 bytes (2,5 %) | 2 448 / 32 768 bytes (7,5 %) | 12 528 / 36 / 2 412 |
+
+Datos de `memoria.txt` (post-build de `verificar_elf.py`) y de `firmware.map`:
+.text en FLASH desde 0x300, .data/.bss en SRAM local desde 0x10000000, pila de
+2 kB en 0x10007800; AHB0/AHB1 (32 kB) sin uso. Entra en el LPC1769 (512 kB de
+flash, 32 kB + 32 kB de SRAM). La profundidad real de pila no se midió.
+
+- Cadena de arranque comprobada por desensamblado en ambos builds: primera
+  llamada de main `Aplicacion_Inicializar`, cuya primera llamada es `Sistema_Init`,
+  cuya primera llamada es `Reloj_Init` (seguida de `Adquisicion_ADC_DMA_Init`).
+  En Release `Aplicacion_Iterar` queda en línea dentro de main.
+- `i2.firmware`: `TIMER0_IRQHandler`, `UART0_IRQHandler` y `DMA_IRQHandler` fuertes
+  en los vectores 17, 21 y 42; `ADC/TIMER1/PWM1/UART1_IRQHandler` débiles; sin
+  símbolos indefinidos, sin `__aeabi_f*`/`__aeabi_d*`, sin libc. De libgcc sólo
+  entra la división entera de 64 bits (`__aeabi_uldivmod`/`__aeabi_ldivmod`), que
+  usan `Medicion_Velocidad_Actualizar` y el PI de B17.
+
+### Control de capas
+
+`i2.capas` revisa 54 inclusiones de `Aplicacion/` y `Servicios/`. Control negativo
+manual en una copia fuera del árbol: agregar `#include "Motor.h"` a `main.c` falla
+con "Aplicacion no puede incluir "Motor.h" de Dispositivos"; agregar
+`#include "Procesamiento.h"` a `Mandos.c` falla con "Servicios no puede incluir".
+
+### Mutación manual (copia fuera del árbol, no versionada)
+
+48 mutantes, uno por vez, con build host sin sanitizadores y `ctest`: 45 detectados
+y 3 equivalentes.
+
+| Grupo pedido | Mutantes | Detectan |
+|---|---|---|
+| Histéresis (umbral de apagado) | sin histéresis; `<` por `<=`; `>=` por `>`; histéresis 100 | 4/4: `i2.procesamiento`, `i2.aplicacion` |
+| Descarte de consigna al entrar en AUTO | aceptar la consigna del mismo periodo; sin `Comunicacion_Descartar`; Descartar sin vaciar línea parcial; sin vaciar RX; MANUAL sin borrar consigna; sin ningún reinicio del PI | 6/6: `i2.procesamiento`, `i2.comunicacion`, `i2.aplicacion` |
+| Saturación del mando a 1000 | sin límite; límite 999; límite 1001 | 3/3: `i2.drivers` (y `i2.aplicacion` el de 999) |
+| Parser de consigna (rango 185) | `>=` 185; sin rango; rango 186; Procesamiento sin rango; Procesamiento `<` 185; 4 dígitos; sin CR opcional; línea larga sin descartar | 8/8: `i2.comunicacion`, `i2.procesamiento`, `i2.aplicacion` |
+| Fórmula de RPM | constante 6000; sin saturación; producto en 32 bits; 30 pulsos por vuelta; Actualizar siempre true | 5/5: `i2.medicion_velocidad`, `i2.aplicacion` |
+| Otros | redondeo y polaridad de Mandos; divisor y filtro de Temperatura; decimales, signo y retorno de telemetría; manual sólo por periodo; potenciómetro fuera de MANUAL; primera consigna en vez de última; sin mando 0 inicial; fallo de arranque (alarma, continuar); orden de `Medicion_Velocidad_Init`; estado en telemetría; alarma atada al modo; `Sistema_Init` sin espera o sin mirar el DMA; alarma sólo LED | 19/19 |
+
+Equivalentes (el comportamiento no cambia, por redundancia del diseño):
+1. Quitar sólo el reinicio del PI al entrar en AUTO: `AUTO_ESPERA` lo reinicia en
+   el mismo periodo.
+2. Quitar sólo el reinicio del PI en `AUTO_ESPERA`: el de la entrada alcanza, porque
+   a ESPERA sólo se llega desde MANUAL o desde el arranque. Quitar ambos sí se detecta.
+3. Quitar el `mando = 0` cuando `Procesamiento_Regular` no devuelve VALIDO ni
+   RETENIENDO: B17 ya deja el mando en 0 en esos casos.
+El mutante de 4 dígitos (`RPM 0100`) sobrevivió en la primera pasada; se agregó el
+caso a `i2.comunicacion` S2 y quedó detectado.
+
+### Decisiones fuera del diseño detallado
+
+1. `verificar_elf.py --exigir-reloj` exigía que `Reloj_Init` fuera la primera
+   llamada *directa* de main. Con Aplicación sin Dispositivos eso es imposible:
+   ahora sigue la cadena de primeras llamadas (hasta 3 niveles). El fixture I1
+   (llamada directa) sigue aprobando y un main sin reloj se sigue rechazando
+   (`b00.contratos`, prueba nueva `test_reloj_exigido`).
+2. `Aplicacion/main.h` nuevo, con `Aplicacion_Inicializar` y `Aplicacion_Iterar`,
+   para que la prueba host pueda declararlas; `main()` se renombra sólo en la
+   prueba, por opción de compilación.
+3. Fallo de `Sistema_Init`: el diseño sólo fijaba el retorno. Se deja el motor en
+   0, se enciende la alarma (LED y buzzer) como aviso y `main()` queda detenido.
+4. `Procesamiento_InicializarModo` devuelve el estado inicial (el diseño decía
+   `void`), para que main no tenga que deducirlo.
+5. `Comunicacion_Init` también vacía la línea parcial.
+6. `Temperatura_Leer` promedia con división entera truncada; con muestras
+   positivas el error es menor que 0,01 °C hacia abajo.
+7. Se agregó un delta `regulacion-velocidad` (sólo RV5/S7: quién compone) y se
+   ampliaron los deltas `build` (R6, S11, R7/S12) y `sensor-optico` (SO3), que
+   citaban composiciones eliminadas.
+8. `Sistema_Init` sin USW: soporte de plataforma sin ESW, igual que `Reloj_Init`.
+
+### Eliminados y cambios en controles existentes
+
+- Servicios y aplicación: API anterior completa de los 6 servicios, B01
+  (`Procesamiento_Inicializar/Actualizar`) y B06 (`EvaluarAlarmaTemperatura`).
+- Suites host eliminadas (APIs retiradas): `b01.modos`, `b02.comunicacion`,
+  `b03.medicion_velocidad`, `b03.oraculo_velocidad` (`verificar_velocidad.py`,
+  `consulta_medicion_velocidad.c`), `b04.mandos`, `b05.temperatura`,
+  `b06.alarma_temperatura`, `b07.driver_alarmas`, `b07.integracion_alarmas`,
+  `b08.driver_motor`, `b08.integracion_motor`, `b09.telemetria`,
+  `b09.integracion_telemetria`, `b10.selector`, `b10.integracion_selector`,
+  `b17.integracion_regulador` (reemplazada por `i2.aplicacion`).
+  `b05.integracion_temperatura` pasa a `i2.temperatura_lm35`, reescrita sobre
+  `Temperatura_Leer` con `LM35.c` real.
+- Fixtures ARM eliminados: `verificar_enlace_b01..b10.cmake` (10). Conservados:
+  `b05_lm35` (ahora usa `Temperatura_Leer`), `b17` (reducido a inicializar/regular/
+  reiniciar, -O0 y -O3) e `i1` (sin cambios).
+- `scripts/pruebas_b00.py`: `Sistema.c.o` agregado al conjunto esperado de objetos
+  host; `verify()` acepta opciones extra; prueba nueva `test_reloj_exigido`.
+  Ningún control desactivado; `test_fixture_data_bss_y_llamada_main` conserva la
+  ausencia de `SystemInit` en el startup.
+- `tests/host/test_sensor_optico.c`: los casos S3/S4 y dos más llamaban al
+  servicio B03 eliminado con duración y factor explícitos; conservan la
+  comprobación de la diferencia modular de pulsos y pierden la conversión a RPM,
+  que ahora cubre `i2.medicion_velocidad`. 7 casos, igual que antes.
+- `tests/host/test_dispositivos_gpio.c`: el caso S9 llama al
+  `Driver_Alarmas_Aplicar(bool)` nuevo, con `LED.c`/`Buzzer.c` reales. 11 casos.
+- `scripts/verificar_b17.py` no se modificó ni forma parte de ctest: es la
+  reproducción archivada de B17 y codifica cifras de entonces (33 suites, 15
+  controles ARM, 46 funciones); hoy fallaría por esas cifras.
+
+### Sin verificar o con dudas
+
+1. Nada físico: reloj, PWM, UART, ADC/DMA, sensor, LED y buzzer quedan para I4.
+2. `SISTEMA_ESPERA_ADC_CONSULTAS` = 2 000 000 se eligió por cuenta de ciclos
+   estimada (≥ 100 ms a 100 MHz frente a ~2 ms del primer par); el tiempo real del
+   límite no se midió y depende de la optimización.
+3. En MANUAL el mando se escribe en cada vuelta del lazo (miles de veces por
+   segundo): `Motor_Write` actualiza MR1 y LER cada vez. Por lectura del manual
+   sólo se aplica el último valor en el próximo ciclo de PWM; falta confirmarlo con
+   osciloscopio.
+4. Si el buffer de transmisión no tiene lugar, `UART_Write` encola una trama
+   truncada y `Comunicacion_EnviarTelemetria` devuelve false; main ignora el
+   retorno. Con 53 bytes cada 500 ms a 9600 baudios (960 bytes/s) y buffer de 128
+   no debería ocurrir; no se ensayó con una PC que frene la línea (no hay control
+   de flujo).
+5. El buffer de recepción es de 64 bytes y se vacía una vez por periodo: más de 64
+   bytes recibidos en 500 ms se pierden en el dispositivo (comportamiento de I1).
+6. La alarma por fallo de arranque (decisión 3) no distingue su causa de una
+   alarma térmica; es sólo un aviso de que el sistema no arrancó.
+7. Sintonía del PI y sensor desconectado: fuera de alcance, como en B17.
 
 ## I3
 
