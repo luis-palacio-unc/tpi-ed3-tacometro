@@ -3,38 +3,34 @@
 ## Punto actual
 
 - Repo `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`, main.
-  HEAD de incorporación de la corrección24adfe3, origin/main62eef53. Consultar
-  HEAD/estado al reanudar. El commit de este documento registra el traslado de
-  ADC_DMA_Pot solicitado por el usuario. Commit local autorizado, sin push.
-- B00–B15/B03-R1/B07-R1 aceptados/archivados. Contratos aceptados intactos.
-- B16 implementado/verificado con corrección de propiedad; resultado pendiente
-  de aceptación, sin sincronizar specs principales ni archivar.
-  [Informe](../../openspec/changes/b16-lectura-potenciometro-dma/verify-report.md).
-- ADC_DMA_Pot se define únicamente en Potenciometro.c; palabra volatile32bits,
-  .bss4 bytes. Extern interno en Adquisicion_ADC_DMA.h para configurar DMA al final.
-  Soporte no define datos; test del getter enlaza sin el .c de soporte.
-- Pot_Read(void) conserva cuerpo/API: RESULT0..4095, sin parámetros/estado/validación.
-  AD0.0/P0.23 función01 acordado; no se configura ni ejecuta ADC/DMA todavía.
-- Drivers90 originales a21cc1e intocables; servicios/otros dispositivos preservados.
-  Inicialización/enlace al final. B15 conserva MR0=1000 y envío directo0..1000.
+  HEAD de incorporación d7dc36f, origin/main62eef53; consultar Git al reanudar.
+  El commit de este documento es el cierre B16. Commit local autorizado, sin push.
+- B00–B16/B03-R1/B07-R1 aceptados/archivados. Sin bloque nuevo acordado.
+- B16 corregido aceptado2026-11-11, implementación d7dc36f; contrato vigente
+  openspec/specs/potenciometro-dma/spec.md. ADC_DMA_Pot pertenece a Potenciometro.c;
+  extern interno para futuro DMA, getter0..4095 y test sin .c de soporte.
+  [Cierre](../../openspec/changes/archive/2026-11-11-b16-lectura-potenciometro-dma/archive-report.md).
+- Drivers90 originales a21cc1e intocables. Servicios/otros dispositivos preservados.
+  Inicialización/enlace al final; main sigue siendo el lazo mínimo B00.
 
-## Evidencia actual tras el traslado
+## Evidencia aceptada
 
-Host22/22 y ASan/LSan/UBSan22/22,207 casos C+oráculo; B16 tres casos de memoria.
-ARM13/13 de imagen/enlace existentes; objetosO0/O2 confirman definición única en
-Potenciometro y soporte sin símbolos/datos. Doxygen43 funciones/USW sin avisos.
-Potenciometro.text32/16,marco propio4/0 y.bss4 alineada4; soporte0, no cota global.
-Diff/hashes: biblioteca90 original, servicios/otros dispositivos/plataforma/specs
-y archivos aceptados intactos.12/12 tareas al cierre técnico. Sin pruebas omitidas.
-Logs: `/tmp/ed3-b16-propiedad-pot-wve2trjj`. Sin ejecución en MCU/placa,
-simulación MCU, flasheo o publicación.
+Host/san22/22,207 casos C+oráculo; ARM13/13, objetosO0/O2/propiedad de símbolo,
+Doxygen43 sin avisos. B16:3 casos de memoria, no adquisición física. Logs originales:
+/tmp/ed3-b16-propiedad-pot-wve2trjj. Código/pruebas no cambiados al cerrar;
+sin repetir ensayos. Checks documentales del cierre: `/tmp/ed3-cierre-b16-4gs9cvr1`.
+Sin ejecución MCU/placa, simulación MCU, flasheo o publicación.
 
-## Próxima acción y pendientes
+## Alcance implementado y pendientes
 
-Revisar/aceptar B16 antes de sincronizar/archivar o iniciar otro bloque.
-Configurar ADC/DMA/pines/reloj, secuencia multicanal/ADC.2, asociación canal-destino,
-VREF/tasa, integración con servicios/main y ensayos eléctricos al final.
-SRAM local para MCU activo; revisar ubicación/relojes si se usa Sleep. Cero inicial
-no indica disponibilidad; getter no garantiza edad/coherencia multicanal.
-Sin push autorizado. No retomar B12 de enlace diferido. Diagramas del informe
-al terminar los ESW; regulación e integración general pendientes.
+Procesamiento: modos/consignas/decisión térmica. Seis servicios: Medicion_Velocidad,
+Temperatura, Mandos, Driver_Alarmas, Comunicacion y Driver_Motor. Dispositivos:
+Timer, Motor, Sensor_Optico, LM35 (conversión), Potenciometro, Selector, LED, Buzzer,
+UART, con alcance aislado de cada contrato. Soporte ADC/DMA aún sin configuración.
+
+Próxima acción: acordar el siguiente bloque a partir de estos pendientes; no iniciarlo
+automáticamente. Faltan adquisición ADC/DMA y acceso a la muestra LM35, regulador
+automático, configuración de pines/reloj/periféricos, composición de servicios y main,
+validación física y diagramas/informe final. Inicialización y enlace quedan al final.
+Potenciómetro AD0.0/P0.23; cero inicial no indica disponibilidad. Revisar memoria
+si se incorpora Sleep y secuencia ADC.2 al integrar. Sin push autorizado.

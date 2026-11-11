@@ -9,16 +9,16 @@ Las rutas indican módulos previstos; no acreditan implementación.
 |---|---|---|---|---|
 | R01 AP | Ejecutar firmware en LPC1769/OM13085 | B00 aceptado: base de build | CMakeLists.txt, Aplicacion/main.c, cmake/, plataforma/ | S1/S3/S5/S6 PASS de build/inspección (verify-report B00); ejecución física pendiente |
 | R02 AP/APA | Medir RPM con disco de 60 ranuras | B03/B03-R1 y B14 aceptados/archivados; conteo físico pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | B03-R1 S1–S10 PASS, 23 casos + oráculo 11199; revisión aceptada; señal real pendiente |
-| R03 AP | Potenciómetro determina PWM en manual | B04/B08/B15 aceptados: normalización/mando/PWM directo; B16 implementado/verificado para lectura, sin aceptación aún; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.*, Dispositivos/Potenciometro.* | B04 S1–S7 PASS host/enlace ARM (verify-report archivado); ADC/PWM físicos pendientes |
+| R03 AP | Potenciómetro determina PWM en manual | B04/B08/B15 aceptados: normalización/mando/PWM directo; B16 aceptado/archivado para lectura; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.*, Dispositivos/Potenciometro.* | B04 S1–S7 PASS host/enlace ARM (verify-report archivado); ADC/PWM físicos pendientes |
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; B10 aceptado/archivado para selector estable | Aplicacion/Procesamiento.*, Servicios/Mandos.* | B01 S1/S2 y B10 SE1–SE4 PASS lógico; integración física pendiente |
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01/B08/B10/B15 aceptados/archivados para transición y solicitud cero | Aplicacion/Procesamiento.*, Servicios/Comunicacion.*, Mandos.*, Driver_Motor.* | B01 S3–S6 y B10-S6 PASS lógico; recepción/actuación reales pendientes |
 | R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; B06 aceptado/archivado para decisión; B07 aceptado/archivado para coordinación; actuación física/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); B06 S1–S8 y 13 casos PASS; resultado lógico aceptado; alarma física pendiente |
-| R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | B16 implementado/verificado: getter de lectura almacenada; adquisición física pendiente | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | B16 S1–S4 PASS para lectura de memoria; secuencia/canales, transferencia y coherencia sobre placa pendientes |
+| R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | B16 aceptado/archivado: getter de lectura almacenada; adquisición física pendiente | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | B16 S1–S4 PASS para lectura de memoria; secuencia/canales, transferencia y coherencia sobre placa pendientes |
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 aceptado/archivado para codificación lógica TX; B13 aceptado para operaciones UART; integración/envío físico pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 RX y B09 CT1–CT4 PASS lógico; UART/envío físicos pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11–B15 aceptados:42 funciones/USW; B16 verificado:43, Doxygen estricto PASS; diagramas/resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11–B15 aceptados:42 funciones/USW; B16 aceptado:43, Doxygen estricto PASS; diagramas/resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -137,11 +137,13 @@ Doxygen42. Modelo RAM retirado; Drivers/módulos/contratos aceptados intactos.
 Configuración/frecuencia/potencia/PWM.1/adaptación/main físicos pendientes.
 [Evidencia actual](../../openspec/changes/archive/2026-11-10-b15-dispositivo-motor-pwm/verify-report.md).
 
-B16 implementado/verificado, pendiente de aceptación (R03/R08/R10/R11/R15):
+B16 corregido aceptado/archivado2026-11-11 (R03/R08/R10/R11/R15):
 Pot_Read(void) devuelve RESULT0..4095 de ADC_DMA_Pot, definida en Potenciometro.c,
 sin estados/validaciones. Extern interno para DMA; prueba enlaza sin soporte.
 USW.2.1.12.1; canal AD0.0/P0.23 acordado. PD1–PD3/S1–S4 PASS para memoria:
 3 casos B16, host/san22/22,207 C+oráculo, ARM13/13/O0/O2/propiedad de símbolo,
 Doxygen43. Drivers90 originales/módulos/contratos aceptados intactos.
 ADC/DMA/configuración/asociación de canales y enlace físico pendientes para el final.
-[Evidencia](../../openspec/changes/b16-lectura-potenciometro-dma/verify-report.md).
+[Evidencia](../../openspec/changes/archive/2026-11-11-b16-lectura-potenciometro-dma/verify-report.md).
+
+Contrato vigente B16: openspec/specs/potenciometro-dma/spec.md.

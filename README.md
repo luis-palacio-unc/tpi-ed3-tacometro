@@ -392,9 +392,12 @@ memoria al integrar. El extern interno permite configurar su dirección como des
 La prueba enlaza sin Adquisicion_ADC_DMA.c. Configuración, arranque y conexión
 a servicios/main al final.
 
-Implementado/verificado, pendiente de aceptación. Host/san22/22 (207 casos C y
+B16 aceptado y archivado el 2026-11-11; contrato potenciometro-dma sincronizado.
+Host/san22/22 (207 casos C y
 oráculo), ARM13/13 y objetosO0/O2, Doxygen43 sin avisos. Drivers90 originales,
 servicios/otros dispositivos/contratos aceptados intactos. Sin ejecución MCU/placa.
-Commit local autorizado; sin push/sincronización/archivo.
-Ver [alcance](openspec/changes/b16-lectura-potenciometro-dma/proposal.md) y
-[evidencia](openspec/changes/b16-lectura-potenciometro-dma/verify-report.md).
+Cierre documental con commit local; sin push. Sin repetir pruebas al archivar.
+Ver [alcance](openspec/changes/archive/2026-11-11-b16-lectura-potenciometro-dma/proposal.md) y
+[evidencia](openspec/changes/archive/2026-11-11-b16-lectura-potenciometro-dma/verify-report.md).
+
+Ver [contrato vigente del potenciómetro](openspec/specs/potenciometro-dma/spec.md).

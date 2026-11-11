@@ -362,7 +362,7 @@ configuración/potencia/adaptación B08/main para integración final. Drivers in
 El usuario autorizó publicar los commits pendientes junto con cierre B14/propuesta B15;
 publicaciones futuras requieren autorización independiente.
 
-B16 acordado e implementado2026-11-10; resultado pendiente de aceptación:
+B16 corregido aceptado/archivado2026-11-11; contrato potenciometro-dma sincronizado:
 ADC convierte, DMA transfiere y Potenciometro devuelve el valor leído mediante
 uint16_t Pot_Read(void). Sin dato DMA del llamador, salida por puntero, contexto,
 estado o validación. Por corrección del usuario, Potenciometro.c posee ADC_DMA_Pot,
@@ -375,4 +375,5 @@ edad/coherencia multicanal. SRAM local accesible en activo; revisar si se usa Sl
 Cero de arranque no acredita disponibilidad. Mandos conserva la normalización.
 Host/san22/22,207 C+oráculo, ARM13/13/O0/O2/propiedad de símbolo y Doxygen43 PASS;
 drivers/módulos/contratos aceptados intactos. Sin ensayos ADC/DMA reales.
-Commit local autorizado, sin push/sincronización/archivo hasta aceptación.
+Implementación final d7dc36f y cierre documental local, sin push autorizado.
+Quedan adquisición ADC/DMA, acceso a muestra LM35, regulación e integración/placa.

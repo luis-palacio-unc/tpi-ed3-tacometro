@@ -1,6 +1,7 @@
 # B16 — Consultar el valor del potenciómetro
 
-Estado: alcance corregido acordado el 2026-11-10; implementado/verificado, resultado pendiente de aceptación.
+Estado: B16 corregido implementado, verificado y aceptado el 2026-11-11.
+Contrato sincronizado; cambio archivado en esta fecha.
 
 ## Objetivo y origen
 
@@ -49,4 +50,5 @@ Formato acordado: palabra ADGDR en ADC_DMA_Pot; dependencia pendiente: configura
 la asociación del canal al destino al integrar. No prometer adquisición física
 por probar memoria. Reversión por commit inverso sólo B16.
 Alcance acordado e implementado por orden del usuario;
-commit local al terminar, sin push. Aceptación del resultado/sincronización/archivo pendientes.
+implementación/corrección en commits24adfe3/d7dc36f, sin push.
+Aceptación y cierre documental el 2026-11-11; integración física pendiente.

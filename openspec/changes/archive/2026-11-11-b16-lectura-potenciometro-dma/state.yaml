@@ -1,12 +1,12 @@
 block: B16
 change: b16-lectura-potenciometro-dma
-status: implemented_pending_acceptance
-phase: verify
+status: archived
+phase: archive
 scope_approved: true
-result_accepted: false
+result_accepted: true
 implementation_started: true
 verification_passed: true
-main_specs_synced: false
+main_specs_synced: true
 proposed_on: '2026-11-10'
 scope_approved_on: '2026-11-10'
 verified_on: '2026-11-10'
@@ -28,10 +28,13 @@ additional_states: false
 reading_validation: false
 user_clarification: ADC converts, DMA transfers, Pot_Read returns only the stored value.
 evidence: /tmp/ed3-b16-propiedad-pot-wve2trjj
-next_action: Revisar y aceptar resultado B16 antes de sincronizar/archivar; no iniciar otro bloque ni publicar.
+next_action: Acordar el siguiente bloque; adquisicion ADC/DMA, lectura LM35, regulacion e integracion pendientes. Sin push.
 ownership_correction_base: 24adfe3202373f2af17b0a1c151ab63a8223c337
 ownership_correction_approved_on: '2026-11-10'
 storage_owner: Potenciometro
 internal_declaration: Dispositivos/soporte/Adquisicion_ADC_DMA.h
 test_links_without_support: true
 updated_on: '2026-11-11'
+accepted_on: '2026-11-11'
+archived_on: '2026-11-11'
+implementation_commit: d7dc36f68f4d4ac4a8d12d6672a61ea456df4e89
