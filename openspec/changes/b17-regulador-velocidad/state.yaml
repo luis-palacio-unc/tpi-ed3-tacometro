@@ -1,0 +1,104 @@
+block: B17
+change: b17-regulador-velocidad
+status: implemented_pending_audit
+phase: verify
+proposed_on: '2026-11-11'
+updated_on: '2026-11-11'
+base_commit: 9352f0d7b687f0ba0e32c229896e765bc574833f
+requirements: [R04, R06, R10, R11, R14, R15]
+application_esw: ESW.2.1.2
+decisions_recorded: [D1, D2, D3, D4, D5, D6]
+scope_approved: true
+implementation_authorized: true
+implementation_started: true
+result_accepted: false
+verification_passed: true
+main_specs_synced: false
+change_closed: false
+change_archived: false
+controller: PI
+period_ms: 500
+measurement_window_ms: 500
+measurement_resolution_rpm: 2
+period_contract_constant: TPI_CONTROL_PERIODO_MS
+period_runtime_configurable: false
+period_guard_only_accepts_contract_value: true
+period_change_requires: [recalculate_discrete_gains, review_contract]
+period_override_requires_500: true
+gain_representation: positive integer num/den, discrete for 500 ms
+gain_component_min: 1
+gain_component_max: 1000
+kp_default: [4, 1000]
+ki_default: [1, 1000]
+gains_are_provisional: true
+gains_are_real_motor_tuning: false
+retention_default_periods: 4
+retention_config_bounds: [1, 65535]
+retention_integrator_frozen: true
+retention_discards_history_on_reset: true
+retention_expires_on_period: N+1
+measurement_not_clipped_to_185: true
+output_range: [0, 1000]
+arithmetic_products: int64_t
+rounding: nearest, ties upward, once after clamp
+integral_update: after output, valid measurement only, conditional anti-windup
+api_separate_from_b01: true
+new_usw: [USW.2.1.2.8, USW.2.1.2.9, USW.2.1.2.10]
+external_plan_name: plan-B17-regulador.md
+external_plan_scope: external local planning review, not shipped with repository
+external_review_summary: review-notes.md
+external_reviewer: Claude
+proposal_review_pending: false
+proposal_review_request: /auditar B17
+model_overshoot_max_percent: 10
+model_overshoot_basis: step amplitude
+model_settling_steps_max: 20
+model_settling_criterion_confirmed: true
+model_settling_band_rpm: 2
+model_horizon_steps_per_step: 100
+detailed_proposal_recheck_pending: false
+random_oracle_steps_planned: 49152
+firmware_tests_executed_for_b17: true
+documentary_checks_passed: true
+evidence: build/verificacion-b17-2026-11-11
+initial_proposal_evidence: build/verificacion-b17-2026-11-11/before
+drivers_modification_prohibited: true
+accepted_specs_modification_prohibited: true
+initialization_deferred: true
+hardware_acceptance_pending: true
+commit_authorized_for_this_delivery: true
+push_authorized: false
+next_action: /auditar B17; aceptar resultado antes de sincronizar/archivar. Sin push.
+external_proposal_review_name: B17-propuesta.md
+external_proposal_review_final_verdict: APROBAR (r2)
+external_proposal_review_addendum_read: true
+review_findings_withdrawn: [H1, H2, H3, H6]
+review_findings_addressed_in_proposal: [H4, H5]
+rounding_mutation_planned: true
+rounding_mutation_executed: true
+rounding_mutation_acceptance: S1 or Fraction oracle S9 must fail in external copy
+planned_tasks: 18
+completed_tasks: 18
+model_s8_unchanged_in_correction: true
+denominator_bounds_unchanged_in_correction: true
+disconnected_sensor_detection_in_scope: false
+
+proposal_r2_verdict: APROBAR
+minor_observation_m1_addressed: true
+
+verified_on: '2026-11-11'
+implementation_audit_pending: true
+host_suites_passed: 33
+sanitizer_suites_passed: 33
+arm_checks_passed: 15
+documented_functions: 46
+oracle_exact_steps_per_modality: 116722
+oracle_random_steps_per_modality: 49152
+model_settling_steps_observed: [14, 14]
+model_peak_milli_rpm: [99600, 185200]
+mutations_detected: [anti-windup, rounding]
+instance_bytes_arm: 40
+reproduction_command: python3 scripts/verificar_b17.py
+implementation_commit_subject: 'feat: implementar regulador PI entero del modo automatico'
+
+external_proposal_review_r2_name: B17-propuesta-r2.md

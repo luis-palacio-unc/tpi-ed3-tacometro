@@ -55,8 +55,13 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 - Alarma de temperatura prioritaria, visual y acústica. No se ha requerido detener
   el motor por temperatura ni se ha acordado aún histéresis/enclavamiento.
 - Consignas aceptadas: 0..185 RPM inclusive; máximo aclarado por el usuario.
-- PI/PID y frecuencia PWM pendientes; pines acordados en los bloques de dispositivos.
-  Recepción ASCII B02 y formato lógico B09 acordados.
+- Dato del usuario (2026-11-11): el motor físico no supera aproximadamente185RPM
+  con PWM al100% (mando1000), medido en un trabajo anterior. Observación histórica
+  informada por el usuario, no medición nueva de B17 ni sintonía acreditada.
+  La consigna máxima sigue siendo185RPM; B03 no recorta la medición a ese valor.
+- B17: usuario elige PI separado de B01, periodo/ventana500ms y ganancias enteras
+  discretizadas; propuesta r2 aprobada e implementación verificada, pendiente de auditoría.
+  Frecuencia PWM pendiente; pines acordados. Recepción ASCII B02 y formato B09 acordados.
 
 ## SDD y Git
 
@@ -400,3 +405,30 @@ La propuesta y la implementación corregida recibieron aprobación r2 en revisio
 separadas; el usuario aceptó94d3134 y autorizó sincronizar, archivar y commitear el
 cierre, sin push. No atribuir ensayos externos a verificaciones propias ni
 modificar/publicar el harness.
+
+
+## B17 — decisiones para propuesta, sin implementación
+
+R04/ESW.2.1.2: PI con API inicializar/regular/reiniciar separada de B01.
+Periodo de control=ventana500ms (60pulsos/vuelta→2RPM por pulso), documentado como
+TPI_CONTROL_PERIODO_MS como constante de contrato, sin configurar Timer.
+Cambiar el periodo exige recalcular ganancias discretizadas y revisar el contrato;
+#ifndef/#error sólo protege500ms. Ganancias num/den ya discretizadas,
+sin float. Medición no VALIDA: reutilizar última válida hasta N consecutivos
+(default provisional4), sin acumular integral; al superar N o sin historia pedir0
+y reiniciar. Reiniciar también descarta historia. Consigna0 da0; >185 es error.
+Producto int64_t acotado sin recortar la medición B03. Saturación0..1000/anti-windup.
+Fixture B01+regulador+Driver_Motor; B01/B06/servicios/Drivers/specs vigentes intactos.
+Planta simulada S8 conservada:200RPM con mando1000, polo3/4 y retardo1paso.
+Sobrepico≤10% y establecimiento≤20 pasos a±2RPM confirmados para el modelo;
+no es sintonía real. Denominadores1..1000 intactos; detección de sensor desconectado
+fuera de alcance. Revisión externa con Addendum final: H1/H2/H3/H6 retirados;
+H4/H5 corregidos y m1 incorporado a S1. Implementación y mutaciones verificadas.
+[Propuesta](../../openspec/changes/b17-regulador-velocidad/proposal.md) y
+[resumen portable del plan externo local](../../openspec/changes/b17-regulador-velocidad/review-notes.md).
+B17 implementado,USW.2.1.2.8–10,configuración por instancia y productos int64_t.
+Host/san33/33,116722 pasos exactos, planta14/14, ARM15/15 y Doxygen46.
+Mutaciones AW/truncado detectadas; B01/B06,servicios/dispositivos/Drivers intactos.
+Evidencia workspace build/verificacion-b17-2026-11-11 (ignorada por Git).
+Reproducir python3 scripts/verificar_b17.py. Próxima acción /auditar B17.
+Commit local autorizado; resultado aún no aceptado, sin sincronizar/cerrar/archivar/push.

@@ -70,6 +70,16 @@ if(TPI_BUILD_ARM)
             "${CMAKE_CURRENT_SOURCE_DIR}/scripts/pruebas_b00.py"
             --source "${CMAKE_CURRENT_SOURCE_DIR}" --elf "$<TARGET_FILE:firmware>"
             --tool-prefix "${TPI_TOOL_PREFIX}")
+        add_test(NAME b17.enlace_arm COMMAND "${CMAKE_COMMAND}"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b17-fixture"
+            "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
+            "-DBUILD_TYPE=$<CONFIG>" -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b17.cmake")
+        add_test(NAME b17.enlace_arm_release COMMAND "${CMAKE_COMMAND}"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b17-fixture-release"
+            "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
+            "-DBUILD_TYPE=Release" -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b17.cmake")
         add_test(NAME b01.enlace_arm COMMAND "${CMAKE_COMMAND}"
             "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
             "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b01-fixture"
@@ -147,6 +157,10 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
     add_executable(consulta_medicion_velocidad tests/host/consulta_medicion_velocidad.c
         Servicios/Medicion_Velocidad.c)
+    add_executable(pruebas_regulador tests/host/test_regulador.c Aplicacion/Procesamiento.c)
+    add_executable(consulta_regulador tests/host/consulta_regulador.c Aplicacion/Procesamiento.c)
+    add_executable(pruebas_integracion_regulador tests/host/test_integracion_regulador.c
+        Aplicacion/Procesamiento.c Servicios/Driver_Motor.c)
     add_executable(pruebas_procesamiento
         tests/host/test_procesamiento.c Aplicacion/Procesamiento.c)
     add_executable(pruebas_comunicacion tests/host/test_comunicacion.c
@@ -220,7 +234,7 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     target_include_directories(pruebas_integracion_temperatura SYSTEM PRIVATE
         Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
     target_compile_definitions(pruebas_integracion_temperatura PRIVATE ADC_VREF_MV=2000)
-    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria pruebas_selector pruebas_integracion_selector pruebas_dispositivos_gpio pruebas_uart pruebas_sensor_optico pruebas_motor pruebas_potenciometro ${TPI_LM35_VARIANT_TARGETS})
+    foreach(prueba pruebas_regulador consulta_regulador pruebas_integracion_regulador pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria pruebas_selector pruebas_integracion_selector pruebas_dispositivos_gpio pruebas_uart pruebas_sensor_optico pruebas_motor pruebas_potenciometro ${TPI_LM35_VARIANT_TARGETS})
         if(prueba STREQUAL "consulta_medicion_velocidad" OR prueba STREQUAL "pruebas_driver_alarmas")
             target_include_directories(${prueba} PRIVATE Servicios)
         elseif(prueba STREQUAL "pruebas_driver_motor" OR prueba STREQUAL "pruebas_telemetria" OR prueba STREQUAL "pruebas_selector")
@@ -238,6 +252,16 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
             target_link_options(${prueba} PRIVATE -fsanitize=address,undefined)
         endif()
     endforeach()
+    add_test(NAME b17.regulador COMMAND pruebas_regulador)
+    add_test(NAME b17.integracion_regulador COMMAND pruebas_integracion_regulador)
+    add_test(NAME b17.oraculo_planta COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/verificar_regulador.py"
+        --programa "$<TARGET_FILE:consulta_regulador>"
+        --evidencia "${CMAKE_CURRENT_BINARY_DIR}/evidencia-b17/oraculo")
+    add_test(NAME b17.configuracion_control COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/verificar_configuracion_control.py"
+        --compilador "${CMAKE_C_COMPILER}" --include "${CMAKE_CURRENT_SOURCE_DIR}/Configuracion"
+        --evidencia "${CMAKE_CURRENT_BINARY_DIR}/evidencia-b17/configuracion")
     add_test(NAME b01.modos COMMAND pruebas_procesamiento)
     add_test(NAME b02.comunicacion COMMAND pruebas_comunicacion)
     add_test(NAME b03.medicion_velocidad COMMAND pruebas_medicion_velocidad)

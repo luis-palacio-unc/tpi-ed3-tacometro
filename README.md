@@ -420,3 +420,19 @@ Ver [cambio archivado](openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/p
 [evidencia de implementación](openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/verify-report.md),
 [cierre y comprobaciones nuevas](openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/archive-report.md) y
 [resumen portable de revisiones externas locales](openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/review-notes.md).
+
+
+## B17: regulador automático implementado, pendiente de auditoría
+
+Procesamiento agrega InicializarRegulador/Regular/ReiniciarRegulador separados
+de B01, con PI entero y salida0..1000, saturación/anti-windup y retención limitada
+sin integrar sobre dato viejo. Control.h configura ganancias/N;500ms contractual,
+sin Timer. No integra main/hardware.
+
+Host/san33/33 cada uno, oráculo116722 pasos, planta14/14 pasos, ARM15/15 y
+Doxygen46 sin avisos. Mutantes AW/truncado detectados. B01/B06/Drivers intactos.
+Evidencia workspace build/verificacion-b17-2026-11-11 (ignorada); reproducir desde
+raíz con `python3 scripts/verificar_b17.py`.
+[Contrato candidato](openspec/changes/b17-regulador-velocidad/specs/regulacion-velocidad/spec.md)
+e [informe](openspec/changes/b17-regulador-velocidad/verify-report.md).
+Pendiente de /auditar B17 y aceptación; sin cierre/archivo/push.
