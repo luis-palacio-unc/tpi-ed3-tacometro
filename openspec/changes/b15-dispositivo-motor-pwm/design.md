@@ -1,64 +1,53 @@
-# Diseño candidato B15 — Motor PWM
+# Diseño candidato B15 — mando con lectura de MR0
 
-## Enfoque y decisiones
+## Cambio acordado y decisiones
 
-Motor es esqueleto ESW.2.1.9; Driver_Motor B08 recibe mando por mil mediante
-callback bool(void*,uint16_t). Su adaptación queda para integración final y no
-se cambia ese contrato aceptado. El dispositivo recibe mando y período explícito.
+El usuario pide simplificar B15: Motor_Write recibe sólo mando y consulta MR0.
+Esta decisión reemplaza el período explícito de c952892, cuyo código/informe
+se conservan en Git como evidencia anterior. No se modifica ningún driver.
 
-| Elección | Razón y alternativa |
+| Elección | Razón |
 |---|---|
-| PWM1.1/P2.0 función 01, single-edge | Disponible en biblioteca/manual; evita P1.18 asignado a CAP1.0. No usar TIMER0/1 para PWM. |
-| Motor_Write(mando_por_mil, periodo_ticks) | Período explícito permite convertir sin globales ni leer MR0 por registros; configuración coherente externa. No fijar reloj/frecuencia todavía. |
-| bool sólo por validación real | false rechaza dominio inválido; true despacha al driver void sin inventar diagnóstico eléctrico. Sin contexto no usado. |
-| PWM_MatchUpdateSingle(PWM_MATCH_1, valor) | Biblioteca existente actualiza MR1/LER; no duplicar acceso a registros ni modificar Drivers. |
-| Conversión local, servicio conservado | Dispositivos conoce ticks/match; normalización/decisión del servicio sigue portable. Adaptador B08 se definirá al integrar. |
+| bool Motor_Write(uint16_t mando_por_mil) | El llamador sólo suministra mando; no duplica configuración del PWM. |
+| Una lectura volatile de LPC_PWM1->MR0 por llamada válida | Dispositivos es específico del MCU; no existe getter en biblioteca. Sin caché ni wrapper adicional. |
+| Escritura con PWM_MatchUpdateSingle(PWM_MATCH_1, valor) | Reutiliza actualización de MR1/LER original, sin copiarla. |
+| PWM1.1/P2.0 función01 single-edge | Recurso acordado; conserva P1.18 para CAP1.0/TIMER1 y TIMER0 para base temporal. |
+| Modelo RAM sólo en pruebas host | Probar código real y tipos CMSIS originales sin acceso a MMIO físico ni cambios a biblioteca. |
 
-## Conversión y extremos
+## Operación, aritmética y precondiciones
 
-Validar mando <=1000 y 1<=período<UINT32_MAX antes del despacho. Constante de
-mando máximo compartida de Configuracion/Limites.h, sin nueva fuente divergente.
-Calcular q=round_half_up(mando*período/1000) con intermedio uint64_t: producto
-máximo 1000*(2^32-2), más 500, cabe en 64 bits. Resultado q entre 0 y período.
-Enviar MR1=q si q<período; si q=período, enviar período+1 para alto continuo.
-Así no se depende de prioridad entre matches simultáneos MR0/MR1. Rechazar
-período UINT32_MAX deja espacio para ese centinela. Período 1 admite sólo 0/100 %;
-cuantización esperada, no pérdida intermedia ni imposición de frecuencia.
+Validar mando <=TPI_MANDO_MANUAL_MAX (1000 compartido). Leer MR0 una vez a una
+variable local const. Rechazar MR0=0/UINT32_MAX sin despacho. Mantener conversión:
+q=round_half_up(mando*período/1000), intermedio uint64_t cuyo máximo es
+1000*(2^32-2)+500. Si q<período, MR1=q; si q=período, MR1=período+1 para alto
+continuo. Reservar UINT32_MAX evita overflow de ese extremo; error <=medio tick.
+Una llamada al driver por orden válida, incluso repetida. true confirma despacho;
+false rechaza sin emitir cero. Sin estado/contexto/heap/ISR/esperas/init propios.
 
-Manual UM10360 §24.4.1/p524: match cero deja salida baja; match mayor que MR0
-evita flanco de bajada, salida alta continua. §24.6.7/p531: MR/LER se aplican en
-el próximo límite de ciclo. El wrapper no espera ni garantiza que órdenes rápidas
-se observen todas físicamente; puede prevalecer la última antes del latch.
+La lectura obtiene MR0 programado; no acredita que una actualización pendiente
+ya se haya aplicado por latch. Por eso el uso físico exige PWM accesible,
+preconfigurado/arrancado/exclusivo y MR0 efectivo/estable sin update pendiente.
+Reset por MR0, sin otros matches que alteren TC, acceso privilegiado serializado.
+Varias órdenes antes del próximo ciclo pueden dejar sólo la última. Frecuencia,
+reloj/pinmux/arranque y etapa de potencia para integración final.
+Manual UM10360 §24.4.1/p524 y §24.6.7/p531 conserva fundamento de extremos/latch.
 
-## Precondiciones y flujo
+## Pruebas y archivos
 
-Integración final seleccionará PWM1_P2_0 con PWM_PinConfig, configurará prescaler,
-MR0, canal/salida/contador y arranque usando biblioteca. El período suministrado
-debe coincidir con MR0 efectivo y estable, sin actualización de MR0 pendiente;
-PWM exclusivo, reset por MR0, sin otros matches que alteren TC y acceso serializado.
-La frecuencia depende de reloj/prescaler/MR0 y no se elige en este bloque.
-La orden 0 % no acredita detención/freno del eje ni define transitorios de arranque.
+- Motor.h/.c: firma de un parámetro, lectura local y Doxygen USW9.1 actualizado.
+- tests/host/dobles/pwm_registros.h: incluir LPC17xx.h original, declarar estructura
+  RAM con su tipo y redirigir únicamente LPC_PWM1 en compilación de pruebas.
+- CMakeLists.txt: preinclude privado sólo en pruebas_motor; no afecta firmware,
+  otros targets ni archivos en Drivers. Header público sigue sin CMSIS.
+- test_motor.c: MR0 del modelo provee período; doble de escritura conserva
+  despacho/rango. S4/S6 cambian MR0 entre llamadas con el mismo mando y preservan
+  MR0/otros campos. S3 configura MR0 inválido y prueba recuperación. Mantener
+  tablas/límites, 13013 combinaciones y64535 rechazos, sin copiar fórmula en pruebas.
+- README/docs/agente/docs-doxygen y seguimiento SDD: contrato/evidencia actuales.
 
-Flujo B15: mando/período → validar/convertir en Motor_Write → driver de match.
-El dispositivo no asigna objetos de estado ni incorpora callbacks/proveedores nuevos.
-
-## Archivos y verificación prevista
-
-- Dispositivos/Motor.h/.c: una USW pública documentada, código y validación mínimos.
-- tests/host/test_motor.c: doble únicamente de PWM_MatchUpdateSingle, sin ejecutar
-  biblioteca/MMIO. Casos S1–S4 y expectativas por fracciones/racionales independientes:
-  extremos, cuantización, empates, repeticiones, errores/recuperación y períodos grandes.
-- CMakeLists.txt: target/test host estricto/sanitizadores; conservar 18 objetos base.
-- docs/doxygen/Doxyfile y README/docs/agente/SDD: ampliar INPUT y trazabilidad.
-
-Host/sanitizadores/regresiones, compilación ARM O0/O2/header aislado y símbolos/
-recursos propios, Doxygen estricto y diff/hashes. Comprobaciones numéricas no
-acreditan frecuencia, duty eléctrico o movimiento. Sin init/global link/main.
-Pendientes para integración: frecuencia, etapa de potencia/polaridad/cableado,
-compatibilidad eléctrica, adaptación bool/contexto B08 y ensayo real 0/50/100 %.
-Implementar sólo tras acuerdo, sin cambios en Drivers ni contratos aceptados.
-
-
-Alcance/PWM1.1/P2.0 acordados2026-11-10, implementado con el diseño propuesto.
-Verificación real y límites en verify-report.md; resultado pendiente de aceptación.
-No sincronizar contratos ni archivar hasta aceptar el resultado.
+Ejecutar host/sanitizadores/regresiones, ARM/header O0/O2 sin redirección, Doxygen
+estricto, recursos/símbolos y hashes. Negativos externos comprueban lectura de MR1
+equivocada/período fijo, además de fallos numéricos. Header sólo C11/C++17.
+Sin ejecutar biblioteca/MCU, reloj/señal/motor físicos; modelo de RAM no simula
+latch, tiempo o electricidad. Driver_Motor conserva su contrato, adaptación al final.
+El resultado B15 corregido requiere aceptación antes de sincronizar/archivar.

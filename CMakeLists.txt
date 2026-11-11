@@ -179,6 +179,8 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
         Servicios/Mandos.c Aplicacion/Procesamiento.c Servicios/Driver_Motor.c)
     add_executable(pruebas_motor tests/host/test_motor.c Dispositivos/Motor.c)
     target_include_directories(pruebas_motor PRIVATE Dispositivos)
+    target_compile_options(pruebas_motor PRIVATE
+        -include "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/dobles/pwm_registros.h")
     target_include_directories(pruebas_motor SYSTEM PRIVATE
         Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
     add_executable(pruebas_sensor_optico tests/host/test_sensor_optico.c

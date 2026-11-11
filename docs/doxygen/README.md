@@ -91,7 +91,9 @@ CAP1.0/P1.18, TIMER1 preconfigurado, serialización y límites eléctricos/tempo
 Sensor XD-51 registrado sin atribuirle propiedades no verificadas. HTML/XML41
 funciones sin avisos, sin controles relajados ni estado/ventana nuevos en producto.
 
-B15 agrega ESW.2.1.9/USW.2.1.9.1 en Motor.h/.c, incluidos en INPUT.
-Documenta mando/período en ticks, límites/errores, redondeo/extremos, precondición
-MR0 coherente, PWM1.1/P2.0, serialización y latch diferido. true no acredita señal
-eléctrica; false rechaza antes del driver. HTML/XML42 sin avisos, sin controles relajados.
+B15 conserva ESW.2.1.9/USW.2.1.9.1 en Motor.h/.c, ya incluidos en INPUT.
+Corrección: Motor_Write recibe sólo mando; período obtenido por lectura de MR0.
+Documenta configuración previa estable/sin latch pendiente, rangos/rechazos,
+redondeo/extremos, serialización y significado de true/false. HTML/XML42 sin avisos;
+XML confirma un parámetro, sin controles relajados. Modelo CMSIS en RAM sólo en
+pruebas host, fuera de INPUT; no modifica biblioteca ni la API pública de firmware.

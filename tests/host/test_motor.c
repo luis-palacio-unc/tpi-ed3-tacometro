@@ -7,6 +7,8 @@
     fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #expr); return false; \
 } } while (0)
 
+LPC_PWM_TypeDef tpi_pwm_modelo;
+
 static const uint32_t centinelas[] = {0U, 0U, 23U, 37U, 53U, 71U, 97U};
 static uint32_t matches[7];
 static size_t llamadas;
@@ -24,6 +26,8 @@ static void Preparar(uint32_t periodo)
 {
     for (size_t i = 0U; i < 7U; ++i) { matches[i] = centinelas[i]; }
     matches[0] = periodo;
+    tpi_pwm_modelo.MR0 = periodo;
+    tpi_pwm_modelo.MR1 = 73U;
     llamadas = 0U;
     error_modelo = false;
 }
@@ -31,6 +35,7 @@ static void Preparar(uint32_t periodo)
 static bool OtrosConservados(uint32_t periodo)
 {
     CHECK(matches[0] == periodo && !error_modelo);
+    CHECK(tpi_pwm_modelo.MR0 == periodo && tpi_pwm_modelo.MR1 == 73U);
     for (size_t i = 2U; i < 7U; ++i) { CHECK(matches[i] == centinelas[i]); }
     return true;
 }
@@ -38,7 +43,7 @@ static bool OtrosConservados(uint32_t periodo)
 static bool ProbarOrden(uint16_t mando, uint32_t periodo, uint32_t esperado)
 {
     const size_t previas = llamadas;
-    CHECK(Motor_Write(mando, periodo));
+    CHECK(Motor_Write(mando));
     CHECK(llamadas == previas + 1U && matches[1] == esperado);
     CHECK(OtrosConservados(periodo));
     return true;
@@ -98,17 +103,24 @@ static bool InvalidosYRecuperacion(void)
     Preparar(1000U);
     CHECK(ProbarOrden(500U, 1000U, 500U));
     for (uint32_t mando = 1001U; mando <= UINT16_MAX; ++mando) {
-        CHECK(!Motor_Write((uint16_t)mando, 1000U));
+        CHECK(!Motor_Write((uint16_t)mando));
         CHECK(llamadas == 1U && matches[1] == 500U);
     }
     const uint16_t validos[] = {0U, 500U, 1000U};
     for (size_t i = 0U; i < sizeof(validos) / sizeof(validos[0]); ++i) {
-        CHECK(!Motor_Write(validos[i], 0U));
-        CHECK(!Motor_Write(validos[i], UINT32_MAX));
+        tpi_pwm_modelo.MR0 = 0U;
+        CHECK(!Motor_Write(validos[i]));
+        CHECK(tpi_pwm_modelo.MR0 == 0U);
+        tpi_pwm_modelo.MR0 = UINT32_MAX;
+        CHECK(!Motor_Write(validos[i]));
+        CHECK(tpi_pwm_modelo.MR0 == UINT32_MAX);
         CHECK(llamadas == 1U && matches[1] == 500U);
     }
-    CHECK(!Motor_Write(UINT16_MAX, 0U));
-    CHECK(!Motor_Write(UINT16_MAX, UINT32_MAX));
+    tpi_pwm_modelo.MR0 = 0U;
+    CHECK(!Motor_Write(UINT16_MAX));
+    tpi_pwm_modelo.MR0 = UINT32_MAX;
+    CHECK(!Motor_Write(UINT16_MAX));
+    tpi_pwm_modelo.MR0 = 1000U;
     CHECK(OtrosConservados(1000U));
     CHECK(ProbarOrden(0U, 1000U, 0U));
     CHECK(ProbarOrden(1000U, 1000U, 1001U));
@@ -116,7 +128,7 @@ static bool InvalidosYRecuperacion(void)
     return true;
 }
 
-static bool RepeticionYPeriodoExterno(void)
+static bool RepeticionYLecturaMR0(void)
 {
     Preparar(1000U);
     CHECK(ProbarOrden(250U, 1000U, 250U));
@@ -125,6 +137,7 @@ static bool RepeticionYPeriodoExterno(void)
     CHECK(ProbarOrden(0U, 1000U, 0U));
     CHECK(ProbarOrden(1000U, 1000U, 1001U));
     matches[0] = 2000U;
+    tpi_pwm_modelo.MR0 = 2000U;
     CHECK(ProbarOrden(250U, 2000U, 500U));
     CHECK(ProbarOrden(250U, 2000U, 500U));
     CHECK(llamadas == 7U);
@@ -141,7 +154,7 @@ static bool PropiedadesDeCuantizacion(void)
         Preparar(periodo);
         uint32_t anterior = 0U;
         for (uint32_t mando = 0U; mando <= 1000U; ++mando) {
-            CHECK(Motor_Write((uint16_t)mando, periodo));
+            CHECK(Motor_Write((uint16_t)mando));
             CHECK(llamadas == (size_t)mando + 1U && OtrosConservados(periodo));
             const uint32_t match = matches[1];
             CHECK(match < periodo || match == periodo + 1U);
@@ -167,7 +180,7 @@ int main(void)
         {"S2 redondeo/empates", RedondeoYEmpates},
         {"S2 periodos grandes", PeriodosGrandes},
         {"S3 invalidos/recuperacion", InvalidosYRecuperacion},
-        {"S4 repeticion/periodo externo", RepeticionYPeriodoExterno},
+        {"S4/S6 repeticion/lectura actual MR0", RepeticionYLecturaMR0},
         {"S2 propiedades de cuantizacion", PropiedadesDeCuantizacion}
     };
     for (size_t i = 0U; i < sizeof(casos) / sizeof(casos[0]); ++i) {
