@@ -364,10 +364,18 @@ Ver [cambio](openspec/changes/archive/2026-11-10-b14-sensor-optico-contador/prop
 
 Ver [contrato vigente](openspec/specs/sensor-optico/spec.md).
 
-## Propuesta B15: dispositivo Motor
+## B15: dispositivo Motor
 
-Actualizar PWM1.1/P2.0 mediante driver original. Motor_Write recibirá mando 0..1000
-por mil y período en ticks explícito, validará/convertirá y actualizará sólo el
-match de salida, incluidos 0/100 %. Frecuencia, pinmux/arranque, potencia y conexión
-a Driver_Motor/main quedan para el final. Pendiente de acuerdo, sin código/pruebas B15.
-Ver [propuesta y aceptación](openspec/changes/b15-dispositivo-motor-pwm/proposal.md).
+Alcance/PWM1.1/P2.0 acordados2026-11-10, implementado/verificado; resultado pendiente
+de aceptación. Motor_Write recibe mando0..1000 por mil y período1..UINT32_MAX-1
+en ticks, valida/convierte y despacha sólo PWM_MATCH_1 por driver original.
+Redondeo cercano/empate arriba, 0 % bajo y 100 % alto continuo; sin estado/contexto.
+false rechaza entradas sin llamada, true significa despacho, no diagnóstico físico.
+
+Seis casos nuevos, 13013 combinaciones de cuantización y 64535 mandos inválidos
+verificados. Host/sanitizadores21/21,206 casos C+oráculo; ARM13/13 y objetoO0/O2,
+Doxygen42 funciones sin avisos. Drivers/módulos/contratos aceptados intactos.
+Frecuencia, pinmux/arranque, potencia y conexión a Driver_Motor/main quedan para
+integración final. No ejecución MCU/placa ni publicación del commit B15.
+Ver [cambio](openspec/changes/b15-dispositivo-motor-pwm/proposal.md) y
+[evidencia](openspec/changes/b15-dispositivo-motor-pwm/verify-report.md).

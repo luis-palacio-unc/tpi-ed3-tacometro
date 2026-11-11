@@ -129,8 +129,10 @@ SO1–SO4/S1–S5 conformes:6 casos nuevos, host/san20/20,200 C+oráculo; ARM13/
 objetoO0/O2 y Doxygen41. Timer/B03/Drivers intactos. Adquisición/integración físicas
 pendientes. [Evidencia](../../openspec/changes/archive/2026-11-10-b14-sensor-optico-contador/verify-report.md).
 
-B15 propuesto (R03/R06/R10/R11/R15), sin acuerdo/implementación/evidencia:
-Motor.h/.c, mando por mil y período explícito hacia PWM1.1/P2.0 propuestos.
-MD1–MD4/S1–S5 candidatos; pruebas de conversión/despacho previstas, no ejecutadas.
-Frecuencia/PWM físico/potencia/servicio/main pendientes.
-[Propuesta](../../openspec/changes/b15-dispositivo-motor-pwm/proposal.md).
+B15 alcance/PWM1.1/P2.0 acordados, implementado/verificado, sin aceptar
+(R03/R06/R10/R11/R15): Motor.h/.c, mando por mil/período explícito hacia PWM_MATCH_1.
+MD1–MD4/S1–S5 conformes: seis casos,13013 combinaciones/64535 rechazos;
+host/san21/21,206 C+oráculo, ARM13/13/O0/O2 y Doxygen42. Sin tocar Drivers,
+Driver_Motor u otros dispositivos/contratos aceptados. Frecuencia/PWM físico/
+potencia/adaptación/main pendientes.
+[Evidencia](../../openspec/changes/b15-dispositivo-motor-pwm/verify-report.md).

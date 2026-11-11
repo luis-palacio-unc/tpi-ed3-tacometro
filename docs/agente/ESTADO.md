@@ -3,41 +3,43 @@
 ## Punto actual
 
 - Repo `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`, main.
-  Punto de partida 3fa08ea; consultar HEAD y origin/main al reanudar.
-- B00–B14/B03-R1/B07-R1 aceptados y archivados; sensor-optico sincronizado.
-  Usuario autorizó publicar los ocho commits pendientes y este cierre/propuesta.
-  Git registra el resultado de publicación; no inferir permisos futuros ni merge.
-- Activo: B15 b15-dispositivo-motor-pwm, propuesta sin acuerdo/implementación/pruebas.
-  PWM1.1/P2.0 función 01 propuestos; firma y aceptación en
-  [propuesta](../../openspec/changes/b15-dispositivo-motor-pwm/proposal.md).
-- B14: SensorOptico_Read devuelve conteo uint32_t por TIM_ReadTimer(LPC_TIM1).
-  TIMER1/CAP1.0/P1.18 para contador externo ascendente; no captura de timestamps.
-  XD-51 actual confirmado; reemplaza HC-89 del anteproyecto. Electricidad pendiente.
-- No modificar Drivers: 90 originales a21cc1e. Integración/configuración/enlace de
-  periféricos al final. No iniciar B15 sin acuerdo ni retomar B12 diferido.
+  Base/publicado62eef53; consultar HEAD. Commit B15 local al terminar, sin push.
+- B00–B14/B03-R1/B07-R1 aceptados/archivados. Activo B15 b15-dispositivo-motor-pwm,
+  alcance/PWM1.1/P2.0 autorizados2026-11-10, implementado/verificado, sin aceptar.
+- Motor_Write(mando_por_mil,periodo_ticks): mando0..1000, período1..UINT32_MAX-1,
+  redondea cercano/empate arriba y delega PWM_MATCH_1. MR1=0 pide bajo, MR1=período+1 pide alto
+  continuo al redondear al completo. false rechaza sin llamada; true es despacho.
+  Sin contexto/estado propio/init/ISR/esperas. USW.2.1.9.1 documentada con Doxygen.
+- Drivers90 originales a21cc1e, Driver_Motor/otros servicios/dispositivos/main,
+  contratos y archivos aceptados intactos. No sincronizar/archivar sin aceptación.
+  No iniciar otro bloque ni configurar/integrar periféricos ahora.
 
-## Evidencia aceptada B14
+## Verificación B15 realmente ejecutada
 
-Host/sanitizadores 20/20, 200 casos C más oráculo Python; seis casos B14.
-Regresiones: 11199 ternas velocidad, 5096 pares codec, 4096 muestras/400 rollovers
-selector. ARM 13/13 y módulo O0/O2/header C11/C++17; Doxygen 41 funciones sin avisos.
-Negativos externos detectan TIMER0 equivocado, escala temporal y recorte 185.
-.text propio 20/12 bytes y marco 8/0 O0/O2; sin datos/estado propios, no cota total.
-261 archivos protegidos intactos; fuente firmware sigue 18 objetos, main mínimo.
-[Informe](../../openspec/changes/archive/2026-11-10-b14-sensor-optico-contador/verify-report.md).
-Logs B14: /tmp/ed3-b14-optico-ibtde439. Cierre documental: /tmp/ed3-cierre-b14-propuesta-b15-uejb662y.
-No se repitieron pruebas de firmware al archivar; no ejecución MCU/placa ni simulación.
+| Modalidad | Resultado |
+|---|---|
+| Host/sanitizadores | 21/21 cada uno,206 casos C+oráculo Python; sin hallazgos |
+| B15 individual | Seis casos,13013 combinaciones por cota/monotonía y64535 rechazos |
+| Regresiones | 11199 ternas velocidad,5096 pares codec,4096 muestras/400 vueltas selector |
+| ARM | Build/controles13/13, MotorO0/O2/headerC11/C++17; sin ejecución MCU |
+| Doxygen | 42 funciones únicas HTML/XML sin avisos, una nueva |
+| Negativos externos | Detectan canal equivocado,producto32,truncamiento y extremo alto |
+| Recursos propios | .text156-O0/64-O2,.data/.bss0,marco56/8 bytes; no cota total |
+| Preservación | 270 archivos protegidos intactos,90 Drivers originales; firmware18 objetos |
+
+[Informe](../../openspec/changes/b15-dispositivo-motor-pwm/verify-report.md).
+Logs externos: /tmp/ed3-b15-motor-e9u__4fp. Símbolos/helpers/relocaciones y dos ajustes a auditorías
+externas registrados en informe; no cambios de firmware para obtener verde.
+Doble de API de match, sin ejecución de biblioteca/MMIO/CPU/PWM o motor real.
+Sin flasheo, instalaciones o publicación.
 
 ## Próxima acción y límites
 
-Acordar B15 antes de implementar. Motor_Write propuesto recibe mando 0..1000 y
-período 1..UINT32_MAX-1 en ticks; convierte/redondea, rechaza inválidos sin llamada
-y delega sólo match de salida en driver PWM. Sin contexto/estado propio/init.
-Período igual a MR0 activo/estable; frecuencia/potencia/adaptación B08/main al final.
-
-Para usar B14 físicamente: TIMER1 exclusivo/configurado/arrancado, CAP1.0/P1.18,
-CCR del canal 000, sin matches que reinicien/detengan y señal compatible.
-Referencias de misma época y menos de 2^32 eventos; nueva referencia tras reset.
-PinConfig/InitCounter/Enable, ventana de 1 s y conexión a servicios/main pendientes.
-Después quedan Potenciometro, ADC-DMA/LM35, regulación e integración física final.
-Diagramas del informe al terminar todos los ESW.
+Revisar/aceptar B15 antes de sincronizar/archivar. Uso físico exige PWM exclusivo,
+single-edge activo alto en PWM1.1/P2.0 función01; período igual a MR0 efectivo/
+estable, sin actualización pendiente, reset sólo por MR0 y acceso serializado.
+Latch en próximo ciclo; varias órdenes pueden dejar sólo la última. Frecuencia,
+configuración/arranque, etapa de potencia, adaptación B08/main y ensayo al final.
+TIMER0/base y TIMER1/CAP1.0/P1.18 del XD-51 conservados; señal/ventana1s pendientes.
+Quedan Potenciometro, adquisición ADC-DMA/LM35, regulación e integración física final.
+No retomar B12 diferido; diagramas del informe al terminar todos los ESW.

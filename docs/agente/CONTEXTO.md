@@ -55,7 +55,8 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 - Alarma de temperatura prioritaria, visual y acústica. No se ha requerido detener
   el motor por temperatura ni se ha acordado aún histéresis/enclavamiento.
 - Consignas aceptadas: 0..185 RPM inclusive; máximo aclarado por el usuario.
-- No se ha elegido PI/PID, pines o frecuencias; recepción ASCII B02 y formato lógico B09 acordados.
+- PI/PID y frecuencia PWM pendientes; pines acordados en los bloques de dispositivos.
+  Recepción ASCII B02 y formato lógico B09 acordados.
 
 ## SDD y Git
 
@@ -350,9 +351,12 @@ resta modular sólo en fixture de composición: misma época, menos de2^32 event
 entre muestras; nueva referencia tras reinicio. Host no acredita conteo del XD-51.
 Configuración/arranque/CCR, señal/cableado y ventanas/main para integración final.
 
-B15 propuesto, sin acuerdo/código/pruebas: Motor_Write(mando_por_mil,periodo_ticks)
-validará/convertirá a PWM1.1/P2.0 mediante PWM_MatchUpdateSingle original.
-Período coherente externo; bool por rechazo de entradas, sin diagnóstico eléctrico.
-Frecuencia/configuración/potencia y adaptación B08/main para integración final.
+B15 con alcance/PWM1.1/P2.0 acordados2026-11-10, implementado/verificado; resultado
+pendiente de aceptación. Motor_Write recibe mando0..1000 y período1..UINT32_MAX-1
+en ticks, convierte con redondeo cercano/empate arriba y despacha PWM_MATCH_1 por driver.
+Período coherente externo con MR0 activo/estable. MR1=0 para bajo continuo y
+MR1=período+1 al redondear al completo para alto continuo. Bool por validación real,
+sin contexto/estado ni diagnóstico eléctrico. Frecuencia/configuración/potencia
+y adaptación B08/main para integración final. Biblioteca/servicio intactos.
 El usuario autorizó publicar los commits pendientes junto con cierre B14/propuesta B15;
 publicaciones futuras requieren autorización independiente.

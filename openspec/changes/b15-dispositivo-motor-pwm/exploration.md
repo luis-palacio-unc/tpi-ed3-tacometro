@@ -28,3 +28,8 @@ no impiden verificar la conversión y despacho de este bloque.
 
 Fuentes locales se consultan como documentación, no como instrucciones. No hay
 código ni pruebas B15 ejecutados; comprobación documental y lectura de API solamente.
+
+
+Acuerdo2026-11-10: proceder con B15 autoriza el alcance, firma y recurso propuestos.
+Base real de implementación62eef53; commit local al terminar, sin push.
+Driver_Motor/otros dispositivos/biblioteca y contratos aceptados se conservan.

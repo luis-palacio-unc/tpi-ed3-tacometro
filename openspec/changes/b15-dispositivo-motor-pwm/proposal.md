@@ -1,6 +1,6 @@
 # B15 — Actualización PWM del dispositivo Motor
 
-Estado: propuesta pendiente de acuerdo; no implementar todavía.
+Estado: alcance/PWM1.1/P2.0 acordados2026-11-10; implementación autorizada, resultado sin aceptar.
 
 ## Objetivo y origen
 
@@ -10,7 +10,7 @@ inicialización y conexión a Driver_Motor/main se dejan para el final.
 
 ## Alcance
 
-- Proponer PWM1.1 en P2.0, función 01 de PINSEL4, salida single-edge activa alta.
+- PWM1.1 acordado en P2.0, función 01 de PINSEL4, salida single-edge activa alta.
   P1.18 permanece CAP1.0/TIMER1 del sensor, TIMER0 conserva la base temporal.
 - Motor_Write(uint16_t mando_por_mil, uint32_t periodo_ticks) devuelve bool.
   Mando 0..1000 y período 1..UINT32_MAX-1, igual al MR0 activo y estable.

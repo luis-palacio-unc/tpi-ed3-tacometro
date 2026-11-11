@@ -57,3 +57,8 @@ acreditan frecuencia, duty eléctrico o movimiento. Sin init/global link/main.
 Pendientes para integración: frecuencia, etapa de potencia/polaridad/cableado,
 compatibilidad eléctrica, adaptación bool/contexto B08 y ensayo real 0/50/100 %.
 Implementar sólo tras acuerdo, sin cambios en Drivers ni contratos aceptados.
+
+
+Alcance/PWM1.1/P2.0 acordados2026-11-10, implementado con el diseño propuesto.
+Verificación real y límites en verify-report.md; resultado pendiente de aceptación.
+No sincronizar contratos ni archivar hasta aceptar el resultado.

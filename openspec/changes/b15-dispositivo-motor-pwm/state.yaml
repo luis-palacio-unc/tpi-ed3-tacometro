@@ -1,23 +1,29 @@
 block: B15
 change: b15-dispositivo-motor-pwm
-status: proposed
-phase: propose
-scope_approved: false
+status: verified_pending_acceptance
+phase: verify
+scope_approved: true
 result_accepted: false
-implementation_started: false
-verification_passed: false
+implementation_started: true
+verification_passed: true
 main_specs_synced: false
 proposed_on: '2026-11-10'
-base_commit: 3fa08ea
+base_commit: 62eef53
 device_esw: ESW.2.1.9
-proposed_output: PWM1.1
-proposed_pin: P2.0
-proposed_pin_function: 1
-proposed_api: bool Motor_Write(uint16_t mando_por_mil, uint32_t periodo_ticks)
 drivers_modification_prohibited: true
 initialization_deferred: true
 hardware_verified: false
 commit_authorized_on_agreed_block_completion: true
 push_authorized: false
-next_action: Acordar B15 antes de implementar; frecuencia y conexion al servicio para
-  integracion final.
+next_action: Revisar/aceptar B15 antes de sincronizar/archivar; integracion al final,
+  sin push.
+scope_approved_on: '2026-11-10'
+commit_authorized: true
+output: PWM1.1
+pin: P2.0
+pin_function: 1
+api: bool Motor_Write(uint16_t mando_por_mil, uint32_t periodo_ticks)
+verified_on: '2026-11-10'
+pwm_configured: false
+pinmux_configured: false
+commit_subject: 'feat: implementar mando PWM del dispositivo Motor'

@@ -1,6 +1,6 @@
 # Dispositivo Motor — candidato B15
 
-Origen R03/R06/R10/R11/R15. Propuesta sin acuerdo, no contrato vigente.
+Origen R03/R06/R10/R11/R15. Alcance/PWM1.1/P2.0 acordados2026-11-10; resultado sin aceptar.
 
 ## Requirements
 
@@ -35,7 +35,7 @@ retener errores. true MUST significar despacho al driver, no diagnóstico físic
 
 ### Requirement: MD3 — Operación de dispositivo
 
-MUST usar driver original para actualizar PWM1.1, propuesto P2.0 función 01.
+MUST usar driver original para actualizar PWM1.1, P2.0 función 01 acordado.
 MUST despachar una vez por solicitud válida, incluidas repeticiones, sin init,
 reset/esperas/ISR/heap/contexto/estado propio. Uso físico MUST requerir recurso
 exclusivo, configuración previa activa alta single-edge, reset por MR0, sin
