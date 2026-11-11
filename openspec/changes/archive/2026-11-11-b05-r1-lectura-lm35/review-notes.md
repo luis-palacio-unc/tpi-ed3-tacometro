@@ -1,4 +1,4 @@
-# Revisiones de propuesta B05-R1 — resumen portable
+# Revisiones B05-R1 — resumen portable
 
 Claude revisó la propuesta inicial y su corrección el 2026-11-11. Documentos de
 origen: `B05-R1-propuesta.md` y `B05-R1-propuesta-r2.md`, **revisiones externas
@@ -34,8 +34,8 @@ sin cierre, sincronización de contratos principales, archivo o push.
 | m2 | Targets de test con LM35.c como único módulo productivo; muestra definida una sola vez y sin Adquisicion_ADC_DMA.c |
 | m3 | Referencias externas identificadas como locales, sin enlaces a rutas fuera del clon; decisiones resumidas aquí |
 
-La aprobación r2 corresponde a la propuesta. El resultado implementado queda
-pendiente de auditoría posterior y aceptación del usuario.
+Esa aprobación r2 corresponde a la propuesta; en aquella entrega quedaban
+pendientes la auditoría del código y la aceptación, resueltas al final de este resumen.
 
 ## Auditoría de implementación sobre b8c3c37
 
@@ -50,5 +50,18 @@ H3 informativo: origen del estado genérico de fuente y primera muestra se acuer
 en la integración final; cero inicial no señala disponibilidad. Sin cambios ahora.
 
 La reproducción propia y los resultados de la corrección se registran en
-verify-report.md, separados de la evidencia externa de Claude. Cambio aún activo,
-sin cierre, sincronización, archivo o push.
+verify-report.md, separados de la evidencia externa de Claude. Aquella corrección
+se entregó sin cierre, sincronización, archivo o push, según su autorización.
+
+## Reauditoría de implementación r2 y aceptación
+
+Fuente: `B05-R1-implementacion-r2.md`, revisión externa local no distribuida,
+2026-11-11 sobre94d3134. Veredicto de Claude: **APROBAR**, sin hallazgos abiertos.
+H1/H2 corregidos; se conserva H3 como responsabilidad de integración final
+(origen del estado genérico y primera muestra, sin añadir estados al dispositivo).
+Claude informó verificaciones propias de host/san/ARM/Doxygen y de sensibilidad
+de las pruebas. Son evidencia externa, separada de las nuevas ejecuciones de Codex.
+
+El usuario aceptó94d3134 y autorizó sincronizar TE1/TE3/TE4 conservando TE2/S4/S5,
+archivar y crear commit local de cierre, sin push. La verificación propia de cierre,
+sus comandos y límites constan en [archive-report.md](archive-report.md).

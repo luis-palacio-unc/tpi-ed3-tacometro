@@ -13,12 +13,12 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; B10 aceptado/archivado para selector estable | Aplicacion/Procesamiento.*, Servicios/Mandos.* | B01 S1/S2 y B10 SE1–SE4 PASS lógico; integración física pendiente |
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01/B08/B10/B15 aceptados/archivados para transición y solicitud cero | Aplicacion/Procesamiento.*, Servicios/Comunicacion.*, Mandos.*, Driver_Motor.* | B01 S3–S6 y B10-S6 PASS lógico; recepción/actuación reales pendientes |
-| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; B06 aceptado/archivado para decisión; B07 aceptado/archivado para coordinación; actuación física/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); B06 S1–S8 y 13 casos PASS; resultado lógico aceptado; alarma física pendiente |
-| R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | B16 aceptado/archivado: getter de lectura almacenada; adquisición física pendiente | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | B16 S1–S4 PASS para lectura de memoria; secuencia/canales, transferencia y coherencia sobre placa pendientes |
+| R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05/B05-R1 aceptados y archivados: servicio genérico + lectura LM35 en centésimas; B06 aceptado/archivado para decisión; B07 aceptado/archivado para coordinación; actuación física/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05-R1 TE1/TE3/TE4 sincronizados, TE2/S4/S5 intactos; host/san29/29, ARM13/13; B06 S1–S8 y 13 casos PASS; resultado lógico aceptado; alarma física pendiente |
+| R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | B16/B05-R1 aceptados/archivados: lecturas almacenadas de potenciómetro/LM35 y conversión LM35; adquisición física pendiente | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | B16 S1–S4 y B05-R1 S1/S2/S3/S6/S7 PASS en memoria; secuencia/canales, transferencia y coherencia sobre placa pendientes |
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 aceptado/archivado para codificación lógica TX; B13 aceptado para operaciones UART; integración/envío físico pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 RX y B09 CT1–CT4 PASS lógico; UART/envío físicos pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11–B15 aceptados:42 funciones/USW; B16 aceptado:43, Doxygen estricto PASS; diagramas/resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11–B15 aceptados:42 funciones/USW; B16/B05-R1 aceptados:43, USW11.3/11.4 nuevas y11.1/11.2 retiradas, Doxygen estricto PASS; diagramas/resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -148,15 +148,19 @@ ADC/DMA/configuración/asociación de canales y enlace físico pendientes para e
 
 Contrato vigente B16: openspec/specs/potenciometro-dma/spec.md.
 
-B05-R1 con auditoría inicial/corrección H1/H2 verificadas; reauditoría/aceptación pendientes
+B05-R1 aceptado y archivado2026-11-11 sobre94d3134
 (R07/R08/R09/R10/R11/R15): muestra propia, int32_t centésimas, redondeo B05,
-sin estados de dispositivo. TE1/TE3/TE4 candidatos implementados; TE2 intacto.
-S1/S2/S3/S6/S7/S8 PASS: host/san29/29,214 ejecuciones C,20480 comparaciones
-exactas,8 probes, ARM13/13 y Doxygen43. m1 constantes derivadas; m2 test sin
-soporte/símbolo único; m3 resumen portable sin enlaces externos rotos.
-Corrección de auditoría: S1/oráculo ejercen todo bit fuera de15:4 (0xFFFF000F),
-incluidos reservados23:16 y29:27; mutante sin máscara sobrevive antes y falla
-después en unidad/oráculo. README describe centésimas directas. LM35.c intacto.
-H3/ADDRn/configuración ADC/DMA/VREF y origen del estado genérico de fuente al final. Sin cierre/sincronización/archivo/push.
-[Evidencia](../../openspec/changes/b05-r1-lectura-lm35/verify-report.md) y
-[revisiones externas locales resumidas](../../openspec/changes/b05-r1-lectura-lm35/review-notes.md).
+sin estados de dispositivo. TE1/TE3/TE4 sincronizados en el
+[contrato vigente](../../openspec/specs/temperatura/spec.md); TE2/S4/S5 intactos.
+Reauditoría Claude r2: APROBAR, sin hallazgos abiertos. Correcciones H1/H2 aceptadas.
+S1/S2/S3/S6/S7/S8 PASS de cierre: host/san29/29 cada uno,214 ejecuciones C,
+20480 comparaciones exactas y8 probes por modalidad, ARM13/13 y Doxygen43 sin avisos.
+m1 constantes derivadas; m2 test sin soporte/símbolo único; m3 resumen portable.
+S1/oráculo ejercen todo bit fuera de15:4 (0xFFFF000F); el mutante sin máscara se
+detectó en unidad/oráculo en la corrección previa (no repetido en el cierre).
+Código, pruebas, build, Drivers e historial archivado previo preservados en el cierre.
+H3/ADDRn/configuración ADC/DMA/VREF y origen del estado genérico/primera muestra
+al integrar; no se acredita adquisición ni funcionamiento físico. Sin push.
+[Verificación de implementación](../../openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/verify-report.md),
+[cierre y evidencia nueva](../../openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/archive-report.md) y
+[revisiones externas locales resumidas](../../openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/review-notes.md).

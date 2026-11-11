@@ -1,35 +1,39 @@
 # Temperatura — contrato vigente
 
-Origen R07/R09/R15; B05 corregido aceptado por el usuario el 2026-11-07.
+Origen R07/R08/R09/R10/R11/R15. B05 corregido aceptado el 2026-11-07;
+revisión B05-R1 aceptada por el usuario el 2026-11-11 (implementación 94d3134).
+TE1/TE3/TE4 sincronizados; TE2/S4/S5 conservados sin cambios.
 Alcance lógico; adquisición y aceptación física pendientes.
 
 ## Requirements
 
 ### Requirement: TE1 — Conversión específica en dispositivo
 
-LM35 MUST convertir muestra/escala_adc/referencia_uv uint32_t a uint32_t centésimas
-Celsius, modelo nominal 10 mV/°C sin offset. Escala son cuentas por referencia;
-0<=muestra<escala. MUST redondear una vez al cercano/empate arriba, error aritmético
-<=0,005 °C, sin imponer precisión/rango eléctrico no confirmado.
-Servicios/Temperatura MUST NOT conocer esta curva, códigos ADC o parámetros eléctricos.
+LM35 MUST exponer int32_t LM35_Read(void), centésimas Celsius no negativas desde
+su muestra ADC/DMA;2500 significa25,00°C. MUST usar aritmética entera, ganancia
+nominal10mV/°C y4096 cuentas. MUST extraer sólo RESULT original, ignorando
+todo bit fuera de15:4, incluidos los reservados23:16 y29:27. MUST redondear una sola vez al cercano, empate arriba,
+con error aritmético≤0,005°C respecto del modelo; sin float/double, recorte o
+redondeo intermedio. Valor ideal en centésimas=muestra×ADC_VREF_MV×10/4096.
 
-#### Scenario: S1 — Referencias
+ADC_VREF_MV MUST ser configurable con #ifndef/default2540mV y #error si no es
+positivo o excede INT32_MAX/10, para representar el resultado. Default provisional
+de software MUST NOT atribuirse a la placa. VREF física MUST verificarse al integrar.
 
-- Given muestras 125/1500 y 500/1500 con 3000000 µV.
-- When LM35 convierte y se adapta a la fuente genérica.
-- Then MUST producir 2500/10000 centésimas, sin fórmula LM35 en el servicio.
+#### Scenario: S1 — Referencias y extracción exclusiva
+- Given VREF de prueba2000mV, palabras para muestras0/512/2048, limpias y OR0xFFFF000F (todo bit fuera de15:4 activo).
+- When se consulta LM35_Read.
+- Then MUST devolver0/2500/10000 centésimas en ambas variantes, preservando la palabra.
 
-#### Scenario: S2 — Equivalencia y escala
+#### Scenario: S2 — Overrides y configuración inválida
+- Given targets host separados con LM35.c/test compilados mediante target_compile_definitions PRIVATE ADC_VREF_MV=1000 o2000, sin afectar firmware; otro sin override.
+- When se consulta muestra1024 y se compilan probes C11 con -DADC_VREF_MV=0 y -DADC_VREF_MV=-1.
+- Then targets MUST devolver2500/5000; default MUST producir6350 y cada probe no positivo MUST fallar por #error ADC_VREF_MV.
 
-- Given configuraciones distintas con igual tensión ideal y último código admisible.
-- When LM35 convierte.
-- Then MUST conservar temperatura; muestra=escala se rechaza.
-
-#### Scenario: S3 — Redondeo y límites
-
-- Given muestra 1/4 con 4999/5000/5001 µV y MAX−1/MAX/MAX.
-- When LM35 convierte sin doble redondeo ni sumar al numerador.
-- Then MUST devolver 12/13/13 y 42949673, sin overflow.
+#### Scenario: S3 — Dominio completo y redondeo B05
+- Given4096 códigos por build con overrides1000/2000/2540/3300/5000mV.
+- When se compara con floor(Fraction(muestra×VREF_mV×10,4096)+Fraction(1,2)), usando racionales exactos independientes.
+- Then MUST coincidir exactamente en todos los códigos; VREF1000/muestra128 MUST dar313 (empate), sin overflow ni error>0,005°C.
 
 ### Requirement: TE2 — Servicio genérico en unidades físicas
 
@@ -52,34 +56,39 @@ Una fuente válida posterior MUST recuperar. Sólo VALIDA habilita consumo.
 - When se actualiza y luego llega nueva lectura válida.
 - Then MUST aplicar errores definidos, borrar datos viejos y recuperar sin depender del sensor.
 
-### Requirement: TE3 — Aislamiento y errores de dispositivo
+### Requirement: TE3 — Aislamiento y responsabilidades de dispositivo
 
-LM35 MUST informar NULL/escala cero/referencia cero/muestra excesiva en ese orden,
-borrar salida escribible ante error y recuperar; inicializar lectura deja SIN_DATOS/cero.
-Su dominio válido cabe en uint32_t. Temperatura MUST compilar/enlazar sin dispositivo
-concreto y sin depender de Aplicacion. Dispositivos MUST NOT depender del servicio.
-Adaptación MUST mapear errores concretos a ERROR de fuente; no aplicar conversiones
-en aplicación. Instancias MUST ser independientes, acceso serializado externo.
+LM35 MUST poseer una única definición de muestra en LM35.c, enlazar el test sólo
+con LM35.c (sin Adquisicion_ADC_DMA.c), convertir al consultar y
+MUST NOT exponer enum/registro de estados, inicializador, salida por puntero o
+disponibilidad. MUST NOT validar flags/canal/rango por llamada, limpiar muestra,
+guardar temperatura obsoleta, esperar o leer ADC. Configuración válida, primer dato
+y asociación correcta canal-destino MUST garantizarse al integrar. Cero inicial
+MUST NOT interpretarse como señal de disponibilidad.
 
-#### Scenario: S6 — Argumentos y fronteras
+Temperatura MUST conservar TE2 independiente de LM35/ADC/VREF. LM35 MUST NOT
+depender del servicio. El fixture MUST entregar las centésimas sin reescalar ni
+redondear otra vez; estados genéricos se suministran externamente según el escenario.
 
-- Given errores combinados y extremos uint32_t del dispositivo/int32_t del servicio.
-- When se ejecutan APIs y adaptación.
-- Then MUST preservar prioridades y tipos, sin división inválida, overflow ni valor viejo válido.
+#### Scenario: S6 — Actualización con campos ajenos
+- Given palabras0xC700200F→0xC300800F y luego0x00008000, con VREF2000mV.
+- When se consulta/repite tras cada escritura del productor de prueba.
+- Then MUST obtener2500→10000→10000, sin mutar palabras, caché o rechazo por DONE/OVERRUN/CHN/bits3:0.
 
-#### Scenario: S7 — Otra fuente y estados independientes
-
-- Given un consumidor de Temperatura sin LM35, dos instancias y adaptación LM35 separada.
-- When se alternan fuentes o falla una.
-- Then MUST funcionar con Celsius/estado genéricos y conservar la instancia ajena.
+#### Scenario: S7 — Compatibilidad sin conversión de unidades
+- Given centésimas del wrapper y otra fuente genérica del servicio.
+- When el fixture ejecuta Temperatura_Actualizar con cada origen.
+- Then MUST conservar exactamente las centésimas y el contrato de otra fuente; servicio sin parámetros físicos.
 
 ### Requirement: TE4 — Evidencia y alcance
 
-B05 MUST pasar host/sanitizadores, ARM, regresiones B00–B04 y Doxygen ESW/USW.
-MUST NOT adquirir ADC/DMA ni implementar acondicionamiento negativo LM35, alarma o main.
+B05-R1 MUST documentar ESW/USW y pasar host/san, ARM, configuración negativa y
+Doxygen. MUST actualizar fixtures sin suprimir controles y preservar Drivers.
+MUST NOT configurar/iniciar ADC/DMA, integrar main/alarma/regulación ni afirmar
+diagnóstico, frescura o aceptación física por pruebas RAM. Evidencia previa o de
+Claude MUST distinguirse de pruebas nuevas ejecutadas sobre esta revisión.
 
-#### Scenario: S8 — Verificación
-
-- Given código corregido y reproducción de acoplamiento previo.
-- When se ejecutan suites, enlaces separados, documentación y revisión.
-- Then MUST registrar evidencia real; integración/tiempos eléctricos permanecen pendientes.
+#### Scenario: S8 — Verificación por modalidad
+- Given API/fixtures revisados, referencias explícitas y escenarios S1/S2/S3/S6/S7.
+- When se ejecutan controles, revisión de diff y hashes.
+- Then MUST registrar resultados reales por modalidad, dejando adquisición física pendiente.

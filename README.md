@@ -68,7 +68,7 @@ B01 aceptado/archivado con límite 185 RPM. [Contrato de modos vigente](openspec
 B02 aceptado y archivado. [Contrato de comunicación vigente](openspec/specs/comunicacion/spec.md).
 B03 aceptado y archivado. [Contrato de medición vigente](openspec/specs/medicion-velocidad/spec.md).
 B04 aceptado y archivado. [Contrato de mandos vigente](openspec/specs/mandos/spec.md).
-B05 corregido, aceptado y archivado. [Contrato de temperatura vigente](openspec/specs/temperatura/spec.md)
+B05 corregido y B05-R1 aceptados y archivados. [Contrato de temperatura vigente](openspec/specs/temperatura/spec.md)
 y [evidencia](openspec/changes/archive/2026-11-07-b05-conversion-temperatura/verify-report.md).
 
 ## B01 y documentación incremental
@@ -148,8 +148,8 @@ Servicios/Temperatura.h/.c recibe temperatura ya expresada en centésimas Celsiu
 (int32_t) y estado de fuente válido/sin datos/error. Preserva valores válidos o
 invalida con cero; diferencia cero válido de ausencia. No conoce el sensor concreto.
 La implementación actual de Dispositivos/LM35.h/.c corresponde a B05-R1:
-consulta muestra propia y devuelve centésimas, sin estados de dispositivo. El
-contrato principal conserva B05 hasta aceptar/sincronizar la revisión. ADC/DMA físicos pendientes.
+consulta muestra propia y devuelve centésimas, sin estados de dispositivo. Revisión
+aceptada y sincronizada en el contrato vigente; TE2 del servicio se conserva. ADC/DMA físicos pendientes.
 
 El servicio compila y enlaza por separado, sin LM35; el fixture de composición
 entrega las centésimas de LM35_Read directamente, sin reescalar ni volver a redondear.
@@ -403,18 +403,20 @@ Ver [alcance](openspec/changes/archive/2026-11-11-b16-lectura-potenciometro-dma/
 
 Ver [contrato vigente del potenciómetro](openspec/specs/potenciometro-dma/spec.md).
 
-## B05-R1: implementación LM35 pendiente de auditoría
+## B05-R1: lectura LM35 aceptada y archivada
 
 int32_t LM35_Read(void) devuelve centésimas desde ADC_DMA_LM35 propia, sin estados
 de dispositivo; redondeo B05 cercano/empate arriba. Constantes con nombre/derivadas,
 referencia ADC_VREF_MV #ifndef/default2540mV provisional/#error, sin atribuirlo a placa.
 Test enlazado sólo con LM35.c; sin Adquisicion_ADC_DMA.c.
 
-Host/san29/29,214 ejecuciones de casos C,20480 comparaciones racionales exactas,
-8 probes de configuración, ARM13/13 y Doxygen43 sin avisos. Drivers/servicios/otros
-dispositivos/contratos aceptados intactos. Inicialización ADC/DMA e integración al final.
-Auditoría del resultado/aceptación pendientes; commit sólo de implementación,
-sin cierre, sincronización, archivo o push. Sin pruebas físicas.
-Ver [cambio](openspec/changes/b05-r1-lectura-lm35/proposal.md),
-[evidencia](openspec/changes/b05-r1-lectura-lm35/verify-report.md) y
-[resumen portable de revisiones externas locales](openspec/changes/b05-r1-lectura-lm35/review-notes.md).
+Resultado 94d3134 aceptado por el usuario el 2026-11-11; reauditoría de Claude r2:
+APROBAR, sin hallazgos abiertos. TE1/TE3/TE4 sincronizados; TE2/S4/S5 intactos.
+Verificación propia repetida al cerrar: host/sanitizadores29/29 cada uno,
+214 ejecuciones C,20480 comparaciones racionales exactas y8 probes por modalidad;
+ARM13/13 y Doxygen43 sin avisos. Código, pruebas, build y Drivers sin cambios en el cierre.
+Inicialización ADC/DMA, VREF física e integración al final. Sin pruebas físicas ni push.
+Ver [cambio archivado](openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/proposal.md),
+[evidencia de implementación](openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/verify-report.md),
+[cierre y comprobaciones nuevas](openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/archive-report.md) y
+[resumen portable de revisiones externas locales](openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/review-notes.md).

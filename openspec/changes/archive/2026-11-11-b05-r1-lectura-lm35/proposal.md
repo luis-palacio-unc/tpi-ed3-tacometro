@@ -1,13 +1,13 @@
 # B05-R1 — LM35: muestra y lectura en centésimas Celsius
 
 Propuesta corregida2026-11-11 tras revisión de Claude y decisiones del usuario.
-Propuesta aprobada por Claude r2 y ejecución acordada por usuario; implementación verificada, pendiente de auditoría del código y aceptación del resultado.
+Resultado94d3134 aceptado por el usuario el 2026-11-11; reauditoría de Claude r2: APROBAR, sin hallazgos abiertos. Cambio cerrado y archivado tras nueva verificación propia.
 
 ## Objetivo y origen
 
 R07/R08/R09/R10/R11/R15: muestra propia, conversión y wrapper sin estados LM35.
 Fuente: [resumen de revisiones externas locales](review-notes.md), incluidas
-las decisiones finales del usuario y aprobación r2. B05 vigente continúa hasta aceptar el resultado revisado.
+las decisiones finales del usuario y aprobación r2. TE1/TE3/TE4 del contrato vigente incorporan el resultado aceptado; TE2/S4/S5 se conservan.
 
 ## Alcance
 
@@ -45,5 +45,6 @@ CMakeLists.txt, cmake/verificar_enlace_b05_lm35.cmake y documentación/SDD.
    biblioteca/otros módulos/contratos aceptados intactos, evidencia física pendiente.
 
 Riesgos: mezcla de canales y referencia errónea; resolver al integrar. Medir recursos
-de aritmética entera. Reversión por commit inverso acotado. Commit al terminar bloque
-acordado; sin cierre, sincronización de contratos principales, archivo ni push.
+de aritmética entera. Reversión por commit inverso acotado. La autorización inicial
+limitaba la entrega a implementación; la aceptación posterior autoriza sincronizar,
+archivar y crear commit local de cierre. Sin push. Ver [informe de cierre](archive-report.md).
