@@ -1,90 +1,79 @@
-# Verificación B16 — lectura del potenciómetro desde memoria
+# Verificación B16 — muestra propiedad de Potenciometro
 
-2026-11-10, main, HEAD de incorporación14b0521. Alcance corregido acordado por
-«procede a implementar B16». Implementado y verificado; resultado aún no aceptado.
-Commit local autorizado al terminar; sin push, sincronización de specs o archivo.
+Actualizado2026-11-11; verificaciones ejecutadas2026-11-10.
+main, base de esta corrección24adfe3. Usuario ordena mover ADC_DMA_Pot
+a Potenciometro.c y actualizar especificaciones/Doxygen/pruebas/commit sin push.
+Implementado/verificado; B16 sigue pendiente de aceptación del resultado.
+Specs principales/archivos aceptados no se sincronizan ni archivan todavía.
 
-## Implementación revisada
+## Cambio y revisión
 
-Pot_Read(void) devuelve uint16_t mediante ADC_GDR_RESULT(ADC_DMA_Pot) original.
-Una consulta volatile de32 bits, extrae RESULT15:4 y entrega0..4095 cuentas.
-No recibe palabra DMA, salida por puntero, contexto o estado. Sin validadores,
-DONE/OVERRUN/canal, espera, copia persistente, limpieza, conversión/transferencia,
-inicialización o normalización. Sin comentarios en el cuerpo de la función.
-USW.2.1.12.1 documentada con retorno/precondición/concurrencia y límites.
+ADC_DMA_Pot tiene una sola definición volatile uint32_t en Potenciometro.c.
+Adquisicion_ADC_DMA.h conserva el extern interno para que el soporte configure
+su dirección como destino DMA al integrar. Adquisicion_ADC_DMA.c no define datos.
+Pot_Read(void), USW.2.1.12.1, conserva exactamente su cuerpo/API y retorno0..4095
+mediante ADC_GDR_RESULT original; sin validadores, estado o inicialización añadidos.
+Propiedad de la variable documentada con Doxygen en definición y declaración.
 
-El soporte existente posee la única palabra ADC_DMA_Pot (4 bytes, alineación4),
-en .bss de SRAM local. DMA será el productor al integrar; ahora no hay adquisición.
-Canal AD0.0/P0.23 función01 acordado. La secuencia final debe asociar ese canal
-al destino dedicado, con transferencias de32 bits y sin escritores CPU concurrentes.
-El getter no comprueba esa precondición. Cero inicial no indica disponibilidad.
+La prueba CMake enlaza test_potenciometro.c y Potenciometro.c, sin el .c de soporte.
+El fixture escribe mediante extern como productor de prueba. Se conservan los
+tres casos de memoria: referencias0/2048/4095, actualización/repetición y extracción
+de RESULT sin modificar la palabra. No se agregan casos que sólo repitan el código.
 
-## Ejecuciones y evidencia
+## Evidencia ejecutada tras el traslado
 
-Directorio externo: `/tmp/ed3-b16-getter-33p91_4l`. Comandos completos y retornos en
-host/san/arm/extras-commands.json; snapshot inicial con12 documentos de propuesta
-ya modificados en before.json/initial.diff. Se preservó esa corrección del usuario.
-Modo estándar, sin afirmar ciclo TDD. C11 estricto; -Wall -Wextra -Werror
--Wconversion -Wshadow -Wstrict-prototypes; tests/objetos aislados además -pedantic-errors.
+Directorio externo: `/tmp/ed3-b16-propiedad-pot-wve2trjj`. Snapshot antes de editar: before.json;
+comandos y retornos reales en host/san/arm/extras/preservation-commands.json.
+Modo estándar; GCC host13.3.0, ARM13.2.1, Doxygen1.9.8; C11 estricto -Wall -Wextra
+-Werror -Wconversion -Wshadow -Wstrict-prototypes; tests/objetos además -pedantic-errors.
 
-| Modalidad/control | Resultado ejecutado | Evidencia externa |
+| Modalidad/control | Resultado actual | Logs externos |
 |---|---|---|
-| B16 individual | 1/1 suite,3/3 casos | b16-build.log,b16-tests.log |
+| B16 individual | 1/1 suite,3/3 casos, enlazados sin soporte | b16-build.log,b16-tests.log,link-pure-pot.txt |
 | Host completo | 22/22 suites,207 casos C y oráculo Python | host-*.log |
-| ASan/LSan/UBSan | 22/22 sin hallazgos,detect_leaks=1 | san-*.log |
-| ARM Debug | Build y13/13 controles de imagen/enlace previos | arm-*.log |
-| Getter/soporte ARM O0/O2 | Compilan y enlazan parcialmente sin externos restantes | *-build.log,b16-*-partial-link.log |
-| Headers aislados | Potenciometro/soporte en C11 y C++17 | header-*.log |
-| Doxygen HTML/XML | 43 funciones,USW12.1; sin avisos | doxygen.log,doxygen-final.log,extra-results.json |
-| Negativos en copias externas | Detectan dato sin extraer,copia obsoleta y borrado de muestra | *-run.log |
-| Preservación/diff | 90 drivers originales a21cc1e; módulos/contratos/plataforma intactos | preservation-results.json,diff-check.log |
+| ASan/LSan/UBSan | 22/22 sin hallazgos; detect_leaks=1 | san-*.log |
+| ARM Debug | Build y13/13 controles previos de imagen/enlace; no ejecución | arm-*.log |
+| Objetos ARM O0/O2 | ADC_DMA_Pot símbolo B de4 bytes sólo en Potenciometro; soporte sin símbolos/datos | *-symbols.log,*-size.log,pot-sections.log |
+| Doxygen HTML/XML | 43 funciones/USW, variable documentada en Potenciometro.c; sin avisos | doxygen.log,extra-results.json |
+| Preservación/diff | Drivers90 originales a21cc1e; módulos/plataforma/contratos aceptados intactos | preservation-results.json,diff-check.log |
 
-LecturasDeReferencia usa palabras constantes para0/2048/4095, sin exigir DONE.
-ActualizacionYRepeticion cambia la misma posición entre llamadas, incluso retorna
-a un valor anterior, y comprueba repetición sin escritura. SoloResultadoSinEscritura
-cambia flags sin cambiar el significado de RESULT y comprueba retorno/inalteración
-de la palabra completa; no agrega un modelo de estados. No se enlazan funciones
-del periférico en el test del getter. El doble es la memoria, no ADC/DMA ejecutados.
+Regresiones:11199 ternas velocidad contra oráculo,5096 pares codec y4096 muestras/
+400 rollovers selector. Sin fallos ni pruebas omitidas; sin umbral de cobertura.
 
-Regresiones existentes:11199 ternas de velocidad contra oráculo independiente,
-5096 pares codec,4096 muestras/400 rollovers selector. Sin pruebas omitidas.
-Cobertura porcentual sin umbral configurado. Negativos esperadamente fallidos sólo
-en copias externas; no se modifica ni sustituye biblioteca/firmware para obtener verde.
-
-| Requisito/escenario | Prueba ejecutada/revisión | Resultado |
+| Requisito/escenario | Evidencia ejecutada | Resultado |
 |---|---|---|
-| PD1/S1 | LecturasDeReferencia | Conforme |
-| PD1/S2 | ActualizacionYRepeticion | Conforme |
-| PD2/S3 | SoloResultadoSinEscritura y repetición; objetos sin llamadas a periféricos | Conforme |
-| PD3/S4 | Host/san/ARM/header/Doxygen,diff/hashes y separación de modalidades | Conforme por modalidad |
+| PD1/S1 | LecturasDeReferencia,0/2048/4095 | Conforme |
+| PD1/S2 | ActualizacionYRepeticion, lectura actual sin escritura/caché | Conforme |
+| PD2/S3 | SoloResultadoSinEscritura; test enlazado sin soporte; propiedad única en nm O0/O2 | Conforme |
+| PD3/S4 | Host/san/ARM/Doxygen/diff/hashes, con modalidades separadas | Conforme por modalidad |
 
-4/4 escenarios con evidencia para el alcance del getter. Diseño seguido sin
-desviaciones, sin hallazgos críticos.9/9 tareas cumplidas al cierre técnico/commit.
+4/4 escenarios vigentes.12/12 tareas al cierre técnico/commit, incluida corrección.
+Diseño actualizado por orden del usuario y seguido sin desviaciones. Sin hallazgos críticos.
 
-## Recursos y límites
+## Recursos y pendientes
 
-Getter .text32 bytes-O0/16-O2; marco propio4/0 bytes según -fstack-usage, sin
-datos persistentes propios. Soporte .bss4 bytes, alineación4; sin funciones.
-O2 muestra un LDR de la palabra y UBFX de12 bits, sin stores/llamadas/esperas.
-Único símbolo externo del getter: ADC_DMA_Pot; resuelto al enlazar con soporte.
-No hay helpers aritméticos/heap. No es una cota de pila del firmware ni de tiempo real.
+Potenciometro: .text32/16 bytes-O0/O2, .bss4 bytes alineada4, .data0; marco propio4/0.
+Soporte: .text/.data/.bss0. Ambos objetos sin símbolos externos pendientes.
+Memoria total reservada por la muestra se mantiene en4 bytes; getter sin cambios.
+O2 sigue leyendo la palabra y extrayendo RESULT con LDR/UBFX, sin stores o llamadas.
+No son cotas de pila global o tiempo real. Se mantienen18 objetos de firmware;
+main mínimo elimina por GC módulos sin referencias; enlace/configuración global al final.
 
-Build conserva18 objetos y main mínimo. El linker elimina módulos sin referencias;
-las13 pruebas ARM existentes y el enlace parcial no ejecutan instrucciones en MCU.
-Enlace global de biblioteca/configuración/main se dejan al final.
-UM10360 rev4.1 §1.9/p12 permite SRAM local con MCU activo; si se agrega Sleep,
-§4.8.1 requiere revisar ubicación, porque DMA no accede a SRAM principal allí.
-ADC.2/elección de secuencia/canales/VREF/tasa quedan para integrar, sin añadir
-validaciones dentro del getter. No se garantiza edad ni coherencia multicanal.
+Configuración, conversión ADC y DMA reales pendientes. La integración garantizará
+AD0.0/P0.23 función01, origen/canal correcto y transferencias32bits alineadas,
+sin escritores CPU concurrentes. La prueba PC escribe RAM, no acredita ADC/DMA,
+antigüedad, coherencia entre canales o comportamiento eléctrico. Cero de arranque
+no indica disponibilidad. .bss local con MCU activo; revisar ubicación si se usa
+Sleep (UM10360 §1.9/p12 y §4.8.1); secuencia ADC.2/VREF/tasa al integrar.
 
-Reproducción: R=raíz,O=directorio externo. cmake -S "$R" -B "$O/host"
--DCMAKE_BUILD_TYPE=Debug; cmake --build "$O/host" --parallel 4;
-ctest --test-dir "$O/host" --verbose. San agrega -DTPI_HOST_SANITIZERS=ON,
-ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 y
-UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1. ARM agrega -DTPI_BUILD_ARM=ON
-y -DCMAKE_TOOLCHAIN_FILE="$R/cmake/arm-none-eabi.cmake". Doxygen usa Doxyfile
-con OUTPUT_DIRECTORY externo. Detalle exacto en los archivos *-commands.json.
+Reproducción: cmake -S "$R" -B "$O/host" -DCMAKE_BUILD_TYPE=Debug;
+cmake --build "$O/host" --parallel 4; ctest --test-dir "$O/host" --verbose.
+San agrega -DTPI_HOST_SANITIZERS=ON, ASAN_OPTIONS=detect_leaks=1:halt_on_error=1
+y UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1. ARM agrega -DTPI_BUILD_ARM=ON
+y -DCMAKE_TOOLCHAIN_FILE="$R/cmake/arm-none-eabi.cmake". Doxygen con salida externa.
+Detalle exacto de cada invocación en *-commands.json. Verificación anterior24adfe3
+en Git y /tmp/ed3-b16-getter-33p91_4l; no sustituye evidencia de esta corrección.
 
-Veredicto: PASS del alcance de lectura de memoria. Configuración, conversiones,
-DMA real y ensayos físicos pendientes. Sin simulación MCU, instalaciones, flasheo
-o publicación. Próxima acción: revisar/aceptar B16 antes de sincronizar/archivar.
+Veredicto: PASS del alcance B16 corregido. Sin instalaciones, simulación MCU,
+ejecución ARM/placa, flasheo o publicación. Commit local autorizado, sin push.
+Próxima acción: revisar/aceptar B16 antes de sincronizar/archivar.

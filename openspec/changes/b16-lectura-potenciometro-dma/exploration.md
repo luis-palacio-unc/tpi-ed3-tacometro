@@ -5,8 +5,10 @@ Pot_Read debe recuperar desde memoria el valor transferido por DMA, no recibir
 una palabra desde el llamador y analizarla. API acordada uint16_t Pot_Read(void).
 
 ADC realiza la conversión; DMA realiza la transferencia solicitada por el
-periférico. El soporte ADC/DMA existente conserva almacenamiento/configuración.
-Potenciometro sólo consulta la posición de su lectura. Reutilizar las definiciones
+periférico. Por corrección del usuario, Potenciometro.c posee la variable
+ADC_DMA_Pot y consulta su lectura. El soporte conserva la configuración compartida
+y conoce la dirección del destino mediante extern en su encabezado interno.
+Reutilizar las definiciones
 originales para extraer el resultado si el formato transferido lo requiere.
 
 Canal0/P0.23 función01 acordado según UM10360 tabla81/p118 y ADC_PinConfig.

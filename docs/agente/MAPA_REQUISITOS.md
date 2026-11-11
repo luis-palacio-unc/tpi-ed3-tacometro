@@ -138,9 +138,10 @@ Configuración/frecuencia/potencia/PWM.1/adaptación/main físicos pendientes.
 [Evidencia actual](../../openspec/changes/archive/2026-11-10-b15-dispositivo-motor-pwm/verify-report.md).
 
 B16 implementado/verificado, pendiente de aceptación (R03/R08/R10/R11/R15):
-Pot_Read(void) devuelve RESULT0..4095 de ADC_DMA_Pot, sin estados/validaciones.
+Pot_Read(void) devuelve RESULT0..4095 de ADC_DMA_Pot, definida en Potenciometro.c,
+sin estados/validaciones. Extern interno para DMA; prueba enlaza sin soporte.
 USW.2.1.12.1; canal AD0.0/P0.23 acordado. PD1–PD3/S1–S4 PASS para memoria:
-3 casos nuevos, host/san22/22,207 C+oráculo, ARM13/13/O0/O2/enlace parcial,
+3 casos B16, host/san22/22,207 C+oráculo, ARM13/13/O0/O2/propiedad de símbolo,
 Doxygen43. Drivers90 originales/módulos/contratos aceptados intactos.
 ADC/DMA/configuración/asociación de canales y enlace físico pendientes para el final.
 [Evidencia](../../openspec/changes/b16-lectura-potenciometro-dma/verify-report.md).

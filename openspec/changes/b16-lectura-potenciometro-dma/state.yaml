@@ -16,16 +16,22 @@ channel: AD0.0
 pin: P0.23
 pin_function: 1
 api: uint16_t Pot_Read(void)
-storage: volatile uint32_t ADC_DMA_Pot in local SRAM .bss
+storage: volatile uint32_t ADC_DMA_Pot defined in Potenciometro.c, local SRAM .bss
 drivers_modification_prohibited: true
 initialization_deferred: true
 adc_dma_configured: false
 hardware_verified: false
 commit_authorized_on_agreed_block_completion: true
-commit_subject: 'feat: implementar lectura del potenciometro desde memoria DMA'
+commit_subject: 'refactor: mover muestra ADC al dispositivo potenciometro'
 push_authorized: false
 additional_states: false
 reading_validation: false
 user_clarification: ADC converts, DMA transfers, Pot_Read returns only the stored value.
-evidence: /tmp/ed3-b16-getter-33p91_4l
+evidence: /tmp/ed3-b16-propiedad-pot-wve2trjj
 next_action: Revisar y aceptar resultado B16 antes de sincronizar/archivar; no iniciar otro bloque ni publicar.
+ownership_correction_base: 24adfe3202373f2af17b0a1c151ab63a8223c337
+ownership_correction_approved_on: '2026-11-10'
+storage_owner: Potenciometro
+internal_declaration: Dispositivos/soporte/Adquisicion_ADC_DMA.h
+test_links_without_support: true
+updated_on: '2026-11-11'

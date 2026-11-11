@@ -1,3 +1,5 @@
+/* El fixture escribe como productor en la memoria propiedad de Potenciometro.c.
+ * Se enlaza sin Adquisicion_ADC_DMA.c; usa su declaracion extern interna. */
 #include "Potenciometro.h"
 #include "Adquisicion_ADC_DMA.h"
 #include <stdbool.h>

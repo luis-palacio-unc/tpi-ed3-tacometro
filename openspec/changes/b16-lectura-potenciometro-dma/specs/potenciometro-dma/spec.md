@@ -29,10 +29,16 @@ lectura: MUST NOT recibir datos DMA desde el llamador, iniciar conversiones,
 transferencias o esperas, validar lecturas, devolver estados, limpiar datos o
 normalizar. ADC_Decode/ADC_Estado de la propuesta anterior MUST quedar retirados.
 
+ADC_DMA_Pot MUST tener una única definición en Potenciometro.c. El encabezado
+interno Adquisicion_ADC_DMA.h MUST declarar extern para la futura configuración
+del destino DMA. El soporte MUST NOT definir el almacenamiento del potenciómetro.
+El test del getter MUST enlazar con Potenciometro.c sin Adquisicion_ADC_DMA.c.
+
 #### Scenario: S3 — Consulta sin operaciones adicionales
 - Given la lectura almacenada por ADC/DMA.
 - When se llama el getter, incluso repetidamente.
 - Then MUST devolver sólo el valor, sin cambiar memoria/periféricos ni generar estados.
+- And el almacenamiento MUST resolverse al enlazar solamente con Potenciometro.c.
 
 ### Requirement: PD3 — Documentación y evidencia
 

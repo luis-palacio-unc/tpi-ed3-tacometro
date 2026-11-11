@@ -20,3 +20,9 @@
 
 Resultado implementado/verificado, pendiente de aceptación. Specs principales e
 historial archivado intactos; configuración/integración/placa para el final.
+
+## 4. Corrección acordada — propiedad de la muestra
+
+- [x] 4.1 Mover definición a Potenciometro.c, mantener extern interno y actualizar contrato/Doxygen/test de enlace.
+- [x] 4.2 Verificar host/san, ARM/propiedad de símbolo y Doxygen; biblioteca intacta.
+- [x] 4.3 Actualizar evidencia/contexto, revisar diff y commit local sin push; aceptación final pendiente.

@@ -385,10 +385,12 @@ Ver [contrato de Motor vigente](openspec/specs/motor-dispositivo/spec.md).
 
 ## B16: lectura del potenciómetro
 
-uint16_t Pot_Read(void) devuelve0..4095 desde la palabra ADC_DMA_Pot del soporte,
+uint16_t Pot_Read(void) devuelve0..4095 desde ADC_DMA_Pot, definida en Potenciometro.c,
 usando ADC_GDR_RESULT original. Sin parámetros, estados o validaciones adicionales.
 Canal AD0.0/P0.23 función01 acordado; ADC convierte y DMA será el productor de esa
-memoria al integrar. Configuración, arranque y conexión a servicios/main al final.
+memoria al integrar. El extern interno permite configurar su dirección como destino.
+La prueba enlaza sin Adquisicion_ADC_DMA.c. Configuración, arranque y conexión
+a servicios/main al final.
 
 Implementado/verificado, pendiente de aceptación. Host/san22/22 (207 casos C y
 oráculo), ARM13/13 y objetosO0/O2, Doxygen43 sin avisos. Drivers90 originales,

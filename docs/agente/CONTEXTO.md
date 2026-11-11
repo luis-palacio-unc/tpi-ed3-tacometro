@@ -365,12 +365,14 @@ publicaciones futuras requieren autorización independiente.
 B16 acordado e implementado2026-11-10; resultado pendiente de aceptación:
 ADC convierte, DMA transfiere y Potenciometro devuelve el valor leído mediante
 uint16_t Pot_Read(void). Sin dato DMA del llamador, salida por puntero, contexto,
-estado o validación. Soporte existente posee ADC_DMA_Pot, palabra ADGDR volatile
-uint32_t en .bss local (4 bytes/alineación4); getter extrae RESULT original.
+estado o validación. Por corrección del usuario, Potenciometro.c posee ADC_DMA_Pot,
+palabra ADGDR volatile uint32_t en .bss local (4 bytes/alineación4); getter extrae
+RESULT original. Soporte configura el destino al integrar mediante declaración
+extern interna; no define la variable. Test del getter enlaza sin archivo de soporte.
 Canal AD0.0/P0.23 función01 acordado, asociación/configuración/enlace físicos al final.
 DMA32bits como único productor en ejecución; acceso CPU sólo lectura, sin prometer
 edad/coherencia multicanal. SRAM local accesible en activo; revisar si se usa Sleep.
 Cero de arranque no acredita disponibilidad. Mandos conserva la normalización.
-Host/san22/22,207 C+oráculo, ARM13/13/O0/O2/enlace parcial y Doxygen43 PASS;
+Host/san22/22,207 C+oráculo, ARM13/13/O0/O2/propiedad de símbolo y Doxygen43 PASS;
 drivers/módulos/contratos aceptados intactos. Sin ensayos ADC/DMA reales.
 Commit local autorizado, sin push/sincronización/archivo hasta aceptación.

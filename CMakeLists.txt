@@ -178,7 +178,7 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_executable(pruebas_integracion_selector tests/host/test_integracion_selector.c
         Servicios/Mandos.c Aplicacion/Procesamiento.c Servicios/Driver_Motor.c)
     add_executable(pruebas_potenciometro tests/host/test_potenciometro.c
-        Dispositivos/Potenciometro.c Dispositivos/soporte/Adquisicion_ADC_DMA.c)
+        Dispositivos/Potenciometro.c)
     target_include_directories(pruebas_potenciometro PRIVATE Dispositivos Dispositivos/soporte)
     target_include_directories(pruebas_potenciometro SYSTEM PRIVATE
         Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)

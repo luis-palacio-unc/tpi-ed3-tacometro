@@ -1,7 +1,8 @@
 /**
  * @file Potenciometro.h
  * @brief Consulta de la muestra del potenciometro almacenada por ADC/DMA.
- * @details Expone el resultado ADC de 12 bits; Mandos realiza la normalizacion.
+ * @details Potenciometro.c posee la muestra y expone el resultado ADC de
+ * 12 bits; Mandos realiza la normalizacion.
  * @note ESW.2.1.12. AD0.0/P0.23; configuracion y arranque diferidos.
  */
 #ifndef TPI_POTENCIOMETRO_H

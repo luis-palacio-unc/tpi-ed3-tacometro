@@ -11,8 +11,10 @@ Flujo: ADC → DMA → ADC_DMA_Pot → Pot_Read → valor numérico de0..4095.
 
 ## Datos y responsabilidades
 
-ADC_DMA_Pot es una única palabra volatile uint32_t, propiedad del soporte existente
-Adquisicion_ADC_DMA. Conserva el formato ADGDR completo; Pot_Read aplica una vez
+ADC_DMA_Pot es una única palabra volatile uint32_t, definida y propiedad de
+Potenciometro.c. Adquisicion_ADC_DMA.h conserva sólo la declaración extern interna
+para que el soporte configure su dirección como destino DMA al integrar. La palabra conserva el formato ADGDR completo;
+Pot_Read aplica una vez
 ADC_GDR_RESULT original a esa posición y devuelve uint16_t. RESULT ocupa15:4;
 su límite4095 hace segura la conversión. No se interpretan DONE/OVERRUN/canal.
 No hay función intermediaria, copia persistente o validación añadida.
@@ -36,12 +38,14 @@ Sin espera, heap, IRQ, caché, limpieza, normalización o señal de disponibilid
 ## Archivos y verificación
 
 - Potenciometro.h/.c: getter y Doxygen ESW12/USW.2.1.12.1; header sólo stdint.h.
-- soporte/Adquisicion_ADC_DMA.h/.c: contrato y palabra interna compartida, sin init.
+- soporte/Adquisicion_ADC_DMA.h/.c: declaración extern y configuración diferida;
+  sin almacenamiento propio del potenciómetro.
 - tests/host/test_potenciometro.c: tres casos, palabras constantes en memoria;
   referencias0/2048/4095, actualización, repetición y no escritura. Flags ignorados.
+  El ejecutable enlaza sólo con Potenciometro.c; no necesita el .c de soporte.
 - CMake/Doxyfile y seguimiento: se amplían pruebas/docs, conservando los controles.
 
-Pruebas host, sanitizadores, ARM O0/O2, enlace parcial, headers y Doxygen ejecutados;
+Corrección: host/sanitizadores, ARM O0/O2, propiedad de símbolo y Doxygen ejecutados;
 evidencia en verify-report.md. Las pruebas preparan memoria desde PC y no acreditan
 conversión ADC, transferencia DMA, temporización o señal eléctrica.
 Biblioteca/servicios/otros dispositivos/contratos aceptados intactos.
