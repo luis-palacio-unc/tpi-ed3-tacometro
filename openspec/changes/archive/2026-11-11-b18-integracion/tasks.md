@@ -89,3 +89,11 @@ Pedido del usuario del 2026-11-11, antes de la puesta en marcha.
   medicion-velocidad; verify-report, ESTADO, README y MCUXPRESSO.
 - [x] 5.6 Host/san, host, ARM Debug/Release, Doxygen, compilación MCUXpresso sin
   interfaz y 17 mutantes fuera del árbol.
+
+## Cierre
+
+- [x] 6.1 Aceptación del usuario y orden de cierre (2026-11-11), con la puesta en
+  marcha en placa (I4, tarea 3.9) todavía pendiente.
+- [x] 6.2 Specs vigentes sincronizadas con los 17 deltas (16 dominios actualizados y
+  `sistema` nuevo).
+- [x] 6.3 Cambio archivado en `openspec/changes/archive/2026-11-11-b18-integracion/`.

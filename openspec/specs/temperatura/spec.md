@@ -5,56 +5,23 @@ revisión B05-R1 aceptada por el usuario el 2026-11-11 (implementación 94d3134)
 TE1/TE3/TE4 sincronizados; TE2/S4/S5 conservados sin cambios.
 Alcance lógico; adquisición y aceptación física pendientes.
 
+B18 (integración I1–I5) aceptado por el usuario el 2026-11-11 sobre e3d3bce; contrato
+sincronizado desde el delta del cambio. Verificado en host y por compilación/enlace ARM;
+aceptación física en placa pendiente.
+[Evidencia](../../changes/archive/2026-11-11-b18-integracion/verify-report.md).
+
 ## Requirements
 
 ### Requirement: TE1 — Conversión específica en dispositivo
-
-LM35 MUST exponer int32_t LM35_Read(void), centésimas Celsius no negativas desde
-su muestra ADC/DMA;2500 significa25,00°C. MUST usar aritmética entera, ganancia
-nominal10mV/°C y4096 cuentas. MUST extraer sólo RESULT original, ignorando
-todo bit fuera de15:4, incluidos los reservados23:16 y29:27. MUST redondear una sola vez al cercano, empate arriba,
-con error aritmético≤0,005°C respecto del modelo; sin float/double, recorte o
-redondeo intermedio. Valor ideal en centésimas=muestra×ADC_VREF_MV×10/4096.
-
-ADC_VREF_MV MUST ser configurable con #ifndef/default2540mV y #error si no es
-positivo o excede INT32_MAX/10, para representar el resultado. Default provisional
-de software MUST NOT atribuirse a la placa. VREF física MUST verificarse al integrar.
-
-#### Scenario: S1 — Referencias y extracción exclusiva
-- Given VREF de prueba2000mV, palabras para muestras0/512/2048, limpias y OR0xFFFF000F (todo bit fuera de15:4 activo).
-- When se consulta LM35_Read.
-- Then MUST devolver0/2500/10000 centésimas en ambas variantes, preservando la palabra.
+Sin cambios salvo: ADC_VREF_MV MUST conservar #ifndef/#error y su default MUST ser
+3300 mV, correspondiente a VREFP alimentado a 3,3 V en la placa; el valor físico
+MUST medirse en la puesta en marcha. (Antes: default provisional 2540 mV.)
 
 #### Scenario: S2 — Overrides y configuración inválida
-- Given targets host separados con LM35.c/test compilados mediante target_compile_definitions PRIVATE ADC_VREF_MV=1000 o2000, sin afectar firmware; otro sin override.
-- When se consulta muestra1024 y se compilan probes C11 con -DADC_VREF_MV=0 y -DADC_VREF_MV=-1.
-- Then targets MUST devolver2500/5000; default MUST producir6350 y cada probe no positivo MUST fallar por #error ADC_VREF_MV.
-
-#### Scenario: S3 — Dominio completo y redondeo B05
-- Given4096 códigos por build con overrides1000/2000/2540/3300/5000mV.
-- When se compara con floor(Fraction(muestra×VREF_mV×10,4096)+Fraction(1,2)), usando racionales exactos independientes.
-- Then MUST coincidir exactamente en todos los códigos; VREF1000/muestra128 MUST dar313 (empate), sin overflow ni error>0,005°C.
-
-### Requirement: TE2 — Servicio genérico en unidades físicas
-
-Temperatura MUST recibir int32_t centésimas Celsius y estado de fuente VALIDA,
-SIN_DATOS o ERROR. MUST conservar exactamente datos válidos, sin recalibrar ni limitar
-al rango de un sensor. SIN_DATOS MUST producir SIN_DATOS/cero; ERROR, ERROR_FUENTE/cero.
-Inicializar MUST dejar SIN_DATOS/cero. NULL MUST devolver ERROR_ARGUMENTO (false al
-inicializar); estado de fuente desconocido MUST invalidar con ERROR_ARGUMENTO/cero.
-Una fuente válida posterior MUST recuperar. Sólo VALIDA habilita consumo.
-
-#### Scenario: S4 — Magnitudes y disponibilidad
-
-- Given fuentes genéricas con 2534, cero, -725 e INT32_MIN/MAX centésimas.
-- When llegan como válidas, ausentes o fallidas.
-- Then MUST preservar sólo valores válidos, diferenciando cero válido de ausencia/error.
-
-#### Scenario: S5 — Invalidación y recuperación
-
-- Given lectura previa válida, NULL, estado desconocido y ausencia/error de fuente.
-- When se actualiza y luego llega nueva lectura válida.
-- Then MUST aplicar errores definidos, borrar datos viejos y recuperar sin depender del sensor.
+- Given target host sin override y probes con valores no positivos.
+- When se consulta la muestra 1024.
+- Then el default MUST producir 8250 centésimas; los probes inválidos MUST fallar
+  por #error ADC_VREF_MV. (Antes: 6350.)
 
 ### Requirement: TE3 — Aislamiento y responsabilidades de dispositivo
 
@@ -92,3 +59,23 @@ Claude MUST distinguirse de pruebas nuevas ejecutadas sobre esta revisión.
 - Given API/fixtures revisados, referencias explícitas y escenarios S1/S2/S3/S6/S7.
 - When se ejecutan controles, revisión de diff y hashes.
 - Then MUST registrar resultados reales por modalidad, dejando adquisición física pendiente.
+
+### Requirement: TE5 — Lectura filtrada
+`Servicios/Temperatura` MUST exponer `int32_t Temperatura_Leer(void)`: toma
+`LM35_Read()` y devuelve el promedio entero (truncado) de las últimas 4 lecturas,
+en centésimas de °C; mientras haya menos de 4 MUST promediar las disponibles.
+
+#### Scenario: S9 — Arranque del filtro (`i2.temperatura` S1)
+- Given lecturas 2000, 3000, 4000 y 5000 desde el arranque.
+- When se lee cuatro veces.
+- Then MUST dar 2000, 2500, 3000 y 3500.
+
+#### Scenario: S10 — Ventana de cuatro (`i2.temperatura` S2)
+- Given la ventana anterior y luego lecturas constantes de 6000 y de 2501.
+- When se lee.
+- Then MUST dar 4500, 5250, 5750, 6000, 6000 y luego 5125, 4250, 3375, 2501.
+
+#### Scenario: S11 — Servicio sobre el LM35 real (`i2.temperatura_lm35`, `b05.lm35_enlace_arm`)
+- Given `LM35.c` real con ADC_VREF_MV = 2000 y palabras de ADC de 25,00 y 100,00 °C.
+- When se lee por el servicio.
+- Then MUST dar 2500, 6250, 7500, 8125 y 10000, sin modificar la muestra.

@@ -12,11 +12,18 @@
   El cierre sólo cambia documentación/metadatos. Producción,pruebas,build,
   Drivers y contratos/archivo previos conservados.
 
-## Integración en curso (B18)
+## Integración B18: aceptada y archivada (2026-11-11)
+
+- Cierre ordenado por el usuario sobre e3d3bce: 17 deltas sincronizados en
+  `openspec/specs/` (incluido el dominio nuevo `sistema`) y cambio movido a
+  `openspec/changes/archive/2026-11-11-b18-integracion/`
+  ([cierre](../../openspec/changes/archive/2026-11-11-b18-integracion/archive-report.md)).
+  Sin aceptación física: la puesta en marcha en placa (I4) sigue pendiente y sus
+  ajustes irán en un cambio nuevo.
 
 - I1 (arranque y periféricos) revisado por Claude y en `main` (ff07e3e).
 - I2 (servicios simples, Aplicación y `main`) revisado por Claude y en `main`
-  (e3a279c). Cambio `openspec/changes/b18-integracion/` (vía rápida).
+  (e3a279c). Cambio de vía rápida, hoy archivado.
 - Capas: Aplicación → Servicios → Dispositivos, comprobado por `i2.capas`. Cada
   servicio llama a sus dispositivos; sin contextos, callbacks ni enums de error.
   `Sistema_Init` arranca reloj y ADC/DMA. Modos de 3 estados; alarma 45/43 °C con
@@ -26,10 +33,10 @@
   sin avisos; `Drivers/` y `Dispositivos/` sin cambios. Firmware Debug 19 636 B de
   flash y 2 456 B de SRAM (Release 13 124 / 2 448). 45 de 48 mutantes detectados,
   3 equivalentes. Nada ejecutado en placa.
-  [Informe](../../openspec/changes/b18-integracion/verify-report.md).
+  [Informe](../../openspec/changes/archive/2026-11-11-b18-integracion/verify-report.md).
 - Contratos de mandos, medicion-velocidad, temperatura (servicio), mando-motor,
   salidas-alarma, comunicacion, modos y alarma-temperatura reemplazados por delta
-  specs en el cambio, más `sistema`; specs vigentes sin sincronizar hasta cerrar.
+  specs en el cambio, más `sistema`; sincronizados en el cierre.
 - I3 (proyecto MCUXpresso) implementado, compilado sin interfaz y revisado por
   Claude (compilación headless reproducida); rama `integracion-i3`, base e3a279c (I1+I2). La
   raíz es el proyecto `TPI_ED3_Tacometro` (`.project`/`.cproject`, LPC1769), con las
@@ -51,7 +58,7 @@
   58 funciones sin avisos; MCUXpresso Debug y Release 0 errores y 0 avisos (`.axf`
   18 204 B y 10 256 B de flash, 360 B de SRAM sin pila); 16 de 17 mutantes
   detectados, 1 equivalente. El contrato vigente de regulacion-velocidad (B17) queda
-  reemplazado por el delta del cambio al cerrar B18.
+  reemplazado por RG1–RG5 en el cierre de B18.
   Sigue I4 (puesta en marcha en placa, a cargo del usuario).
 
 ## Evidencia aceptada

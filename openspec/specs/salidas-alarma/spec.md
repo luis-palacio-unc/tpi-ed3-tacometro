@@ -1,81 +1,27 @@
 # Salidas de alarma — contrato vigente
 
-Origen R07/R10/R11/R15. B07 original aceptado2026-11-09; B07-R1 aceptado
-el2026-11-10, implementaciónfe55aa9. Coordinación lógica y composición host B12;
-llamada desde aplicación/main y configuración/ensayos físicos para integración final.
+Origen R07/R10/R11/R15. Contratos anteriores en el historial archivado.
+
+B18 (integración I1–I5) aceptado por el usuario el 2026-11-11 sobre e3d3bce; contrato
+sincronizado desde el delta del cambio. Verificado en host y por compilación/enlace ARM;
+aceptación física en placa pendiente.
+[Evidencia](../../changes/archive/2026-11-11-b18-integracion/verify-report.md).
 
 ## Requirements
 
-### Requirement: SA1 — Solicitudes coordinadas
+### Requirement: SA5 — LED y buzzer juntos
+`Servicios/Driver_Alarmas` MUST exponer `void Driver_Alarmas_Init(void)` (llama
+`LED_Init` y `Buzzer_Init`, ambos apagados) y `void Driver_Alarmas_Aplicar(bool
+activa)`, que entrega el mismo valor a `LED_Write` y a `Buzzer_Write`. La polaridad
+eléctrica es de cada dispositivo.
 
-Driver_Alarmas MUST recibir activar y una interfaz de dos funciones void(bool).
-MUST eliminar los contextos. Interfaz válida MUST invocar LED y después buzzer,
-exactamente una vez cada uno con el mismo bool, sin caché/reintentos/atomicidad física.
+#### Scenario: S1 — LED y buzzer juntos (`i2.drivers`)
+- Given dispositivos simulados.
+- When se inicializa y se aplica true, true, false, true, false, false.
+- Then Init MUST NOT escribir salidas; cada aplicación MUST escribir una vez cada
+  salida con el valor pedido.
 
-#### Scenario: S1 — Activar, desactivar y repetir
-- Given dos salidas void(bool) y una interfaz completa.
-- When se emiten true/false y órdenes repetidas.
-- Then MUST transmitir el mismo bool una vez por canal, LED→buzzer cada vez.
-
-#### Scenario: S2 — Interfaces independientes
-- Given dos pares de funciones distintos y registros de llamada.
-- When se alternan sus interfaces.
-- Then MUST actuar únicamente el par solicitado sin retener configuración.
-
-### Requirement: SA2 — Validación y errores observables
-
-Interfaz NULL o cualquiera de sus funciones NULL MUST producir ERROR_ARGUMENTO
-antes de cualquier llamada. Interfaz válida MUST producir ACEPTADA tras retornar
-ambas funciones. MUST conservar sólo esos dos estados; eliminar ERROR_LED,
-ERROR_BUZZER y ERROR_AMBOS. ACEPTADA MUST significar solicitud despachada, no
-confirmación eléctrica. MUST NOT leer GPIO ni inventar diagnósticos de proveedor.
-
-#### Scenario: S3 — Interfaz incompleta
-- Given NULL o una/ambas funciones ausentes, incluso LED válida y buzzer ausente.
-- When se aplica una solicitud.
-- Then MUST obtener ERROR_ARGUMENTO y cero llamadas a ambas salidas.
-
-#### Scenario: S4 — Recuperación tras argumento inválido
-- Given una llamada inválida seguida de interfaz válida.
-- When se aplica la siguiente solicitud.
-- Then MUST invocar ambas salidas y obtener ACEPTADA sin error retenido.
-
-#### Scenario: S5 — Configuración inmutable
-- Given una interfaz const estable y funciones conformes.
-- When se aplica una solicitud.
-- Then MUST conservar ambos punteros sin almacenar ni liberar la interfaz.
-
-### Requirement: SA3 — Portabilidad e integración
-
-El servicio MUST conservar C11 sin heap/globals mutables/reloj/esperas ni dependencia
-de Aplicacion/Dispositivos/GPIO/MCU. Llamador MUST mantener interfaz/funciones válidas
-y estables, serializar acceso y suministrar funciones que retornen. Adaptación B06
-MUST permanecer externa: sólo ACTIVA/INACTIVA generan órdenes; ausencia/error conserva
-diagnóstico sin emitir apagado. Funciones B12 MUST ser utilizables directamente,
-sin adaptadores/casts.
-
-#### Scenario: S6 — Decisiones evaluables B06
-- Given lectura/umbral producen ACTIVA o INACTIVA.
-- When el consumidor adapta esa decisión.
-- Then MUST emitir true/false a ambas salidas sin dependencia inversa del servicio.
-
-#### Scenario: S7 — Ausencia/error de B06
-- Given alarma previamente solicitada activa y luego lectura ausente/errónea.
-- When la decisión no es evaluable.
-- Then MUST conservar diagnóstico sin llamar salidas ni afirmar nueva aplicación.
-
-#### Scenario: S9 — Composición directa con B12
-- Given interfaz con LED_Write/Buzzer_Write y doble host de API GPIO.
-- When Driver_Alarmas aplica true/false.
-- Then MUST conservar polaridades y pines ajenos, sin contexto/casts/adaptadores.
-
-### Requirement: SA4 — Evidencia y límites
-
-B07-R1 MUST pasar host/sanitizadores, build/fixture ARM y Doxygen con USW existente.
-MUST preservar Drivers y lógica B06/B12. MUST NOT inicializar/integrar main o añadir
-GPIO/polaridad/fallos eléctricos al servicio, alarmas nuevas, timeout o regulación.
-
-#### Scenario: S8 — Verificación
-- Given contrato y consumidores migrados.
-- When se ejecutan controles y se revisa diff.
-- Then MUST registrar evidencia por escenario separando host, build ARM y placa pendiente.
+#### Scenario: S2 — Polaridad real (`b12.dispositivos_gpio` S9)
+- Given `LED.c` y `Buzzer.c` reales sobre GPIO emulado.
+- When se aplica el servicio.
+- Then activa MUST dar P0.22 bajo y P2.7 alto; inactiva lo inverso; sin tocar otros pines.

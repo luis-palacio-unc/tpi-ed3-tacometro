@@ -1,154 +1,71 @@
 # Comunicación — contrato vigente
 
-Origen: R09, R14 y soporte de R06. Alcance autorizado el 2026-11-06.
-B02 aceptado/archivado el 2026-11-06; B09 aceptado/archivado el 2026-11-09.
-B09 agrega R10/R11/R15 y telemetría lógica; UART/transmisión física pendientes.
+Origen: R09, R14 y soporte de R06. Contratos anteriores en el historial archivado.
+
+B18 (integración I1–I5) aceptado por el usuario el 2026-11-11 sobre e3d3bce; contrato
+sincronizado desde el delta del cambio. Verificado en host y por compilación/enlace ARM;
+aceptación física en placa pendiente.
+[Evidencia](../../changes/archive/2026-11-11-b18-integracion/verify-report.md).
 
 ## Requirements
 
-### Requirement B02-R1: Gramática y rango
-El servicio MUST aceptar exactamente ASCII `RPM ` seguido de 1..3 dígitos decimales
-y LF o CRLF; MAY incluir ceros iniciales. El valor MUST pertenecer a 0..185 RPM.
-MUST NOT aplicar signos, espacios extra, fracciones, caracteres de control o saturación.
+### Requirement: CO1 — Recepción de consignas
+`Servicios/Comunicacion` MUST exponer `void Comunicacion_Init(void)` (llama
+`UART0_Init` y vacía la línea) y `bool Comunicacion_RecibirConsigna(uint32_t *rpm)`.
+Ésta MUST consumir bytes con `UART_Read` y devolver true con cada línea completa
+`RPM`, un espacio, 1 a 3 dígitos decimales, CR opcional y LF, con valor 0..185
+(`TPI_RPM_MAX`); ceros a la izquierda permitidos. Toda otra línea, incluida la de
+más de 8 bytes antes del LF, MUST descartarse entera sin afectar a la siguiente.
+MUST entregar una consigna por llamada, en orden, conservar la línea parcial entre
+llamadas y devolver false, sin escribir el destino, cuando no quedan bytes.
 
-#### Scenario S1: Tramas válidas
-- GIVEN tramas con 0/001/184/185, LF o CRLF
-- WHEN se reciben completas
-- THEN se produce exactamente un evento válido por trama, con su valor entero.
+#### Scenario: S1 — Consignas válidas (`i2.comunicacion`)
+- Given `RPM 0`, `RPM 7`+CRLF, `RPM 100`, `RPM 184`, `RPM 185`+CRLF y `RPM 007`.
+- When se recibe cada una.
+- Then MUST entregar 0, 7, 100, 184, 185 y 7, una vez cada una.
 
-#### Scenario S2: Entrada inválida
-- GIVEN negativos, 186/999, exceso de dígitos, texto, NUL u otros bytes no admitidos
-- WHEN se completa o desborda su trama
-- THEN error explícito y ningún evento aplicable, sin conversiones indefinidas.
+#### Scenario: S2 — Líneas inválidas (`i2.comunicacion`)
+- Given `RPM 186`, `RPM 999`, `RPM 1000`, `RPM x`, `RPM 1x`, `RPM `, `RPM`,
+  dos espacios, minúsculas, `RPM=10`, `RPM -1`, espacio final o inicial, línea
+  vacía, CR solo, doble CR y líneas largas.
+- When se recibe cada una seguida de `RPM 42`.
+- Then la inválida MUST NOT entregar consigna y `RPM 42` MUST entregarse.
 
-### Requirement B02-R2: Recepción incremental y orden
-El servicio MUST aceptar bytes fragmentados o consecutivos y MUST NOT emitir eventos
-incompletos. Cada byte MUST llevar una secuencia global estrictamente creciente,
-asignada externamente al recibirlo. El evento MUST conservar la marca del LF final;
-extraerlo de la cola MUST NOT generar otra marca ni aceptar autoridad de la PC.
+#### Scenario: S3 — Línea partida y varias (`i2.comunicacion`)
+- Given una consigna que llega en tres tramos, y `RPM 10`, `RPM 300`, `RPM 20` y
+  un tramo parcial en una sola ráfaga.
+- When se llama repetidamente.
+- Then MUST entregar 123 al completarse; luego 10 y 20, y completar la parcial después.
 
-#### Scenario S3: Fragmentación y cola
-- GIVEN una trama parcial o varias completas sin consumir
-- WHEN se completan y extraen eventos
-- THEN FIFO, sin duplicados; marcas originales del LF conservadas.
+### Requirement: CO2 — Descarte
+MUST exponer `void Comunicacion_Descartar(void)`, que vacía la línea parcial y
+retira sin interpretar todos los bytes pendientes de `UART_Read`.
 
-#### Scenario S4: Orden inválido
-- GIVEN byte con secuencia repetida/regresiva, incluido rollover
-- WHEN se recibe
-- THEN error de orden, preservar último orden confiable y cola previa; descartar la
-  trama afectada hasta LF y permitir recepción posterior correctamente ordenada.
+#### Scenario: S4 — Descartar (`i2.comunicacion`)
+- Given una línea parcial `RPM 1`, o `RPM 60\nRPM 7` sin procesar.
+- When se descarta y luego llegan `50\n` o `0\n`.
+- Then MUST NOT entregarse ninguna consigna; una línea completa posterior MUST entregarse.
 
-### Requirement B02-R3: Límites y recuperación
-El buffer MUST contener como máximo 8 bytes antes de LF (incluye CR opcional), y
-la cola MUST contener 4 eventos. No heap. Un noveno byte no LF MUST señalar longitud
-excesiva y descartar hasta LF. Cola llena MUST rechazar la nueva trama completa,
-conservar FIFO previa y señalar error; no sobrescribir eventos.
+### Requirement: CO3 — Telemetría
+MUST exponer `bool Comunicacion_EnviarTelemetria(uint32_t rpm_milesimas, int32_t
+temperatura_centesimas, Comunicacion_Estado estado)`. MUST entregar a `UART_Write`
+exactamente `RPM=<n>.<3 dígitos>;TEMP=[-]<n>.<2 dígitos>;ESTADO=MANUAL|AUTO_ESPERA|
+AUTO_ACTIVO\n` (formato B09 con datos válidos), sin ceros a la izquierda en la
+parte entera, sin NUL, de 53 bytes como máximo. MUST devolver true sólo si la
+UART aceptó la trama completa. Sin float ni libc. `ND`/`ERR` dejan de existir.
 
-#### Scenario S5: Trama demasiado larga
-- GIVEN exceso de longitud seguido de un sufijo que parece comando
-- WHEN se recibe hasta LF y luego otra trama válida
-- THEN el sufijo no se interpreta; la trama válida siguiente se procesa normalmente.
+#### Scenario: S5 — Trama exacta (`i2.comunicacion`)
+- Given (0; 0; MANUAL), (100000; 2500; AUTO_ACTIVO), (2000; 4501; AUTO_ESPERA),
+  (185007; 5), (1; −50), (12340; −1234), (UINT32_MAX; INT32_MIN) y (0; INT32_MAX).
+- When se envía.
+- Then MUST escribirse `RPM=0.000;TEMP=0.00;ESTADO=MANUAL\n`,
+  `RPM=100.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n`,
+  `RPM=2.000;TEMP=45.01;ESTADO=AUTO_ESPERA\n`, `RPM=185.007;TEMP=0.05;…`,
+  `RPM=0.001;TEMP=-0.50;…`, `RPM=12.340;TEMP=-12.34;…`,
+  `RPM=4294967.295;TEMP=-21474836.48;ESTADO=AUTO_ACTIVO\n` (53 bytes) y
+  `RPM=0.000;TEMP=21474836.47;…`.
 
-#### Scenario S6: Cola llena
-- GIVEN cuatro eventos pendientes
-- WHEN llega un quinto, se libera espacio y llega otro
-- THEN se rechaza el quinto y los anteriores se conservan; el siguiente se encola.
-
-### Requirement B02-R4: API y capas
-API MUST inicializar, recibir bytes y extraer eventos propios del servicio; MUST
-informar argumentos nulos y cola vacía sin consumir datos indebidamente. Llamadas
-MUST estar serializadas y el contexto inicializado; reiniciar purga cola/trama.
-El límite RPM MUST tener una fuente común sin dependencia Servicios→Aplicacion.
-
-#### Scenario S7: Errores y reinicio
-- GIVEN cola vacía, parámetros NULL, dos contextos o un reinicio
-- WHEN se invoca la API
-- THEN resultados explícitos, sin accesos inválidos, mezcla de instancias o datos previos.
-
-#### Scenario S8: Integración B01
-- GIVEN evento completado antes de entrar en automático, extraído después
-- WHEN la aplicación lo adapta a B01
-- THEN no habilita automático; otra trama recibida después sí puede habilitarlo.
-
-### Requirement B02-R5: Evidencia y USW
-
-El código MUST compilar/enlazar en C11 host/ARM y documentar ESW/USW con Doxygen.
-MUST preservar recepción B02. B09 MAY codificar telemetría lógica; MUST NOT acceder
-a UART física, ISR, PWM, envío/colas TX, periodicidad o main de producción.
-
-#### Scenario S9: Verificación
-- Given recepción B02 y codificación B09 implementadas.
-- When se ejecutan host/sanitizadores, enlace ARM, regresiones y Doxygen.
-- Then MUST pasar sin confundir codificación/ejecución host con transmisión física.
-
-### Requirement: CT1 — Formato y unidades
-
-MUST codificar ASCII `RPM=<r>;TEMP=<t>;ESTADO=<e>\n`, sin espacios ni CR.
-RPM válido recibe uint32_t milésimas, muestra tres decimales, sin recortar a 185.
-Temperatura válida recibe int32_t centésimas Celsius, muestra dos decimales y
-signo sólo si negativa. Parte entera sin ceros extra; fracciones con ceros iniciales.
-ESTADO MUST ser MANUAL, AUTO_ESPERA o AUTO_ACTIVO. Longitud MUST incluir LF y excluir
-NUL final. El máximo MUST ser 53 bytes de trama y 54 de almacenamiento con NUL.
-
-#### Scenario: B09-S1 — Formato y estados
-- Given 123456 milésimas, 2534 centésimas y estado MANUAL.
-- When se codifica, incluyendo variantes de estado/decimales/cero.
-- Then MUST producir `RPM=123.456;TEMP=25.34;ESTADO=MANUAL\n` y variantes exactas.
-
-#### Scenario: B09-S2 — Fronteras numéricas
-- Given UINT32_MAX y temperaturas INT32_MIN/MAX o -1 centésima.
-- When se codifica con capacidad suficiente.
-- Then MUST representar 4294967.295, -21474836.48, 21474836.47 o -0.01 exactamente, sin UB.
-
-### Requirement: CT2 — Disponibilidad y estado
-
-RPM/temperatura MUST tener validez propia: VALIDO, SIN_DATOS o ERROR.
-MUST emitir ND/ERR para SIN_DATOS/ERROR, ignorando el campo numérico; cero válido
-MUST permanecer 0.000/0.00. Estado/validez desconocidos MUST producir ERROR_ESTADO.
-MUST recibir estados propios de comunicación, sin depender de Aplicacion/sensores.
-
-#### Scenario: B09-S3 — Ausencia y fallo
-- Given todas las combinaciones de disponibilidad de ambas lecturas.
-- When se codifica.
-- Then MUST distinguir números válidos, ND y ERR sin reutilizar medidas anteriores.
-
-### Requirement: CT3 — Buffer, validación y recuperación
-
-MUST recibir instantánea const, buffer/capacidad y longitud escribible no solapados.
-Prioridad MUST ser punteros requeridos NULL, estados desconocidos y capacidad
-insuficiente. Capacidad cero MUST producir ERROR_CAPACIDAD con punteros/estados válidos.
-MUST devolver resultado completo, sin trama parcial utilizable. En error MUST
-poner longitud cero si existe y buffer[0]=NUL si buffer existe/capacidad>0;
-sin acceso fuera de capacidad ni modificación adicional de destino ante error.
-El llamador MUST garantizar memoria válida/coherente y acceso serializado.
-
-#### Scenario: B09-S4 — Argumentos y estados inválidos
-- Given NULL o estado desconocido junto con capacidad insuficiente.
-- When se codifica.
-- Then MUST respetar prioridad y limpiar salidas escribibles sin acceso inválido.
-
-#### Scenario: B09-S5 — Capacidades exactas
-- Given trama de N bytes y destino protegido por canarios.
-- When capacidad es 0..N o N+1.
-- Then MUST rechazar 0..N limpiando sólo salidas permitidas; N+1 produce trama/NUL completos.
-
-#### Scenario: B09-S6 — Recuperación e independencia
-- Given buffers independientes y una solicitud errónea seguida de válida/repetida.
-- When se codifican ambas.
-- Then MUST recuperar, preservar entrada y el otro buffer, sin estado compartido.
-
-### Requirement: CT4 — Composición y evidencia
-
-MUST usar C11 sin heap, flotantes, esperas, configuración de MCU ni dependencia
-Servicios→Aplicacion. Adaptación B01/B03/B05 MUST permanecer en pruebas/fixture.
-MUST conservar contratos/pruebas RX, pasar host/san/ARM/Doxygen y documentar USW.
-
-#### Scenario: B09-S7 — Integración lógica y recepción
-- Given magnitudes B03/B05, estado B01 y recepción B02 parcial/con eventos.
-- When se adaptan/codifican instantáneas.
-- Then MUST obtener tramas correctas conservando FIFO, parser, órdenes y decisiones B01.
-
-#### Scenario: B09-S8 — Evidencia reproducible
-- Given implementación y controles anteriores preservados.
-- When se ejecutan pruebas, enlace, documentación y revisión de recursos/diff.
-- Then MUST registrar evidencia real; UART/main/transmisión física siguen pendientes.
+#### Scenario: S6 — Sin lugar en transmisión (`i2.comunicacion`)
+- Given una UART que acepta 33 o 34 bytes y una trama de 34.
+- When se envía.
+- Then MUST devolver false con 33 y true con 34.

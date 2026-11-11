@@ -1,111 +1,76 @@
 # Regulación de velocidad — contrato vigente
 
-Origen R04/R06/R10/R11/R14/R15, ESW.2.1.2. B17 aceptado por el usuario el 2026-11-11,
-sobre implementación 8f1793f36be1c73e63d8e8f0bbc9ca26852d244a. Reauditoría Claude r2: APROBAR, sin hallazgos nuevos.
-Alcance lógico; cadencia real, integración y funcionamiento físico pendientes.
-[Diseño aceptado](../../changes/archive/2026-11-11-b17-regulador-velocidad/design.md)
-y [evidencia de aceptación](../../changes/archive/2026-11-11-b17-regulador-velocidad/verify-report.md).
+Origen R04/R06/R10/R11/R14/R15, ESW.2.1.2. Contratos anteriores en el historial archivado.
+
+B18 (integración I1–I5) aceptado por el usuario el 2026-11-11 sobre e3d3bce; contrato
+sincronizado desde el delta del cambio. Verificado en host y por compilación/enlace ARM;
+aceptación física en placa pendiente.
+[Evidencia](../../changes/archive/2026-11-11-b18-integracion/verify-report.md).
 
 ## Requirements
 
-### Requirement: RV1 — PI discreto y unidades
+### Requirement: RG1 — Paso del PI
+`Aplicacion/Procesamiento` MUST exponer
+`uint16_t Procesamiento_Regular(uint32_t consigna_rpm, uint32_t rpm_milesimas)`
+(USW.2.1.2.9). Un paso representa 500 ms. Error = consigna × 1000 − medición, en
+milésimas de RPM, sin recortar la medición. Mando = Kp × error + integral,
+limitado a 0..1000 y redondeado una sola vez al más cercano (el empate sube).
+Las ganancias MUST ser las fracciones `TPI_CONTROL_KP_NUM/KP_DEN` y
+`TPI_CONTROL_KI_NUM/KI_DEN` de `Control.h`. Sin coma flotante; aritmética de 64
+bits sin desborde para cualquier entrada de 32 bits.
 
-MUST exponer inicializar/regular/reiniciar aparte de B01. Un paso representa 500 ms.
-Entradas: consigna uint32_t RPM y lectura B03 uint32_t milésimas, sin recortarla a 185.
-PI MUST usar ganancias num/den positivas discretizadas para 500 ms, mando uint16_t 0..1000;
-sin float/reloj.
+#### Scenario: S1 — Paso y empate (`b17.regulador`)
+- Given integral en cero y ganancias por defecto (Kp 4/1000, Ki 1/1000).
+- When regula 100 RPM dos veces con medición 0; y, desde cero, 1 RPM con 875 y 876.
+- Then MUST dar 400 y 500; 1 (empate 0,5) y 0.
 
-#### Scenario: S1 — Paso y saturación
+### Requirement: RG2 — Integral y anti-windup
+Después de calcular el mando con la integral previa MUST sumar Ki × error a la
+integral, limitada a 0..1000, excepto si el mando sin limitar es ≥ 1000 con error
+positivo o ≤ 0 con error negativo: entonces MUST conservarla.
 
-- Given instancia nueva con defaults; otra con Kp=Ki=1/1000, lectura válida500milésimas.
-- When primera regula100RPM dos veces con medición0; segunda regula1RPM.
-- Then MUST dar400/500 (I100/200), y1 en empate0,5; siempre0..1000.
+#### Scenario: S2 — Desaturación (`b17.regulador`)
+- Given 185 RPM con medición 0: dos pasos (740, 925) y 40 pasos saturados en 1000.
+- When la consigna baja a 100 con igual medición.
+- Then MUST dar 770; con medición `UINT32_MAX` 0, y luego 870.
 
-### Requirement: RV2 — Redondeo y anti-windup
+#### Scenario: S3 — Mando exactamente cero (`b17.regulador`)
+- Given cuatro pasos de 1 RPM con medición 0 (integral 4).
+- When mide 2000 y luego 1000 milésimas.
+- Then MUST dar 0 sin integrar y luego 4.
 
-Salida MUST usar integral previa y redondear al cercano/empate arriba tras limitar
-PI a 0..1000. Sólo con dato válido MUST integrar después, limitando integral a 0..1000,
-excepto si PI sin limitar≥1000/error positivo o≤0/error negativo: MUST congelar.
+### Requirement: RG3 — Reinicio
+La integral vive en memoria estática y MUST quedar en cero con consigna 0 (mando
+0), con `Procesamiento_InicializarModo` y con `Procesamiento_ActualizarModo` en
+modo MANUAL. Una consigna nueva en automático MUST NOT borrarla.
 
-#### Scenario: S2 — Desaturación
+#### Scenario: S4 — Reinicios (`b17.regulador`, `i2.aplicacion` S4)
+- Given integral distinta de cero.
+- When llega consigna 0, o modo MANUAL, o se inicializa el modo.
+- Then el siguiente paso de 100 RPM con medición 0 MUST dar 400; tras una consigna
+  nueva en automático MUST dar 500.
 
-- Given 185 RPM/medición 0 válida, dos pasos previos y 40 pasos saturados.
-- When consigna baja a 100 con igual medición.
-- Then MUST devolver 770 en 1 paso; quitar sólo anti-windup MUST hacer fallar la prueba.
+### Requirement: RG4 — Configuración
+`Control.h` MUST proteger cada componente de ganancia en 1..1000 con
+`#ifndef`/valor por defecto/`#error`, y `TPI_CONTROL_PERIODO_MS` MUST ser 500. Los
+valores por defecto son provisionales hasta sintonizar con el motor.
 
-### Requirement: RV3 — Retención y reinicio
+#### Scenario: S5 — Probes (`b17.configuracion_control`)
+- Given 4 configuraciones válidas y 18 inválidas (0, −1, 1001, `UINT32_MAX` por
+  componente; periodo 499 y 1000).
+- When se compilan.
+- Then las válidas MUST compilar con sus valores y las inválidas fallar con el
+  `#error` de su macro.
 
-Estado distinto de VALIDA MUST ignorar valor recibido y reutilizar última válida
-hasta N fallos consecutivos, sin integrar. Válida nueva MUST reemplazar historia/resetear
-contador. Sin historia o en N+1 MUST emitir 0/reiniciar integral, historia y contador.
-Reiniciar MUST preservar configuración y descartar historia; instancias independientes.
+### Requirement: RG5 — Evidencia
+Un oráculo racional independiente MUST coincidir paso a paso con el C para 8
+juegos de ganancias compilados aparte, incluidos dos con Ki > Kp que alcanzan los
+límites de la integral. Con las ganancias por defecto, la planta de prueba MUST
+cumplir sobrepico ≤ 10 % del escalón y establecimiento ≤ 20 pasos a ±2 RPM en
+0→100→185. El fixture ARM `b17.enlace_arm` MUST enlazar sólo
+`Procesamiento_Regular`, sin auxiliares de coma flotante.
 
-#### Scenario: S3 — Límites y recuperación
-
-- Given N=4 e historia válida; estados SIN_DATOS, errores o desconocidos.
-- When se recorren rachas hasta N/N+1 y se intercala una válida.
-- Then MUST congelar I hasta N; N+1 borra/da0; válida antes preserva I, después empieza en0.
-
-#### Scenario: S4 — Sin historia y reinicio
-
-- Given arranque, reinicio, o N=1/65535.
-- When llegan inválidas y se cruza el límite.
-- Then MUST respetar N/N+1 sin wrap; sin historia siempre 0; otra instancia intacta.
-
-### Requirement: RV4 — Errores y configuración
-
-Prioridad MUST ser NULL→configuración→consigna>185→consigna 0→medición.
-Errores propios MUST dar mando escribible 0/reinicio dinámico. Consigna 0 MUST devolver PARADO/0
-y reiniciar sin usar medición. Control.h MUST proteger componentes1..1000/N1..65535 con #ifndef/default/#error;
-runtime MUST validar iguales cotas. TPI_CONTROL_PERIODO_MS=500 MUST ser constante
-contractual: cambiarla exige recalcular ganancias/revisar contrato. Defaults
-provisionales; configuración inválida MUST deshabilitar instancia.
-
-#### Scenario: S5 — Prioridades
-
-- Given NULL, init fallida, consigna 186/MAX/0 y medición no válida combinados.
-- When se inicializa/regula/reinicia.
-- Then MUST respetar prioridad, borrar mando previo y recuperar tras init válida.
-
-#### Scenario: S6 — Representabilidad
-
-- Given medición 0/185000/185001/UINT32_MAX y ganancias extremas admitidas.
-- When regula y compila probes inválidos.
-- Then MUST evitar UB, conservar dominio medido y rechazar configuración por diagnóstico específico.
-
-### Requirement: RV5 — Composición y desempeño simulado
-
-Fixture MUST componer B01+PI+Driver_Motor; CERO/MANUAL reinician PI; sólo AUTOMATICA
-regula. MUST preservar espera/nueva consigna B01, sin enviar RPM como PWM.
-Modelo entero fijado MUST lograr sobrepico≤10% del escalón y establecimiento
-≤20 pasos/±2 RPM, confirmado; MUST NOT presentarse como sintonía física.
-
-#### Scenario: S7 — Transiciones
-
-- Given manual→auto→consigna→manual→reentrada y proveedor fallido.
-- When fixture selecciona/emite.
-- Then MUST enviar un mando/cero por selección, reiniciar historia y observar retorno del servicio.
-
-#### Scenario: S8 — Escalones
-
-- Given modelo/ganancias/horizonte de verify-report, escalones 0→100→185.
-- When simula 200 pasos.
-- Then MUST cumplir métricas fijadas por escalón, sin reajustarlas después.
-
-### Requirement: RV6 — Evidencia
-
-MUST pasar Fraction, host/san, ARM sin float, Doxygen USW desde .8 y conservar
-Drivers/servicios/B01/B06/specs aceptadas. Mutar redondeo externamente MUST hacer
-fallar S1 u oráculo.
-
-#### Scenario: S9 — Oráculo
-
-- Given secuencias deterministas/aleatorias y configuración de verify-report.
-- When compara cada paso C/Fraction.
-- Then MUST coincidir estado/mando/integral/historia/contador exactamente.
-
-#### Scenario: S10 — Regresiones y modalidades
-
-- Given implementación futura y 29 suites host/13 controles ARM previos.
-- When ejecuta verificaciones nuevas y anteriores.
-- Then MUST pasar sin omisiones, registrar recursos/diff y dejar hardware pendiente.
+#### Scenario: S6 — Oráculo y planta (`b17.oraculo_planta`)
+- Given secuencias deterministas y aleatorias por juego de ganancias.
+- When se compara cada mando con el de la referencia en fracciones.
+- Then MUST coincidir en todos los pasos y cumplir las métricas de la planta.

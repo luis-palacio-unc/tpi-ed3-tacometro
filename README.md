@@ -440,6 +440,6 @@ Aceptado sobre8f1793f el 2026-11-11; reauditoría r2 APROBAR, sin hallazgos nuev
 Reemplazado en la integración (B18/I5): queda sólo
 `uint16_t Procesamiento_Regular(consigna_rpm, rpm_milesimas)`, sin instancia,
 estados ni retención; `scripts/verificar_b17.py` se eliminó. Ver
-[delta](openspec/changes/b18-integracion/specs/regulacion-velocidad/spec.md).
+[contrato vigente](openspec/specs/regulacion-velocidad/spec.md).
 Cierre/publicación autorizados. La integración queda a cargo de Claude; Codex no
 inicia otro bloque. Cadencia real y pruebas físicas pendientes.

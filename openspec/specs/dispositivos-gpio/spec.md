@@ -3,6 +3,11 @@
 Origen: R05/R07/R10/R11/R15 y aclaraciones del usuario. B12 corregido aceptado
 el2026-11-10; implementación4260249 y corrección92b4d62. Integración física pendiente.
 
+B18 (integración I1–I5) aceptado por el usuario el 2026-11-11 sobre e3d3bce; contrato
+sincronizado desde el delta del cambio. Verificado en host y por compilación/enlace ARM;
+aceptación física en placa pendiente.
+[Evidencia](../../changes/archive/2026-11-11-b18-integracion/verify-report.md).
+
 ## Requirements
 
 ### Requirement: DG1 — Contacto del selector
@@ -39,16 +44,31 @@ de salidas-alarma; se verificó en host. La llamada desde aplicación/main queda
 para integración final. MUST NOT introducir adaptadores ni casts de funciones.
 
 ### Requirement: DG3 — Capas y alcance
-Dispositivos MUST interactuar con hardware mediante los drivers originales,
-reutilizando sus operaciones sin duplicar lógica de acceso o crear otra capa genérica.
-Aplicación/servicios MUST conservar independencia del micro y contratos lógicos.
-Biblioteca Drivers MUST conservarse byte a byte. MUST documentar USW y mantener
-regresiones/build de módulos. MUST NOT inicializar GPIO/PINSEL/clock, enlazar
-periféricos al arranque ni cambiar main/servicios/contratos aceptados en este bloque.
-Configuración previa de GPIO/dirección/polarización y FIOMASK habilitando esos bits
-MUST ser precondición externa; uso serializado. No garantizar estado antes de configurar.
+Dispositivos MUST interactuar con hardware mediante los drivers originales, sin
+duplicar lógica de acceso. Biblioteca Drivers MUST conservarse byte a byte.
+Selector_Read, LED_Write y Buzzer_Write MUST exigir su inicialización previa; uso
+serializado. FIOMASK en su valor de reset es precondición. (Antes: MUST NOT
+inicializar GPIO/PINSEL; configuración como precondición externa.)
 
 #### Scenario: S4 — Evidencia limitada
-- Given wrappers compilados y GPIO emulado en pruebas host.
-- When se verifica polaridad, bits y documentación.
-- Then MUST distinguir esa evidencia de funcionamiento eléctrico/inicialización en placa.
+- Given wrappers e inicializaciones compilados y GPIO/PINSEL emulados en host.
+- When se verifica polaridad, bits, dirección y documentación.
+- Then MUST distinguir esa evidencia del funcionamiento eléctrico en placa.
+
+### Requirement: DG4 — Inicialización de pines
+MUST exponer void Selector_Init(void), void LED_Init(void) y void Buzzer_Init(void),
+con PINSEL_ConfigPin y GPIO_SetDir originales. Selector: P2.6 función 00, pull-up
+interno, entrada (llave a GND: abierta lee 1). LED: P0.22 función 00, sin
+resistencias, nivel 1 (apagado) cargado antes de pasar a salida. Buzzer: P2.7
+función 00, sin resistencias, nivel 0 cargado antes de pasar a salida. Cada init
+MUST tocar sólo su pin. La interpretación del selector MUST quedar fuera.
+
+#### Scenario: S5 — Selector
+- Given PINSEL y GPIO emulados.
+- When se llama Selector_Init.
+- Then MUST pedir pull-up y entrada en P2.6 sin escribir niveles.
+
+#### Scenario: S6 — Salidas sin transitorio activo
+- Given puertos con patrones distintos en los pines vecinos.
+- When se llama LED_Init y Buzzer_Init.
+- Then el nivel inactivo MUST estar cargado al cambiar la dirección, y los vecinos intactos.

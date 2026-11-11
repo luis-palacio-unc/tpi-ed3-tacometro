@@ -189,5 +189,5 @@ S2–S4). R04: PI de B17 compuesto en `main` (`i2.aplicacion` S1/S7). R07:
 R11: 60 funciones documentadas, USW nuevos sin reutilizar retirados. R01: firmware
 enlazado con la biblioteca, 19 636 B de flash en Debug. Los contratos B01–B10 de
 servicios y aplicación quedan como historial; evidencia en el
-[informe B18](../../openspec/changes/b18-integracion/verify-report.md), sección I2.
+[informe B18](../../openspec/changes/archive/2026-11-11-b18-integracion/verify-report.md), sección I2.
 Todo en host/ARM estático; aceptación física pendiente (I4).

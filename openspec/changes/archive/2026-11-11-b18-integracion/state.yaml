@@ -1,16 +1,18 @@
 block: B18
 change: b18-integracion
-status: in_progress
-phase: apply
+status: archived
+phase: archive
 proposed_on: '2026-11-11'
 updated_on: '2026-11-11'
 base_commit: 60727625d59aeeb076f17b51bda58e5e06aebc40
 fast_track_approved_by_user: true
 scope_approved: true
 implementation_started: true
-result_accepted: false
-main_specs_synced: false
-change_archived: false
+result_accepted: true
+result_accepted_on: '2026-11-11'
+result_accepted_commit: e3d3bce
+main_specs_synced: true
+change_archived: true
 stages:
   I1: reviewed_committed_ff07e3e
   I2: reviewed_committed_e3a279c
@@ -83,6 +85,6 @@ i3_debug_probe_verified: false
 drivers_modification_prohibited: true
 drivers_unchanged: true
 hardware_acceptance_pending: true
-commit_authorized: false
-push_authorized: false
-next_action: Importacion por la interfaz y puesta en marcha I4 a cargo del usuario; luego sincronizar specs y archivar.
+commit_authorized: true
+push_authorized: true
+next_action: Puesta en marcha en placa (I4) a cargo del usuario; los ajustes que surjan van en un cambio nuevo.
