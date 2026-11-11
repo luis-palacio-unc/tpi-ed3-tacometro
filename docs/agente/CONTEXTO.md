@@ -37,7 +37,7 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 
 - Aplicacion: main y Procesamiento; Servicios: Medicion_Velocidad, Temperatura,
   Mandos, Driver_Alarmas, Comunicacion y Driver_Motor; Dispositivos: los 8 del anexo B.
-  Tiempo es el wrapper candidato agregado en B11, extension local del servicio temporal.
+  Timer de B11 es el wrapper de base temporal en Dispositivos; Tiempo fue descartado.
 - Aplicación accede a dispositivos sólo mediante servicios. Procesamiento integra
   modos y regulación; Driver_Motor es el intermediario para accionar el motor.
 - Soporte compartido aceptado por el usuario: ADC/DMA y base de tiempos, dentro
@@ -341,10 +341,18 @@ no aplicado al hardware. PinConfig/Init/reloj/formato/FIFO/DLAB y exclusividad p
 al uso físico se resolverán en integración final. Sin servicios/main/colas/ISR
 nuevos ni cambios en Drivers. Diagnóstico de línea y cableado/conversor pendientes.
 
-B14 con alcance/TIMER1/CAP1.0/P1.18 acordados2026-11-10, implementado/verificado;
-resultado pendiente de aceptación. SensorOptico_Read devuelve eventos uint32_t
+B14 aceptado/archivado2026-11-10; contrato sensor-optico sincronizado.
+Recurso acordado TIMER1/CAP1.0/P1.18, lectura implementada/verificada.
+SensorOptico_Read devuelve eventos uint32_t
 acumulados con TIM_ReadTimer(LPC_TIM1), sin escala/recorte/reset/IRQ/estado propio.
 Un flanco ascendente por ranura, función11; TIMER0 y B03 intactos. Referencias y
 resta modular sólo en fixture de composición: misma época, menos de2^32 eventos
 entre muestras; nueva referencia tras reinicio. Host no acredita conteo del XD-51.
 Configuración/arranque/CCR, señal/cableado y ventanas/main para integración final.
+
+B15 propuesto, sin acuerdo/código/pruebas: Motor_Write(mando_por_mil,periodo_ticks)
+validará/convertirá a PWM1.1/P2.0 mediante PWM_MatchUpdateSingle original.
+Período coherente externo; bool por rechazo de entradas, sin diagnóstico eléctrico.
+Frecuencia/configuración/potencia y adaptación B08/main para integración final.
+El usuario autorizó publicar los commits pendientes junto con cierre B14/propuesta B15;
+publicaciones futuras requieren autorización independiente.

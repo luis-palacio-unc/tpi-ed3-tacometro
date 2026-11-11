@@ -8,7 +8,7 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | ID / fuente | Requisito | Bloque | Archivos principales | Evidencia de aceptación |
 |---|---|---|---|---|
 | R01 AP | Ejecutar firmware en LPC1769/OM13085 | B00 aceptado: base de build | CMakeLists.txt, Aplicacion/main.c, cmake/, plataforma/ | S1/S3/S5/S6 PASS de build/inspección (verify-report B00); ejecución física pendiente |
-| R02 AP/APA | Medir RPM con disco de 60 ranuras | B03 aceptado/archivado; revisión B03-R1 aceptada/archivada; captura pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | B03-R1 S1–S10 PASS, 23 casos + oráculo 11199; revisión aceptada; señal real pendiente |
+| R02 AP/APA | Medir RPM con disco de 60 ranuras | B03/B03-R1 y B14 aceptados/archivados; conteo físico pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | B03-R1 S1–S10 PASS, 23 casos + oráculo 11199; revisión aceptada; señal real pendiente |
 | R03 AP | Potenciómetro determina PWM en manual | B04 aceptado para normalización; B08 aceptado/archivado para mando portable; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.* | B04 S1–S7 PASS host/enlace ARM (verify-report archivado); ADC/PWM físicos pendientes |
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; B10 aceptado/archivado para selector estable | Aplicacion/Procesamiento.*, Servicios/Mandos.* | B01 S1/S2 y B10 SE1–SE4 PASS lógico; integración física pendiente |
@@ -18,7 +18,7 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 aceptado/archivado para codificación lógica TX; B13 aceptado para operaciones UART; integración/envío físico pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 RX y B09 CT1–CT4 PASS lógico; UART/envío físicos pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11–B13 aceptados:40 funciones/USW y Doxygen estricto PASS; resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11–B14 aceptados:41 funciones/USW y Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -122,9 +122,15 @@ y oráculo; ARM13/13/O0/O2; Doxygen40. Parámetro/pinmux aún sin aplicar; integ
 ensayo físico pendientes, Drivers/servicios intactos.
 [Evidencia](../../openspec/changes/archive/2026-11-10-b13-dispositivo-uart/verify-report.md).
 
-B14 alcance/TIMER1/CAP1.0/P1.18 acordados, implementado/verificado, sin aceptar
+B14 aceptado/archivado2026-11-10, contrato sensor-optico sincronizado
 (R02/R04/R09/R10/R11/R15): lectura acumulada sin reset/RPM/ventanas. Sensor actual
 XD-51 confirmado por usuario, sustituye HC-89; características eléctricas pendientes.
 SO1–SO4/S1–S5 conformes:6 casos nuevos, host/san20/20,200 C+oráculo; ARM13/13/
 objetoO0/O2 y Doxygen41. Timer/B03/Drivers intactos. Adquisición/integración físicas
-pendientes. [Evidencia](../../openspec/changes/b14-sensor-optico-contador/verify-report.md).
+pendientes. [Evidencia](../../openspec/changes/archive/2026-11-10-b14-sensor-optico-contador/verify-report.md).
+
+B15 propuesto (R03/R06/R10/R11/R15), sin acuerdo/implementación/evidencia:
+Motor.h/.c, mando por mil y período explícito hacia PWM1.1/P2.0 propuestos.
+MD1–MD4/S1–S5 candidatos; pruebas de conversión/despacho previstas, no ejecutadas.
+Frecuencia/PWM físico/potencia/servicio/main pendientes.
+[Propuesta](../../openspec/changes/b15-dispositivo-motor-pwm/proposal.md).

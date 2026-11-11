@@ -1,12 +1,12 @@
 block: B14
 change: b14-sensor-optico-contador
-status: verified_pending_acceptance
-phase: verify
+status: archived
+phase: archive
 scope_approved: true
-result_accepted: false
+result_accepted: true
 implementation_started: true
 verification_passed: true
-main_specs_synced: false
+main_specs_synced: true
 proposed_on: '2026-11-10'
 base_commit: 7409bee
 device_esw: ESW.2.1.10
@@ -17,10 +17,11 @@ pin_function: 3
 edge: rising
 drivers_modification_prohibited: true
 commit_authorized_on_agreed_block_completion: true
-push_authorized: false
+push_authorized: true
 initialization_deferred: true
 hardware_verified: false
-next_action: Revisar/aceptar B14 antes de sincronizar/archivar; integracion para el final, sin push.
+next_action: Proponer y acordar B15 Motor antes de implementar; configuracion e integracion
+  al final.
 scope_approved_on: '2026-11-10'
 sensor_confirmed_by_user: XD-51
 commit_authorized: true
@@ -28,3 +29,7 @@ verified_on: '2026-11-10'
 commit_subject: 'feat: implementar lectura de eventos del sensor optico'
 counter_configured: false
 pinmux_configured: false
+accepted_on: '2026-11-10'
+archived_on: '2026-11-10'
+implementation_commit: 3fa08ea0c2f9feb94431cb851501c113e43329db
+publication_status: Authorized for this closure; Git records publication.

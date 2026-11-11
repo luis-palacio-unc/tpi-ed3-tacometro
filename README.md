@@ -347,8 +347,8 @@ Ver [contrato UART vigente](openspec/specs/uart-dispositivo/spec.md).
 
 ## B14: lectura Sensor_Optico
 
-Alcance/TIMER1/CAP1.0/P1.18 acordados, implementado/verificado; resultado pendiente
-de aceptación. SensorOptico_Read devuelve conteo uint32_t acumulado mediante
+B14 aceptado y archivado el 2026-11-10 para lectura acumulada; contrato sincronizado.
+SensorOptico_Read devuelve conteo uint32_t acumulado mediante
 TIM_ReadTimer(LPC_TIM1), sin reset/ventanas/RPM/ISR/estado propio. TIMER0/base y
 servicio Medicion_Velocidad conservados; composición B03 demostrada sólo en host.
 
@@ -358,6 +358,16 @@ eléctrica, ventana1s y conexión a servicios/main se dejan para integración fi
 
 Host/sanitizadores20/20,200 casos C y oráculo Python;6 casos B14 nuevos. ARM13/13
 y objetoO0/O2 compilados, Doxygen41 funciones sin avisos. Drivers90 originales y
-módulos/contratos aceptados intactos; sin ejecución MCU/ensayos físicos/push.
-Ver [cambio](openspec/changes/b14-sensor-optico-contador/proposal.md) y
-[evidencia](openspec/changes/b14-sensor-optico-contador/verify-report.md).
+módulos/contratos aceptados intactos; sin ejecución MCU/ensayos físicos.
+Ver [cambio](openspec/changes/archive/2026-11-10-b14-sensor-optico-contador/proposal.md) y
+[evidencia](openspec/changes/archive/2026-11-10-b14-sensor-optico-contador/verify-report.md).
+
+Ver [contrato vigente](openspec/specs/sensor-optico/spec.md).
+
+## Propuesta B15: dispositivo Motor
+
+Actualizar PWM1.1/P2.0 mediante driver original. Motor_Write recibirá mando 0..1000
+por mil y período en ticks explícito, validará/convertirá y actualizará sólo el
+match de salida, incluidos 0/100 %. Frecuencia, pinmux/arranque, potencia y conexión
+a Driver_Motor/main quedan para el final. Pendiente de acuerdo, sin código/pruebas B15.
+Ver [propuesta y aceptación](openspec/changes/b15-dispositivo-motor-pwm/proposal.md).
