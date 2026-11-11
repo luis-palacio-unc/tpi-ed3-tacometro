@@ -1,45 +1,50 @@
-# B16 — Lectura del potenciómetro desde datos ADC/DMA
+# B16 — Consultar el valor del potenciómetro
 
-Estado: propuesta pendiente de acuerdo; sin implementación ni pruebas B16.
+Estado: alcance corregido acordado el 2026-11-10; implementado/verificado, resultado pendiente de aceptación.
 
 ## Objetivo y origen
 
-R03/R08/R10/R11/R15: completar la lectura cruda de Potenciometro (ESW.2.1.12)
-sin adelantar inicialización. Añadir sólo la extracción/validación compartida
-necesaria en soporte/Adquisicion_ADC_DMA, reutilizable por LM35 después.
+R03/R08/R10/R11/R15, ESW.2.1.12. El ADC convierte la entrada, el DMA transfiere
+el dato a memoria y Potenciometro ofrece únicamente el valor leído.
+Se retiran las validaciones/estados añadidos en la propuesta anterior.
 
-## Alcance y contratos propuestos
+## Alcance
 
-- AD0.0/P0.23 función01 para potenciómetro, propuesto según manual/driver.
-- ADC_Decode(uint32_t dato_dma,uint8_t canal,uint16_t *muestra): interpretar una
-  palabra ADGDR de un bloque DMA ya completado y estable. Reutilizar macros
-  ADC_GDR_RESULT/CH y flags originales, sin leer de nuevo el periférico.
-- Pot_Read(uint32_t dato_dma,uint16_t *muestra) delega con canal0. Salida cruda
-  0..4095; no normaliza, convierte a tensión/temperatura ni acciona PWM.
-- Retorno ADC_Estado compartido: VALIDA, SIN_DATOS, ERROR_ARGUMENTO,
-  ERROR_OVERRUN, ERROR_CANAL. Sólo VALIDA permite consumir, incluido cero.
-  Salida escribible inválida queda cero, siguiente dato válido recupera.
-- Doxygen USW.2.1.12.1 y USW.2.1.18.1 (soporte local), sin contextos/estado global.
+- uint16_t Pot_Read(void): devuelve el valor numérico actual del potenciómetro
+  almacenado por ADC/DMA, sin parámetros ni estructura de estado.
+- Usar el almacenamiento compartido de soporte/Adquisicion_ADC_DMA. El DMA
+  será su productor; el getter sólo consulta la posición del potenciómetro.
+- Si la palabra transferida incluye otros bits, extraer únicamente RESULT con
+  la definición original del driver. No comprobar DONE, OVERRUN o etiquetas.
+- No crear ADC_Decode, ADC_Estado, callbacks, contextos ni validadores.
+- Documentar USW.2.1.12.1 con Doxygen. AD0.0/P0.23 función01 acordado para integración.
 
-Archivos: Potenciometro.h/.c, soporte/Adquisicion_ADC_DMA.h/.c, pruebas host,
-CMakeLists.txt, Doxyfile y seguimiento. No tocar Drivers, LM35, Mandos, Motor,
-aplicación/main, contratos aceptados o archivos archivados.
+Archivos previstos: Potenciometro.h/.c y almacenamiento interno mínimo en soporte
+ADC/DMA existente; pruebas host, CMake/Doxyfile y documentación. No modificar
+Drivers, servicios, LM35, Motor o contratos/archivos aceptados.
 
-Excluye init/pinmux/reloj, arrancar ADC/DMA, IRQ/buffers activos, filtrado/promedios,
-VREF/calibración, normalización nueva o integración productiva. Quedan al final.
+## Responsabilidades y límites
 
-## Dependencias y aceptación
+ADC: conversión. DMA: transferencia a memoria. Soporte ADC/DMA: configuración
+y almacenamiento compartidos. Potenciometro: devolver su lectura. Mandos:
+normalizar, conservando su contrato. No pasar una palabra DMA desde el llamador.
 
-Entrada por valor exige origen DMA completo, estable y validado por su dueño;
-no demuestra frescura ni compatibilidad eléctrica. Fuente ADGDR/errata ADC.2 y
-secuencia de adquisición se resuelven al integrar, según exploración.
+Configuración de ADC/DMA/pines/reloj, asociación canal-destino y conexión productiva
+se resolverán al integrar. B16 reserva una palabra de32 bits en .bss local accesible
+por DMA con MCU activo, sin modificar el linker. Revisar ubicación si se usa Sleep.
+Pot_Read no inicia conversiones
+o transferencias, no espera ni interpreta disponibilidad/fallos; tampoco normaliza.
 
-1. Extraer0/2048/4095, identificar canal y conservar dato de entrada.
-2. Detectar SIN_DATOS/overrun/canal incorrecto/NULL/canal esperado>7; cero de
-   salida ante error escribible, prioridades definidas y recuperación.
-3. Fixture Pot_Read→Mandos con fondo4095 produce0/500/1000, sin modificar servicio.
-4. Host/san/regresiones/ARM/header/Doxygen pasan; bibliotecas intactas.
+## Criterio de aceptación
 
-Riesgo de buffer activo: su dueño debe garantizar estabilidad al integrar.
-Pruebas de flags/canales distinguen error de cero válido; no detectan DMA concurrente.
-Reversión: commit inverso sólo B16. Implementar tras acuerdo, commit local sin push.
+1. Contenido0/2048/4095 en la posición del potenciómetro produce esos retornos.
+2. Al cambiar el contenido, la próxima llamada refleja el valor nuevo; repetir
+   lecturas no cambia la memoria ni inicia operaciones de periféricos.
+3. Sin estados ni validación de lecturas; sin modificar biblioteca/otros módulos.
+4. Pruebas host, compilación ARM, regresiones y Doxygen correspondientes pasan.
+
+Formato acordado: palabra ADGDR en ADC_DMA_Pot; dependencia pendiente: configurar
+la asociación del canal al destino al integrar. No prometer adquisición física
+por probar memoria. Reversión por commit inverso sólo B16.
+Alcance acordado e implementado por orden del usuario;
+commit local al terminar, sin push. Aceptación del resultado/sincronización/archivo pendientes.

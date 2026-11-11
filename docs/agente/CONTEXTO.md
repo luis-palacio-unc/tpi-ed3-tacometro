@@ -362,8 +362,15 @@ configuración/potencia/adaptación B08/main para integración final. Drivers in
 El usuario autorizó publicar los commits pendientes junto con cierre B14/propuesta B15;
 publicaciones futuras requieren autorización independiente.
 
-B16 propuesto, sin acuerdo/código/pruebas: Pot_Read sobre una palabra ADC/DMA
-completa/estable, canal0/P0.23 propuestos; ADC_Decode común en soporte existente,
-con macros originales, códigos0..4095 y estados dato/ausencia/error. No nueva
-normalización ni registros/configuración/arranque de ADC/DMA. ADC.2 y propiedad
-de buffer se resolverán al integrar, según exploración. ESW18 local de soporte.
+B16 acordado e implementado2026-11-10; resultado pendiente de aceptación:
+ADC convierte, DMA transfiere y Potenciometro devuelve el valor leído mediante
+uint16_t Pot_Read(void). Sin dato DMA del llamador, salida por puntero, contexto,
+estado o validación. Soporte existente posee ADC_DMA_Pot, palabra ADGDR volatile
+uint32_t en .bss local (4 bytes/alineación4); getter extrae RESULT original.
+Canal AD0.0/P0.23 función01 acordado, asociación/configuración/enlace físicos al final.
+DMA32bits como único productor en ejecución; acceso CPU sólo lectura, sin prometer
+edad/coherencia multicanal. SRAM local accesible en activo; revisar si se usa Sleep.
+Cero de arranque no acredita disponibilidad. Mandos conserva la normalización.
+Host/san22/22,207 C+oráculo, ARM13/13/O0/O2/enlace parcial y Doxygen43 PASS;
+drivers/módulos/contratos aceptados intactos. Sin ensayos ADC/DMA reales.
+Commit local autorizado, sin push/sincronización/archivo hasta aceptación.

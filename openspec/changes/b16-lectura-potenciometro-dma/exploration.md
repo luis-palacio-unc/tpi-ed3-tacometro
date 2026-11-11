@@ -1,29 +1,27 @@
-# Exploración B16 — 2026-11-10
+# Aclaración B16 — responsabilidades
 
-Base b473d0f, main. B15 aceptado; queda Potenciometro (ESW.2.1.12), soporte
-ADC/DMA y regulación/integración. Mandos B04 normaliza lectura/fondo inclusivo;
-LM35 B05 usa muestra/escala/referencia propios. No duplicar esas conversiones.
+El usuario descarta los estados y la validación añadidos en la propuesta inicial.
+Pot_Read debe recuperar desde memoria el valor transferido por DMA, no recibir
+una palabra desde el llamador y analizarla. API acordada uint16_t Pot_Read(void).
 
-LPC17xx original: ADC_ChannelGetData/ADC_GlobalGetData leen registros, no bloques
-DMA. lpc17xx_adc.h ya define macros ADC_GDR_RESULT/CH y flags. GPDMA_LUTPerAddr
-asocia ADC a ADGDR y SetupChannel selecciona esa tabla para P2M, incluso si se
-suministra srcMemAddr. Esta lectura/validación de un dato en RAM necesita usar
-macros, no volver a leer el periférico ni alterar la biblioteca.
+ADC realiza la conversión; DMA realiza la transferencia solicitada por el
+periférico. El soporte ADC/DMA existente conserva almacenamiento/configuración.
+Potenciometro sólo consulta la posición de su lectura. Reutilizar las definiciones
+originales para extraer el resultado si el formato transferido lo requiere.
 
-UM10360 rev4.1 tabla81/p118: AD0.0/P0.23 función01, coincide con ADC_PinConfig
-canal0. §29.5.2/tabla533/p589: resultado15:4, canal26:24, OVERRUN30 y DONE31.
-No mezclar lectura de registros global/individual porque sus flags pueden
-desincronizarse. Páginas completas renderizadas e inspeccionadas en /tmp/ed3-cierre-b15-propuesta-b16-zasor5qr/manual-*.png;
-logs Poppler externos. Cableado/conector/revisión/VREF reales aún por verificar.
+Canal0/P0.23 función01 acordado según UM10360 tabla81/p118 y ADC_PinConfig.
+Formato de RESULT en tabla533/p589. Referencias de configuración futura del
+soporte (incluida ADC.2) no se convierten en validadores dentro de Pot_Read.
+No se fija aquí VREF/tasa/arranque/buffer activo ni se modifica biblioteca.
+El usuario acordó e indicó implementar B16 el 2026-11-10. Evidencia de ejecución
+actual en verify-report.md; inicialización/enlace físicos siguen diferidos.
 
-[NXP ES_LPC176x rev10.6 §3.2 ADC.2/p7](https://www.nxp.com/docs/en/errata/ES_LPC176X.pdf)
-limita ADGDR con burst/disparo hardware; conversiones por software exigen consumir
-el resultado anterior antes de iniciar otra. La configuración final deberá
-resolver esa secuencia, fuente/anchura/burst DMA y propiedad de buffers, usando
-drivers originales. Este bloque sólo decodifica palabras ya transferidas y no
-elige un modo incompatible ni afirma haber resuelto adquisición física.
+Memoria: UM10360 rev4.1 §1.9/p12 permite acceso CPU y DMA a SRAM local en activo;
+§4.8.1 restringe acceso a SRAM principal durante Sleep. B16 usa .bss local existente
+(4 bytes, alineación4), sin cambiar linker/arranque. Integración revisará consumo,
+relojes y secuencia según ADC.2 antes de iniciar transferencias reales.
 
-Propuesta: ADC_Decode y Pot_Read sin estado/contexto nuevos. Entrada por valor
-debe venir de buffer completo/estable; campos válidos no prueban frescura o
-exactitud eléctrica. Prioridades definidas y salida cero ante fallo, con estado
-explícito. Recurso/pin/API propuestos, sin acuerdo/código/pruebas B16 ejecutados.
+Fuente futura de configuración: GPDMA_LUTPerAddr del driver original dirige ADC a
+ADGDR; ADC_GlobalGetData/ADC_ChannelGetData leen registros, no esta memoria.
+[NXP errata ADC.2, rev10.6 §3.2/p7](https://www.nxp.com/docs/en/errata/ES_LPC176X.pdf)
+condiciona la secuencia con ADGDR. Resolverla al integrar, sin validadores en el getter.

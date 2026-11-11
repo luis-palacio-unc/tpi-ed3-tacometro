@@ -1,62 +1,47 @@
-# Datos ADC/DMA y potenciómetro — candidato B16
+# Potenciómetro — candidato B16 corregido
 
-Origen R03/R08/R10/R11/R15. Propuesta sin acuerdo, no contrato vigente.
+Origen R03/R08/R10/R11/R15 y aclaración del usuario. Alcance acordado; resultado aún no aceptado.
 
 ## Requirements
 
-### Requirement: PD1 — Extracción compartida del dato DMA
+### Requirement: PD1 — Getter del valor almacenado
 
-ADC_Decode(uint32_t dato_dma,uint8_t canal,uint16_t *muestra) MUST interpretar
-una palabra ADGDR del LPC1769, usando definiciones originales del driver.
-Canal esperado MUST ser0..7. Con dato disponible/sin overrun/canal correcto,
-MUST devolver ADC_VALIDA y escribir resultado12bits0..4095, incluido cero.
-MUST NOT releer registros ADC ni modificar entrada, configurar o ejecutar DMA.
+Potenciometro MUST exponer uint16_t Pot_Read(void). MUST devolver el valor numérico
+del potenciómetro que ADC/DMA dejó en memoria, sin parámetros de entrada ni estado
+adicional. Si el formato físico incluye otros campos, MUST usar la extracción
+RESULT original para obtener el valor, sin interpretar flags o canal del dato.
 
-#### Scenario: S1 — Datos válidos y campos reservados
-- Given palabras completas con muestras0/2048/4095 y canal esperado coincidente.
-- When se decodifican, incluidos bits reservados variables.
-- Then MUST entregar valor exacto y VALIDA, ignorando sólo bits reservados.
+#### Scenario: S1 — Lecturas de referencia
+- Given almacenamiento del potenciómetro con muestras0/2048/4095.
+- When se llama Pot_Read.
+- Then MUST devolver exactamente la muestra correspondiente.
 
-### Requirement: PD2 — Estados, prioridades y recuperación
+#### Scenario: S2 — Actualización y repetición
+- Given una muestra y luego otra escrita en su posición por el productor.
+- When se consulta nuevamente o se repite la lectura.
+- Then MUST reflejar el contenido actual sin modificarlo ni conservar una copia anterior.
 
-ADC_Estado MUST distinguir VALIDA/SIN_DATOS/ERROR_ARGUMENTO/ERROR_OVERRUN/
-ERROR_CANAL. Prioridad MUST ser salida NULL, canal esperado>7, OVERRUN,
-DONE ausente y canal de origen incorrecto, en ese orden.
-Muestra escribible MUST quedar cero ante cualquier retorno no válido; NULL
-MUST evitar acceso a salida. Nueva entrada válida MUST recuperar sin retener error.
+### Requirement: PD2 — Responsabilidades acotadas
 
-#### Scenario: S2 — Ausencia y errores
-- Given combinaciones de flags, canal incorrecto, salidaNULL o canal esperado8/255.
-- When se decodifica y luego se entrega dato válido.
-- Then MUST respetar prioridades, limpiar salida escribible y recuperar; cero válido no es ausencia.
+ADC MUST realizar conversión y DMA la transferencia a memoria, configurados desde
+el soporte de dispositivos al integrar. Pot_Read MUST limitarse a consultar su
+lectura: MUST NOT recibir datos DMA desde el llamador, iniciar conversiones,
+transferencias o esperas, validar lecturas, devolver estados, limpiar datos o
+normalizar. ADC_Decode/ADC_Estado de la propuesta anterior MUST quedar retirados.
 
-### Requirement: PD3 — Lectura específica del potenciómetro
+#### Scenario: S3 — Consulta sin operaciones adicionales
+- Given la lectura almacenada por ADC/DMA.
+- When se llama el getter, incluso repetidamente.
+- Then MUST devolver sólo el valor, sin cambiar memoria/periféricos ni generar estados.
 
-Pot_Read(uint32_t dato_dma,uint16_t *muestra) MUST delegar en ADC_Decode con
-canal0, propuesto AD0.0/P0.23 función01. MUST devolver el mismo contrato de estado
-y muestra cruda. MUST NOT normalizar, aplicar VREF, filtrar, emitir PWM o cambiar
-Mandos/LM35. Header público MUST conservar tipos propios sin dependencias CMSIS.
+### Requirement: PD3 — Documentación y evidencia
 
-#### Scenario: S3 — Canal del potenciómetro
-- Given dato válido del canal0 o dato del canal1, aunque su muestra sea cero.
-- When se consulta Pot_Read.
-- Then MUST entregar dato crudo sólo para canal0; canal1 debe dar ERROR_CANAL con salida cero.
+MUST documentar ESW.2.1.12/USW.2.1.12.1 con Doxygen y comprobar lectura mediante
+memoria de prueba, build ARM/regresiones aplicables y biblioteca intacta.
+MUST NOT cambiar servicios, drivers o contratos/archivos aceptados. Canal0/P0.23
+acordado; configuración/arranque y enlace físico quedan para el final.
 
-#### Scenario: S4 — Compatibilidad con Mandos
-- Given Pot_Read válido con muestras0/2048/4095.
-- When fixture llama Mandos_NormalizarManual con fondo inclusivo4095.
-- Then MUST obtener0/500/1000 válidos, sin nuevo enlace productivo o cambio del servicio.
-
-### Requirement: PD4 — Alcance, coherencia y evidencia
-
-MUST documentar ESW12/USW12.1 y soporte local ESW18/USW18.1 con Doxygen.
-Entrada MUST venir de transferencia completada/estable, sin productor concurrente;
-no prometer frescura, simultaneidad de canales o precisión eléctrica.
-MUST NOT modificar Drivers, iniciar/configurar ADC/DMA, crear IRQ/colas/contextos/
-heap/globales mutables, integrar main o sincronizar contratos antes de aceptar.
-Configuración física/secuencia ADC.2/VREF/propiedad del buffer quedan al final.
-
-#### Scenario: S5 — Evidencia separada del hardware
-- Given funciones y fixtures con palabras DMA construidas como datos de prueba.
-- When se ejecutan host/san/ARM/header/Doxygen y diff/hashes.
-- Then MUST registrar evidencia actual y preservar módulos/biblioteca aceptados; adquisición física pendiente.
+#### Scenario: S4 — Verificación por modalidad
+- Given getter y contenido de memoria preparado para prueba.
+- When se ejecutan controles y revisión del diff.
+- Then MUST registrar pruebas reales, sin confundirlas con ADC/DMA físicos ni afirmar disponibilidad o adquisición física por el getter.

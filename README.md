@@ -383,11 +383,16 @@ Ver [cambio](openspec/changes/archive/2026-11-10-b15-dispositivo-motor-pwm/propo
 
 Ver [contrato de Motor vigente](openspec/specs/motor-dispositivo/spec.md).
 
-## Propuesta B16: lectura del potenciómetro desde DMA
+## B16: lectura del potenciómetro
 
-Pot_Read recibirá una palabra ADC ya transferida por DMA y entregará muestra
-cruda/estado, usando ADC_Decode compartido y las macros originales. Propuesto
-AD0.0/P0.23 función01. Mandos conserva normalización; init/transferencia real/
-IRQ/frecuencia/VREF/buffers activos y enlace productivo para el final.
-Propuesta sin acuerdo/código/pruebas B16 ejecutados.
-Ver [alcance y aceptación](openspec/changes/b16-lectura-potenciometro-dma/proposal.md).
+uint16_t Pot_Read(void) devuelve0..4095 desde la palabra ADC_DMA_Pot del soporte,
+usando ADC_GDR_RESULT original. Sin parámetros, estados o validaciones adicionales.
+Canal AD0.0/P0.23 función01 acordado; ADC convierte y DMA será el productor de esa
+memoria al integrar. Configuración, arranque y conexión a servicios/main al final.
+
+Implementado/verificado, pendiente de aceptación. Host/san22/22 (207 casos C y
+oráculo), ARM13/13 y objetosO0/O2, Doxygen43 sin avisos. Drivers90 originales,
+servicios/otros dispositivos/contratos aceptados intactos. Sin ejecución MCU/placa.
+Commit local autorizado; sin push/sincronización/archivo.
+Ver [alcance](openspec/changes/b16-lectura-potenciometro-dma/proposal.md) y
+[evidencia](openspec/changes/b16-lectura-potenciometro-dma/verify-report.md).

@@ -1,21 +1,22 @@
-# Tareas propuestas B16 — potenciómetro y dato ADC/DMA
+# Tareas B16 — getter simple
 
-## 1. Acuerdo y fuentes
+## 1. Acuerdo y datos
 
-- [ ] 1.1 Acordar alcance/APIs/estados y AD0.0/P0.23; releer ESTADO/Git y preservar biblioteca/módulos aceptados.
-- [ ] 1.2 Confirmar formato ADGDR/macros y pendientes ADC.2, sin configurar periféricos.
+- [x] 1.1 Acordar B16 corregido y canal/pin; releer ESTADO/Git y conservar biblioteca.
+- [x] 1.2 Precisar posición/formato de memoria compartida necesaria para la lectura.
 
-## 2. Implementación y pruebas
+## 2. Getter
 
-- [ ] 2.1 Implementar ADC_Estado/ADC_Decode en soporte/Adquisicion_ADC_DMA.h/.c; Doxygen ESW18/USW18.1.
-- [ ] 2.2 Implementar Pot_Read en Potenciometro.h/.c con canal0 y Doxygen ESW12/USW12.1.
-- [ ] 2.3 Crear test_adc_datos.c para S1/S2: muestra/canal/flags, NULL, prioridades y recuperación.
-- [ ] 2.4 Crear test_potenciometro.c para S3/S4 y composición con Mandos, sin cambiar servicios.
-- [ ] 2.5 Ampliar CMake/Doxyfile conservando controles/18 fuentes y ejecutar pruebas individuales.
+- [x] 2.1 Implementar Pot_Read(void) con retorno uint16_t y Doxygen USW12.1.
+- [x] 2.2 Preparar únicamente el acceso al almacenamiento ADC/DMA; sin estados o validadores.
+- [x] 2.3 Probar S1–S3 con valores de memoria, actualización y repetición sin escritura.
+- [x] 2.4 Ampliar CMake/Doxyfile manteniendo controles existentes.
 
 ## 3. Verificación y cierre
 
-- [ ] 3.1 Ejecutar host/san/regresiones y ARM/header/recursos/símbolos (S5), distinguiendo modalidad.
-- [ ] 3.2 Ejecutar Doxygen y revisar diff/hashes de Drivers y contratos/módulos aceptados.
-- [ ] 3.3 Actualizar informe/contexto/mapa/README; commit local según autorización, sin push.
-- [ ] 3.4 Dejar resultado sin aceptar/sincronizar/archivar; no iniciar adquisición/integración física.
+- [x] 3.1 Ejecutar pruebas/build ARM/regresiones/Doxygen aplicables (S4), separando hardware pendiente.
+- [x] 3.2 Revisar diff/hashes, actualizar contexto/evidencia y commit local del bloque, sin push.
+- [x] 3.3 Dejar aceptación/sincronización/archivo para después del resultado; integración al final.
+
+Resultado implementado/verificado, pendiente de aceptación. Specs principales e
+historial archivado intactos; configuración/integración/placa para el final.

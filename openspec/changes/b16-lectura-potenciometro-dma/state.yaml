@@ -1,26 +1,31 @@
 block: B16
 change: b16-lectura-potenciometro-dma
-status: proposed
-phase: propose
-scope_approved: false
+status: implemented_pending_acceptance
+phase: verify
+scope_approved: true
 result_accepted: false
-implementation_started: false
-verification_passed: false
+implementation_started: true
+verification_passed: true
 main_specs_synced: false
 proposed_on: '2026-11-10'
-base_commit: b473d0f
+scope_approved_on: '2026-11-10'
+verified_on: '2026-11-10'
+base_commit: 14b0521
 device_esw: ESW.2.1.12
-support_esw_local: ESW.2.1.18
-proposed_channel: AD0.0
-proposed_pin: P0.23
-proposed_pin_function: 1
-proposed_apis:
-- ADC_Estado ADC_Decode(uint32_t dato_dma, uint8_t canal, uint16_t *muestra)
-- ADC_Estado Pot_Read(uint32_t dato_dma, uint16_t *muestra)
+channel: AD0.0
+pin: P0.23
+pin_function: 1
+api: uint16_t Pot_Read(void)
+storage: volatile uint32_t ADC_DMA_Pot in local SRAM .bss
 drivers_modification_prohibited: true
 initialization_deferred: true
+adc_dma_configured: false
 hardware_verified: false
 commit_authorized_on_agreed_block_completion: true
+commit_subject: 'feat: implementar lectura del potenciometro desde memoria DMA'
 push_authorized: false
-next_action: Acordar B16 antes de implementar; captura/configuracion/integracion fisicas
-  para el final.
+additional_states: false
+reading_validation: false
+user_clarification: ADC converts, DMA transfers, Pot_Read returns only the stored value.
+evidence: /tmp/ed3-b16-getter-33p91_4l
+next_action: Revisar y aceptar resultado B16 antes de sincronizar/archivar; no iniciar otro bloque ni publicar.
