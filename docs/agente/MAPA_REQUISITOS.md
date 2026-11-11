@@ -10,7 +10,7 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R01 AP | Ejecutar firmware en LPC1769/OM13085 | B00 aceptado: base de build | CMakeLists.txt, Aplicacion/main.c, cmake/, plataforma/ | S1/S3/S5/S6 PASS de build/inspección (verify-report B00); ejecución física pendiente |
 | R02 AP/APA | Medir RPM con disco de 60 ranuras | B03/B03-R1 y B14 aceptados/archivados; conteo físico pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | B03-R1 S1–S10 PASS, 23 casos + oráculo 11199; revisión aceptada; señal real pendiente |
 | R03 AP | Potenciómetro determina PWM en manual | B04/B08/B15 aceptados: normalización/mando/PWM directo; B16 aceptado/archivado para lectura; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.*, Dispositivos/Potenciometro.* | B04 S1–S7 PASS host/enlace ARM (verify-report archivado); ADC/PWM físicos pendientes |
-| R04 AP | Regular RPM con consigna UART en automático | B17 implementado/verificado, pendiente de auditoría/aceptación | Aplicacion/Procesamiento.*, Configuracion/Control.h; consumo de Medicion_Velocidad/Driver_Motor | RV1–RV6/S1–S10 conformes por modalidad; host/san33/33,Fraction133758 pasos,planta14/14,ARM15/15,Doxygen46; regulación física pendiente |
+| R04 AP | Regular RPM con consigna UART en automático | B17 aceptado/archivado; regulación lógica, integración física a cargo de Claude | Aplicacion/Procesamiento.*, Configuracion/Control.h; consumo de Medicion_Velocidad/Driver_Motor | RV1–RV6/S1–S10 conformes por modalidad; host/san33/33,Fraction133758 pasos,planta14/14,ARM15/15,Doxygen46; regulación física pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; B10 aceptado/archivado para selector estable | Aplicacion/Procesamiento.*, Servicios/Mandos.* | B01 S1/S2 y B10 SE1–SE4 PASS lógico; integración física pendiente |
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01/B08/B10/B15 aceptados/archivados para transición y solicitud cero | Aplicacion/Procesamiento.*, Servicios/Comunicacion.*, Mandos.*, Driver_Motor.* | B01 S3–S6 y B10-S6 PASS lógico; recepción/actuación reales pendientes |
 | R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05/B05-R1 aceptados y archivados: servicio genérico + lectura LM35 en centésimas; B06 aceptado/archivado para decisión; B07 aceptado/archivado para coordinación; actuación física/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05-R1 TE1/TE3/TE4 sincronizados, TE2/S4/S5 intactos; host/san29/29, ARM13/13; B06 S1–S8 y 13 casos PASS; resultado lógico aceptado; alarma física pendiente |
@@ -18,7 +18,7 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 aceptado/archivado para codificación lógica TX; B13 aceptado para operaciones UART; integración/envío físico pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 RX y B09 CT1–CT4 PASS lógico; UART/envío físicos pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11–B15 aceptados:42 funciones/USW; B16/B05-R1 aceptados:43, USW11.3/11.4 nuevas y11.1/11.2 retiradas, Doxygen estricto PASS; diagramas/resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11–B15 aceptados:42 funciones/USW; B16/B05-R1 aceptados:43; B17 aceptado:46, USW.2.1.2.8–10, Doxygen estricto PASS; diagramas/resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -166,13 +166,14 @@ al integrar; no se acredita adquisición ni funcionamiento físico. Sin push.
 [revisiones externas locales resumidas](../../openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/review-notes.md).
 
 
-B17 implementado/verificado2026-11-11,base9352f0d (R04/R06/R10/R11/R14/R15):
-PI separado B01,int64_t/num-den,500ms nominales,salida0..1000 y retención acotada.
-m1 explícito en S1/pruebas. RV1–RV6/S1–S10 conformes:10 casos PI+2 composición,
-133758 pasos exactos por modalidad,planta14/14,25 probes,mutantes detectados;
-host/san33/33,ARM15/15,Doxygen46. USW.2.1.2.8–10,instancia40bytes.
-B01/B06,Drivers y contratos vigentes intactos. Aceptación pendiente de auditoría;
-física pendiente de integración.
-[Informe](../../openspec/changes/b17-regulador-velocidad/verify-report.md).
-Evidencia workspace build/verificacion-b17-h1-h2-2026-11-11,no versionada.
-H1/H2 cubiertos en límites/n0;producción intacta. Siguiente /auditar B17 (r2); commit local autorizado,sin cierre/archivo/push.
+B17 aceptado/archivado2026-11-11,sobre8f1793f (R04/R06/R10/R11/R14/R15).
+Reauditoría r2 APROBAR,sin hallazgos nuevos; H1/H2 cubiertos en pruebas.
+RV1–RV6/S1–S10 sincronizados íntegros en el
+[contrato vigente](../../openspec/specs/regulacion-velocidad/spec.md).
+Evidencia aceptada: host/san33/33,10 casos PI+2 composición,133758 pasos por modalidad,
+25 probes,cinco mutantes detectados,planta14/14 pasos,ARM15/15,Doxygen46.
+Cierre documental: producción/pruebas/build/Drivers y contratos anteriores intactos.
+[Verificación](../../openspec/changes/archive/2026-11-11-b17-regulador-velocidad/verify-report.md) y
+[cierre](../../openspec/changes/archive/2026-11-11-b17-regulador-velocidad/archive-report.md).
+Integración/cadencia/sintonía/pruebas físicas pendientes a cargo de Claude.
+Codex no inicia otro bloque. Commit/push de cierre autorizados.

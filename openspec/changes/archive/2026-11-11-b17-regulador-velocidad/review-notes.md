@@ -94,3 +94,18 @@ ignoradas dentro del workspace. Referencia Fraction sin cambios.
 Verificación propia:unidad10/10,oráculo133758 pasos por modalidad;los tres nuevos
 mutantes mueren en unidad y oráculo,copia correcta pasa. Detalles en verify-report.
 Siguiente /auditar B17 (r2);commit local autorizado,sin push ni cierre.
+
+
+## Reauditoría de implementación r2 y aceptación
+
+Fuente externa local leída completa: B17-implementacion-r2.md, sobrebf975f3..8f1793f.
+Veredicto APROBAR, sin hallazgos nuevos; H1/H2 resueltos. No se publica ni enlaza
+el harness. Claude informó reproducción del verificador completo y detección de
+sus14 mutantes; esos resultados son externos, separados de las cinco mutaciones
+propias documentadas en verify-report.md.
+
+El usuario acepta8f1793f y autoriza sincronizar/archivar B17 con commit y push.
+La etapa de integración la implementa Claude; Codex no inicia otro bloque.
+La nota externa sobre posible revisión de firma/retención al integrar I2 queda
+para esa etapa. No modifica RV3 ni la API aceptada en este cierre.
+Cadencia real,motor físico/MCU y sintonía siguen pendientes.

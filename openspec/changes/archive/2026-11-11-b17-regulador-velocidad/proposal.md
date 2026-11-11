@@ -1,8 +1,8 @@
 # B17 — Regulador PI de velocidad en automático
 
 Propuesta aprobada por Claude r2, 2026-11-11, base9352f0d.
-Decisiones D1–D6 y alcance acordados; implementación verificada, resultado por auditar.
-Entrega con commit local de implementación autorizado; sin cierre/sincronización/archivo/push.
+Resultado8f1793f aceptado el 2026-11-11; reauditoría de implementación r2 APROBAR, sin hallazgos nuevos.
+Cierre, sincronización, archivo, commit local y push autorizados por el usuario.
 
 ## Objetivo y origen
 
@@ -55,4 +55,4 @@ ventana 500 ms, retención acotada, cotas demostradas y fixture de transiciones.
 ## Reversión y siguiente paso
 
 Revertir sólo el futuro commit B17 y sus targets nuevos, preservando B01/B06.
-Siguiente paso /auditar B17; aceptación/cierre posteriores, sin push.
+B17 cerrado y archivado; integración a cargo de Claude. Codex no inicia otro bloque. Ver archive-report.md.

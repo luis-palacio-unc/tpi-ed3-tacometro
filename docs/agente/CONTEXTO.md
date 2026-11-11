@@ -60,7 +60,7 @@ indica no comentar el cuerpo de las funciones para la evaluación.
   informada por el usuario, no medición nueva de B17 ni sintonía acreditada.
   La consigna máxima sigue siendo185RPM; B03 no recorta la medición a ese valor.
 - B17: usuario elige PI separado de B01, periodo/ventana500ms y ganancias enteras
-  discretizadas; propuesta r2 aprobada e implementación verificada, pendiente de auditoría.
+  discretizadas; B17 aceptado y archivado tras reauditoría r2. Integración a cargo de Claude.
   Frecuencia PWM pendiente; pines acordados. Recepción ASCII B02 y formato B09 acordados.
 
 ## SDD y Git
@@ -407,33 +407,32 @@ cierre, sin push. No atribuir ensayos externos a verificaciones propias ni
 modificar/publicar el harness.
 
 
-## B17 — decisiones para propuesta, sin implementación
+## B17 — regulación lógica aceptada
 
-R04/ESW.2.1.2: PI con API inicializar/regular/reiniciar separada de B01.
-Periodo de control=ventana500ms (60pulsos/vuelta→2RPM por pulso), documentado como
-TPI_CONTROL_PERIODO_MS como constante de contrato, sin configurar Timer.
-Cambiar el periodo exige recalcular ganancias discretizadas y revisar el contrato;
-#ifndef/#error sólo protege500ms. Ganancias num/den ya discretizadas,
-sin float. Medición no VALIDA: reutilizar última válida hasta N consecutivos
-(default provisional4), sin acumular integral; al superar N o sin historia pedir0
-y reiniciar. Reiniciar también descarta historia. Consigna0 da0; >185 es error.
-Producto int64_t acotado sin recortar la medición B03. Saturación0..1000/anti-windup.
-Fixture B01+regulador+Driver_Motor; B01/B06/servicios/Drivers/specs vigentes intactos.
-Planta simulada S8 conservada:200RPM con mando1000, polo3/4 y retardo1paso.
-Sobrepico≤10% y establecimiento≤20 pasos a±2RPM confirmados para el modelo;
-no es sintonía real. Denominadores1..1000 intactos; detección de sensor desconectado
-fuera de alcance. Revisión externa con Addendum final: H1/H2/H3/H6 retirados;
-H4/H5 corregidos y m1 incorporado a S1. Implementación y mutaciones verificadas.
-[Propuesta](../../openspec/changes/b17-regulador-velocidad/proposal.md) y
-[resumen portable del plan externo local](../../openspec/changes/b17-regulador-velocidad/review-notes.md).
-B17 implementado,USW.2.1.2.8–10,configuración por instancia y productos int64_t.
-Host/san33/33,133758 pasos exactos, planta14/14, ARM15/15 y Doxygen46.
-Mutaciones AW/truncado detectadas; B01/B06,servicios/dispositivos/Drivers intactos.
-Evidencia workspace build/verificacion-b17-h1-h2-2026-11-11 (ignorada por Git).
-Reproducir python3 scripts/verificar_b17.py --evidencia build/verificacion-b17-h1-h2-2026-11-11.
-Próxima acción /auditar B17 (r2).
-Commit local autorizado; resultado aún no aceptado, sin sincronizar/cerrar/archivar/push.
+B17 aceptado y archivado el 2026-11-11 sobre8f1793f; reauditoría de Claude r2
+APROBAR, sin hallazgos nuevos. [Contrato vigente](../../openspec/specs/regulacion-velocidad/spec.md).
+PI con APIs InicializarRegulador/Regular/ReiniciarRegulador separadas de B01
+(USW.2.1.2.8–10),productos int64_t y medición B03 en milésimas sin recorte.
+Ganancias num/den1..1000 ya discretizadas;500ms es constante de contrato y cambiar
+periodo exige recalcular ganancias/revisar contrato. Sin configurar Timer.
 
-Corrección de auditoría B17 H1/H2:sólo pruebas/infraestructura,producción bf975f3 intacta.
-Unidad10/10,ocho configuraciones Fraction,133758 pasos y cinco mutantes detectados.
-Evidencia workspace build/verificacion-b17-h1-h2-2026-11-11;siguiente /auditar B17 (r2).
+Mando0..1000,anti-windup y redondeo al cercano/empate arriba. Medición no VALIDA:
+retener última válida hasta N periodos (default4) sin integrar; sin historia o
+en N+1 dar0 y reiniciar. Reiniciar descarta historia. Consigna0 da0;>185 es error.
+La integración física no está implementada. Sensor desconectado fuera de alcance.
+
+Evidencia aceptada de8f1793f: host/san33/33 por modalidad,226 casos C,8 configuraciones,
+133758 pasos exactos,cinco mutantes detectados,ARM15/15,Doxygen46 sin avisos;
+instancia40bytes. Planta S8 de200RPM al100%,polo3/4/retardo1paso:14/14 pasos,
+sin presentarlo como sintonía real. Dato histórico físico≈185RPM permanece separado.
+H1/H2 de auditoría resueltos sólo en pruebas; producción bf975f3 intacta.
+[Informe archivado](../../openspec/changes/archive/2026-11-11-b17-regulador-velocidad/verify-report.md) y
+[cierre](../../openspec/changes/archive/2026-11-11-b17-regulador-velocidad/archive-report.md).
+Evidencia local:build/verificacion-b17-h1-h2-2026-11-11,ignorada; reproducción en informe.
+El cierre sólo modifica documentación, sin repetir suites ni cambiar firmware.
+
+Responsabilidad acordada: Claude implementa la etapa de integración. Codex termina
+este cierre con commit/push y no inicia ni propone otro bloque. La reauditoría deja
+como nota externa evaluar firma/retención al integrar I2; no cambia el contrato B17.
+Quedan cadencia real,main/ISR/Timer/PWM,ADC/DMA/VREF/asociación de canales/primera
+muestra,erratas,sintonía/pruebas sobre placa y documentación final para esa etapa.

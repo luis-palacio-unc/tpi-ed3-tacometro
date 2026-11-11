@@ -422,7 +422,7 @@ Ver [cambio archivado](openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/p
 [resumen portable de revisiones externas locales](openspec/changes/archive/2026-11-11-b05-r1-lectura-lm35/review-notes.md).
 
 
-## B17: regulador automático implementado, pendiente de auditoría
+## B17: regulador automático aceptado y archivado
 
 Procesamiento agrega InicializarRegulador/Regular/ReiniciarRegulador separados
 de B01, con PI entero y salida0..1000, saturación/anti-windup y retención limitada
@@ -433,6 +433,9 @@ Host/san33/33 cada uno, oráculo133758 pasos, planta14/14 pasos, ARM15/15 y
 Doxygen46 sin avisos. Mutantes AW/truncado/límites integral/n0 detectados. B01/B06/Drivers intactos.
 Evidencia workspace build/verificacion-b17-h1-h2-2026-11-11 (ignorada); reproducir desde
 raíz con `python3 scripts/verificar_b17.py --evidencia build/verificacion-b17-h1-h2-2026-11-11`.
-[Contrato candidato](openspec/changes/b17-regulador-velocidad/specs/regulacion-velocidad/spec.md)
-e [informe](openspec/changes/b17-regulador-velocidad/verify-report.md).
-Pendiente de /auditar B17 (r2) y aceptación; sin cierre/archivo/push.
+[Contrato vigente](openspec/specs/regulacion-velocidad/spec.md),
+[informe de implementación](openspec/changes/archive/2026-11-11-b17-regulador-velocidad/verify-report.md) y
+[cierre aceptado](openspec/changes/archive/2026-11-11-b17-regulador-velocidad/archive-report.md).
+Aceptado sobre8f1793f el 2026-11-11; reauditoría r2 APROBAR, sin hallazgos nuevos.
+Cierre/publicación autorizados. La integración queda a cargo de Claude; Codex no
+inicia otro bloque. Cadencia real y pruebas físicas pendientes.

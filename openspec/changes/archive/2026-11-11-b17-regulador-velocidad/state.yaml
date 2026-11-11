@@ -1,7 +1,7 @@
 block: B17
 change: b17-regulador-velocidad
-status: implemented_pending_audit
-phase: verify
+status: archived
+phase: archive
 proposed_on: '2026-11-11'
 updated_on: '2026-11-11'
 base_commit: 9352f0d7b687f0ba0e32c229896e765bc574833f
@@ -11,11 +11,11 @@ decisions_recorded: [D1, D2, D3, D4, D5, D6]
 scope_approved: true
 implementation_authorized: true
 implementation_started: true
-result_accepted: false
+result_accepted: true
 verification_passed: true
-main_specs_synced: false
-change_closed: false
-change_archived: false
+main_specs_synced: true
+change_closed: true
+change_archived: true
 controller: PI
 period_ms: 500
 measurement_window_ms: 500
@@ -49,7 +49,7 @@ external_plan_scope: external local planning review, not shipped with repository
 external_review_summary: review-notes.md
 external_reviewer: Claude
 proposal_review_pending: false
-proposal_review_request: /auditar B17 (r2)
+proposal_review_request: none
 model_overshoot_max_percent: 10
 model_overshoot_basis: step amplitude
 model_settling_steps_max: 20
@@ -67,8 +67,8 @@ accepted_specs_modification_prohibited: true
 initialization_deferred: true
 hardware_acceptance_pending: true
 commit_authorized_for_this_delivery: true
-push_authorized: false
-next_action: /auditar B17 (r2); aceptar resultado antes de sincronizar/archivar. Sin push.
+push_authorized: true
+next_action: Integracion a cargo de Claude; Codex no inicia otro bloque.
 external_proposal_review_name: B17-propuesta.md
 external_proposal_review_final_verdict: APROBAR (r2)
 external_proposal_review_addendum_read: true
@@ -87,7 +87,7 @@ proposal_r2_verdict: APROBAR
 minor_observation_m1_addressed: true
 
 verified_on: '2026-11-11'
-implementation_audit_pending: true
+implementation_audit_pending: false
 host_suites_passed: 33
 sanitizer_suites_passed: 33
 arm_checks_passed: 15
@@ -106,10 +106,26 @@ external_proposal_review_r2_name: B17-propuesta-r2.md
 implementation_audit_review: B17-implementacion.md
 implementation_audit_initial_verdict: APROBAR CON CAMBIOS (sin bloqueantes)
 audit_findings_addressed_in_tests: [H1, H2]
-implementation_audit_r2_pending: true
+implementation_audit_r2_pending: false
 audit_correction_base: bf975f369f6ad4997149b2f7e5d232a7450f488a
 production_unchanged_from_audit_base: true
 oracle_configuration_count: 8
 unit_regulator_cases: 10
 c_cases_per_host_sanitizer: 226
 audit_correction_commit_subject: 'test: cubrir limites de integral y congelamiento en cero'
+
+accepted_on: '2026-11-11'
+accepted_head: 8f1793f36be1c73e63d8e8f0bbc9ca26852d244a
+archived_on: '2026-11-11'
+archive_path: openspec/changes/archive/2026-11-11-b17-regulador-velocidad
+archive_report: archive-report.md
+main_spec: openspec/specs/regulacion-velocidad/spec.md
+implementation_audit_r2_review: B17-implementacion-r2.md
+implementation_audit_r2_verdict: APROBAR
+implementation_audit_open_findings: 0
+closure_firmware_tests_repeated: false
+closure_evidence: build/cierre-b17-2026-11-11
+closure_commit_push_authorized: true
+publication_target: origin/main
+integration_owner: Claude
+codex_next_block_authorized: false
