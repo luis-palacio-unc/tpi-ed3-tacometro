@@ -151,8 +151,8 @@ La implementación actual de Dispositivos/LM35.h/.c corresponde a B05-R1:
 consulta muestra propia y devuelve centésimas, sin estados de dispositivo. El
 contrato principal conserva B05 hasta aceptar/sincronizar la revisión. ADC/DMA físicos pendientes.
 
-El servicio compila y enlaza por separado, sin LM35; las pruebas adaptan datos del
-dispositivo al contrato genérico y conservan casos numéricos/fronteras de B05.
+El servicio compila y enlaza por separado, sin LM35; el fixture de composición
+entrega las centésimas de LM35_Read directamente, sin reescalar ni volver a redondear.
 La composición con adquisición real se resolverá después, sin acceso directo a
 dispositivos desde lógica de aplicación. ADC/DMA, alarma y main siguen pendientes.
 Ver [informe corregido](openspec/changes/archive/2026-11-07-b05-conversion-temperatura/verify-report.md);

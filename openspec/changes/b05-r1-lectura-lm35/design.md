@@ -52,8 +52,9 @@ Fixtures ARM usan override explícito de prueba; build firmware tiene default.
 
 ## Pruebas y compatibilidad (H4)
 
-S1 usa muestras0/512/2048 con palabras limpias y OR0xC700000F: DONE31, OVERRUN30,
-CHN=7 y bits3:0 activos. S6 cambia0xC700200F→0xC300800F→0x00008000, repitiendo
+S1 usa muestras0/512/2048 limpias y OR0xFFFF000F: todo bit fuera de15:4 activo,
+incluidos reservados23:16 y29:27. Probar además0x00FF0000 y0x38000000 separados.
+EmitirTabla usa0xFFFF000F en los4096 códigos; fixture ARM usa0xFFFF200F. S6 cambia0xC700200F→0xC300800F→0x00008000, repitiendo
 lecturas y comprobando memoria intacta. Estos datos prueban extracción, no origen.
 S3 usa Python estándar Fraction y floor(x+Fraction(1,2)) como oráculo exacto sobre4096 códigos
 por cada build; la producción usa cociente/resto. Comparar enteros por igualdad,

@@ -20,7 +20,7 @@ int main(void)
     if (!Temperatura_Inicializar(&servicio)) {
         return 1;
     }
-    ADC_DMA_LM35 = UINT32_C(0xC700200F);
+    ADC_DMA_LM35 = UINT32_C(0xFFFF200F);
     return Temperatura_Actualizar(&servicio, LM35_Read(),
            TEMPERATURA_FUENTE_VALIDA) == TEMPERATURA_VALIDA && servicio.centesimas_c == 2500 ? 0 : 1;
 }

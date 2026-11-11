@@ -29,7 +29,7 @@ reference_value_deferred_to: final_integration
 test_references_mv: [1000, 2000, 2540, 3300, 5000]
 negative_build_values: [0, -1, 214748365]
 oracle: exact rational, rounded integer equality across all 4096 codes per reference
-sample_decoration_mask: '0xC700000F'
+sample_decoration_mask: '0xFFFF000F'
 additional_device_states: false
 service_contract_unchanged: true
 initialization_deferred: true
@@ -39,7 +39,7 @@ retired_usw: [USW.2.1.11.1, USW.2.1.11.2]
 new_usw: [USW.2.1.11.3, USW.2.1.11.4]
 usw_11_2_reused: false
 external_reviewer: Claude
-external_review_names: [B05-R1-propuesta.md, B05-R1-propuesta-r2.md]
+external_review_names: [B05-R1-propuesta.md, B05-R1-propuesta-r2.md, B05-R1-implementacion.md]
 external_reviews_scope: external local reviews, not shipped with the repository
 external_review_summary: review-notes.md
 minor_review_observations_addressed: [m1, m2, m3]
@@ -65,4 +65,14 @@ sanitizer_suites_passed: 29
 arm_checks_passed: 13
 oracle_exact_comparisons: 20480
 documented_functions: 43
-evidence: /tmp/ed3-b05r1-impl-3lr7invk
+evidence: /tmp/ed3-b05r1-bits-11qd108k
+implementation_audit_base: b8c3c37b91bbb07f1e774933591a2aac0799512f
+implementation_audit_verdict: approve with changes, no blockers
+audit_correction_scope: tests and documentation only; LM35.c unchanged
+audit_source_status_pending_integration: true
+audit_correction_findings_addressed: [H1, H2]
+audit_correction_verification_passed: true
+implementation_audit_recheck_pending: true
+mutant_without_mask_before: survived unit and oracle
+mutant_without_mask_after: detected by unit S1 and first oracle code
+lm35_c_unchanged_in_correction: true

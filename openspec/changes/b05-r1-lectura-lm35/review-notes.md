@@ -36,3 +36,19 @@ sin cierre, sincronización de contratos principales, archivo o push.
 
 La aprobación r2 corresponde a la propuesta. El resultado implementado queda
 pendiente de auditoría posterior y aceptación del usuario.
+
+## Auditoría de implementación sobre b8c3c37
+
+Fuente: `B05-R1-implementacion.md`, revisión externa local no distribuida; resumen
+portable, sin enlace a archivos fuera del clon. Veredicto de Claude: aprobar con
+cambios, sin bloqueantes. Código LM35 correcto; hueco de pruebas en bits reservados.
+
+H1: activar23:16/29:27 en campos y usar0xFFFF000F en EmitirTabla. Comprobar que
+cast tras desplazar sin máscara falle en copia externa, sin cambiar LM35.c.
+H2: README debe describir centésimas entregadas directamente, sin reescalar.
+H3 informativo: origen del estado genérico de fuente y primera muestra se acuerdan
+en la integración final; cero inicial no señala disponibilidad. Sin cambios ahora.
+
+La reproducción propia y los resultados de la corrección se registran en
+verify-report.md, separados de la evidencia externa de Claude. Cambio aún activo,
+sin cierre, sincronización, archivo o push.

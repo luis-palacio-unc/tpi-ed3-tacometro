@@ -148,12 +148,15 @@ ADC/DMA/configuración/asociación de canales y enlace físico pendientes para e
 
 Contrato vigente B16: openspec/specs/potenciometro-dma/spec.md.
 
-B05-R1 implementado/verificado, pendiente de auditoría/aceptación
+B05-R1 con auditoría inicial/corrección H1/H2 verificadas; reauditoría/aceptación pendientes
 (R07/R08/R09/R10/R11/R15): muestra propia, int32_t centésimas, redondeo B05,
 sin estados de dispositivo. TE1/TE3/TE4 candidatos implementados; TE2 intacto.
 S1/S2/S3/S6/S7/S8 PASS: host/san29/29,214 ejecuciones C,20480 comparaciones
 exactas,8 probes, ARM13/13 y Doxygen43. m1 constantes derivadas; m2 test sin
 soporte/símbolo único; m3 resumen portable sin enlaces externos rotos.
-H3/ADDRn/configuración ADC/DMA/VREF físicos al final. Sin cierre/sincronización/archivo/push.
+Corrección de auditoría: S1/oráculo ejercen todo bit fuera de15:4 (0xFFFF000F),
+incluidos reservados23:16 y29:27; mutante sin máscara sobrevive antes y falla
+después en unidad/oráculo. README describe centésimas directas. LM35.c intacto.
+H3/ADDRn/configuración ADC/DMA/VREF y origen del estado genérico de fuente al final. Sin cierre/sincronización/archivo/push.
 [Evidencia](../../openspec/changes/b05-r1-lectura-lm35/verify-report.md) y
 [revisiones externas locales resumidas](../../openspec/changes/b05-r1-lectura-lm35/review-notes.md).

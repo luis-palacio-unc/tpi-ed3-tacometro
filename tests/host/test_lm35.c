@@ -46,7 +46,8 @@ static bool ValoresYCampos(void)
         {UINT32_C(0x00008000), ref->codigo2048}
     };
     const uint32_t campos[] = {0U, UINT32_C(0x80000000), UINT32_C(0x40000000),
-        UINT32_C(0x07000000), UINT32_C(0x0000000F), UINT32_C(0xC700000F)};
+        UINT32_C(0x07000000), UINT32_C(0x0000000F), UINT32_C(0xC700000F),
+        UINT32_C(0x00FF0000), UINT32_C(0x38000000), UINT32_C(0xFFFF000F)};
     for (size_t i = 0U; i < sizeof(casos) / sizeof(casos[0]); ++i) {
         for (size_t j = 0U; j < sizeof(campos) / sizeof(campos[0]); ++j) {
             const uint32_t palabra = casos[i].palabra | campos[j];
@@ -102,7 +103,7 @@ static int EmitirTabla(void)
 {
     printf("VREF %" PRIu32 "\n", (uint32_t)ADC_VREF_MV);
     for (uint32_t codigo = 0U; codigo < 4096U; ++codigo) {
-        const uint32_t palabra = (codigo << 4U) | UINT32_C(0xC700000F);
+        const uint32_t palabra = (codigo << 4U) | UINT32_C(0xFFFF000F);
         ADC_DMA_LM35 = palabra;
         const int32_t temperatura = LM35_Read();
         if (ADC_DMA_LM35 != palabra) {

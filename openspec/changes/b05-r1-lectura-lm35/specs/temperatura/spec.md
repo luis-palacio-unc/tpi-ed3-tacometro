@@ -9,8 +9,8 @@ sólo sincronizar tras aceptar el resultado. H5 queda sin efecto: no hay float.
 
 LM35 MUST exponer int32_t LM35_Read(void), centésimas Celsius no negativas desde
 su muestra ADC/DMA;2500 significa25,00°C. MUST usar aritmética entera, ganancia
-nominal10mV/°C y4096 cuentas. MUST extraer sólo RESULT original, sin interpretar
-DONE/OVERRUN/CHN/bits3:0. MUST redondear una sola vez al cercano, empate arriba,
+nominal10mV/°C y4096 cuentas. MUST extraer sólo RESULT original, ignorando
+todo bit fuera de15:4, incluidos los reservados23:16 y29:27. MUST redondear una sola vez al cercano, empate arriba,
 con error aritmético≤0,005°C respecto del modelo; sin float/double, recorte o
 redondeo intermedio. Valor ideal en centésimas=muestra×ADC_VREF_MV×10/4096.
 (Antes: muestra/escala/referencia por llamada, salida por puntero y estados.)
@@ -20,7 +20,7 @@ positivo o excede INT32_MAX/10, para representar el resultado. Default provision
 de software MUST NOT atribuirse a la placa. VREF física MUST verificarse al integrar.
 
 #### Scenario: S1 — Referencias y extracción exclusiva
-- Given VREF de prueba2000mV, palabras para muestras0/512/2048, limpias y OR0xC700000F.
+- Given VREF de prueba2000mV, palabras para muestras0/512/2048, limpias y OR0xFFFF000F (todo bit fuera de15:4 activo).
 - When se consulta LM35_Read.
 - Then MUST devolver0/2500/10000 centésimas en ambas variantes, preservando la palabra.
 

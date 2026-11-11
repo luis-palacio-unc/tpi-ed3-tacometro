@@ -26,4 +26,10 @@
 - [x] 4.2 Dejar implementación verificada lista para auditoría y crear commit local; sin cierre, sincronización, archivo ni push por orden del usuario.
 
 Implementación verificada; entrega con commit autorizada, sin cierre SDD/archivo.
-Auditoría del código por Claude y aceptación del usuario pendientes.
+Auditoría inicial de Claude con cambios; corrección verificada, pendiente de reauditoría/aceptación.
+
+## 5. Corrección de auditoría de implementación
+
+- [x] 5.1 H1: ampliar campos/EmitirTabla a todos los bits fuera de RESULT y fixture ARM; H2: corregir entrega directa en README; conservar LM35.c.
+- [x] 5.2 Probar mutante sin máscara en copia externa antes/después; ejecutar host/san, ARM y Doxygen.
+- [x] 5.3 Actualizar evidencia/ESTADO/MAPA/metadatos, revisar diff y commit local sin cierre/sincronización/archivo/push.

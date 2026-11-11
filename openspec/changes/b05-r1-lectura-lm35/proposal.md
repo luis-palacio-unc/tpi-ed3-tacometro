@@ -36,7 +36,7 @@ CMakeLists.txt, cmake/verificar_enlace_b05_lm35.cmake y documentación/SDD.
 ## Aceptación
 
 1. VREF de prueba2000mV: muestras0/512/2048→0/2500/10000 centésimas, también
-   con DONE/OVERRUN/CHN/bits3:0 activos; memoria intacta y actualización sin caché.
+   con todo bit fuera de15:4 activo, incluidos reservados; memoria intacta y actualización sin caché.
 2. S2 define targets con overrides de compilador independientes del firmware y
    builds negativos0/−1 rechazados por el diagnóstico previsto.
 3. S3 compara exactamente4096 códigos por referencia1000/2000/2540/3300/5000mV
