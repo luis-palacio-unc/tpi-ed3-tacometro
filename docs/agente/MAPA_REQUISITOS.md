@@ -9,16 +9,16 @@ Las rutas indican módulos previstos; no acreditan implementación.
 |---|---|---|---|---|
 | R01 AP | Ejecutar firmware en LPC1769/OM13085 | B00 aceptado: base de build | CMakeLists.txt, Aplicacion/main.c, cmake/, plataforma/ | S1/S3/S5/S6 PASS de build/inspección (verify-report B00); ejecución física pendiente |
 | R02 AP/APA | Medir RPM con disco de 60 ranuras | B03/B03-R1 y B14 aceptados/archivados; conteo físico pendiente | Servicios/Medicion_Velocidad.*, Dispositivos/Sensor_Optico.* | B03-R1 S1–S10 PASS, 23 casos + oráculo 11199; revisión aceptada; señal real pendiente |
-| R03 AP | Potenciómetro determina PWM en manual | B04 aceptado para normalización; B08 aceptado/archivado para mando portable; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.* | B04 S1–S7 PASS host/enlace ARM (verify-report archivado); ADC/PWM físicos pendientes |
+| R03 AP | Potenciómetro determina PWM en manual | B04/B08/B15 aceptados: normalización/mando/PWM directo; B16 propuesto para lectura; ADC/PWM físicos pendientes | Servicios/Mandos.*, Aplicacion/Procesamiento.*, Servicios/Driver_Motor.* | B04 S1–S7 PASS host/enlace ARM (verify-report archivado); ADC/PWM físicos pendientes |
 | R04 AP | Regular RPM con consigna UART en automático | Por planificar | Aplicacion/Procesamiento.*, Servicios/Comunicacion.* | Ensayos de regulación y perturbación sobre motor; pendiente |
 | R05 AP | Exclusión de fuentes de mando por modo | B01 aceptado; B10 aceptado/archivado para selector estable | Aplicacion/Procesamiento.*, Servicios/Mandos.* | B01 S1/S2 y B10 SE1–SE4 PASS lógico; integración física pendiente |
-| R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01/B08/B10 aceptados/archivados para transición y solicitud cero | Aplicacion/Procesamiento.*, Servicios/Comunicacion.*, Mandos.*, Driver_Motor.* | B01 S3–S6 y B10-S6 PASS lógico; recepción/actuación reales pendientes |
+| R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01/B08/B10/B15 aceptados/archivados para transición y solicitud cero | Aplicacion/Procesamiento.*, Servicios/Comunicacion.*, Mandos.*, Driver_Motor.* | B01 S3–S6 y B10-S6 PASS lógico; recepción/actuación reales pendientes |
 | R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; B06 aceptado/archivado para decisión; B07 aceptado/archivado para coordinación; actuación física/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); B06 S1–S8 y 13 casos PASS; resultado lógico aceptado; alarma física pendiente |
-| R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
+| R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | B16 propuesto para lectura/validación; adquisición física pendiente | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
 | R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 aceptado/archivado para codificación lógica TX; B13 aceptado para operaciones UART; integración/envío físico pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 RX y B09 CT1–CT4 PASS lógico; UART/envío físicos pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11–B14 aceptados:41 funciones/USW y Doxygen estricto PASS; resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11–B15 aceptados:42 funciones/USW y Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -129,10 +129,16 @@ SO1–SO4/S1–S5 conformes:6 casos nuevos, host/san20/20,200 C+oráculo; ARM13/
 objetoO0/O2 y Doxygen41. Timer/B03/Drivers intactos. Adquisición/integración físicas
 pendientes. [Evidencia](../../openspec/changes/archive/2026-11-10-b14-sensor-optico-contador/verify-report.md).
 
-B15 simplificado por usuario, implementado/verificado, sin aceptar
+B15 aceptado/archivado2026-11-10, contrato motor-dispositivo sincronizado
 (R03/R06/R10/R11/R15): MR0=1000 requerido al integrar, mando directo0..1000 hacia
 PWM_MATCH_1, sin cálculo/lectura MR0. MD1–MD4/S1–S5 conformes: cuatro casos,
 1001 envíos exactos/64535 rechazos; host/san21/21,204 C+oráculo, ARM13/13/O0/O2,
 Doxygen42. Modelo RAM retirado; Drivers/módulos/contratos aceptados intactos.
 Configuración/frecuencia/potencia/PWM.1/adaptación/main físicos pendientes.
-[Evidencia actual](../../openspec/changes/b15-dispositivo-motor-pwm/verify-report.md).
+[Evidencia actual](../../openspec/changes/archive/2026-11-10-b15-dispositivo-motor-pwm/verify-report.md).
+
+B16 propuesto (R03/R08/R10/R11/R15): Potenciometro y validación de dato compartida
+en soporte/Adquisicion_ADC_DMA; AD0.0/P0.23 y APIs/estados propuestos. PD1–PD4/
+S1–S5 candidatos, sin implementación/evidencia B16. Datos de prueba futuros no
+acreditarán transferencia/captura física, fuente/coherencia/ADC.2 pendientes.
+[Propuesta](../../openspec/changes/b16-lectura-potenciometro-dma/proposal.md).

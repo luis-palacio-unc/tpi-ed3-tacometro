@@ -1,0 +1,26 @@
+block: B16
+change: b16-lectura-potenciometro-dma
+status: proposed
+phase: propose
+scope_approved: false
+result_accepted: false
+implementation_started: false
+verification_passed: false
+main_specs_synced: false
+proposed_on: '2026-11-10'
+base_commit: b473d0f
+device_esw: ESW.2.1.12
+support_esw_local: ESW.2.1.18
+proposed_channel: AD0.0
+proposed_pin: P0.23
+proposed_pin_function: 1
+proposed_apis:
+- ADC_Estado ADC_Decode(uint32_t dato_dma, uint8_t canal, uint16_t *muestra)
+- ADC_Estado Pot_Read(uint32_t dato_dma, uint16_t *muestra)
+drivers_modification_prohibited: true
+initialization_deferred: true
+hardware_verified: false
+commit_authorized_on_agreed_block_completion: true
+push_authorized: false
+next_action: Acordar B16 antes de implementar; captura/configuracion/integracion fisicas
+  para el final.

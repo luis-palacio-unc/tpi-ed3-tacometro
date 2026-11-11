@@ -1,12 +1,12 @@
 block: B15
 change: b15-dispositivo-motor-pwm
-status: verified_pending_acceptance
-phase: verify
+status: archived
+phase: archive
 scope_approved: true
-result_accepted: false
+result_accepted: true
 implementation_started: true
 verification_passed: true
-main_specs_synced: false
+main_specs_synced: true
 proposed_on: '2026-11-10'
 base_commit: cf17359
 device_esw: ESW.2.1.9
@@ -15,8 +15,8 @@ initialization_deferred: true
 hardware_verified: false
 commit_authorized_on_agreed_block_completion: true
 push_authorized: false
-next_action: Revisar/aceptar B15 directo; MR0=1000 y validacion PWM.1 al integrar.
-  Sin push.
+next_action: Acordar propuesta B16 antes de implementar; inicializacion/integracion
+  al final y sin push.
 scope_approved_on: '2026-11-10'
 commit_authorized: true
 output: PWM1.1
@@ -31,3 +31,6 @@ correction_approved_on: '2026-11-10'
 period_ticks: 1000
 direct_command: true
 verified_on: '2026-11-10'
+accepted_on: '2026-11-10'
+archived_on: '2026-11-10'
+implementation_commit: b473d0f05eaeda2a42ef3426ee395638ed778a71

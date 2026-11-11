@@ -351,12 +351,19 @@ resta modular sólo en fixture de composición: misma época, menos de2^32 event
 entre muestras; nueva referencia tras reinicio. Host no acredita conteo del XD-51.
 Configuración/arranque/CCR, señal/cableado y ventanas/main para integración final.
 
-B15 simplificado por usuario: MR0 fijo1000 en inicialización final y envío directo
+B15 aceptado/archivado2026-11-10, contrato motor-dispositivo sincronizado:
+MR0 fijo1000 en inicialización final y envío directo
 de mando0..1000 por PWM_MatchUpdateSingle(PWM_MATCH_1,mando_por_mil). Se conserva
 bool Motor_Write(uint16_t); se eliminan lecturaMR0/conversión/redondeo/64bits y
 ajuste1000→1001. Modelo RAM/preinclude de test retirados. Validación de rango;
-true es despacho, sin diagnóstico eléctrico. Resultado verificado sin aceptar.
-Fundamento/limitación PWM.1 en exploración activa; hardware y frecuencia/
+true es despacho, sin diagnóstico eléctrico. Resultado lógico aceptado.
+Fundamento/limitación PWM.1 en exploración archivada de B15; hardware y frecuencia/
 configuración/potencia/adaptación B08/main para integración final. Drivers intactos.
 El usuario autorizó publicar los commits pendientes junto con cierre B14/propuesta B15;
 publicaciones futuras requieren autorización independiente.
+
+B16 propuesto, sin acuerdo/código/pruebas: Pot_Read sobre una palabra ADC/DMA
+completa/estable, canal0/P0.23 propuestos; ADC_Decode común en soporte existente,
+con macros originales, códigos0..4095 y estados dato/ausencia/error. No nueva
+normalización ni registros/configuración/arranque de ADC/DMA. ADC.2 y propiedad
+de buffer se resolverán al integrar, según exploración. ESW18 local de soporte.

@@ -372,10 +372,22 @@ PWM_MatchUpdateSingle(PWM_MATCH_1,mando_por_mil), incluido1000 sin ajustar a1001
 Sin cálculo de match, lectura MR0, conversión/64bits o modelo de registros en pruebas.
 false rechaza >1000 sin escritura; true indica despacho, no efecto eléctrico.
 
-Implementado/verificado, pendiente de aceptación. Host/san21/21,204 casos C+oráculo;
+B15 aceptado/archivado2026-11-10; contrato motor-dispositivo sincronizado.
+Host/san21/21,204 casos C+oráculo;
 cuatro casos B15,1001 mandos válidos/64535 rechazos. ARM13/13,O0/O2 y Doxygen42
 sin avisos. Drivers/servicios/otros dispositivos/contratos aceptados intactos.
 Inicialización/frecuencia/potencia/adaptación B08/main y validación física PWM.1
 quedan para el final. Sin ejecución MCU/placa ni push.
-Ver [cambio](openspec/changes/b15-dispositivo-motor-pwm/proposal.md) y
-[evidencia actual](openspec/changes/b15-dispositivo-motor-pwm/verify-report.md).
+Ver [cambio](openspec/changes/archive/2026-11-10-b15-dispositivo-motor-pwm/proposal.md) y
+[evidencia actual](openspec/changes/archive/2026-11-10-b15-dispositivo-motor-pwm/verify-report.md).
+
+Ver [contrato de Motor vigente](openspec/specs/motor-dispositivo/spec.md).
+
+## Propuesta B16: lectura del potenciómetro desde DMA
+
+Pot_Read recibirá una palabra ADC ya transferida por DMA y entregará muestra
+cruda/estado, usando ADC_Decode compartido y las macros originales. Propuesto
+AD0.0/P0.23 función01. Mandos conserva normalización; init/transferencia real/
+IRQ/frecuencia/VREF/buffers activos y enlace productivo para el final.
+Propuesta sin acuerdo/código/pruebas B16 ejecutados.
+Ver [alcance y aceptación](openspec/changes/b16-lectura-potenciometro-dma/proposal.md).
