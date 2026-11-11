@@ -366,17 +366,16 @@ Ver [contrato vigente](openspec/specs/sensor-optico/spec.md).
 
 ## B15: dispositivo Motor
 
-Implementado/verificado, resultado pendiente de aceptación. Simplificación del
-usuario: Motor_Write(uint16_t mando_por_mil) recibe sólo mando0..1000 y lee MR0
-de PWM1 por llamada, sin caché. MR0 debe ser1..UINT32_MAX-1, efectivo/estable
-sin update pendiente. Redondea y actualiza sólo PWM_MATCH_1 mediante driver
-original; 0 % bajo y100 % alto continuo. false rechaza sin escritura; true es despacho.
+Por orden del usuario, MR0 queda fijado en1000 ticks para la inicialización final.
+Motor_Write recibe sólo mando0..1000, valida y despacha directamente
+PWM_MatchUpdateSingle(PWM_MATCH_1,mando_por_mil), incluido1000 sin ajustar a1001.
+Sin cálculo de match, lectura MR0, conversión/64bits o modelo de registros en pruebas.
+false rechaza >1000 sin escritura; true indica despacho, no efecto eléctrico.
 
-Host/sanitizadores21/21,206 casos C+oráculo; seis casos B15 con13013 combinaciones
-y64535 rechazos. ARM13/13, objetos O0/O2 y Doxygen42 sin avisos. Modelo RAM sólo
-en pruebas_motor, sin modificar Drivers ni añadir hooks a producción.
-Frecuencia/configuración/arranque, potencia y adaptación Driver_Motor/main para
-integración final; no ejecución MCU/placa ni push. Evidencia anterior de período
-explícito en Git c952892, reemplazada para el comportamiento actual.
+Implementado/verificado, pendiente de aceptación. Host/san21/21,204 casos C+oráculo;
+cuatro casos B15,1001 mandos válidos/64535 rechazos. ARM13/13,O0/O2 y Doxygen42
+sin avisos. Drivers/servicios/otros dispositivos/contratos aceptados intactos.
+Inicialización/frecuencia/potencia/adaptación B08/main y validación física PWM.1
+quedan para el final. Sin ejecución MCU/placa ni push.
 Ver [cambio](openspec/changes/b15-dispositivo-motor-pwm/proposal.md) y
 [evidencia actual](openspec/changes/b15-dispositivo-motor-pwm/verify-report.md).

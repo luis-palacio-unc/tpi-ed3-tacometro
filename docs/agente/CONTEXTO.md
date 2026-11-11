@@ -351,12 +351,12 @@ resta modular sólo en fixture de composición: misma época, menos de2^32 event
 entre muestras; nueva referencia tras reinicio. Host no acredita conteo del XD-51.
 Configuración/arranque/CCR, señal/cableado y ventanas/main para integración final.
 
-B15 corregido por usuario: bool Motor_Write(uint16_t mando_por_mil), sólo mando
-0..1000; lee MR0 de PWM1 por llamada válida. Elimina período explícito de c952892,
-sin modificar biblioteca (no hay getter). MR0 debe ser1..UINT32_MAX-1 ticks,
-efectivo/estable sin update pendiente. Conserva redondeo y escritura PWM_MATCH_1
-por driver; MR1=0 bajo, MR1=MR0+1 alto al redondear al completo. Modelo RAM sólo
-en pruebas; firmware usa puntero original. Resultado verificado pendiente de
-aceptación. Frecuencia/configuración/potencia/adaptación B08/main para el final.
+B15 simplificado por usuario: MR0 fijo1000 en inicialización final y envío directo
+de mando0..1000 por PWM_MatchUpdateSingle(PWM_MATCH_1,mando_por_mil). Se conserva
+bool Motor_Write(uint16_t); se eliminan lecturaMR0/conversión/redondeo/64bits y
+ajuste1000→1001. Modelo RAM/preinclude de test retirados. Validación de rango;
+true es despacho, sin diagnóstico eléctrico. Resultado verificado sin aceptar.
+Fundamento/limitación PWM.1 en exploración activa; hardware y frecuencia/
+configuración/potencia/adaptación B08/main para integración final. Drivers intactos.
 El usuario autorizó publicar los commits pendientes junto con cierre B14/propuesta B15;
 publicaciones futuras requieren autorización independiente.

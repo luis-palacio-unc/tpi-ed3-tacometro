@@ -1,69 +1,62 @@
-# Dispositivo Motor — candidato B15 corregido
+# Dispositivo Motor — candidato B15 simplificado
 
-Origen R03/R06/R10/R11/R15. Simplificación autorizada por el usuario2026-11-10;
-reemplaza el parámetro de período de c952892. Resultado pendiente de aceptación.
+Origen R03/R06/R10/R11/R15. El usuario fija MR0=1000 y exige envío directo del
+mando2026-11-10. Sustituye conversión/lectura de cf17359; resultado sin aceptar.
 
 ## Requirements
 
-### Requirement: MD1 — Mando normalizado y período obtenido del dispositivo
+### Requirement: MD1 — Período fijo y mando directo
 
-Motor MUST exponer bool Motor_Write(uint16_t mando_por_mil), sin parámetro de
-período. Mando válido MUST ser 0..1000. Para convertirlo MUST leer MR0 de PWM1
-en cada llamada válida, sin caché ni configuración duplicada. MR0 válido MUST ser
-1..UINT32_MAX-1 ticks. MUST preservar período/frecuencia, convertir sin overflow
-y redondear al tick más cercano con empate arriba. MUST representar 0 % bajo
-continuo y 100 % alto continuo, sin interpretar RPM.
+Motor MUST exponer bool Motor_Write(uint16_t mando_por_mil). Mando válido MUST
+ser0..1000 y enviarse íntegro a PWM_MATCH_1 con PWM_MatchUpdateSingle original.
+MUST NOT calcular match, escalar, redondear, leer MR0 o transformar1000 en1001.
+La configuración de uso MUST fijar MR0=1000 ticks en la inicialización final;
+Motor_Write MUST NOT reconfigurar el período por llamada. No interpretar RPM.
 
-#### Scenario: S1 — Dominio y extremos
-- Given MR0=1000 y mandos0/500/1000.
-- When se llama Motor_Write sólo con el mando.
-- Then MUST enviar MR1=0/500/1001 y devolver true, sin escribir MR0.
+#### Scenario: S1 — Valores de referencia
+- Given PWM preconfigurado con MR0=1000 y mandos0/250/500/1000.
+- When se solicita cada mando.
+- Then MUST despachar valores0/250/500/1000 exactos y devolver true.
 
-#### Scenario: S2 — Resolución y límites aritméticos
-- Given MR0=1/2/3/1001/UINT32_MAX-1 y mandos válidos intermedios/extremos.
-- When se actualiza la salida, incluidas fracciones de medio tick.
-- Then MUST mantener error máximo de medio tick; período completo usa MR1=MR0+1.
-
-#### Scenario: S6 — Lectura actual de MR0
-- Given mando250 y MR0=1000, luego reconfiguración externa terminada a2000.
-- When se vuelve a llamar con el mismo mando.
-- Then MUST enviar250 y500 respectivamente, sin conservar el período anterior.
+#### Scenario: S2 — Dominio completo
+- Given cada mando representable entre0 y1000.
+- When se llama Motor_Write.
+- Then MUST enviar el mismo valor una vez, sin recorte185 ni caso especial del máximo.
 
 ### Requirement: MD2 — Rechazo y recuperación
 
-MUST devolver false si mando>1000 o MR0 es0/UINT32_MAX, sin invocar escritura
-ni emitir cero automáticamente. Una llamada válida posterior MUST recuperar
-sin retener errores. true MUST significar despacho, no diagnóstico físico.
+MUST devolver false si mando>1000, sin llamar al driver ni emitir cero.
+Una llamada válida posterior MUST recuperar sin retener errores. true MUST
+significar despacho lógico, no confirmar estado eléctrico o movimiento.
+La configuración MR0=1000 MUST ser precondición externa, sin diagnóstico nuevo.
 
-#### Scenario: S3 — Entradas o configuración inválidas
-- Given mando1001/UINT16_MAX o MR0 inválido después de una orden válida.
-- When se llama Motor_Write y después se restablecen valores válidos.
-- Then MUST rechazar sin escritura y recuperar con un único despacho válido.
+#### Scenario: S3 — Fuera de rango y recuperación
+- Given orden válida y mandos1001..UINT16_MAX posteriores.
+- When se rechazan y luego llega otra orden válida.
+- Then MUST evitar toda escritura por rechazo y recuperar con un único despacho.
 
-### Requirement: MD3 — Operación de dispositivo
+### Requirement: MD3 — Operación mínima de dispositivo
 
-MUST leer directamente LPC_PWM1->MR0 en Dispositivos, ya que la biblioteca no
-ofrece getter, y usar PWM_MatchUpdateSingle original para PWM1.1/P2.0 función01.
-MUST despachar una vez por solicitud válida, incluidas repeticiones; sin init,
-reset/esperas/ISR/heap/contexto/estado propio. Uso físico MUST exigir acceso
-al periférico habilitado, recurso exclusivo, single-edge activo alto y MR0
-estable/efectivo sin actualización pendiente, reset por MR0 y sin otros matches
-que alteren TC. Acceso serializado y latch al próximo ciclo; no efecto inmediato.
+MUST conservar PWM1.1/P2.0 función01, un despacho por orden válida aun repetida,
+sin estado/contexto/caché/init/reset/ISR/heap/esperas ni acceso propio a registros.
+Uso físico MUST exigir PWM accesible/exclusivo/preconfigurado/arrancado,
+single-edge activo alto, MR0 efectivo1000 estable, reset por MR0 y sin otros
+matches que alteren TC. Acceso serializado y latch al próximo ciclo.
 
-#### Scenario: S4 — Repetición y conservación
-- Given PWM preconfigurado y órdenes repetidas/cero/avance.
-- When se llama Motor_Write.
-- Then MUST leer sin escribir MR0 y despachar sólo el match de salida una vez por orden válida.
+#### Scenario: S4 — Repeticiones y cero
+- Given órdenes repetidas, cero, máximo y descenso posterior.
+- When se aplica la secuencia.
+- Then MUST despachar cada valor una vez y preservar período/otros recursos.
 
-### Requirement: MD4 — Capas, documentación y verificación
+### Requirement: MD4 — Documentación y evidencia
 
 MUST actualizar Doxygen ESW.2.1.9/USW.2.1.9.1 y verificar host/san/ARM/regresiones.
-MUST NOT modificar Drivers, servicios/otros dispositivos/aplicación, inicializar
-o enlazar globalmente periféricos ni incorporar regulación/dirección/freno.
-Pruebas host MUST modelar MR0 sin alterar biblioteca ni introducir hooks de
-producción; configuración/frecuencia/potencia/adaptación/main quedan al final.
+MUST retirar el modelo RAM de MR0 y preinclude al dejar de necesitar lectura.
+MUST NOT modificar Drivers, servicios/otros dispositivos/contratos aceptados ni
+inicializar/enlazar globalmente periféricos. Configuración MR0=1000, frecuencia,
+potencia/adaptación/main y validación física de errata PWM.1 quedan al final.
 
-#### Scenario: S5 — Evidencia por modalidad
-- Given dispositivo corregido y controles conservados.
-- When se ejecutan pruebas/build/Doxygen y revisión diff/hashes.
-- Then MUST registrar evidencia actual, separada de c952892 y del PWM/motor físico pendiente.
+#### Scenario: S5 — Verificación por modalidad
+- Given wrapper directo, doble de escritura y módulos aceptados preservados.
+- When se ejecutan controles/diff/hashes.
+- Then MUST registrar evidencia actual, separada de contratos descartados y del hardware pendiente.

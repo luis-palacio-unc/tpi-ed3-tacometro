@@ -1,47 +1,40 @@
-# B15 — Actualización PWM del dispositivo Motor
+# B15 — Motor con período fijo y mando directo
 
-Estado: alcance/PWM1.1/P2.0 acordados2026-11-10; implementación autorizada, resultado sin aceptar.
+Estado: simplificación autorizada por usuario2026-11-10, resultado sin aceptar.
 
 ## Objetivo y origen
 
-R03/R06/R10/R11/R15 y ESW.2.1.9 del anexo B: traducir el mando lógico del motor
-a una actualización PWM usando la biblioteca original. Continúa dispositivos;
-inicialización y conexión a Driver_Motor/main se dejan para el final.
+R03/R06/R10/R11/R15, ESW.2.1.9: actualizar PWM mediante biblioteca existente.
+El usuario fija MR0=1000; cada unidad de mando pasa a ser directamente un tick.
+Se reemplazan la conversión genérica y lectura de MR0 de versiones anteriores.
 
-## Alcance
+## Alcance y contrato
 
-- PWM1.1 acordado en P2.0, función 01 de PINSEL4, salida single-edge activa alta.
-  P1.18 permanece CAP1.0/TIMER1 del sensor, TIMER0 conserva la base temporal.
-- Motor_Write(uint16_t mando_por_mil) devuelve bool y lee LPC_PWM1->MR0.
-  Mando0..1000 y MR0 válido1..UINT32_MAX-1, estable/efectivo sin update pendiente.
-  Simplificación autorizada por usuario: elimina el parámetro de período de c952892.
-- Convertir a ticks con redondeo cercano/empate arriba, error máximo medio tick.
-  Cero produce salida baja; redondeo a período completo usa MR1=período+1 para
-  salida alta continua, según manual. Una llamada PWM_MatchUpdateSingle por orden.
-- Rechazar mando >1000 o MR0=0/UINT32_MAX con false y sin llamadas.
-  true significa solicitud válida enviada al driver, sin confirmar electricidad.
-  Sin contexto opaco ni fallos de hardware inventados.
-- Doxygen ESW.2.1.9/USW.2.1.9.1 y pruebas verificables de conversión/despacho.
+- bool Motor_Write(uint16_t mando_por_mil), válido0..1000.
+- Una llamada PWM_MatchUpdateSingle(PWM_MATCH_1,mando_por_mil) por orden válida.
+  Sin cálculo de match, lectura MR0, producto/división/redondeo o1000→1001.
+- Rechazo >1000 con false, sin llamadas/cero automático; true indica despacho.
+- MR0=1000 ticks efectivo/estable será condición de inicialización final, usando
+  drivers originales. No configurar ahora ni escribir MR0 por llamada.
+- PWM1.1/P2.0 función01 conservado. Documentar USW9.1 y probar nuevo contrato.
 
-Archivos: Dispositivos/Motor.h/.c, tests/host/test_motor.c y dobles/pwm_registros.h, CMakeLists.txt,
-docs/doxygen/Doxyfile y seguimiento. Drivers, Timer, Sensor_Optico, Driver_Motor,
-aplicación y contratos aceptados se preservan.
-
-Excluye init/arranque/pinmux/reloj, fijar frecuencia, potencia/dirección/freno,
-regulador/rampas, adaptación del servicio y ensayos físicos.
+Archivos: Motor.h/.c, test_motor.c, CMakeLists.txt y documentación/SDD.
+Retirar modelo de registros/preinclude propios de la prueba anterior.
+No modificar Drivers, Timer, Sensor_Optico, servicios/otros dispositivos,
+contratos aceptados o archivos archivados. Sin regulación/rampas/init/clock/
+potencia/dirección/freno/main ni ensayos físicos nuevos.
 
 ## Dependencias y aceptación
 
-UM10360 tabla 84/p120, §24.4.1/p524 y §24.6.7/p531; driver PWM existente.
-Uso físico exige PWM exclusivo, MR0 coherente, modo/reloj/canal habilitados y
-serialización; efecto diferido al próximo ciclo, no espera ni confirmación física.
-Frecuencia y etapa de potencia se definirán en integración final.
+MR0=1000, PWM accesible/exclusivo/configurado/arrancado/single-edge alto,
+reset por MR0 sin otros matches que alteren TC; acceso serializado/latch.
+Frecuencia/prescaler, potencia y validación PWM.1 al integrar; ver exploración.
 
-1. Verificar 0/500/1000 con MR0=1000: MR1=0/500/1001, sin alterar período.
-2. Verificar lectura actual de MR0, redondeo, repetición y períodos pequeños/grandes sin overflow.
-3. Entradas inválidas no escriben; una válida posterior recupera sin reintento.
-4. Host/sanitizadores/regresiones, ARM y Doxygen pasan; biblioteca intacta.
+1. Mandos0/250/500/1000 despachan exactamente esos valores, también repetidos.
+2. Recorrer0..1000 sin conversiones y1001..65535 sin despacho, con recuperación.
+3. Host/san/regresiones, ARM/header y Doxygen pasan, sin helpers de conversión.
+4. Biblioteca y módulos aceptados intactos; hardware/arranque permanecen pendientes.
 
-Riesgo: confundir porcentaje/ticks o asumir salida inmediata. Contratos y casos
-numéricos lo detectan; cableado/señal se verifican al integrar. Reversión: commit
-inverso sólo del bloque acordado. Resultado corregido pendiente de aceptación.
+Riesgo: asumir equivalencia sin configurar MR0=1000 o ignorar PWM.1; documentar
+condición y ensayo físico final. Reversión por commit inverso sólo del cambio.
+Commit local, sin push; aceptar resultado antes de sincronizar/archivar.

@@ -129,10 +129,10 @@ SO1–SO4/S1–S5 conformes:6 casos nuevos, host/san20/20,200 C+oráculo; ARM13/
 objetoO0/O2 y Doxygen41. Timer/B03/Drivers intactos. Adquisición/integración físicas
 pendientes. [Evidencia](../../openspec/changes/archive/2026-11-10-b14-sensor-optico-contador/verify-report.md).
 
-B15 corregido por usuario, implementado/verificado, sin aceptar
-(R03/R06/R10/R11/R15): Motor_Write sólo mando, lee MR0; PWM1.1/P2.0 conservado.
-MD1–MD4/S1–S6 conformes: seis casos,13013 combinaciones y64535 rechazos;
-host/san21/21,206 C+oráculo, ARM13/13/O0/O2 y Doxygen42. Modelo RAM privado de
-pruebas, Drivers/servicios/otros dispositivos/contratos aceptados intactos.
-Frecuencia/PWM físico/potencia/adaptación/main pendientes.
+B15 simplificado por usuario, implementado/verificado, sin aceptar
+(R03/R06/R10/R11/R15): MR0=1000 requerido al integrar, mando directo0..1000 hacia
+PWM_MATCH_1, sin cálculo/lectura MR0. MD1–MD4/S1–S5 conformes: cuatro casos,
+1001 envíos exactos/64535 rechazos; host/san21/21,204 C+oráculo, ARM13/13/O0/O2,
+Doxygen42. Modelo RAM retirado; Drivers/módulos/contratos aceptados intactos.
+Configuración/frecuencia/potencia/PWM.1/adaptación/main físicos pendientes.
 [Evidencia actual](../../openspec/changes/b15-dispositivo-motor-pwm/verify-report.md).

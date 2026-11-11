@@ -1,23 +1,17 @@
-# Exploración B15 — período obtenido de MR0
+# Exploración B15 — período fijo1000
 
-Base actual c952892, main. El usuario autoriza eliminar el parámetro período
-y leer directamente el registro en Motor.c; conserva PWM1.1/P2.0 y escritura
-por driver. Es una corrección del cambio B15 activo, aún sin aceptar/archivar.
+Base cf17359. Usuario ordena MR0=1000 y envío literal del mando. Se retiran
+lectura/conversión/cálculo de match, manteniendo validación0..1000 y driver original.
+La inicialización de periféricos sigue para el final; su contrato queda MR0=1000.
 
-Biblioteca original revisada en sólo lectura: lpc17xx_pwm.h ofrece actualización
-de match pero ningún getter de MR0; PWM_GetCaptureValue devuelve captura, no
-período. LPC17xx.h define MR0 __IO uint32_t (volatile) dentro de LPC_PWM_TypeDef
-y LPC_PWM1 como puntero al periférico. Leerlo aquí corresponde a Dispositivos.
-No modificar Drivers, crear getter de biblioteca o pasar configuración duplicada.
+Fuente de discrepancia del100 %: UM10360 §24.4.1 asegura salida alta con MR1>MR0,
+pero no implica que igualdad sea inválida. La explicación previa que exigía1001
+fue demasiado restrictiva. [NXP ES_LPC176x rev10.6, §3.13/p17](https://www.nxp.com/docs/en/errata/ES_LPC176X.pdf)
+identifica MR1=MR0 como100 % y MR0+1 como workaround de PWM.1. La orden actual
+exige envío directo; no se introduce ese workaround ni cambia canal sin acuerdo.
+PWM.1 queda como limitación física pendiente de revisar al integrar PWM1.1.
 
-La lectura puede ver valor programado aún no latcheado; exigir configuración
-efectiva/estable sin update pendiente y acceso serializado. No afirmar que una
-lectura resuelva concurrencia o confirme electricidad. Inicialización al final.
-Fundamento previo de pin/extremos/latch en UM10360 tabla84/p120 y cap24 se conserva;
-no se incorporan nuevos requisitos desde documentos externos.
-
-Pruebas host redirigen sólo el puntero del periférico a RAM con el tipo CMSIS
-original, mediante preinclude privado de pruebas_motor. Compilación ARM y
-firmware usan puntero original. No introducir hooks o abstracciones en producción.
-Decisión anterior con período explícito y su evidencia permanecen en Git c952892;
-informe actual verifica exclusivamente código corregido.
+La biblioteca PWM_MatchUpdateSingle ya escribe match/LER; no modificarla.
+Retirar modelo RAM/preinclude porque sólo queda escritura por API. Probar el
+valor exacto enviado (incluido1000) y rechazo/recuperación; el doble no valida
+señal eléctrica ni errata. Historial anterior/evidencia permanece en Git.

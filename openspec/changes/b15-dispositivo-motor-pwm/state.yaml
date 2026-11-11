@@ -8,15 +8,15 @@ implementation_started: true
 verification_passed: true
 main_specs_synced: false
 proposed_on: '2026-11-10'
-base_commit: c952892
+base_commit: cf17359
 device_esw: ESW.2.1.9
 drivers_modification_prohibited: true
 initialization_deferred: true
 hardware_verified: false
 commit_authorized_on_agreed_block_completion: true
 push_authorized: false
-next_action: Revisar/aceptar B15 corregido antes de sincronizar/archivar; sin push
-  ni integracion.
+next_action: Revisar/aceptar B15 directo; MR0=1000 y validacion PWM.1 al integrar.
+  Sin push.
 scope_approved_on: '2026-11-10'
 commit_authorized: true
 output: PWM1.1
@@ -25,7 +25,9 @@ pin_function: 1
 api: bool Motor_Write(uint16_t mando_por_mil)
 pwm_configured: false
 pinmux_configured: false
-commit_subject: 'fix: obtener periodo de Motor desde MR0'
-period_source: LPC_PWM1->MR0
+commit_subject: 'refactor: enviar mando PWM directo con periodo fijo'
+period_source: fixed configuration at final initialization
 correction_approved_on: '2026-11-10'
+period_ticks: 1000
+direct_command: true
 verified_on: '2026-11-10'

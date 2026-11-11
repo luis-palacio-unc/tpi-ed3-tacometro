@@ -1,53 +1,45 @@
-# Diseño candidato B15 — mando con lectura de MR0
+# Diseño B15 — envío directo con MR0=1000
 
-## Cambio acordado y decisiones
+## Decisión actual
 
-El usuario pide simplificar B15: Motor_Write recibe sólo mando y consulta MR0.
-Esta decisión reemplaza el período explícito de c952892, cuyo código/informe
-se conservan en Git como evidencia anterior. No se modifica ningún driver.
+El usuario fija MR0=1000 y solicita pasar mando_por_mil directamente al driver.
+Esto reemplaza período explícito/lectura y conversión de c952892/cf17359.
+Se conserva bool Motor_Write(uint16_t mando_por_mil), PWM1.1/P2.0 y el máximo
+compartido de Limites.h. El servicio sigue portable e intacto.
 
 | Elección | Razón |
 |---|---|
-| bool Motor_Write(uint16_t mando_por_mil) | El llamador sólo suministra mando; no duplica configuración del PWM. |
-| Una lectura volatile de LPC_PWM1->MR0 por llamada válida | Dispositivos es específico del MCU; no existe getter en biblioteca. Sin caché ni wrapper adicional. |
-| Escritura con PWM_MatchUpdateSingle(PWM_MATCH_1, valor) | Reutiliza actualización de MR1/LER original, sin copiarla. |
-| PWM1.1/P2.0 función01 single-edge | Recurso acordado; conserva P1.18 para CAP1.0/TIMER1 y TIMER0 para base temporal. |
-| Modelo RAM sólo en pruebas host | Probar código real y tipos CMSIS originales sin acceso a MMIO físico ni cambios a biblioteca. |
+| Validar mando y llamar PWM_MatchUpdateSingle(PWM_MATCH_1,mando_por_mil) | Período fijo1000 coincide con la escala del mando, sin conversión. |
+| Sin lectura/escritura de MR0 en Motor_Write | MR0 se configura una vez al integrar; no acoplar actualización de duty al arranque. |
+| No ajustar1000 a1001 | Orden explícita actual; fundamento/limitación física PWM.1 en exploration.md. |
+| Retirar modelo PWM en RAM y preinclude host | Sin lectura de registros, basta el doble de la función de escritura. |
 
-## Operación, aritmética y precondiciones
+## Contrato y recursos
 
-Validar mando <=TPI_MANDO_MANUAL_MAX (1000 compartido). Leer MR0 una vez a una
-variable local const. Rechazar MR0=0/UINT32_MAX sin despacho. Mantener conversión:
-q=round_half_up(mando*período/1000), intermedio uint64_t cuyo máximo es
-1000*(2^32-2)+500. Si q<período, MR1=q; si q=período, MR1=período+1 para alto
-continuo. Reservar UINT32_MAX evita overflow de ese extremo; error <=medio tick.
-Una llamada al driver por orden válida, incluso repetida. true confirma despacho;
-false rechaza sin emitir cero. Sin estado/contexto/heap/ISR/esperas/init propios.
+Mando>1000 devuelve false sin llamadas ni cero automático. Mando válido llama
+una vez al driver y devuelve true, incluidas repeticiones. Sin saturación185,
+caché/contexto/estado/aritmética/64bits/init/heap/ISR/esperas. true no diagnostica
+hardware. Cada solicitud sustituye la anterior; latcheo físico al próximo ciclo.
 
-La lectura obtiene MR0 programado; no acredita que una actualización pendiente
-ya se haya aplicado por latch. Por eso el uso físico exige PWM accesible,
-preconfigurado/arrancado/exclusivo y MR0 efectivo/estable sin update pendiente.
-Reset por MR0, sin otros matches que alteren TC, acceso privilegiado serializado.
-Varias órdenes antes del próximo ciclo pueden dejar sólo la última. Frecuencia,
-reloj/pinmux/arranque y etapa de potencia para integración final.
-Manual UM10360 §24.4.1/p524 y §24.6.7/p531 conserva fundamento de extremos/latch.
+La inicialización final configurará MR0=1000 con la biblioteca existente y el
+reloj/prescaler para la frecuencia que se acuerde. Este bloque deja esa condición
+escrita; no inicializa ahora ni escribe MR0 por llamada. PWM exclusivo/configurado/
+arrancado, single-edge alto, MR0 efectivo/estable y reset por MR0, sin otros matches
+que alteren TC y acceso serializado. Ver limitación física PWM.1 en exploración.
 
-## Pruebas y archivos
+## Archivos y verificación
 
-- Motor.h/.c: firma de un parámetro, lectura local y Doxygen USW9.1 actualizado.
-- tests/host/dobles/pwm_registros.h: incluir LPC17xx.h original, declarar estructura
-  RAM con su tipo y redirigir únicamente LPC_PWM1 en compilación de pruebas.
-- CMakeLists.txt: preinclude privado sólo en pruebas_motor; no afecta firmware,
-  otros targets ni archivos en Drivers. Header público sigue sin CMSIS.
-- test_motor.c: MR0 del modelo provee período; doble de escritura conserva
-  despacho/rango. S4/S6 cambian MR0 entre llamadas con el mismo mando y preservan
-  MR0/otros campos. S3 configura MR0 inválido y prueba recuperación. Mantener
-  tablas/límites, 13013 combinaciones y64535 rechazos, sin copiar fórmula en pruebas.
-- README/docs/agente/docs-doxygen y seguimiento SDD: contrato/evidencia actuales.
+- Motor.h/.c: USW9.1 con una entrada, validación y despacho literal, Doxygen actualizado.
+- tests/host/test_motor.c: cuatro casos de referencias/dominio completo/rechazo y
+  recuperación/repetición-cero; 1001 valores válidos y64535 inválidos.
+- CMakeLists.txt: retirar sólo preinclude de pruebas_motor; conservar target/flags/tests.
+- Eliminar tests/host/dobles/pwm_registros.h, propio del test anterior sin uso actual.
+- README/docs-agente/docs-doxygen/SDD: estado y evidencia de contrato actual.
 
-Ejecutar host/sanitizadores/regresiones, ARM/header O0/O2 sin redirección, Doxygen
-estricto, recursos/símbolos y hashes. Negativos externos comprueban lectura de MR1
-equivocada/período fijo, además de fallos numéricos. Header sólo C11/C++17.
-Sin ejecutar biblioteca/MCU, reloj/señal/motor físicos; modelo de RAM no simula
-latch, tiempo o electricidad. Driver_Motor conserva su contrato, adaptación al final.
-El resultado B15 corregido requiere aceptación antes de sincronizar/archivar.
+Ejecutar B15 y regresiones host/san, ARM O0/O2/header aislado, Doxygen estricto,
+símbolos/recursos/diff/hashes. Esperar único símbolo externo PWM_MatchUpdateSingle,
+sin helpers aritméticos ni puntero a modelo/registros. Dobles registran órdenes,
+no simulan MCU/tiempo/latch/electricidad ni comprueban errata física.
+No tocar biblioteca o módulos aceptados, integrar main, configurar periféricos,
+instalar/flashear/publicar o avanzar bloques. Commit local al terminar; resultado
+pendiente de aceptación antes de sincronizar/archivar.
