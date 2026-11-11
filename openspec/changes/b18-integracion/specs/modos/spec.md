@@ -19,7 +19,7 @@ AUTOMATICA y barreras de orden uint64. Se retiran `Procesamiento_Inicializar` y
 `Procesamiento_Estado Procesamiento_ActualizarModo(Mandos_Modo, bool hay_consigna,
 uint32_t consigna_rpm)` y `uint32_t Procesamiento_Consigna(void)`, con estados
 MANUAL, AUTO_ESPERA y AUTO_ACTIVO en memoria estática. Inicializar: MANUAL →
-MANUAL; AUTOMATICO → AUTO_ESPERA; consigna 0.
+MANUAL; AUTOMATICO → AUTO_ESPERA; consigna 0 e integral del regulador en cero.
 
 #### Scenario: S1 — Arranque (`i2.procesamiento`)
 - Given modo inicial MANUAL o AUTOMATICO.
@@ -27,7 +27,8 @@ MANUAL; AUTOMATICO → AUTO_ESPERA; consigna 0.
 - Then MUST dar MANUAL o AUTO_ESPERA, consigna 0, y seguir en AUTO_ESPERA.
 
 ### Requirement: MO2 — Transiciones
-Actualizar MUST aplicar, en orden: (1) modo MANUAL → MANUAL y consigna 0;
+Actualizar MUST aplicar, en orden: (1) modo MANUAL → MANUAL, consigna 0 e
+integral del regulador en cero (regulacion-velocidad RG3);
 (2) de MANUAL a modo AUTOMATICO → AUTO_ESPERA, descartando la consigna de esa
 llamada; (3) en AUTO_ESPERA/AUTO_ACTIVO, `hay_consigna` con valor 0..185 →
 AUTO_ACTIVO con esa consigna; un valor mayor MUST ignorarse sin alterar estado ni

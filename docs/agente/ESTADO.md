@@ -20,7 +20,7 @@
 - Capas: Aplicación → Servicios → Dispositivos, comprobado por `i2.capas`. Cada
   servicio llama a sus dispositivos; sin contextos, callbacks ni enums de error.
   `Sistema_Init` arranca reloj y ADC/DMA. Modos de 3 estados; alarma 45/43 °C con
-  promedio de 4 lecturas; PI de B17 sin cambios. Lazo: alarma → modo → mando →
+  promedio de 4 lecturas; PI simplificado en I5 (ver abajo). Lazo: alarma → modo → mando →
   telemetría cada 500 ms; en MANUAL el potenciómetro actúa en cada vuelta.
 - Host/san 29/29 y host 29/29; ARM Debug 9/9 y Release 9/9; Doxygen 60 funciones
   sin avisos; `Drivers/` y `Dispositivos/` sin cambios. Firmware Debug 19 636 B de
@@ -40,6 +40,18 @@
   `SystemInit`, CRP sin protección. CMake host/san 29/29, ARM 9/9 y 9/9, Doxygen 60
   funciones sin avisos. Importación por la interfaz, sonda y depuración sin probar.
   Guía y lista de puesta en marcha: [MCUXPRESSO.md](../MCUXPRESSO.md).
+- I5 (regulador simple y redundancias de I2), pedido por el usuario antes de la
+  puesta en marcha, implementado y verificado por Claude; rama `integracion-i5`,
+  base a5a888e. `uint16_t Procesamiento_Regular(consigna_rpm, rpm_milesimas)` con la
+  integral en memoria estática y las ganancias de `Control.h`; la cuenta del PI no
+  cambia. Se retiran inicializar/reiniciar, instancia, configuración en ejecución,
+  estados de resultado, retención de mediciones, `Medicion_Velocidad_Lectura` y
+  `scripts/verificar_b17.py`. El modo borra la integral (arranque y MANUAL);
+  `main.c` ya no reinicia el PI. Host/san 29/29 y host 29/29; ARM 9/9 y 9/9; Doxygen
+  58 funciones sin avisos; MCUXpresso Debug y Release 0 errores y 0 avisos (`.axf`
+  18 204 B y 10 256 B de flash, 360 B de SRAM sin pila); 16 de 17 mutantes
+  detectados, 1 equivalente. El contrato vigente de regulacion-velocidad (B17) queda
+  reemplazado por el delta del cambio al cerrar B18.
   Sigue I4 (puesta en marcha en placa, a cargo del usuario).
 
 ## Evidencia aceptada

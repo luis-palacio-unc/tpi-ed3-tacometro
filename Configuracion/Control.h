@@ -1,9 +1,9 @@
 /**
  * @file Control.h
- * @brief Ganancias discretas y retencion del regulador PI del TPI.
+ * @brief Ganancias discretas del regulador PI del TPI.
  * @details Defaults provisionales para el modelo, no sintonia del motor real.
  * Las ganancias son por mil por milesima RPM; Ki ya incluye el paso de 500 ms.
- * @note B17. No configura Timer ni establece la cadencia real.
+ * @note Las usa Procesamiento_Regular. No configura Timer ni establece la cadencia real.
  */
 #ifndef TPI_CONTROL_H
 #define TPI_CONTROL_H
@@ -40,14 +40,6 @@
 #endif
 #if TPI_CONTROL_KI_DEN < 1 || TPI_CONTROL_KI_DEN > 1000
 #error "TPI_CONTROL_KI_DEN debe pertenecer a 1..1000."
-#endif
-
-/** @brief Maximos periodos consecutivos que reutilizan medicion, 1..65535. */
-#ifndef TPI_CONTROL_MAX_PERIODOS_SIN_MEDICION
-#define TPI_CONTROL_MAX_PERIODOS_SIN_MEDICION 4U
-#endif
-#if TPI_CONTROL_MAX_PERIODOS_SIN_MEDICION < 1 || TPI_CONTROL_MAX_PERIODOS_SIN_MEDICION > 65535
-#error "TPI_CONTROL_MAX_PERIODOS_SIN_MEDICION debe pertenecer a 1..65535."
 #endif
 
 /**

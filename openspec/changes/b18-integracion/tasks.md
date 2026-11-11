@@ -48,7 +48,7 @@
 - [x] 2.10 Delta specs de I2 (9 dominios nuevos o reemplazados, más build,
   temperatura, sensor-optico y regulacion-velocidad), verify-report, ESTADO y MAPA.
 - [x] 2.11 Mutación manual fuera del árbol: 48 mutantes.
-- [ ] 2.12 Revisión de Claude del diff y commit local.
+- [x] 2.12 Revisión de Claude del diff y commit local (e3a279c).
 
 ## I3 — Proyecto MCUXpresso
 
@@ -68,5 +68,24 @@
 - [x] 3.6 CMake host/san y ARM Debug/Release y Doxygen sin cambios de resultado.
 - [x] 3.7 `docs/MCUXPRESSO.md`: importar, compilar, depurar, terminal serie y lista de
   puesta en marcha (I4).
-- [ ] 3.8 Revisión de Claude del diff y commit local.
+- [x] 3.8 Revisión de Claude del diff y commit local (a5a888e).
 - [ ] 3.9 Importación por la interfaz y depuración con la sonda: las hace el usuario.
+
+## I5 — Regulador simple y redundancias de I2
+
+Pedido del usuario del 2026-11-11, antes de la puesta en marcha.
+
+- [x] 5.1 `Procesamiento_Regular(consigna_rpm, rpm_milesimas)` devuelve el mando;
+  integral en memoria estática; ganancias de `Control.h`. Se retiran
+  inicializar/reiniciar, instancia, configuración en ejecución, estados de
+  resultado, retención de mediciones y `TPI_CONTROL_MAX_PERIODOS_SIN_MEDICION`.
+- [x] 5.2 El modo borra la integral (`InicializarModo` y modo MANUAL); `main.c` sin
+  reinicios del PI ni `mando = 0` posterior al regulador.
+- [x] 5.3 `Medicion_Velocidad.h` sin `Medicion_Velocidad_Estado`/`_Lectura`.
+- [x] 5.4 Pruebas: `test_regulador.c` de caja negra (7 casos), oráculo con un emisor
+  por juego de ganancias (8), probes de `Control.h` (4 + 18), fixture ARM.
+  `scripts/verificar_b17.py` eliminado (reproducía la API retirada).
+- [x] 5.5 Delta specs regulacion-velocidad (reemplazo), modos, sistema y
+  medicion-velocidad; verify-report, ESTADO, README y MCUXPRESSO.
+- [x] 5.6 Host/san, host, ARM Debug/Release, Doxygen, compilación MCUXpresso sin
+  interfaz y 17 mutantes fuera del árbol.

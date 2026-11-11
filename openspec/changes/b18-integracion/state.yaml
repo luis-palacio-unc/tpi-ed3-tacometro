@@ -13,8 +13,9 @@ main_specs_synced: false
 change_archived: false
 stages:
   I1: reviewed_committed_ff07e3e
-  I2: implemented_verified_pending_review
-  I3: implemented_verified_headless_pending_review
+  I2: reviewed_committed_e3a279c
+  I3: reviewed_committed_a5a888e
+  I5: implemented_verified
 i1_branch: integracion-i1
 i1_delta_specs: [build, uart-dispositivo, timer, motor-dispositivo, sensor-optico, dispositivos-gpio, potenciometro-dma, temperatura]
 i1_new_usw: [USW.2.1.9.2, USW.2.1.10.2, USW.2.1.13.2, USW.2.1.14.2, USW.2.1.15.2, USW.2.1.16.3, USW.2.1.16.4, USW.2.1.16.5, USW.2.1.16.6, USW.2.1.17.15, USW.2.1.17.16]
@@ -60,6 +61,23 @@ i3_host_sanitizer_suites_passed: 29
 i3_arm_checks_passed_debug: 9
 i3_arm_checks_passed_release: 9
 i3_documented_functions: 60
+i5_branch: integracion-i5
+i5_base_commit: a5a888e
+i5_delta_specs: [regulacion-velocidad, modos, sistema, medicion-velocidad]
+i5_retired_usw: [USW.2.1.2.8, USW.2.1.2.10]
+i5_kept_usw: [USW.2.1.2.9]
+i5_host_sanitizer_suites_passed: 29
+i5_host_suites_passed: 29
+i5_arm_checks_passed_debug: 9
+i5_arm_checks_passed_release: 9
+i5_documented_functions: 58
+i5_headless_build_debug: 0 errores, 0 avisos
+i5_headless_build_release: 0 errores, 0 avisos
+i5_axf_flash_bytes_debug: 18204
+i5_axf_flash_bytes_release: 10256
+i5_axf_sram_bytes: 360
+i5_mutants_detected: [16, 17]
+i5_mutants_equivalent: 1
 i3_gui_import_verified: false
 i3_debug_probe_verified: false
 drivers_modification_prohibited: true
@@ -67,4 +85,4 @@ drivers_unchanged: true
 hardware_acceptance_pending: true
 commit_authorized: false
 push_authorized: false
-next_action: Revision de Claude del diff de I3 y commit local; luego importacion por la interfaz y puesta en marcha I4 a cargo del usuario.
+next_action: Importacion por la interfaz y puesta en marcha I4 a cargo del usuario; luego sincronizar specs y archivar.

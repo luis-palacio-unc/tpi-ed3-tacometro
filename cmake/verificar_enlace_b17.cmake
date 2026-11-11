@@ -12,20 +12,11 @@ endif()
 file(MAKE_DIRECTORY "${OUTPUT_DIR}")
 file(WRITE "${OUTPUT_DIR}/main_fixture.c" [=[
 #include "Procesamiento.h"
-#include "Control.h"
-static Procesamiento_Regulador pi;
 static volatile uint32_t rpm_milesimas;
 static volatile uint16_t ultimo;
 int main(void)
 {
-    const Procesamiento_ConfigRegulador cfg={TPI_CONTROL_KP_NUM,TPI_CONTROL_KP_DEN,
-        TPI_CONTROL_KI_NUM,TPI_CONTROL_KI_DEN,TPI_CONTROL_MAX_PERIODOS_SIN_MEDICION};
-    if (!Procesamiento_InicializarRegulador(&pi,&cfg) ||
-        !Procesamiento_ReiniciarRegulador(&pi)) { return 1; }
-    const Medicion_Velocidad_Lectura medicion={rpm_milesimas,MEDICION_VELOCIDAD_VALIDA};
-    uint16_t mando;
-    if (Procesamiento_Regular(&pi,100U,&medicion,&mando)!=PROCESAMIENTO_REGULADOR_VALIDO) { return 1; }
-    ultimo=mando;
+    ultimo = Procesamiento_Regular(100U, rpm_milesimas);
     return 0;
 }
 ]=])
@@ -55,8 +46,7 @@ execute_process(COMMAND "${TOOL_PREFIX}nm" --defined-only "${OUTPUT_DIR}/fixture
 if(NOT result EQUAL 0)
     message(FATAL_ERROR "No se pudieron inspeccionar simbolos B17: ${errors}")
 endif()
-foreach(required_symbol Procesamiento_InicializarRegulador Procesamiento_Regular
-        Procesamiento_ReiniciarRegulador)
+foreach(required_symbol Procesamiento_Regular)
     if(NOT symbols MATCHES "[ \t]${required_symbol}[\r\n]")
         message(FATAL_ERROR "API B17 ausente: ${required_symbol}")
     endif()

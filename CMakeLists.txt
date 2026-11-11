@@ -145,9 +145,27 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
     set(TPI_CMSIS_INC Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
 
-    # Regulador PI de B17: logica pura, sin cambios.
+    # Regulador PI: logica pura. El oraculo compila un emisor por juego de ganancias.
     add_executable(pruebas_regulador tests/host/test_regulador.c Aplicacion/Procesamiento.c)
-    add_executable(consulta_regulador tests/host/consulta_regulador.c Aplicacion/Procesamiento.c)
+    set(TPI_REGULADOR_TARGETS pruebas_regulador)
+    set(TPI_REGULADOR_ORACLE_CASES)
+    foreach(ganancias IN ITEMS 4_1000_1_1000 1_1000_1_1000 1000_1_1000_1 1_1_1_1
+            1000_1000_1000_1000 3_7_2_9 1_1000_1000_1 1_7_5_3)
+        string(REPLACE "_" ";" g "${ganancias}")
+        list(GET g 0 kp_num)
+        list(GET g 1 kp_den)
+        list(GET g 2 ki_num)
+        list(GET g 3 ki_den)
+        set(regulador_target "consulta_regulador_${ganancias}")
+        add_executable(${regulador_target} tests/host/consulta_regulador.c
+            Aplicacion/Procesamiento.c)
+        target_compile_definitions(${regulador_target} PRIVATE
+            "TPI_CONTROL_KP_NUM=${kp_num}" "TPI_CONTROL_KP_DEN=${kp_den}"
+            "TPI_CONTROL_KI_NUM=${ki_num}" "TPI_CONTROL_KI_DEN=${ki_den}")
+        list(APPEND TPI_REGULADOR_TARGETS ${regulador_target})
+        list(APPEND TPI_REGULADOR_ORACLE_CASES --caso "$<TARGET_FILE:${regulador_target}>"
+            ${kp_num} ${kp_den} ${ki_num} ${ki_den})
+    endforeach()
 
     # I2: servicios, Procesamiento y aplicacion completa con dispositivos simulados.
     set(TPI_FAKES tests/host/fakes_dispositivos.c)
@@ -216,7 +234,7 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     endforeach()
 
     foreach(prueba IN LISTS TPI_PRUEBAS_I2 TPI_PRUEBAS_DISPOSITIVOS
-            ITEMS pruebas_regulador consulta_regulador)
+            TPI_REGULADOR_TARGETS)
         target_include_directories(${prueba} PRIVATE Aplicacion Servicios Configuracion)
         set_target_properties(${prueba} PROPERTIES
             C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO)
@@ -232,7 +250,7 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_test(NAME b17.regulador COMMAND pruebas_regulador)
     add_test(NAME b17.oraculo_planta COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/verificar_regulador.py"
-        --programa "$<TARGET_FILE:consulta_regulador>"
+        ${TPI_REGULADOR_ORACLE_CASES}
         --evidencia "${CMAKE_CURRENT_BINARY_DIR}/evidencia-b17/oraculo")
     add_test(NAME b17.configuracion_control COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/verificar_configuracion_control.py"

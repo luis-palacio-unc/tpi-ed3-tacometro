@@ -14,7 +14,7 @@
  * @brief Inicializar la plataforma, los servicios y el estado de la aplicacion.
  * @details Orden: Sistema_Init (reloj y ADC/DMA); Driver_Motor_Init y mando cero;
  * Driver_Alarmas_Init y alarma apagada; Mandos_Init; Comunicacion_Init; modo
- * inicial segun la llave; regulador PI con las ganancias de Control.h;
+ * inicial segun la llave, que tambien deja el regulador PI en cero;
  * Medicion_Velocidad_Init al final, para que la primera ventana de 500 ms empiece
  * con todo listo. Si Sistema_Init falla, deja el motor en cero, enciende la
  * alarma como aviso y no inicializa el resto.
@@ -32,10 +32,9 @@ bool Aplicacion_Inicializar(void);
  * vez cada 500 ms) ejecuta el periodo de control, en este orden:
  * -# Alarma: temperatura filtrada, decision con histeresis, LED y buzzer.
  * -# Modo: llave y consignas recibidas (vale la ultima). Al pasar de MANUAL a
- *    automatico descarta la recepcion pendiente y reinicia el PI.
- * -# Mando: MANUAL usa el potenciometro; AUTO_ESPERA aplica cero y reinicia el
- *    PI; AUTO_ACTIVO aplica la salida del regulador PI, o cero si este no la
- *    calculo.
+ *    automatico descarta la recepcion pendiente.
+ * -# Mando: MANUAL usa el potenciometro; AUTO_ESPERA aplica cero; AUTO_ACTIVO
+ *    aplica la salida del regulador PI.
  * -# Telemetria: una trama con velocidad, temperatura y estado.
  * @pre Aplicacion_Inicializar devolvio true.
  * @note USW.2.1.1.3.

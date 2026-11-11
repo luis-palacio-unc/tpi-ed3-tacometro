@@ -69,7 +69,7 @@ Variables y registros útiles:
 - `SystemCoreClock` (vista *Global Variables* o *Expressions*): debe valer 100000000
   después de `Sistema_Init`.
 - `Aplicacion_Estado` (estática de `main.c`): 0 MANUAL, 1 AUTO_ESPERA, 2 AUTO_ACTIVO.
-- `Aplicacion_Regulador`: memoria del PI.
+- `Procesamiento_IntegralNum` (estática de `Procesamiento.c`): integral del PI por `TPI_CONTROL_KI_DEN`.
 - Vista *Peripherals+*: `PWM` (MR0 = 1000, MR1 = mando), `TIMER0`, `TIMER1` (TC = pulsos),
   `UART0`, `ADC`, `GPIO0` (P0.22 LED) y `GPIO2` (P2.6 llave, P2.7 buzzer).
 

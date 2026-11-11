@@ -66,9 +66,9 @@ En cada vuelta, con estado MANUAL, Iterar MUST aplicar al motor
 `Procesamiento_EvaluarAlarma` → `Driver_Alarmas_Aplicar`; (2) modo:
 `Mandos_LeerModo`, todas las consignas pendientes (vale la última) y
 `Procesamiento_ActualizarModo`; al pasar de MANUAL a AUTO_ESPERA,
-`Comunicacion_Descartar` y reinicio del PI; (3) mando: MANUAL → potenciómetro;
-AUTO_ESPERA → 0 y reinicio del PI; AUTO_ACTIVO → `Procesamiento_Regular` con la
-medición como VALIDA, y 0 si el resultado no es VALIDO ni RETENIENDO_MEDICION;
+`Comunicacion_Descartar` (la integral del PI ya la borra el modo MANUAL, contrato
+modos MO2); (3) mando: MANUAL → potenciómetro; AUTO_ESPERA → 0; AUTO_ACTIVO →
+`Procesamiento_Regular(Procesamiento_Consigna(), medición)`;
 (4) una trama de telemetría. MUST NOT esperar ni bloquear.
 
 #### Scenario: S6 — Consigna y regulación (`i2.aplicacion` S1)

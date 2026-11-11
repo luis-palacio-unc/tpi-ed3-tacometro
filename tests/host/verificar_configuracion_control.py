@@ -13,10 +13,10 @@ def main():
     a=parser.parse_args()
     a.evidencia.mkdir(parents=True,exist_ok=True)
     source=a.evidencia/"probe.c"
-    source.write_text('#include "Control.h"\n#include <stdio.h>\nint main(void) {\n printf("%u %u %u %u %u %u\\n", (unsigned)TPI_CONTROL_KP_NUM,\n(unsigned)TPI_CONTROL_KP_DEN,(unsigned)TPI_CONTROL_KI_NUM,(unsigned)TPI_CONTROL_KI_DEN,\n(unsigned)TPI_CONTROL_MAX_PERIODOS_SIN_MEDICION,(unsigned)TPI_CONTROL_PERIODO_MS); return 0; }\n')
+    source.write_text('#include "Control.h"\n#include <stdio.h>\nint main(void) {\n printf("%u %u %u %u %u\\n", (unsigned)TPI_CONTROL_KP_NUM,\n(unsigned)TPI_CONTROL_KP_DEN,(unsigned)TPI_CONTROL_KI_NUM,(unsigned)TPI_CONTROL_KI_DEN,\n(unsigned)TPI_CONTROL_PERIODO_MS); return 0; }\n')
     names=["TPI_CONTROL_KP_NUM","TPI_CONTROL_KP_DEN","TPI_CONTROL_KI_NUM","TPI_CONTROL_KI_DEN",
-           "TPI_CONTROL_MAX_PERIODOS_SIN_MEDICION","TPI_CONTROL_PERIODO_MS"]
-    positives=[None,(1,1,1,1,1,500),(1000,1000,1000,1000,65535,500),(1000,1,1000,1,4,500)]
+           "TPI_CONTROL_PERIODO_MS"]
+    positives=[None,(1,1,1,1,500),(1000,1000,1000,1000,500),(1000,1,1000,1,500)]
     records=[]
     def compile_one(label,defines):
         binary=a.evidencia/label
@@ -33,18 +33,17 @@ def main():
         result=subprocess.run([str(binary)],text=True,capture_output=True,check=False)
         assert result.returncode==0,result.stderr
         (a.evidencia/("positive"+str(i)+"-run.log")).write_text(result.stdout+result.stderr)
-        assert tuple(map(int,result.stdout.split()))==(values or (4,1000,1,1000,4,500))
+        assert tuple(map(int,result.stdout.split()))==(values or (4,1000,1,1000,500))
     negatives=[]
     for name in names[:4]:
         negatives.extend((name,v) for v in (0,-1,1001,"UINT32_MAX"))
-    negatives.extend((names[4],v) for v in (0,-1,65536))
-    negatives.extend((names[5],v) for v in (499,1000))
-    assert len(negatives)==21
+    negatives.extend((names[4],v) for v in (499,1000))
+    assert len(negatives)==18
     for i,(name,value) in enumerate(negatives):
         p,_=compile_one("negative"+str(i),{name:value})
         assert p.returncode!=0,(name,value)
         assert re.search(r"#error[^\n]*"+name,p.stderr),(name,value,p.stderr)
-    print("PASS S6: 4 configuraciones positivas y 21 negativas; diagnostico especifico")
-    (a.evidencia/"results.json").write_text(json.dumps(dict(positive=4,negative=21),indent=2)+"\n")
+    print("PASS S6: 4 configuraciones positivas y 18 negativas; diagnostico especifico")
+    (a.evidencia/"results.json").write_text(json.dumps(dict(positive=4,negative=18),indent=2)+"\n")
 if __name__=="__main__":
     main()

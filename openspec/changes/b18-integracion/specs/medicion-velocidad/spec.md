@@ -40,12 +40,13 @@ MUST NOT recortar a 185 RPM. El retorno true es el periodo del lazo de control.
 - When se actualiza tres veces.
 - Then MUST devolver false, true y false, escribiendo el destino sólo en el true.
 
-### Requirement: MV3 — Tipo de entrada del regulador B17
-`Medicion_Velocidad.h` MUST conservar `MEDICION_VELOCIDAD_ESCALA_RPM`,
-`Medicion_Velocidad_Estado` y `Medicion_Velocidad_Lectura` sin cambios de valores
-ni de campos, porque `Procesamiento_Regular` (B17, intacto) los recibe.
+### Requirement: MV3 — Escala compartida con el regulador
+`Medicion_Velocidad.h` MUST conservar `MEDICION_VELOCIDAD_ESCALA_RPM` (1000), que
+usa `Procesamiento_Regular`. `Medicion_Velocidad_Estado` y
+`Medicion_Velocidad_Lectura` se retiran (I5): la medición entregada siempre es
+válida.
 
-#### Scenario: S4 — B17 intacto (`b17.regulador`, `b17.oraculo_planta`)
-- Given las pruebas y el oráculo de B17 sin modificar.
-- When se compilan contra el encabezado nuevo.
-- Then MUST pasar sin cambios.
+#### Scenario: S4 — Escala (`b17.regulador`, `b17.oraculo_planta`)
+- Given el regulador compilado contra el encabezado.
+- When regula con mediciones en milésimas de RPM.
+- Then MUST interpretar 1000 unidades como 1 RPM.

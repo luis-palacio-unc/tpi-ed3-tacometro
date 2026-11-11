@@ -394,3 +394,91 @@ que el script administrado no reserva una sección de pila (crece desde 0x100080
 5. El usuario no pertenece al grupo `dialout`: para abrir `/dev/ttyUSB0` del conversor
    USB-UART hará falta agregarlo o usar otro medio (no se cambió nada del sistema).
 6. Todo lo físico de I1/I2 sigue pendiente (I4): lista en `docs/MCUXPRESSO.md`.
+
+## I5 — Regulador simple y redundancias de I2
+
+Fecha: 2026-11-11. Rama `integracion-i5`, base a5a888e. Mismo entorno que I3.
+Pedido del usuario: simplificar el regulador de B17 al estilo de I2 y quitar las
+redundancias que dejó I2 en `main.c`, antes de la puesta en marcha.
+**Sólo host y compilación/enlace ARM. Nada se ejecutó en MCU, simulador ni placa.**
+
+### Qué cambia
+
+- `uint16_t Procesamiento_Regular(uint32_t consigna_rpm, uint32_t rpm_milesimas)`
+  devuelve el mando. La integral es una estática de `Procesamiento.c`; las ganancias
+  salen de `Control.h`. Las líneas de la cuenta (error, mando, redondeo, anti-windup,
+  límites de la integral) son las de B17 con los campos de la instancia reemplazados
+  por la estática y las macros.
+- Se retiran `Procesamiento_InicializarRegulador`, `Procesamiento_ReiniciarRegulador`,
+  los tipos `Procesamiento_Regulador`/`ConfigRegulador`/`EstadoRegulador`, la
+  retención de mediciones no válidas, `TPI_CONTROL_MAX_PERIODOS_SIN_MEDICION` y
+  `Medicion_Velocidad_Estado`/`Medicion_Velocidad_Lectura`.
+- La integral se borra con consigna 0, en `Procesamiento_InicializarModo` y con el
+  modo MANUAL. `main.c` pierde los dos reinicios del PI, el `mando = 0` posterior
+  al regulador y la variable `Aplicacion_Regulador`.
+- Comportamiento del firmware: sin cambios para toda secuencia de I2 (los escenarios
+  S1–S7 de `i2.aplicacion` pasan sin modificar). Una consigna mayor que 185 ya no
+  es un error del regulador: `Procesamiento_ActualizarModo` la filtra antes.
+
+### Comandos y resultados
+
+| Modalidad | Resultado |
+|---|---|
+| Host + ASan/UBSan | 29/29 suites |
+| Host sin sanitizadores | 29/29 suites |
+| ARM Debug | 9/9 controles; firmware 18 212 B de text, 36 de data, 2 384 de bss |
+| ARM Release | 9/9 controles; firmware 12 084 B de text, 36 de data, 2 388 de bss |
+| Doxygen | 0 avisos; 58 funciones documentadas (60 − 2) |
+| MCUXpresso sin interfaz | Debug y Release: 0 errores, 0 avisos; `.axf` 18 204 B y 10 256 B de flash, 360 B de SRAM sin pila; `verificar_elf_mcuxpresso.py` pasa en ambos |
+| Biblioteca y dispositivos | `Drivers/`, `Dispositivos/` y `plataforma/` sin cambios |
+
+Los comandos son los de I1–I3. El número de suites no cambia: `b17.regulador`,
+`b17.oraculo_planta`, `b17.configuracion_control` y los dos `b17.enlace_arm`
+conservan el nombre.
+
+### Pruebas del regulador
+
+- `b17.regulador` (`test_regulador.c`, reescrito, caja negra): 7 casos con las
+  ganancias por defecto: paso y empate, anti-windup, mando exactamente cero,
+  consigna cero, borrado por el modo y extremos de 32 bits.
+- `b17.oraculo_planta`: 8 emisores, uno por juego de ganancias (`-D` sobre
+  `Control.h`), contra la referencia en fracciones: 66 160 pasos exactos
+  (8 × 8 224 aleatorios más los deterministas). Los juegos con Ki > Kp
+  (1/1000 con 1000/1, y 1/7 con 5/3) son los que alcanzan los límites 0 y 1000 de
+  la integral: con Ki ≤ Kp, como en los valores por defecto, el anti-windup actúa
+  antes y esos límites no se alcanzan. Planta de prueba: sobrepico 0 y 200
+  milésimas de RPM, establecimiento 14 y 14 pasos (igual que en B17).
+- `b17.configuracion_control`: 4 configuraciones válidas y 18 inválidas.
+- Se pierde respecto de B17: la comparación directa de la integral (ahora se
+  observa por el mando de los pasos siguientes) y todo lo relativo a punteros
+  nulos, configuración en ejecución y retención, que ya no existen.
+
+### Mutación manual (copia fuera del árbol, no versionada)
+
+17 mutantes, uno por vez, build host sin sanitizadores y `ctest`: 16 detectados y
+1 equivalente.
+
+| Mutante | Detectan |
+|---|---|
+| Truncar en vez de redondear | `b17.regulador`, `b17.oraculo_planta` |
+| Sin límite superior / sin límite inferior de la integral | `b17.oraculo_planta` |
+| Sin anti-windup; sólo sin el superior; sólo sin el inferior; `n < 0` por `n <= 0` | `b17.regulador`, `b17.oraculo_planta` |
+| `n > límite` por `n >= límite` en el anti-windup | `b17.oraculo_planta` |
+| Consigna 0 sin borrar la integral | `b17.regulador`, `b17.oraculo_planta`, `i2.aplicacion` |
+| `InicializarModo` sin borrar la integral | `b17.regulador` |
+| MANUAL sin borrar la integral | `b17.regulador`, `i2.aplicacion` |
+| Ki con el numerador de Kp; integrar antes de calcular; mando máximo 999 | `b17.regulador`, `b17.oraculo_planta`, `i2.aplicacion` |
+| `main` sin `Comunicacion_Descartar`; AUTO_ACTIVO sin regular | `i2.aplicacion` |
+
+Equivalente: regular también en AUTO_ESPERA. En ese estado la consigna siempre es
+0 y el regulador devuelve 0. Se conserva la comprobación explícita del estado por
+claridad.
+
+Los tres equivalentes de I2 (doble reinicio del PI y `mando = 0` posterior)
+desaparecen con el código que los causaba.
+
+### Sin verificar o con dudas
+
+1. Nada físico. Las ganancias por defecto siguen siendo provisionales.
+2. Con el sensor desconectado la medición es 0 válida y el PI sube el mando hasta
+   1000: fuera de alcance por decisión del usuario, igual que antes.

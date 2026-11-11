@@ -21,30 +21,6 @@
 #define MEDICION_VELOCIDAD_ESCALA_RPM 1000U
 
 /**
- * @brief Validez de una lectura: tipo de entrada del regulador B17.
- * @details El servicio ya no produce lecturas invalidas; se conserva porque
- * Procesamiento_Regular (B17, sin cambios) lo recibe. La aplicacion usa VALIDA.
- */
-typedef enum {
-    MEDICION_VELOCIDAD_SIN_DATOS = 0, /**< Sin ventana procesada. */
-    MEDICION_VELOCIDAD_VALIDA, /**< Velocidad utilizable, incluido cero. */
-    MEDICION_VELOCIDAD_ERROR_ARGUMENTO, /**< Sin uso desde B18. */
-    MEDICION_VELOCIDAD_ERROR_DURACION, /**< Sin uso desde B18. */
-    MEDICION_VELOCIDAD_ERROR_RANGO, /**< Sin uso desde B18. */
-    MEDICION_VELOCIDAD_ERROR_PULSOS_POR_VUELTA /**< Sin uso desde B18. */
-} Medicion_Velocidad_Estado;
-
-/**
- * @brief Velocidad con su validez: tipo de entrada del regulador B17.
- * @details La aplicacion la arma con el valor de Medicion_Velocidad_Actualizar y
- * el estado VALIDA.
- */
-typedef struct {
-    uint32_t rpm_milesimas; /**< Milesimas de RPM. */
-    Medicion_Velocidad_Estado estado; /**< Validez de la lectura. */
-} Medicion_Velocidad_Lectura;
-
-/**
  * @brief Poner en marcha el conteo de pulsos y las ventanas de 500 ms.
  * @details Llama SensorOptico_Init, Timer_Init y Timer_Start, en ese orden. La
  * primera ventana empieza en esta llamada.
