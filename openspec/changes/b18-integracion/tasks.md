@@ -52,6 +52,21 @@
 
 ## I3 — Proyecto MCUXpresso
 
-- [ ] 3.1 Pendiente; se detalla al iniciar I3. Agregar el puente
-  `plataforma/compat/lpc17xx.h` a las rutas de inclusión y no definir `__USE_CMSIS`
-  (el reloj lo configura `Reloj_Init`).
+- [x] 3.1 Leer el plan de I3, I1/I2, `CMakeLists.txt` y las plantillas y asistentes
+  de MCUXpresso IDE 25.6 para LPC175x_6x.
+- [x] 3.2 `.project` y `.cproject` en la raíz (`TPI_ED3_Tacometro`, LPC1769, Debug y
+  Release): mismas fuentes propias y de la biblioteca que CMake, rutas relativas,
+  puente `plataforma/compat`, C11, avisos estrictos en lo propio y opciones por
+  carpeta para `Drivers` y `plataforma/mcuxpresso`; NewlibNano sin E/S y script de
+  enlace administrado. Sin `__USE_CMSIS`, `__USE_LPCOPEN` ni `DEBUG`.
+- [x] 3.3 `plataforma/mcuxpresso/cr_startup_lpc175x_6x.c` y `crp.c`, copias sin
+  cambios del asistente de la IDE; CMake no los compila.
+- [x] 3.4 `.gitignore` con lo que genera la IDE (`Debug/`, `Release/`, `.settings/`,
+  `*.launch`).
+- [x] 3.5 Compilación sin interfaz con la IDE instalada, sobre una copia fuera del
+  árbol, en Debug y Release; `scripts/verificar_elf_mcuxpresso.py` sobre los `.axf`.
+- [x] 3.6 CMake host/san y ARM Debug/Release y Doxygen sin cambios de resultado.
+- [x] 3.7 `docs/MCUXPRESSO.md`: importar, compilar, depurar, terminal serie y lista de
+  puesta en marcha (I4).
+- [ ] 3.8 Revisión de Claude del diff y commit local.
+- [ ] 3.9 Importación por la interfaz y depuración con la sonda: las hace el usuario.

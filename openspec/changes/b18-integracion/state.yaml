@@ -14,7 +14,7 @@ change_archived: false
 stages:
   I1: reviewed_committed_ff07e3e
   I2: implemented_verified_pending_review
-  I3: pending
+  I3: implemented_verified_headless_pending_review
 i1_branch: integracion-i1
 i1_delta_specs: [build, uart-dispositivo, timer, motor-dispositivo, sensor-optico, dispositivos-gpio, potenciometro-dma, temperatura]
 i1_new_usw: [USW.2.1.9.2, USW.2.1.10.2, USW.2.1.13.2, USW.2.1.14.2, USW.2.1.15.2, USW.2.1.16.3, USW.2.1.16.4, USW.2.1.16.5, USW.2.1.16.6, USW.2.1.17.15, USW.2.1.17.16]
@@ -45,9 +45,26 @@ i2_firmware_sram_bytes_release: 2448
 i2_mutants_detected: [45, 48]
 i2_mutants_equivalent: 3
 i2_firmware_exigir_reloj: true
+i3_branch: integracion-i3
+i3_base_commit: e3a279c
+i3_ide: MCUXpresso IDE 25.6.136 (arm-none-eabi-gcc 14.2.1)
+i3_project_name: TPI_ED3_Tacometro
+i3_c_library: newlibnano_none
+i3_headless_build_debug: 0 errores, 0 avisos
+i3_headless_build_release: 0 errores, 0 avisos
+i3_axf_flash_bytes_debug: 19032
+i3_axf_flash_bytes_release: 10652
+i3_axf_sram_bytes_debug: 396
+i3_axf_sram_bytes_release: 396
+i3_host_sanitizer_suites_passed: 29
+i3_arm_checks_passed_debug: 9
+i3_arm_checks_passed_release: 9
+i3_documented_functions: 60
+i3_gui_import_verified: false
+i3_debug_probe_verified: false
 drivers_modification_prohibited: true
 drivers_unchanged: true
 hardware_acceptance_pending: true
 commit_authorized: false
 push_authorized: false
-next_action: Revision de Claude del diff de I2 y commit local; luego I3.
+next_action: Revision de Claude del diff de I3 y commit local; luego importacion por la interfaz y puesta en marcha I4 a cargo del usuario.

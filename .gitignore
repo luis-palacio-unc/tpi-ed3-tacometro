@@ -3,3 +3,10 @@
 /.atl/
 /cmake-build-*/
 /build/
+# Generados por MCUXpresso IDE al importar/compilar/depurar (ver docs/MCUXPRESSO.md)
+/Debug/
+/Release/
+/.settings/
+/.mcuxpressoide_packages_support/
+/*.launch
+__pycache__/

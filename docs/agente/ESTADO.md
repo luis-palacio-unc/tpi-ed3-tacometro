@@ -15,9 +15,8 @@
 ## Integración en curso (B18)
 
 - I1 (arranque y periféricos) revisado por Claude y en `main` (ff07e3e).
-- I2 (servicios simples, Aplicación y `main`) **implementado y verificado en
-  host/ARM, pendiente de revisión de Claude y de commit**; rama `integracion-i2`,
-  base ff07e3e. Cambio `openspec/changes/b18-integracion/` (vía rápida).
+- I2 (servicios simples, Aplicación y `main`) revisado por Claude y en `main`
+  (e3a279c). Cambio `openspec/changes/b18-integracion/` (vía rápida).
 - Capas: Aplicación → Servicios → Dispositivos, comprobado por `i2.capas`. Cada
   servicio llama a sus dispositivos; sin contextos, callbacks ni enums de error.
   `Sistema_Init` arranca reloj y ADC/DMA. Modos de 3 estados; alarma 45/43 °C con
@@ -31,7 +30,17 @@
 - Contratos de mandos, medicion-velocidad, temperatura (servicio), mando-motor,
   salidas-alarma, comunicacion, modos y alarma-temperatura reemplazados por delta
   specs en el cambio, más `sistema`; specs vigentes sin sincronizar hasta cerrar.
-  Sigue I3 (MCUXpresso) e I4 (puesta en marcha en placa).
+- I3 (proyecto MCUXpresso) implementado, compilado sin interfaz y revisado por
+  Claude (compilación headless reproducida); rama `integracion-i3`, base e3a279c (I1+I2). La
+  raíz es el proyecto `TPI_ED3_Tacometro` (`.project`/`.cproject`, LPC1769), con las
+  mismas fuentes que CMake, arranque del asistente en `plataforma/mcuxpresso/`,
+  NewlibNano sin E/S y script de enlace administrado. MCUXpresso IDE 25.6.136:
+  Debug y Release 0 errores y 0 avisos; `.axf` Debug 19 032 B de flash y Release
+  10 652 B, 396 B de SRAM sin pila; vectores 17/21/42 propios, `ResetISR` sin
+  `SystemInit`, CRP sin protección. CMake host/san 29/29, ARM 9/9 y 9/9, Doxygen 60
+  funciones sin avisos. Importación por la interfaz, sonda y depuración sin probar.
+  Guía y lista de puesta en marcha: [MCUXPRESSO.md](../MCUXPRESSO.md).
+  Sigue I4 (puesta en marcha en placa, a cargo del usuario).
 
 ## Evidencia aceptada
 

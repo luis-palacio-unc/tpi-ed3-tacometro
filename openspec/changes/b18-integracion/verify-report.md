@@ -305,6 +305,92 @@ caso a `i2.comunicacion` S2 y quedó detectado.
    alarma térmica; es sólo un aviso de que el sistema no arrancó.
 7. Sintonía del PI y sensor desconectado: fuera de alcance, como en B17.
 
-## I3
+## I3 — Proyecto MCUXpresso
 
-Pendiente.
+Fecha: 2026-11-11. Rama `integracion-i3`, base e3a279c (I1+I2), cambios sin commit.
+Entorno: Linux, MCUXpresso IDE 25.6.136 (arm-none-eabi-gcc 14.2.1 propio), y el de
+I1/I2 para CMake (arm-none-eabi-gcc 13.2.1, Doxygen 1.9.8). Salidas fuera del árbol.
+**Sólo compilación y enlace sin interfaz gráfica y revisión estática del `.axf`. No se
+abrió la IDE, no se importó por la interfaz, no se conectó la sonda ni la placa.**
+
+### Comandos y resultados
+
+| Modalidad | Comando | Resultado |
+|---|---|---|
+| MCUXpresso Debug y Release | `rsync -a --exclude .git ./ "<out>/copia con espacios/Firmware/"` y luego `/usr/local/mcuxpressoide-25.6.136/ide/mcuxpressoide -nosplash --launcher.suppressErrors -application org.eclipse.cdt.managedbuilder.core.headlessbuild -data <out>/ws -import "<out>/copia con espacios/Firmware" -cleanBuild all` (sin `DISPLAY`) | salida 0; `Build Finished. 0 errors, 0 warnings` en Debug y en Release; 33 fuentes por configuración |
+| Estabilidad del proyecto | `cmp` de `.cproject` y `.project` de la copia contra los del árbol, después de importar y compilar | idénticos: la IDE no los reescribe |
+| `.axf` Debug y Release | `python3 scripts/verificar_elf_mcuxpresso.py <copia>/<cfg>/TPI_ED3_Tacometro.axf --tool-prefix /usr/local/mcuxpressoide-25.6.136/ide/tools/bin/arm-none-eabi-` | correcto en ambos |
+| Host + sanitizadores | el de I2 | 29/29 suites, 0 avisos |
+| ARM Debug / Release (CMake) | los de I2 | 9/9 y 9/9 controles, 0 avisos; tamaños iguales a los de I2 |
+| Doxygen | el de I2 | 0 avisos; 60 funciones (Doxyfile y fuentes sin cambios) |
+| Biblioteca | `git status --short -- Drivers` | sin cambios |
+
+La ruta de la copia lleva espacios a propósito, como la del repositorio.
+
+`verificar_elf_mcuxpresso.py` comprueba sobre el `.axf`: sin símbolos indefinidos;
+palabra 0 = `_vStackTop` = 0x10008000; vector de reset = `ResetISR`; checksum de los 8
+primeros vectores; vectores 17, 21 y 42 = `TIMER0_IRQHandler`, `UART0_IRQHandler` y
+`DMA_IRQHandler` con definición fuerte, y el resto de las IRQ en `IntDefaultHandler`;
+`CRP_WORD` en 0x2FC con 0xFFFFFFFF; `ResetISR` llama a `main` y no a `SystemInit`;
+cadena `main` → `Aplicacion_Inicializar` → `Sistema_Init` → `Reloj_Init` con la misma
+función `require_clock` de `verificar_elf.py`; sin `__aeabi_f*`/`__aeabi_d*`, `printf`,
+`malloc`, `free` ni `_sbrk`. `verificar_elf.py` no se aplica tal cual: exige los
+símbolos del arranque propio (`Reset_Handler`, `__stack_top__`…).
+
+### Tamaños
+
+| Imagen | Compilador y optimización | text | data | bss | Flash | SRAM |
+|---|---|---|---|---|---|---|
+| MCUXpresso Debug | gcc 14.2.1, `-O0` | 18 996 | 36 | 356 | 19 032 | 396 (sin pila reservada) |
+| MCUXpresso Release | gcc 14.2.1, `-Os` | 10 616 | 36 | 356 | 10 652 | 396 (sin pila reservada) |
+| CMake Debug | gcc 13.2.1, sin `-O` | 19 040 | 36 | 2 420 | 19 636 | 2 456 (con 2 048 de pila) |
+| CMake Release | gcc 13.2.1, `-O3` | 12 528 | 36 | 2 412 | 13 124 | 2 448 (con 2 048 de pila) |
+
+Las cifras de MCUXpresso salen de `-print-memory-usage` y `arm-none-eabi-size`. No son
+comparables una a una: cambian el compilador, la optimización de Release, el arranque y
+que el script administrado no reserva una sección de pila (crece desde 0x10008000).
+
+### Decisiones
+
+- **NewlibNano sin E/S en lugar de Redlib.** Con Redlib el código propio no compila:
+  su `stdint.h` define `UINT32_C` con una conversión de tipo y fallan los `#if` de
+  `Timer.h`, `UART.h` y `Analogica.h` («missing binary operator before token "int"»).
+  Se probó y se descartó. `ResetISR` llama entonces a `main` directamente.
+- **Sin `DEBUG` en la configuración Debug.** Ese símbolo activa `CHECK_PARAM` en la
+  biblioteca; CMake no lo define y se mantiene el mismo comportamiento.
+- **`-isystem` además de `-I` para la biblioteca y `plataforma/compat`.** Las rutas
+  figuran como inclusión normal (para el indexador) y como `-isystem "../…"` en *Other
+  flags*, relativas a la carpeta de compilación; gcc trata entonces esos encabezados
+  como de sistema y no generan avisos con `-Werror`, igual que `SYSTEM` en CMake.
+- **Opciones por carpeta.** `Drivers` y `plataforma/mcuxpresso` compilan sin `-Wextra
+  -Werror -Wconversion -Wshadow -Wstrict-prototypes`; les queda el `-Wall` que agrega
+  la IDE. `cr_startup_lpc175x_6x.c` declara `__valid_user_code_checksum()` sin
+  prototipo, y no se modifica.
+- **Arranque y CRP sin cambios.** Coinciden byte a byte (sha256) con los del asistente
+  `Wizards/System/NXP/LPC175x_6x/Common` de la IDE. Llevan el aviso de licencia de NXP.
+- **`.cproject` normalizado por la IDE.** Se escribió a mano a partir de la plantilla
+  `LPCX176x_cmsis2_timers` y de las opciones de `com.crt.advproject` 25.6; el archivo
+  versionado es el que la propia IDE reescribió en la primera importación. La
+  descripción del LPC1769 (`com.crt.config`) sale de `ide/binaries/nxp_lpc17xx.xml`.
+- **`.settings/` y `*.launch` no se versionan.** `language.settings.xml` lleva un hash
+  del entorno de cada máquina. El `.launch` de LinkServer lo crea la IDE en la primera
+  depuración; no se escribió uno a mano.
+- **`plataforma/cmsis_compat.c` se compila también aquí**: sólo contiene
+  comprobaciones estáticas y no choca con el arranque de la IDE.
+
+### Sin verificar o con dudas
+
+1. La importación por la interfaz gráfica y que el proyecto no pida ninguna
+   configuración manual. La importación sin interfaz usa el mismo mecanismo.
+2. La depuración: detección de la sonda, creación del `.launch`, programación de la
+   flash y parada en `main`. La sección `com.crt.config` (controlador de flash
+   `LPC175x_6x_512.cfx`, memoria y periféricos) se armó sin la IDE y sólo se comprobó
+   que el enlace generado usa el mapa de memoria correcto y que `${TargetChip}` vale
+   LPC1769.
+3. En Release (`-Os`) el enlace toma `memset` de NewlibNano; en Debug no. Además
+   quedan `__aeabi_uldivmod`/`__aeabi_ldivmod` de libgcc, como en CMake.
+4. El script administrado no reserva pila ni la comprueba; el build CMake reserva
+   2 048 B. La profundidad real de pila no se midió en ninguno de los dos.
+5. El usuario no pertenece al grupo `dialout`: para abrir `/dev/ttyUSB0` del conversor
+   USB-UART hará falta agregarlo o usar otro medio (no se cambió nada del sistema).
+6. Todo lo físico de I1/I2 sigue pendiente (I4): lista en `docs/MCUXPRESSO.md`.
