@@ -345,11 +345,19 @@ Ver [cambio](openspec/changes/archive/2026-11-10-b13-dispositivo-uart/proposal.m
 
 Ver [contrato UART vigente](openspec/specs/uart-dispositivo/spec.md).
 
-## Propuesta B14: Sensor_Optico
+## B14: lectura Sensor_Optico
 
-SensorOptico_Read devolverá conteo acumulado de TIMER1 mediante TIM_ReadTimer,
-sin convertir a RPM/reiniciar/temporizar. Propuestos CAP1.0/P1.18 función11 y flancos
-ascendentes; TIMER0 conserva base temporal. Pruebas de lectura/composición B03,
-build ARM y Doxygen previstos. Configuración y uso desde servicios/main al final.
-Pendiente de acuerdo, sin código/pruebas de B14 ejecutados.
-Ver [propuesta](openspec/changes/b14-sensor-optico-contador/proposal.md).
+Alcance/TIMER1/CAP1.0/P1.18 acordados, implementado/verificado; resultado pendiente
+de aceptación. SensorOptico_Read devuelve conteo uint32_t acumulado mediante
+TIM_ReadTimer(LPC_TIM1), sin reset/ventanas/RPM/ISR/estado propio. TIMER0/base y
+servicio Medicion_Velocidad conservados; composición B03 demostrada sólo en host.
+
+Sensor actual confirmado por usuario: XD-51, reemplaza HC-89 del anteproyecto.
+No se presuponen niveles/alimentación/pinout del módulo. Pinmux/contador y señal
+eléctrica, ventana1s y conexión a servicios/main se dejan para integración final.
+
+Host/sanitizadores20/20,200 casos C y oráculo Python;6 casos B14 nuevos. ARM13/13
+y objetoO0/O2 compilados, Doxygen41 funciones sin avisos. Drivers90 originales y
+módulos/contratos aceptados intactos; sin ejecución MCU/ensayos físicos/push.
+Ver [cambio](openspec/changes/b14-sensor-optico-contador/proposal.md) y
+[evidencia](openspec/changes/b14-sensor-optico-contador/verify-report.md).

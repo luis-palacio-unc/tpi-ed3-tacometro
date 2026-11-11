@@ -10,13 +10,13 @@ para generar documentación sin autorización.
   precondiciones y concurrencia. Tipos, miembros y constantes también documentados.
 - Mantener comentarios de contrato fuera del cuerpo de funciones de producción,
   como pide la guía del TPI.
-- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, Driver_Motor, LM35, Limites, Configuracion/Medicion.h, Timer, Selector, LED, Buzzer y UART. No usar EXTRACT_ALL para ocultar falta de documentación.
+- Ampliar INPUT al desarrollar módulos; la configuración actual cubre main, Procesamiento, Comunicacion, Medicion_Velocidad, Mandos, Temperatura, Driver_Alarmas, Driver_Motor, LM35, Limites, Configuracion/Medicion.h, Timer, Selector, LED, Buzzer, UART y Sensor_Optico. No usar EXTRACT_ALL para ocultar falta de documentación.
 - Conservar advertencias como errores. HTML/XML juntos permiten comprobar @return
   con la versión instalada; las etiquetas automáticas son inglesas y el contenido español.
 
-Validación actual B13 UART:40 funciones/USW en XML (7 Procesamiento,
+Validación actual B14 Sensor_Optico:41 funciones/USW en XML (7 Procesamiento,
 10 Comunicacion, 2 Medicion_Velocidad, 5 Mandos, 2 Temperatura, 2 LM35,
-Driver_Alarmas, 2 Driver_Motor, tres Timer, Selector, LED, Buzzer, dos UART y main), sin avisos.
+Driver_Alarmas, 2 Driver_Motor, tres Timer, Selector, LED, Buzzer, dos UART, SensorOptico y main), sin avisos.
 USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
 Documentar unidades físicas/estados en el servicio y conversión/errores específicos
 en LM35. La inclusión de archivos del dispositivo no introduce dependencia del servicio.
@@ -84,3 +84,9 @@ INPUT incluye UART.h/.c. P0.2 TX/P0.3 RX, modo no bloqueante, cantidades/bytes,
 NULL/cero, progreso parcial, vida/serialización y configuración previa documentados.
 Parámetro115200 modificable, no aplicado al hardware hasta inicialización final.
 Doxygen HTML/XML40 funciones sin avisos; no se relajan controles.
+
+B14 agrega ESW.2.1.10/USW.2.1.10.1: conteo acumulado en SensorOptico_Read.
+INPUT incluye Sensor_Optico.h/.c. Documenta eventos/modularidad/épocas, cero válido,
+CAP1.0/P1.18, TIMER1 preconfigurado, serialización y límites eléctricos/temporales.
+Sensor XD-51 registrado sin atribuirle propiedades no verificadas. HTML/XML41
+funciones sin avisos, sin controles relajados ni estado/ventana nuevos en producto.

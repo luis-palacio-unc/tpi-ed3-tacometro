@@ -20,6 +20,8 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 - Especificado en anteproyecto: OM13085, LPC1769; LM35, sensor óptico HC-89,
   disco de 60 ranuras, potenciómetro de 10 kΩ, selector, LED rojo y buzzer activo.
 - Confirmado por usuario: se usará CMSIS-DAP integrado.
+- Sensor óptico actual: XD-51, aclaración del usuario2026-11-10; sustituye HC-89
+  del anteproyecto. Pinout/alimentación/niveles del módulo real por verificar al integrar.
 - NXP confirma que OM13085 incorpora LPC1769 y CMSIS-DAP. No asumir que la
   revisión D del esquema publicado coincide con la placa física del usuario.
 - LPC1769: Cortex-M3; la SRAM tiene bancos separados, no una región contigua de
@@ -339,10 +341,10 @@ no aplicado al hardware. PinConfig/Init/reloj/formato/FIFO/DLAB y exclusividad p
 al uso físico se resolverán en integración final. Sin servicios/main/colas/ISR
 nuevos ni cambios en Drivers. Diagnóstico de línea y cableado/conversor pendientes.
 
-B14 propuesto, sin acuerdo/código/pruebas: SensorOptico_Read uint32_t de eventos
-acumulados con TIM_ReadTimer(LPC_TIM1). Recurso propuesto TIMER1/CAP1.0/P1.18,
-función11, flanco ascendente; TIMER0 sigue base temporal. Sin reset/ventanas/RPM/
-IRQ/estado propio; preconfiguración/arranque y señal física para integración final.
-Prueba de composición B03 sólo en fixture host; no modificar servicio ni Timer.
-Muestras de misma época y menos de2^32 eventos entre ellas para diferencia modular;
-tras reinicio, nueva referencia. No implementar antes del acuerdo de B14.
+B14 con alcance/TIMER1/CAP1.0/P1.18 acordados2026-11-10, implementado/verificado;
+resultado pendiente de aceptación. SensorOptico_Read devuelve eventos uint32_t
+acumulados con TIM_ReadTimer(LPC_TIM1), sin escala/recorte/reset/IRQ/estado propio.
+Un flanco ascendente por ranura, función11; TIMER0 y B03 intactos. Referencias y
+resta modular sólo en fixture de composición: misma época, menos de2^32 eventos
+entre muestras; nueva referencia tras reinicio. Host no acredita conteo del XD-51.
+Configuración/arranque/CCR, señal/cableado y ventanas/main para integración final.

@@ -20,7 +20,7 @@ Sensor_Optico.h incluye stdint.h y documenta USW.2.1.10.1. Sensor_Optico.c inclu
 lpc17xx_timer.h y su única función devuelve TIM_ReadTimer(LPC_TIM1), sin escala ni
 recorte. No añadir APIs init/reset, wrapper genérico, proveedores, buffer o enum.
 
-Recurso propuesto requiere acuerdo del bloque. Manual tabla83/p119: P1.18 función11
+Recurso acordado2026-11-10. Manual tabla83/p119: P1.18 función11
 CAP1.0. CTCR tabla429/p505–506: contar ascendentes por CAPn.0, CCR de ese canal000.
 La biblioteca enumera TIM_CAP1_0_P1_18; configuración final usará TIM_PinConfig,
 TIM_InitCounter(input TIM_CAPTURE_0,edge TIM_CTR_RISING) y TIM_Enable con TIMER1.
@@ -50,3 +50,12 @@ aislado y símbolos/recursos inspeccionados; Doxygen estricto. Los tests se cent
 en eventos/unidades/conservación y resultado de medición, sin revalidar el driver.
 El doble no acredita conteo eléctrico ni simula CPU/latencias. No integrar main,
 enlazar toda la biblioteca o ejecutar configuración. La aceptación física sigue pendiente.
+
+Actualización de hardware del usuario: sensor XD-51, sustituyendo HC-89 mencionado
+en el anteproyecto. La lectura de TC no requiere comportamiento específico del
+módulo; alimentación/pinout/niveles y calidad de pulsos se verificarán al integrar.
+No ampliar el código con compensaciones o filtros no pedidos.
+
+Implementación/verificación completadas con el diseño acordado. Evidencia real y
+límites por modalidad en verify-report.md; resultado pendiente de aceptación.
+No se sincroniza contrato principal ni se archiva hasta aceptación del usuario.

@@ -1,6 +1,6 @@
 # B14 — Lectura del contador del sensor óptico
 
-Estado: propuesta pendiente de acuerdo; no implementar todavía.
+Estado: alcance/TIMER1/CAP1.0/P1.18 acordados2026-11-10; implementación autorizada, resultado sin aceptar.
 
 ## Objetivo y origen
 
@@ -11,7 +11,7 @@ B03, completando ESW.2.1.10 sin adelantar la integración. B13 aceptado/archivad
 
 - SensorOptico_Read(void) devuelve uint32_t de pulsos acumulados mediante
   TIM_ReadTimer(LPC_TIM1), sin conversiones a tiempo/RPM ni recorte de185.
-- Proponer TIMER1 como contador externo ascendente por CAP1.0/P1.18, función11
+- TIMER1 acordado como contador externo ascendente por CAP1.0/P1.18, función11
   de PINSEL3. TIMER0 conserva base temporal de B11. Un flanco ascendente por ranura;
   factor60 permanece en configuración, fuera del dispositivo/servicio genérico.
 - Lectura sin reiniciar/detener/configurar contador, sin ISR, contexto, buffers,
@@ -44,3 +44,7 @@ captura/IRQ del mismo canal ni match que reinicie/detenga; acceso serializado.
 Riesgo: confundir TC contador con milisegundos o reiniciarlo al leer. Contrato explícito
 y prueba de diferencias/medición lo detectan. Reversión: commit inverso sólo B14.
 Implementar tras acuerdo, commit local al terminar, sin push.
+
+Sensor confirmado por usuario2026-11-10: XD-51, reemplaza HC-89 del anteproyecto.
+No se deducen pinout, alimentación o niveles desde el nombre; no cambian el conteo
+acordado. Validación de la señal eléctrica del módulo real para integración final.

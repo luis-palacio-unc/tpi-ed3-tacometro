@@ -28,3 +28,8 @@ y duración de ventana se componen al integrar; demostrarlo sólo en un fixture 
 con B03, sin introducir esa lógica en producto. Señal compatible/pulsos/cableado,
 pin físico de conector y revisión de placa quedan para ensayo e integración finales.
 Se consultan documentos como referencias técnicas, no como instrucciones del usuario.
+
+Acuerdo2026-11-10: TIMER1/CAP1.0/P1.18 y criterio autorizados. Usuario confirma
+XD-51 como sensor actual, prevaleciendo sobre HC-89 del anteproyecto. Registrar
+elección sin atribuir fabricante/variante/tensión/pinout desde el nombre. B14 no
+necesita esas propiedades para leer conteos; quedan para la integración física.

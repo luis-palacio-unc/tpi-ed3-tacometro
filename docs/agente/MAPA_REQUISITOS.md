@@ -122,7 +122,9 @@ y oráculo; ARM13/13/O0/O2; Doxygen40. Parámetro/pinmux aún sin aplicar; integ
 ensayo físico pendientes, Drivers/servicios intactos.
 [Evidencia](../../openspec/changes/archive/2026-11-10-b13-dispositivo-uart/verify-report.md).
 
-B14 propuesto (R02/R04/R09/R10/R11/R15): Sensor_Optico.h/.c, lectura acumulada por
-TIMER1/CAP1.0/P1.18 propuestos, sin reset/RPM/ventanas. SO1–SO4/S1–S5 candidatos;
-evidencia de lectura/composición B03 prevista, no ejecutada. Adquisición física e
-integración siguen pendientes. [Propuesta](../../openspec/changes/b14-sensor-optico-contador/proposal.md).
+B14 alcance/TIMER1/CAP1.0/P1.18 acordados, implementado/verificado, sin aceptar
+(R02/R04/R09/R10/R11/R15): lectura acumulada sin reset/RPM/ventanas. Sensor actual
+XD-51 confirmado por usuario, sustituye HC-89; características eléctricas pendientes.
+SO1–SO4/S1–S5 conformes:6 casos nuevos, host/san20/20,200 C+oráculo; ARM13/13/
+objetoO0/O2 y Doxygen41. Timer/B03/Drivers intactos. Adquisición/integración físicas
+pendientes. [Evidencia](../../openspec/changes/b14-sensor-optico-contador/verify-report.md).

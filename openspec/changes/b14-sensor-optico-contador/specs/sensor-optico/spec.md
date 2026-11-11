@@ -1,6 +1,7 @@
 # Sensor óptico — candidato B14
 
-Origen R02/R04/R09/R10/R11/R15. Propuesta sin acuerdo; no contrato vigente.
+Origen R02/R04/R09/R10/R11/R15. Alcance/recursos acordados2026-11-10; resultado sin aceptar.
+Sensor físico confirmado: XD-51; características eléctricas no verificadas en este bloque.
 
 ## Requirements
 
