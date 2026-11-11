@@ -1,61 +1,60 @@
 /**
  * @file LM35.c
- * @brief Calculo entero de temperatura del modelo ideal LM35 sin offset.
- * @details TI 7.3.1: 10 mV por grado equivalen a 100 uV por centesima Celsius.
- * Producto y divisor caben en uint64_t; redondear por resto evita sumar al numerador.
- * El dominio valido da hasta 42949673 centesimas, representables en uint32_t.
- * @note ESW.2.1.11. Libgcc existente resuelve division/modulo en ARM; sin libc.
+ * @brief Conversion entera de la muestra del LM35 almacenada por ADC/DMA.
+ * @details Reutiliza ADC_GDR_RESULT original; conserva redondeo B05 sin flotantes.
+ * @note ESW.2.1.11. Sin configuracion, acceso a registros, estados o normalizacion de alarma.
  */
 #include "LM35.h"
-#include <stddef.h>
+#include "Analogica.h"
+#include "Adquisicion_ADC_DMA.h"
+#include "lpc17xx_adc.h"
 
 /** @addtogroup lm35
  * @{
  */
 
-/** @brief Factor nominal del LM35: microvoltios por centesima de grado Celsius. */
-#define LM35_UV_POR_CENTESIMA UINT64_C(100)
+/** @brief Resolucion del ADC LPC1769: 12 bits de RESULT. */
+#define LM35_ADC_BITS 12U
+/** @brief Cuentas por referencia, distintas del ultimo codigo inclusivo. */
+#define LM35_ADC_CUENTAS (UINT32_C(1) << LM35_ADC_BITS)
+/** @brief Ganancia nominal del LM35: 10 mV por grado Celsius. */
+#define LM35_MV_POR_GRADO UINT32_C(10)
+/** @brief Factor exacto: 100 centesimas por grado / 10 mV por grado. */
+#define LM35_CENTESIMAS_POR_MV (LM35_CENTESIMAS_POR_GRADO / LM35_MV_POR_GRADO)
 
-bool LM35_InicializarLectura(LM35_Lectura *lectura)
-{
-    if (lectura == NULL) {
-        return false;
-    }
-    lectura->centesimas_c = 0U;
-    lectura->estado = LM35_SIN_DATOS;
-    return true;
-}
+/**
+ * @brief Palabra ADC de la muestra LM35, propiedad de este dispositivo.
+ * @details Destino futuro DMA de 32 bits alineado a 4 bytes en .bss local del LPC1769.
+ * RESULT ocupa 15:4; los demas campos no participan en la conversion.
+ * @note Extern interno en Adquisicion_ADC_DMA.h. DMA sera el unico escritor
+ * productivo; configuracion/origen y coherencia de canales pendientes de integracion.
+ */
+volatile uint32_t ADC_DMA_LM35;
 
-LM35_Estado LM35_ConvertirMuestra(LM35_Lectura *lectura,
-                                        uint32_t muestra, uint32_t escala_adc,
-                                        uint32_t referencia_uv)
+/**
+ * @brief Convertir un codigo ADC al modelo nominal del LM35 en centesimas Celsius.
+ * @param[in] muestra Codigo ya extraido de RESULT, entre 0 y 4095 inclusive.
+ * @return Redondeo al entero mas cercano, empate hacia arriba; int32_t no negativo.
+ * @pre Referencia positiva representable, asegurada por Analogica.h al compilar.
+ * @details Numerador = muestra * VREF_mV * centesimas_por_mV; divisor = cuentas ADC.
+ * Se redondea por el resto una sola vez, sin tension intermedia truncada. El dominio
+ * admitido de VREF hace que el numerador quepa en uint64_t y el resultado en int32_t.
+ * @note USW.2.1.11.4. Unidad interna nueva; IDs .11.1/.11.2 retirados, sin reciclar.
+ */
+static int32_t LM35_Convert(uint16_t muestra)
 {
-    if (lectura == NULL) {
-        return LM35_ERROR_ARGUMENTO;
-    }
-    lectura->centesimas_c = 0U;
-    if (escala_adc == 0U) {
-        lectura->estado = LM35_ERROR_ESCALA;
-        return lectura->estado;
-    }
-    if (referencia_uv == 0U) {
-        lectura->estado = LM35_ERROR_REFERENCIA;
-        return lectura->estado;
-    }
-    if (muestra >= escala_adc) {
-        lectura->estado = LM35_ERROR_MUESTRA;
-        return lectura->estado;
-    }
-    const uint64_t numerador = (uint64_t)muestra * referencia_uv;
-    const uint64_t divisor = (uint64_t)escala_adc * LM35_UV_POR_CENTESIMA;
-    uint64_t centesimas = numerador / divisor;
-    const uint64_t resto = numerador % divisor;
-    if (resto >= divisor / 2U) {
+    const uint64_t numerador = (uint64_t)muestra * ADC_VREF_MV * LM35_CENTESIMAS_POR_MV;
+    uint64_t centesimas = numerador / LM35_ADC_CUENTAS;
+    const uint64_t resto = numerador % LM35_ADC_CUENTAS;
+    if (resto >= LM35_ADC_CUENTAS / 2U) {
         ++centesimas;
     }
-    lectura->centesimas_c = (uint32_t)centesimas;
-    lectura->estado = LM35_VALIDA;
-    return lectura->estado;
+    return (int32_t)centesimas;
+}
+
+int32_t LM35_Read(void)
+{
+    return LM35_Convert((uint16_t)ADC_GDR_RESULT(ADC_DMA_LM35));
 }
 
 /** @} */

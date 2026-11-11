@@ -158,6 +158,21 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_executable(pruebas_temperatura tests/host/test_temperatura.c
         Servicios/Temperatura.c)
     add_executable(pruebas_lm35 tests/host/test_lm35.c Dispositivos/LM35.c)
+    set(TPI_LM35_VARIANT_TARGETS)
+    set(TPI_LM35_ORACLE_CASES)
+    foreach(vref IN ITEMS 1000 2000 2540 3300 5000)
+        set(lm35_target "pruebas_lm35_vref_${vref}")
+        add_executable(${lm35_target} tests/host/test_lm35.c Dispositivos/LM35.c)
+        target_compile_definitions(${lm35_target} PRIVATE "ADC_VREF_MV=${vref}")
+        list(APPEND TPI_LM35_VARIANT_TARGETS ${lm35_target})
+        list(APPEND TPI_LM35_ORACLE_CASES --caso "$<TARGET_FILE:${lm35_target}>" "${vref}")
+        add_test(NAME b05r1.lm35_vref_${vref} COMMAND ${lm35_target})
+    endforeach()
+    foreach(lm35_target IN ITEMS pruebas_lm35 ${TPI_LM35_VARIANT_TARGETS})
+        target_include_directories(${lm35_target} PRIVATE Dispositivos Dispositivos/soporte)
+        target_include_directories(${lm35_target} SYSTEM PRIVATE
+            Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
+    endforeach()
     add_executable(pruebas_integracion_temperatura tests/host/test_integracion_temperatura.c
         Servicios/Temperatura.c Dispositivos/LM35.c)
     add_executable(pruebas_alarma_temperatura tests/host/test_alarma_temperatura.c
@@ -201,8 +216,11 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     target_include_directories(pruebas_dispositivos_gpio SYSTEM PRIVATE
         Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
     target_include_directories(pruebas_lm35 PRIVATE Dispositivos)
-    target_include_directories(pruebas_integracion_temperatura PRIVATE Dispositivos)
-    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria pruebas_selector pruebas_integracion_selector pruebas_dispositivos_gpio pruebas_uart pruebas_sensor_optico pruebas_motor pruebas_potenciometro)
+    target_include_directories(pruebas_integracion_temperatura PRIVATE Dispositivos Dispositivos/soporte)
+    target_include_directories(pruebas_integracion_temperatura SYSTEM PRIVATE
+        Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
+    target_compile_definitions(pruebas_integracion_temperatura PRIVATE ADC_VREF_MV=2000)
+    foreach(prueba pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria pruebas_selector pruebas_integracion_selector pruebas_dispositivos_gpio pruebas_uart pruebas_sensor_optico pruebas_motor pruebas_potenciometro ${TPI_LM35_VARIANT_TARGETS})
         if(prueba STREQUAL "consulta_medicion_velocidad" OR prueba STREQUAL "pruebas_driver_alarmas")
             target_include_directories(${prueba} PRIVATE Servicios)
         elseif(prueba STREQUAL "pruebas_driver_motor" OR prueba STREQUAL "pruebas_telemetria" OR prueba STREQUAL "pruebas_selector")
@@ -229,6 +247,11 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_test(NAME b04.mandos COMMAND pruebas_mandos)
     add_test(NAME b05.temperatura COMMAND pruebas_temperatura)
     add_test(NAME b05.lm35 COMMAND pruebas_lm35)
+    add_test(NAME b05r1.oraculo_lm35 COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/verificar_lm35.py" ${TPI_LM35_ORACLE_CASES})
+    add_test(NAME b05r1.configuracion_lm35 COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/verificar_configuracion_lm35.py"
+        --compilador "${CMAKE_C_COMPILER}" --include "${CMAKE_CURRENT_SOURCE_DIR}/Configuracion")
     add_test(NAME b05.integracion_temperatura COMMAND pruebas_integracion_temperatura)
     add_test(NAME b06.alarma_temperatura COMMAND pruebas_alarma_temperatura)
     add_test(NAME b07.driver_alarmas COMMAND pruebas_driver_alarmas)

@@ -3,34 +3,37 @@
 ## Punto actual
 
 - Repo `/home/luis/Desktop/Universidad/ed3/tpi/Trabajo Practico Integrador EDIII`, main.
-  HEAD de incorporación d7dc36f, origin/main62eef53; consultar Git al reanudar.
-  El commit de este documento es el cierre B16. Commit local autorizado, sin push.
-- B00–B16/B03-R1/B07-R1 aceptados/archivados. Sin bloque nuevo acordado.
-- B16 corregido aceptado2026-11-11, implementación d7dc36f; contrato vigente
-  openspec/specs/potenciometro-dma/spec.md. ADC_DMA_Pot pertenece a Potenciometro.c;
-  extern interno para futuro DMA, getter0..4095 y test sin .c de soporte.
-  [Cierre](../../openspec/changes/archive/2026-11-11-b16-lectura-potenciometro-dma/archive-report.md).
-- Drivers90 originales a21cc1e intocables. Servicios/otros dispositivos preservados.
-  Inicialización/enlace al final; main sigue siendo el lazo mínimo B00.
+  HEAD de incorporación978af35, origin/main62eef53; consultar Git al reanudar.
+  El commit de este documento entrega implementación B05-R1, sin cierre/archivo/push.
+- B00–B16/B03-R1/B07-R1 aceptados/archivados. B05-R1 implementado/verificado,
+  pendiente de auditoría de Claude y aceptación del usuario; specs principales intactas.
+  [Informe](../../openspec/changes/b05-r1-lectura-lm35/verify-report.md).
+- Claude r2 aprobó propuesta; usuario acordó implementación con m1–m3. Resumen
+  [portable de revisiones externas locales](../../openspec/changes/b05-r1-lectura-lm35/review-notes.md).
+  No depender de archivos del harness en clones públicos ni atribuir sus ensayos al código nuevo.
+- LM35_Read devuelve int32_t centésimas desde muestra propia/extern interno;
+  conversión entera con constantes nombradas, redondeo B05; sin estados/init/flotantes.
+  ADC_VREF_MV configurable, default2540mV provisional y guard positivo/representable.
+- Drivers90 originales a21cc1e y servicios/otros dispositivos preservados. Main
+  sigue mínimo; no configuración/inicio ADC/DMA, IRQ o composición productiva nuevos.
 
-## Evidencia aceptada
+## Evidencia propia B05-R1
 
-Host/san22/22,207 casos C+oráculo; ARM13/13, objetosO0/O2/propiedad de símbolo,
-Doxygen43 sin avisos. B16:3 casos de memoria, no adquisición física. Logs originales:
-/tmp/ed3-b16-propiedad-pot-wve2trjj. Código/pruebas no cambiados al cerrar;
-sin repetir ensayos. Checks documentales del cierre: `/tmp/ed3-cierre-b16-4gs9cvr1`.
-Sin ejecución MCU/placa, simulación MCU, flasheo o publicación.
+Host/san29/29:214 ejecuciones C,20480 comparaciones exactas Fraction en4096 códigos
+por5 referencias,4 probes positivos/4 negativos; fuentes y estados genéricos intactos.
+ARM13/13 y objetosO0/O2, headersC11/C++17, Doxygen43 sin avisos. Test/default y
+5 variantes sólo con LM35.c; defines privados correctos, firmware sin esos overrides.
+Objeto LM35 .text268/32 bytes, .bss4 alineada4; marcosO0 Convert96+Read8, O2 Read0,
+sin externos. No cota total de pila/tiempo real.13/13 tareas al commit de entrega.
+Código/contratos/archivo ajenos/harness intactos; enlaces internos válidos.
+Logs extensos fuera del repo: `/tmp/ed3-b05r1-impl-3lr7invk`.
+Sin ejecución MCU/placa, simulación, instalaciones, flasheo o publicación.
 
-## Alcance implementado y pendientes
+## Próxima acción y pendientes
 
-Procesamiento: modos/consignas/decisión térmica. Seis servicios: Medicion_Velocidad,
-Temperatura, Mandos, Driver_Alarmas, Comunicacion y Driver_Motor. Dispositivos:
-Timer, Motor, Sensor_Optico, LM35 (conversión), Potenciometro, Selector, LED, Buzzer,
-UART, con alcance aislado de cada contrato. Soporte ADC/DMA aún sin configuración.
-
-Próxima acción: acordar el siguiente bloque a partir de estos pendientes; no iniciarlo
-automáticamente. Faltan adquisición ADC/DMA y acceso a la muestra LM35, regulador
-automático, configuración de pines/reloj/periféricos, composición de servicios y main,
-validación física y diagramas/informe final. Inicialización y enlace quedan al final.
-Potenciómetro AD0.0/P0.23; cero inicial no indica disponibilidad. Revisar memoria
-si se incorpora Sleep y secuencia ADC.2 al integrar. Sin push autorizado.
+Auditoría de Claude sobre implementación entregada y revisión/aceptación del usuario.
+Por orden actual, no cerrar, sincronizar contrato principal, archivar o hacer push.
+Al integrar resolver ADGDR/dos destinos, evaluar ADDRn con UM10360/erratas/API original;
+no asumir mitigación probada ni modificar Drivers/B16 ahora. VREF/pin/canal/primer dato,
+ADC/DMA, regulación automática, enlace de servicios/main y placa siguen pendientes.
+Diagramas/informe al terminar ESW; inicialización/enlace al final.

@@ -13,30 +13,27 @@ file(MAKE_DIRECTORY "${OUTPUT_DIR}")
 file(WRITE "${OUTPUT_DIR}/main_fixture.c" [=[
 #include "LM35.h"
 #include "Temperatura.h"
-static LM35_Lectura sensor;
+#include "Adquisicion_ADC_DMA.h"
 static Temperatura_Lectura servicio;
-static volatile uint32_t muestra = 125U;
-static volatile uint32_t escala = 1500U;
-static volatile uint32_t referencia = 3000000U;
 int main(void)
 {
-    if (!LM35_InicializarLectura(&sensor) || !Temperatura_Inicializar(&servicio)) {
+    if (!Temperatura_Inicializar(&servicio)) {
         return 1;
     }
-    if (LM35_ConvertirMuestra(&sensor, muestra, escala, referencia) != LM35_VALIDA ||
-        sensor.centesimas_c > (uint32_t)INT32_MAX) {
-        return 1;
-    }
-    return Temperatura_Actualizar(&servicio, (int32_t)sensor.centesimas_c,
+    ADC_DMA_LM35 = UINT32_C(0xC700200F);
+    return Temperatura_Actualizar(&servicio, LM35_Read(),
            TEMPERATURA_FUENTE_VALIDA) == TEMPERATURA_VALIDA && servicio.centesimas_c == 2500 ? 0 : 1;
 }
 ]=])
 execute_process(COMMAND "${TOOL_PREFIX}gcc"
-    -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -std=c11 ${TPI_FIXTURE_OPT}
+    -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -std=c11 ${TPI_FIXTURE_OPT} -DADC_VREF_MV=2000
     -ffreestanding -ffunction-sections -fdata-sections -Wa,--noexecstack
     -fno-unwind-tables -fno-asynchronous-unwind-tables
     -Wall -Wextra -Werror -Wconversion -Wshadow -Wstrict-prototypes -pedantic-errors
-    "-I${SOURCE_DIR}/Servicios" "-I${SOURCE_DIR}/Dispositivos" "${OUTPUT_DIR}/main_fixture.c"
+    "-I${SOURCE_DIR}/Servicios" "-I${SOURCE_DIR}/Dispositivos"
+    "-I${SOURCE_DIR}/Dispositivos/soporte" "-I${SOURCE_DIR}/Configuracion"
+    -isystem "${SOURCE_DIR}/Drivers/CMSISv2p00_LPC17xx/inc"
+    -isystem "${SOURCE_DIR}/Drivers/CMSISv2p00_LPC17xx/Drivers/inc" "${OUTPUT_DIR}/main_fixture.c"
     "${SOURCE_DIR}/Servicios/Temperatura.c" "${SOURCE_DIR}/Dispositivos/LM35.c" "${SOURCE_DIR}/plataforma/startup_lpc1769.S"
     -nostdlib "-T${SOURCE_DIR}/plataforma/lpc1769.ld"
     -Wl,--gc-sections -Wl,--build-id=none -Wl,--fatal-warnings -Wl,-z,noexecstack
@@ -56,7 +53,7 @@ execute_process(COMMAND "${TOOL_PREFIX}nm" --defined-only "${OUTPUT_DIR}/fixture
 if(NOT result EQUAL 0)
     message(FATAL_ERROR "No se pudieron inspeccionar simbolos B05: ${errors}")
 endif()
-foreach(required_symbol LM35_InicializarLectura LM35_ConvertirMuestra Temperatura_Inicializar Temperatura_Actualizar __aeabi_uldivmod)
+foreach(required_symbol LM35_Read ADC_DMA_LM35 Temperatura_Inicializar Temperatura_Actualizar)
     if(NOT symbols MATCHES "[ \t]${required_symbol}[\r\n]")
         message(FATAL_ERROR "API/auxiliar B05 eliminado o ausente: ${required_symbol}")
     endif()

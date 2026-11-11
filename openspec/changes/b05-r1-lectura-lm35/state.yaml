@@ -1,0 +1,68 @@
+block: B05-R1
+change: b05-r1-lectura-lm35
+status: implemented_pending_audit
+phase: verify
+scope_approved: true
+result_accepted: false
+implementation_started: true
+verification_passed: true
+main_specs_synced: false
+proposed_on: '2026-11-11'
+updated_on: '2026-11-11'
+base_commit: 978af35459577ca82ae179453a0ae9f54c32c6a2
+device_esw: ESW.2.1.11
+proposed_api: int32_t LM35_Read(void)
+proposed_conversion: static int32_t LM35_Convert(uint16_t muestra)
+output_units: integer centesimas Celsius
+floating_point: false
+rounding: nearest with ties upward, B05 unchanged
+arithmetic_error_max_celsius: 0.005
+proposed_storage: volatile uint32_t ADC_DMA_LM35 defined in LM35.c
+reference_configuration: ADC_VREF_MV
+reference_default_provisional_mv: 2540
+reference_default_is_board_value: false
+reference_configuration_pattern: ifndef/default/error as UART.h and Timer.h
+reference_guard: '1 <= ADC_VREF_MV <= INT32_MAX / 10'
+reference_physical_verified: false
+reference_configuration_approved: true
+reference_value_deferred_to: final_integration
+test_references_mv: [1000, 2000, 2540, 3300, 5000]
+negative_build_values: [0, -1, 214748365]
+oracle: exact rational, rounded integer equality across all 4096 codes per reference
+sample_decoration_mask: '0xC700000F'
+additional_device_states: false
+service_contract_unchanged: true
+initialization_deferred: true
+integration_channel_mixing_risk: recorded
+per_channel_ADDRn_mitigation: evaluate against UM10360, errata and original driver at integration
+retired_usw: [USW.2.1.11.1, USW.2.1.11.2]
+new_usw: [USW.2.1.11.3, USW.2.1.11.4]
+usw_11_2_reused: false
+external_reviewer: Claude
+external_review_names: [B05-R1-propuesta.md, B05-R1-propuesta-r2.md]
+external_reviews_scope: external local reviews, not shipped with the repository
+external_review_summary: review-notes.md
+minor_review_observations_addressed: [m1, m2, m3]
+external_review_original_verdict: approve with changes
+user_decisions_read: true
+review_findings_addressed_in_plan: [H1, H2, H3, H4, H6, H7]
+review_H5: not applicable without float
+corrected_proposal_review_pending: false
+scope_approved_on: '2026-11-11'
+external_review_r2_verdict: approved
+drivers_modification_prohibited: true
+commit_authorized_on_agreed_block_completion: true
+push_authorized: false
+next_action: Auditoría de Claude sobre implementación y aceptación del usuario; no cerrar, sincronizar, archivar o publicar.
+verified_on: '2026-11-11'
+implementation_audit_pending: true
+implementation_commit_subject: 'refactor: implementar lectura LM35 en centesimas sin estados'
+implementation_only_delivery: true
+change_closed: false
+change_archived: false
+host_suites_passed: 29
+sanitizer_suites_passed: 29
+arm_checks_passed: 13
+oracle_exact_comparisons: 20480
+documented_functions: 43
+evidence: /tmp/ed3-b05r1-impl-3lr7invk

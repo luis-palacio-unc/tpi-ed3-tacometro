@@ -180,9 +180,9 @@ del integrador; sin timeout. No implementa selector, ADC/DMA ni PWM, ni integra 
 La curva LM35 y parámetros ADC pertenecen a Dispositivos/LM35 (ESW.2.1.11), no al
 servicio. Fuente local confirmada por usuario: /home/luis/Desktop/Universidad/ed3/Datasheet_LM35_TI.pdf,
 TI SNIS159H §7.3.1 p.13, ganancia nominal 10 mV/°C. Variante/montaje/VREF reales pendientes.
-LM35 inicializa un registro y convierte muestra/escala/referencia uint32_t a Celsius
-uint32_t, con estados/errores propios. Escala son cuentas por referencia; muestra<escala.
-Modelo sin offset, mismo redondeo y cotas verificados en B05 inicial; sin ADC/DMA físico.
+El contrato base B05 aceptado describe conversión por argumentos/registro con estados.
+La implementación actual B05-R1 lo sustituye por lectura escalar de muestra propia,
+pendiente de auditoría/aceptación y sincronización posterior. Sin ADC/DMA físico.
 
 Servicios/Temperatura (ESW.2.1.4) recibe int32_t centésimas Celsius y estado de fuente
 genérico válido/sin datos/error; conserva magnitud o invalida con cero. NULL/enum
@@ -377,3 +377,22 @@ Host/san22/22,207 C+oráculo, ARM13/13/O0/O2/propiedad de símbolo y Doxygen43 P
 drivers/módulos/contratos aceptados intactos. Sin ensayos ADC/DMA reales.
 Implementación final d7dc36f y cierre documental local, sin push autorizado.
 Quedan adquisición ADC/DMA, acceso a muestra LM35, regulación e integración/placa.
+
+B05-R1 implementado/verificado2026-11-11 sobre propuesta aprobada por Claude r2 y
+ejecución acordada por usuario con m1–m3. int32_t LM35_Read devuelve centésimas,
+conversión interna entera y redondeo B05, sin estados. Muestra en LM35.c/extern interno;
+TE2 y restantes servicios intactos. IDs11.3/11.4 nuevos,11.1/11.2 retirados.
+ADC_VREF_MV #ifndef/default2540 provisional/#error; valor físico al integrar.
+Constantes nombradas y factor derivado100/10; test sólo con LM35.c, sin soporte.
+29/29 host/san,214 ejecuciones C,20480 comparaciones exactas/8 probes, ARM13/13,
+Doxygen43 PASS; detalles y límites en informe del cambio. Riesgo ADGDR/ADDRn sigue
+pendiente de integración. Resultado por auditar/aceptar, contrato principal sin sincronizar.
+Commit de implementación autorizado, sin cierre/archivo/push.
+
+Colaboración acordada: Claude revisa propuestas, ayuda a planificar y audita
+implementaciones con un harness externo local que no forma parte del repo público.
+Sus revisiones se identifican por nombre, no como enlaces a archivos del clon.
+[Resumen portable de revisiones B05-R1](../../openspec/changes/b05-r1-lectura-lm35/review-notes.md).
+Aprobación r2 corresponde a la propuesta; la auditoría de implementación queda
+pendiente. El usuario autorizó commit de implementación sin cierre/sincronización/archivo/push. No atribuir ensayos externos
+a verificaciones propias ni modificar/publicar el harness.

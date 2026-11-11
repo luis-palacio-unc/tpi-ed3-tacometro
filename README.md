@@ -147,8 +147,9 @@ Doxygen documenta sus dos USW. Ver [informe B04](openspec/changes/archive/2026-1
 Servicios/Temperatura.h/.c recibe temperatura ya expresada en centésimas Celsius
 (int32_t) y estado de fuente válido/sin datos/error. Preserva valores válidos o
 invalida con cero; diferencia cero válido de ausencia. No conoce el sensor concreto.
-Dispositivos/LM35.h/.c contiene la conversión ADC→Celsius y su ganancia nominal,
-con escala/referencia explícitas y errores de conversión. Todavía no adquiere muestras.
+La implementación actual de Dispositivos/LM35.h/.c corresponde a B05-R1:
+consulta muestra propia y devuelve centésimas, sin estados de dispositivo. El
+contrato principal conserva B05 hasta aceptar/sincronizar la revisión. ADC/DMA físicos pendientes.
 
 El servicio compila y enlaza por separado, sin LM35; las pruebas adaptan datos del
 dispositivo al contrato genérico y conservan casos numéricos/fronteras de B05.
@@ -401,3 +402,19 @@ Ver [alcance](openspec/changes/archive/2026-11-11-b16-lectura-potenciometro-dma/
 [evidencia](openspec/changes/archive/2026-11-11-b16-lectura-potenciometro-dma/verify-report.md).
 
 Ver [contrato vigente del potenciómetro](openspec/specs/potenciometro-dma/spec.md).
+
+## B05-R1: implementación LM35 pendiente de auditoría
+
+int32_t LM35_Read(void) devuelve centésimas desde ADC_DMA_LM35 propia, sin estados
+de dispositivo; redondeo B05 cercano/empate arriba. Constantes con nombre/derivadas,
+referencia ADC_VREF_MV #ifndef/default2540mV provisional/#error, sin atribuirlo a placa.
+Test enlazado sólo con LM35.c; sin Adquisicion_ADC_DMA.c.
+
+Host/san29/29,214 ejecuciones de casos C,20480 comparaciones racionales exactas,
+8 probes de configuración, ARM13/13 y Doxygen43 sin avisos. Drivers/servicios/otros
+dispositivos/contratos aceptados intactos. Inicialización ADC/DMA e integración al final.
+Auditoría del resultado/aceptación pendientes; commit sólo de implementación,
+sin cierre, sincronización, archivo o push. Sin pruebas físicas.
+Ver [cambio](openspec/changes/b05-r1-lectura-lm35/proposal.md),
+[evidencia](openspec/changes/b05-r1-lectura-lm35/verify-report.md) y
+[resumen portable de revisiones externas locales](openspec/changes/b05-r1-lectura-lm35/review-notes.md).
