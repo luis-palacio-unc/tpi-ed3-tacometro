@@ -15,10 +15,10 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R06 AP | Entrar en automático con PWM cero hasta nueva consigna válida | B01/B08/B10 aceptados/archivados para transición y solicitud cero | Aplicacion/Procesamiento.*, Servicios/Comunicacion.*, Mandos.*, Driver_Motor.* | B01 S3–S6 y B10-S6 PASS lógico; recepción/actuación reales pendientes |
 | R07 AP | Temperatura supera umbral: LED rojo y buzzer prioritarios | B05 corregido, aceptado y archivado: servicio genérico + LM35; B06 aceptado/archivado para decisión; B07 aceptado/archivado para coordinación; actuación física/adquisición pendientes | Servicios/Temperatura.*, Dispositivos/LM35.*, Driver_Alarmas.*, Aplicacion/Procesamiento.* | B05 S1–S8 PASS host/enlace ARM (verify-report archivado); B06 S1–S8 y 13 casos PASS; resultado lógico aceptado; alarma física pendiente |
 | R08 AP | Adquirir potenciómetro/temperatura con ADC y DMA | Por planificar | Dispositivos/LM35.*, Potenciometro.*, soporte/Adquisicion_ADC_DMA.* | Secuencia/canales, transferencia y coherencia sobre placa; pendiente |
-| R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 aceptado/archivado para codificación lógica TX; UART/envío pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 RX y B09 CT1–CT4 PASS lógico; UART/envío físicos pendientes |
+| R09 AP | UART recibe consignas y transmite RPM, temperatura y estado | B02 aceptado para recepción; B09 aceptado/archivado para codificación lógica TX; B13 aceptado para operaciones UART; integración/envío físico pendientes | Servicios/Comunicacion.*, Dispositivos/UART.* | B02 RX y B09 CT1–CT4 PASS lógico; UART/envío físicos pendientes |
 | R10 AP/APB | Tres capas; Procesamiento integra control; acceso mediante servicios | Transversal | Aplicacion/, Servicios/, Dispositivos/ | Revisión de dependencias por bloque; pendiente |
 | R15 U, aclaración de diseño | Aplicación y servicios independientes del hardware específico; adaptación del sensor en dispositivos (aclaración del usuario) | Transversal | Aplicacion/, Servicios/, Dispositivos/ | B05 servicio aislado/fuentes genéricas PASS; curva en LM35. B03-R1 recibe factor explícito sin configuración/dispositivos, aceptado/archivado |
-| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11/B12 aceptados:38 funciones/USW y Doxygen estricto PASS; resto pendiente |
+| R11 G §4 | Documentar ESW/USW y diagramas | Transversal | .c/.h propios y futura documentación de entrega | B01–B10 aceptados; B11–B13 aceptados:40 funciones/USW y Doxygen estricto PASS; resto pendiente |
 | R12 G entrega | Firmware completo e informe en estructura de entrega | Bloque final por planificar | Futuros Firmware/ e Informe/ de distribución | Revisión de paquete; pendiente |
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
@@ -115,9 +115,14 @@ SA1–SA4/S1–S9 conformes:8 casos servicio+4 térmicos+8 GPIO; host/san18/18,1
 y oráculo Python; ARM13/13/fixture Release; Doxygen38. B06/B12/Drivers intactos.
 [Evidencia](../../openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/verify-report.md).
 
-B13 alcance/UART0 acordados, implementado/verificado, resultado sin aceptar
+B13 aceptado/archivado2026-11-10; contrato uart-dispositivo vigente
 (R09/R10/R11/R15): UART_Read/Write, TX P0.2/RX P0.3 función01 asignados y
 UART_BAUDRATE configurable. UD1–UD4/S1–S7:11 casos UART; host/san19/19,194 C
 y oráculo; ARM13/13/O0/O2; Doxygen40. Parámetro/pinmux aún sin aplicar; integración/
 ensayo físico pendientes, Drivers/servicios intactos.
-[Evidencia](../../openspec/changes/b13-dispositivo-uart/verify-report.md).
+[Evidencia](../../openspec/changes/archive/2026-11-10-b13-dispositivo-uart/verify-report.md).
+
+B14 propuesto (R02/R04/R09/R10/R11/R15): Sensor_Optico.h/.c, lectura acumulada por
+TIMER1/CAP1.0/P1.18 propuestos, sin reset/RPM/ventanas. SO1–SO4/S1–S5 candidatos;
+evidencia de lectura/composición B03 prevista, no ejecutada. Adquisición física e
+integración siguen pendientes. [Propuesta](../../openspec/changes/b14-sensor-optico-contador/proposal.md).

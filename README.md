@@ -327,7 +327,7 @@ Ver [cambio](openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/pro
 
 ## B13: UART0 de dispositivos
 
-Alcance/UART0 acordados, implementado/verificado; resultado pendiente de aceptación.
+B13 aceptado/archivado2026-11-10; contrato vigente sincronizado.
 UART_Read/UART_Write delegan una vez a UART_Receive/Send con NONE_BLOCKING y
 retornan cantidad real, permitiendo progreso parcial/cero. NULL/tamaño0 no accede
 al driver ni buffer; sin protocolo, estado propio, heap, colas o ISR nuevos.
@@ -340,5 +340,16 @@ hardware: pinmux, baudios/reloj/formato/FIFO y conexión a Comunicacion/main al 
 Host/sanitizadores19/19,194 casos C+oráculo Python;11 casos UART nuevos. ARM13/13
 y objetos UART-O0/O2 compilados, Doxygen40 funciones sin avisos.90 archivos Drivers
 originales y otros módulos intactos. Sin ejecución MCU/simulación/ensayo eléctrico.
-Ver [cambio](openspec/changes/b13-dispositivo-uart/proposal.md) y
-[evidencia](openspec/changes/b13-dispositivo-uart/verify-report.md).
+Ver [cambio](openspec/changes/archive/2026-11-10-b13-dispositivo-uart/proposal.md) y
+[evidencia](openspec/changes/archive/2026-11-10-b13-dispositivo-uart/verify-report.md).
+
+Ver [contrato UART vigente](openspec/specs/uart-dispositivo/spec.md).
+
+## Propuesta B14: Sensor_Optico
+
+SensorOptico_Read devolverá conteo acumulado de TIMER1 mediante TIM_ReadTimer,
+sin convertir a RPM/reiniciar/temporizar. Propuestos CAP1.0/P1.18 función11 y flancos
+ascendentes; TIMER0 conserva base temporal. Pruebas de lectura/composición B03,
+build ARM y Doxygen previstos. Configuración y uso desde servicios/main al final.
+Pendiente de acuerdo, sin código/pruebas de B14 ejecutados.
+Ver [propuesta](openspec/changes/b14-sensor-optico-contador/proposal.md).

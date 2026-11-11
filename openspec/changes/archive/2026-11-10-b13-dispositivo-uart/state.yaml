@@ -1,12 +1,12 @@
 block: B13
 change: b13-dispositivo-uart
-status: verified_pending_acceptance
-phase: verify
+status: archived
+phase: archive
 scope_approved: true
-result_accepted: false
+result_accepted: true
 implementation_started: true
 verification_passed: true
-main_specs_synced: false
+main_specs_synced: true
 proposed_on: '2026-11-10'
 base_commit: e95205e
 peripheral: UART0
@@ -16,7 +16,7 @@ push_authorized: false
 commit_authorized_on_agreed_block_completion: true
 hardware_verified: false
 initialization_deferred: true
-next_action: Revisar/aceptar B13 antes de sincronizar/archivar; sin push.
+next_action: Acordar B14 antes de implementar; integracion para el final, sin push.
 scope_approved_on: '2026-11-10'
 tx_pin: P0.2
 rx_pin: P0.3
@@ -28,3 +28,6 @@ verified_on: '2026-11-10'
 commit_subject: 'feat: implementar transferencias UART0 no bloqueantes'
 baudrate_applied_to_hardware: false
 pinmux_configured: false
+accepted_on: '2026-11-10'
+archived_on: '2026-11-10'
+implementation_commit: 3adfc6a

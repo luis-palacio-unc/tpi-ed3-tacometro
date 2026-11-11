@@ -330,11 +330,19 @@ verificada en host, R1 aceptado. Sin adaptadores/casts; no hay conexión desde m
 Tres USW.13.1/.14.1/.15.1 documentadas. Sin estado mutable ni nuevos servicios.
 Inicialización/enlace y uso desde main se mantienen para integración final.
 
-B13 con alcance/UART0 acordados2026-11-10, implementado/verificado; resultado
-pendiente de aceptación. UART_Read/Write retornan uint32_t bytes, delegación única
+B13 aceptado/archivado2026-11-10; contrato uart-dispositivo sincronizado.
+UART_Read/Write retornan uint32_t bytes, delegación única
 a Receive/Send NONE_BLOCKING; NULL/tamaño0 sin accesos, sin buffers/estado propios.
 TX P0.2/RX P0.3 función01 asignados según manual tabla80/p118 inspeccionada.
 UART_BAUDRATE en UART.h, default115200 con override -D, positivo representable;
 no aplicado al hardware. PinConfig/Init/reloj/formato/FIFO/DLAB y exclusividad previos
 al uso físico se resolverán en integración final. Sin servicios/main/colas/ISR
 nuevos ni cambios en Drivers. Diagnóstico de línea y cableado/conversor pendientes.
+
+B14 propuesto, sin acuerdo/código/pruebas: SensorOptico_Read uint32_t de eventos
+acumulados con TIM_ReadTimer(LPC_TIM1). Recurso propuesto TIMER1/CAP1.0/P1.18,
+función11, flanco ascendente; TIMER0 sigue base temporal. Sin reset/ventanas/RPM/
+IRQ/estado propio; preconfiguración/arranque y señal física para integración final.
+Prueba de composición B03 sólo en fixture host; no modificar servicio ni Timer.
+Muestras de misma época y menos de2^32 eventos entre ellas para diferencia modular;
+tras reinicio, nueva referencia. No implementar antes del acuerdo de B14.
