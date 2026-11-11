@@ -3,6 +3,7 @@
 #include "LED.h"
 #include "Buzzer.h"
 #include "lpc17xx_gpio.h"
+#include "lpc17xx_pinsel.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -31,8 +32,30 @@ void GPIO_SetPinState(LPC_PORT port,LPC_PIN pin,SetState nivel)
     else { puertos[(unsigned)port]&=~mascara; }
 }
 
+static uint32_t dir_salida[5], niveles_al_dirigir[5];
+static unsigned direcciones, configuraciones;
+static PINSEL_CFG_T pin_visto;
+
+void PINSEL_ConfigPin(const PINSEL_CFG_T *cfg)
+{
+    if(cfg==NULL) { error_modelo=true; return; }
+    if(direcciones!=0U || escrituras!=0U) { error_modelo=true; }
+    pin_visto=*cfg; ++configuraciones;
+}
+
+void GPIO_SetDir(LPC_PORT port,uint32_t mascara,GPIO_DIR dir)
+{
+    if(port<PORT_0 || port>PORT_4 || (dir!=GPIO_INPUT && dir!=GPIO_OUTPUT)) { error_modelo=true; return; }
+    ++direcciones;
+    niveles_al_dirigir[(unsigned)port]=puertos[(unsigned)port];
+    if(dir==GPIO_OUTPUT) { dir_salida[(unsigned)port]|=mascara; }
+    else { dir_salida[(unsigned)port]&=~mascara; }
+}
+
 static void Preparar(void)
 {
+    memset(dir_salida,0,sizeof(dir_salida)); memset(niveles_al_dirigir,0,sizeof(niveles_al_dirigir));
+    direcciones=0U; configuraciones=0U; memset(&pin_visto,0xFF,sizeof(pin_visto));
     const uint32_t iniciales[]={UINT32_C(0x12345678),UINT32_C(0x87654321),
         UINT32_C(0xA5A5A5A5),UINT32_C(0x5A5A5A5A),UINT32_C(0xC3C3C3C3)};
     memcpy(puertos,iniciales,sizeof(puertos));
@@ -145,6 +168,44 @@ static bool ComposicionAlarmasSinAdaptadores(void)
     return true;
 }
 
+static bool SelectorInitEntradaConPullUp(void)
+{
+    Preparar(); dir_salida[2]=UINT32_MAX;
+    uint32_t antes[5]; memcpy(antes,puertos,sizeof(antes));
+    Selector_Init();
+    CHECK(configuraciones==1U && direcciones==1U && escrituras==0U && lecturas==0U);
+    CHECK(pin_visto.port==PORT_2 && pin_visto.pin==PIN_6 && pin_visto.func==PINSEL_FUNC_00);
+    CHECK(pin_visto.mode==PINSEL_PULLUP && pin_visto.openDrain==DISABLE);
+    CHECK(dir_salida[2]==~SELECTOR_MASK && dir_salida[0]==0U);
+    CHECK(memcmp(antes,puertos,sizeof(antes))==0 && !error_modelo);
+    return true;
+}
+
+static bool SalidaInit(void (*iniciar)(void),LPC_PORT port,LPC_PIN pin,uint32_t mascara,bool nivel_inicial)
+{
+    const uint32_t patrones[]={0U,UINT32_MAX,UINT32_C(0xAAAAAAAA),UINT32_C(0x55555555)};
+    for(unsigned p=0U;p<4U;++p) {
+        Preparar(); puertos[(unsigned)port]=patrones[p];
+        uint32_t esperado[5]; memcpy(esperado,puertos,sizeof(esperado));
+        if(nivel_inicial) { esperado[(unsigned)port]|=mascara; }
+        else { esperado[(unsigned)port]&=~mascara; }
+        iniciar();
+        CHECK(configuraciones==1U && escrituras==1U && direcciones==1U && lecturas==0U);
+        CHECK(pin_visto.port==port && pin_visto.pin==pin && pin_visto.func==PINSEL_FUNC_00);
+        CHECK(pin_visto.mode==PINSEL_TRISTATE && pin_visto.openDrain==DISABLE);
+        CHECK(niveles_al_dirigir[(unsigned)port]==esperado[(unsigned)port]);
+        CHECK(memcmp(esperado,puertos,sizeof(esperado))==0);
+        for(unsigned otro=0U;otro<5U;++otro) {
+            CHECK(dir_salida[otro]==(otro==(unsigned)port?mascara:0U));
+        }
+        CHECK(!error_modelo);
+    }
+    return true;
+}
+
+static bool LedInitApagado(void) { return SalidaInit(LED_Init,PORT_0,PIN_22,LED_MASK,true); }
+static bool BuzzerInitDesactivado(void) { return SalidaInit(Buzzer_Init,PORT_2,PIN_7,BUZZER_MASK,false); }
+
 int main(void)
 {
     const struct { const char *nombre; bool (*ejecutar)(void); } casos[]={
@@ -153,10 +214,12 @@ int main(void)
         {"BuzzerActivoAlto",BuzzerActivoAlto},
         {"RepeticionRestauraSalida",RepeticionRestauraSalida},
         {"SalidasIntercaladas",SalidasIntercaladas},
-        {"S9 ComposicionAlarmasSinAdaptadores",ComposicionAlarmasSinAdaptadores}};
+        {"S9 ComposicionAlarmasSinAdaptadores",ComposicionAlarmasSinAdaptadores},
+        {"I1 SelectorInitEntradaConPullUp",SelectorInitEntradaConPullUp},
+        {"I1 LedInitApagado",LedInitApagado},{"I1 BuzzerInitDesactivado",BuzzerInitDesactivado}};
     for(unsigned i=0U;i<sizeof(casos)/sizeof(casos[0]);++i) {
         if(!casos[i].ejecutar()) { fprintf(stderr,"FAIL %s\n",casos[i].nombre); return 1; }
     }
-    puts("PASS B12/B07-R1: 8 casos; GPIO modelado por API, sin ejecutar perifericos.");
+    puts("PASS B12/B07-R1/I1: 11 casos; GPIO modelado por API, sin ejecutar perifericos.");
     return 0;
 }

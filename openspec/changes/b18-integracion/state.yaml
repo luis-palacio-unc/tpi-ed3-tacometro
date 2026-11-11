@@ -1,0 +1,35 @@
+block: B18
+change: b18-integracion
+status: in_progress
+phase: apply
+proposed_on: '2026-11-11'
+updated_on: '2026-11-11'
+base_commit: 60727625d59aeeb076f17b51bda58e5e06aebc40
+fast_track_approved_by_user: true
+scope_approved: true
+implementation_started: true
+result_accepted: false
+main_specs_synced: false
+change_archived: false
+stages:
+  I1: implemented_verified_pending_review
+  I2: pending
+  I3: pending
+i1_branch: integracion-i1
+i1_delta_specs: [build, uart-dispositivo, timer, motor-dispositivo, sensor-optico, dispositivos-gpio, potenciometro-dma, temperatura]
+i1_new_usw: [USW.2.1.9.2, USW.2.1.10.2, USW.2.1.13.2, USW.2.1.14.2, USW.2.1.15.2, USW.2.1.16.3, USW.2.1.16.4, USW.2.1.16.5, USW.2.1.16.6, USW.2.1.17.15, USW.2.1.17.16]
+i1_support_functions_without_esw: [Reloj_Init, Adquisicion_ADC_DMA_Init, Adquisicion_ADC_DMA_HayDatos, Adquisicion_ADC_DMA_ContarPares, DMA_IRQHandler]
+i1_host_sanitizer_suites_passed: 36
+i1_host_suites_passed: 36
+i1_arm_checks_passed_debug: 17
+i1_arm_checks_passed_release: 17
+i1_documented_functions: 62
+i1_mutants_detected_before_review_corrections: [32, 32]
+i1_review_corrections_applied: [Reloj_Init_FLASHCFG, P1_18_pullup, verify_report_notes]
+i1_firmware_exigir_reloj_deferred_to: I2
+drivers_modification_prohibited: true
+drivers_unchanged: true
+hardware_acceptance_pending: true
+commit_authorized: false
+push_authorized: false
+next_action: Reauditar correcciones de I1 y commit local; luego I2.

@@ -12,6 +12,19 @@
   El cierre sólo cambia documentación/metadatos. Producción,pruebas,build,
   Drivers y contratos/archivo previos conservados.
 
+## Integración en curso (B18)
+
+- I1 (arranque y periféricos) **implementado y verificado en host/ARM, pendiente de
+  revisión de Claude y de commit**; rama `integracion-i1`, base 6072762.
+  Cambio `openspec/changes/b18-integracion/` (vía rápida aprobada por el usuario).
+- Host/san 36/36 y host 36/36; ARM Debug 17/17 y Release 17/17; Doxygen 62 sin
+  avisos; `Drivers/` sin cambios. Nada ejecutado en placa.
+- El reloj lo configura `Reloj_Init` (FLASHCFG a 5 ciclos, `SystemInit`,
+  `SystemCoreClockUpdate`); el startup no cambió. I2 debe llamarla primero en main.
+  [Informe](../../openspec/changes/b18-integracion/verify-report.md).
+- Specs vigentes sin sincronizar; `Aplicacion/`, `Servicios/` y `main.c` intactos.
+  Siguen I2 (servicios simples, Aplicación y main) e I3 (MCUXpresso).
+
 ## Evidencia aceptada
 
 Ejecución propia sobre8f1793f:host/san33/33 cada uno,10 casos PI+2 composición,

@@ -24,10 +24,10 @@
 
 /**
  * @brief Palabra ADC de la muestra LM35, propiedad de este dispositivo.
- * @details Destino futuro DMA de 32 bits alineado a 4 bytes en .bss local del LPC1769.
+ * @details Destino DMA de 32 bits (AD0DR1) alineado a 4 bytes en .bss local del LPC1769.
  * RESULT ocupa 15:4; los demas campos no participan en la conversion.
- * @note Extern interno en Adquisicion_ADC_DMA.h. DMA sera el unico escritor
- * productivo; configuracion/origen y coherencia de canales pendientes de integracion.
+ * @note Extern interno en Adquisicion_ADC_DMA.h. DMA es el unico escritor
+ * productivo; el soporte asocia AD0.1 a este destino por descriptor.
  */
 volatile uint32_t ADC_DMA_LM35;
 

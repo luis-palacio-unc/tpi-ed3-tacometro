@@ -10,9 +10,9 @@
 #include "lpc17xx_adc.h"
 
 /**
- * @brief Palabra ADGDR del potenciometro, destino de la transferencia DMA.
+ * @brief Palabra AD0DR0 del potenciometro, destino de la transferencia DMA.
  * @details Propiedad de Potenciometro; declaracion extern en el enlace interno
- * Adquisicion_ADC_DMA.h para la futura configuracion del productor.
+ * Adquisicion_ADC_DMA.h para la configuracion del productor.
  * @note Volatile, 32 bits, .bss local alineada a 4 bytes en LPC1769.
  */
 volatile uint32_t ADC_DMA_Pot;

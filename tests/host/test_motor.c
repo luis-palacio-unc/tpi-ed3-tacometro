@@ -2,6 +2,7 @@
 #include "lpc17xx_pwm.h"
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 #define CHECK(expr) do { if (!(expr)) { fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #expr); return false; } } while (0)
 
@@ -16,8 +17,59 @@ void PWM_MatchUpdateSingle(PWM_MATCH_OPT registro, uint32_t valor)
     ultimo_valor = valor;
 }
 
+#define EVENTOS_MAX 16U
+typedef enum {
+    EV_BASE, EV_MATCH0, EV_MATCH1, EV_CANAL_MODO, EV_PIN, EV_CANAL_ON, EV_CONTADOR, EV_PWM
+} Evento;
+static Evento eventos[EVENTOS_MAX];
+static size_t eventos_total;
+static PWM_TIMERCFG_T base_vista;
+static PWM_MATCHCFG_T match_visto[2];
+static PWM_CHANNEL canal_modo, canal_habilitado;
+static PWM_CHANNEL_EDGE flanco_visto;
+static PWM_PIN_OPTION pin_visto;
+static bool error_modelo;
+
+static void Registrar(Evento evento)
+{
+    if (eventos_total < EVENTOS_MAX) { eventos[eventos_total] = evento; }
+    ++eventos_total;
+}
+
+void PWM_InitTimer(const PWM_TIMERCFG_T *cfg)
+{
+    if (cfg == NULL) { error_modelo = true; return; }
+    base_vista = *cfg;
+    Registrar(EV_BASE);
+}
+
+void PWM_ConfigMatch(const PWM_MATCHCFG_T *cfg)
+{
+    if (cfg == NULL || (cfg->channel != PWM_MATCH_0 && cfg->channel != PWM_MATCH_1)) {
+        error_modelo = true;
+        return;
+    }
+    match_visto[cfg->channel] = *cfg;
+    Registrar(cfg->channel == PWM_MATCH_0 ? EV_MATCH0 : EV_MATCH1);
+}
+
+void PWM_ChannelConfig(PWM_CHANNEL canal, PWM_CHANNEL_EDGE flanco)
+{
+    canal_modo = canal; flanco_visto = flanco;
+    Registrar(EV_CANAL_MODO);
+}
+
+void PWM_PinConfig(PWM_PIN_OPTION opcion) { pin_visto = opcion; Registrar(EV_PIN); }
+void PWM_ChannelEnable(PWM_CHANNEL canal) { canal_habilitado = canal; Registrar(EV_CANAL_ON); }
+void PWM_CounterEnable(void) { Registrar(EV_CONTADOR); }
+void PWM_Enable(void) { Registrar(EV_PWM); }
+
 static void Preparar(void)
 {
+    eventos_total = 0U; error_modelo = false;
+    memset(&base_vista, 0xFF, sizeof(base_vista)); memset(match_visto, 0xFF, sizeof(match_visto));
+    canal_modo = PWM_CHANNEL_6; canal_habilitado = PWM_CHANNEL_6;
+    flanco_visto = PWM_DUAL_EDGE; pin_visto = PWM6_P2_5;
     llamadas = 0U;
     ultimo_registro = PWM_MATCH_0;
     ultimo_valor = UINT32_C(0xA5A5A5A5);
@@ -79,9 +131,34 @@ static bool RepeticionYCero(void)
     return true;
 }
 
+static bool InicializacionAcordada(void)
+{
+    Preparar();
+    const Evento esperado[] = {EV_BASE, EV_MATCH0, EV_MATCH1, EV_CANAL_MODO, EV_PIN,
+                               EV_CANAL_ON, EV_CONTADOR, EV_PWM};
+    Motor_Init();
+    CHECK(eventos_total == sizeof(esperado) / sizeof(esperado[0]));
+    CHECK(memcmp(eventos, esperado, sizeof(esperado)) == 0);
+    CHECK(base_vista.prescaleOpt == PWM_TICK && base_vista.prescaleValue - 1U == 24U);
+    CHECK(UINT32_C(25000000) / base_vista.prescaleValue == UINT32_C(1000000));
+    CHECK(match_visto[0].channel == PWM_MATCH_0 && match_visto[0].matchValue == 1000U);
+    CHECK(match_visto[0].resetEn == ENABLE && match_visto[0].intEn == DISABLE);
+    CHECK(match_visto[0].stopEn == DISABLE);
+    CHECK(UINT32_C(1000000) / match_visto[0].matchValue == 1000U);
+    CHECK(match_visto[1].channel == PWM_MATCH_1 && match_visto[1].matchValue == 0U);
+    CHECK(match_visto[1].resetEn == DISABLE && match_visto[1].intEn == DISABLE);
+    CHECK(match_visto[1].stopEn == DISABLE);
+    CHECK(canal_modo == PWM_CHANNEL_1 && flanco_visto == PWM_SINGLE_EDGE);
+    CHECK(pin_visto == PWM1_P2_0 && canal_habilitado == PWM_CHANNEL_1);
+    CHECK(llamadas == 0U && !error_modelo);
+    CHECK(OrdenExacta(0U) && OrdenExacta(1000U) && eventos_total == 8U);
+    return true;
+}
+
 int main(void)
 {
     const struct { const char *nombre; bool (*ejecutar)(void); } casos[] = {
+        {"I1 inicializacion acordada", InicializacionAcordada},
         {"S1 referencias exactas", ValoresDeReferencia},
         {"S2 dominio completo", DominioCompleto},
         {"S3 rechazo/recuperacion", RechazoYRecuperacion},

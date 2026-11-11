@@ -18,7 +18,9 @@ INPUT = Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacion/Procesamiento.c 
         Dispositivos/Sensor_Optico.h Dispositivos/Sensor_Optico.c \
         Dispositivos/LM35.h Dispositivos/LM35.c \
         Dispositivos/Potenciometro.h Dispositivos/Potenciometro.c \
-        Dispositivos/soporte/Adquisicion_ADC_DMA.h Dispositivos/soporte/Adquisicion_ADC_DMA.c
+        Dispositivos/soporte/Adquisicion_ADC_DMA.h Dispositivos/soporte/Adquisicion_ADC_DMA.c \
+        Dispositivos/soporte/Reloj.h Dispositivos/soporte/Reloj.c \
+        plataforma/compat/lpc17xx.h
 FILE_PATTERNS = *.c *.h
 INCLUDE_PATH = Aplicacion Servicios Configuracion Dispositivos Dispositivos/soporte
 OPTIMIZE_OUTPUT_FOR_C = YES

@@ -1,6 +1,7 @@
 #include "Sensor_Optico.h"
 #include "Medicion_Velocidad.h"
 #include "Medicion.h"
+#include "lpc17xx_pinsel.h"
 #include "lpc17xx_timer.h"
 #include <stdbool.h>
 #include <stddef.h>
@@ -22,8 +23,44 @@ uint32_t TIM_ReadTimer(LPC_TIM_TypeDef *timer)
     return 0U;
 }
 
+typedef enum { EV_CONTADOR, EV_PIN, EV_ENABLE } Evento;
+static Evento eventos[8];
+static size_t eventos_total;
+static TIM_COUNTERCFG_T contador_visto;
+static PINSEL_CFG_T pin_visto;
+
+static void Registrar(Evento evento)
+{
+    if (eventos_total < sizeof(eventos) / sizeof(eventos[0])) { eventos[eventos_total] = evento; }
+    ++eventos_total;
+}
+
+void TIM_InitCounter(LPC_TIM_TypeDef *timer, const TIM_COUNTERCFG_T *cfg)
+{
+    if (timer != LPC_TIM1 || cfg == NULL) { error_modelo = true; return; }
+    contador_visto = *cfg;
+    cuenta_eventos = 0U;
+    Registrar(EV_CONTADOR);
+}
+
+void PINSEL_ConfigPin(const PINSEL_CFG_T *cfg)
+{
+    if (cfg == NULL) { error_modelo = true; return; }
+    pin_visto = *cfg;
+    Registrar(EV_PIN);
+}
+
+void TIM_Enable(LPC_TIM_TypeDef *timer)
+{
+    if (timer != LPC_TIM1) { error_modelo = true; return; }
+    Registrar(EV_ENABLE);
+}
+
 static void Preparar(void)
 {
+    eventos_total = 0U; pin_visto.port = PORT_4; pin_visto.pin = PIN_31;
+    pin_visto.func = PINSEL_FUNC_00; pin_visto.mode = PINSEL_PULLDOWN; pin_visto.openDrain = ENABLE;
+    contador_visto.input = TIM_CAPTURE_1; contador_visto.edge = TIM_CTR_ANY;
     cuenta_base = UINT32_C(0xA5A5A5A5);
     cuenta_eventos = 0U;
     consultas_base = 0U; consultas_eventos = 0U; error_modelo = false;
@@ -132,9 +169,26 @@ static bool DuracionYFactorExplicitos(void)
     return true;
 }
 
+static bool InicializacionAcordada(void)
+{
+    Preparar();
+    cuenta_eventos = 777U;
+    SensorOptico_Init();
+    CHECK(eventos_total == 3U && eventos[0] == EV_CONTADOR && eventos[1] == EV_PIN);
+    CHECK(eventos[2] == EV_ENABLE);
+    CHECK(contador_visto.input == TIM_CAPTURE_0 && contador_visto.edge == TIM_CTR_RISING);
+    CHECK(((unsigned)contador_visto.edge | ((unsigned)contador_visto.input << 2)) == 0x01U);
+    CHECK(pin_visto.port == PORT_1 && pin_visto.pin == PIN_18 && pin_visto.func == PINSEL_FUNC_11);
+    CHECK(pin_visto.mode == PINSEL_PULLUP && pin_visto.openDrain == DISABLE);
+    CHECK(SensorOptico_Read() == 0U && cuenta_base == UINT32_C(0xA5A5A5A5));
+    CHECK(consultas_eventos == 1U && consultas_base == 0U && !error_modelo);
+    return true;
+}
+
 int main(void)
 {
     const struct { const char *nombre; bool (*ejecutar)(void); } casos[] = {
+        {"I1 inicializacion acordada", InicializacionAcordada},
         {"S1 lecturas exactas/base independiente", LecturasExactasYBaseIndependiente},
         {"S2 repeticion/avance", RepeticionYAvance},
         {"S3 ventana 1s/B03", VentanaUnSegundo}, {"S4 rollover/B03", VentanaCruzaRollover},

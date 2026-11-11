@@ -25,7 +25,29 @@ def tool(prefix, name, *args):
                           stderr=subprocess.PIPE, env=env).stdout
 
 
-def inspect(elf, prefix):
+def require_clock(elf, prefix, symbols, text):
+    """Exigir Reloj_Init fuerte que escriba FLASHCFG y llame SystemInit y SystemCoreClockUpdate."""
+    strong = set(re.findall(r"^[0-9a-fA-F]+\s+T\s+(\S+)$",
+                            tool(prefix, "nm", "--defined-only", elf), re.M))
+    for name in ("Reloj_Init", "SystemInit", "SystemCoreClockUpdate"):
+        require(name in strong, "Falta simbolo fuerte de reloj: " + name)
+        require(text["vma"] <= (symbols[name] & ~1) < text["vma"] + text["size"],
+                "Simbolo de reloj fuera de texto: " + name)
+    require("SystemCoreClock" in symbols, "Falta simbolo de reloj: SystemCoreClock")
+    listing = tool(prefix, "objdump", "-d", "--disassemble=Reloj_Init", elf)
+    calls = re.findall(r"\sbl?(?:\.w)?\s+[0-9a-f]+\s+<(\w+)>", listing)
+    require(calls == ["SystemInit", "SystemCoreClockUpdate"],
+            "Reloj_Init no llama SystemInit y SystemCoreClockUpdate en orden: " + ", ".join(calls))
+    before = listing.split("<SystemInit>")[0]
+    require(re.search(r"\sstr(?:\.w)?\s", before),
+            "Reloj_Init no escribe FLASHCFG antes de SystemInit.")
+    main_listing = tool(prefix, "objdump", "-d", "--disassemble=main", elf)
+    main_calls = re.findall(r"\sbl\s+[0-9a-f]+\s+<(\w+)>", main_listing)
+    require(main_calls[:1] == ["Reloj_Init"],
+            "main no llama Reloj_Init como primera funcion: " + ", ".join(main_calls[:3]))
+
+
+def inspect(elf, prefix, exigir_reloj=False):
     header = elf.read_bytes()[:52]
     require(len(header) == 52 and header[:7] == b"\x7fELF\x01\x01\x01",
             "Se requiere ELF32 little-endian completo.")
@@ -125,13 +147,17 @@ def inspect(elf, prefix):
     require(top - bottom == 2048, "Reserva de pila distinta de 2 kB.")
     if de > ds:
         require(sections[".data"]["lma"] == symbols["__data_load__"], "LMA .data incoherente.")
+    if exigir_reloj:
+        require_clock(elf, prefix, symbols, text)
     size_output = tool(prefix, "size", elf).strip()
     return ("Imagen LPC1769: verificacion estatica correcta\n"
             f"FLASH (huella hasta fin de imagen): {flash_end}/{FLASH_END} bytes\n"
             f"SRAM local (.data + .bss + pila): {ram_used}/32768 bytes\n"
             f"Pila reservada: {top-bottom} bytes; no acredita profundidad real\n"
             "AHB0/AHB1: sin secciones asignadas en B00\n" + size_output + "\n"
-            "No se ejecuto firmware en hardware ni simulacion.\n")
+            + ("Reloj: main llama primero Reloj_Init, que fija FLASHCFG y llama SystemInit\n"
+               if exigir_reloj else "")
+            + "No se ejecuto firmware en hardware ni simulacion.\n")
 
 
 def main():
@@ -139,9 +165,11 @@ def main():
     parser.add_argument("elf", type=Path)
     parser.add_argument("--tool-prefix", default="arm-none-eabi-")
     parser.add_argument("--report", type=Path)
+    parser.add_argument("--exigir-reloj", action="store_true",
+                        help="exigir Reloj_Init como primera llamada de main, con SystemInit")
     args = parser.parse_args()
     try:
-        report = inspect(args.elf, args.tool_prefix)
+        report = inspect(args.elf, args.tool_prefix, args.exigir_reloj)
         if args.report:
             args.report.write_text(report)
         print(report, end="")

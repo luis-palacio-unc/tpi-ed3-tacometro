@@ -2,7 +2,7 @@
  * @file LM35.h
  * @brief Temperatura del LM35 en centesimas Celsius desde su muestra en memoria.
  * @details Modelo nominal 10 mV por grado; referencia configurable en Analogica.h.
- * @note ESW.2.1.11. ADC/DMA, primera muestra y conexion fisica se integraran al final.
+ * @note ESW.2.1.11. AD0.1/P0.24; el soporte Adquisicion_ADC_DMA configura y arranca.
  */
 #ifndef TPI_LM35_H
 #define TPI_LM35_H

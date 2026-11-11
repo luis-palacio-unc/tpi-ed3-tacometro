@@ -24,6 +24,7 @@ set(TPI_SOURCES
     Dispositivos/Buzzer.c
     Dispositivos/UART.c
     Dispositivos/soporte/Adquisicion_ADC_DMA.c
+    Dispositivos/soporte/Reloj.c
 )
 
 if(TPI_BUILD_ARM)
@@ -38,7 +39,26 @@ if(TPI_BUILD_ARM)
     endif()
     enable_language(ASM)
     find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
-    add_executable(firmware ${TPI_SOURCES}
+    set(TPI_DRIVERS_DIR Drivers/CMSISv2p00_LPC17xx)
+    add_library(tpi_drivers OBJECT
+        ${TPI_DRIVERS_DIR}/src/system_LPC17xx.c
+        ${TPI_DRIVERS_DIR}/Drivers/src/lpc17xx_adc.c
+        ${TPI_DRIVERS_DIR}/Drivers/src/lpc17xx_clkpwr.c
+        ${TPI_DRIVERS_DIR}/Drivers/src/lpc17xx_gpdma.c
+        ${TPI_DRIVERS_DIR}/Drivers/src/lpc17xx_gpio.c
+        ${TPI_DRIVERS_DIR}/Drivers/src/lpc17xx_libcfg_default.c
+        ${TPI_DRIVERS_DIR}/Drivers/src/lpc17xx_pinsel.c
+        ${TPI_DRIVERS_DIR}/Drivers/src/lpc17xx_pwm.c
+        ${TPI_DRIVERS_DIR}/Drivers/src/lpc17xx_timer.c
+        ${TPI_DRIVERS_DIR}/Drivers/src/lpc17xx_uart.c)
+    target_include_directories(tpi_drivers SYSTEM PRIVATE
+        ${TPI_DRIVERS_DIR}/inc ${TPI_DRIVERS_DIR}/Drivers/inc plataforma/compat)
+    set_target_properties(tpi_drivers PROPERTIES
+        C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO)
+    target_compile_options(tpi_drivers PRIVATE
+        -ffreestanding -ffunction-sections -fdata-sections
+        -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-common)
+    add_executable(firmware ${TPI_SOURCES} $<TARGET_OBJECTS:tpi_drivers>
         plataforma/startup_lpc1769.S plataforma/cmsis_compat.c)
     set_target_properties(firmware PROPERTIES SUFFIX ".elf")
     target_include_directories(firmware SYSTEM PRIVATE
@@ -80,6 +100,16 @@ if(TPI_BUILD_ARM)
             "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b17-fixture-release"
             "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
             "-DBUILD_TYPE=Release" -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b17.cmake")
+        add_test(NAME i1.enlace_arm COMMAND "${CMAKE_COMMAND}"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/i1-fixture"
+            "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
+            "-DBUILD_TYPE=$<CONFIG>" -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_i1.cmake")
+        add_test(NAME i1.enlace_arm_release COMMAND "${CMAKE_COMMAND}"
+            "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/i1-fixture-release"
+            "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
+            "-DBUILD_TYPE=Release" -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_i1.cmake")
         add_test(NAME b01.enlace_arm COMMAND "${CMAKE_COMMAND}"
             "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
             "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b01-fixture"
@@ -144,7 +174,7 @@ else()
 endif()
 
 target_include_directories(firmware SYSTEM PRIVATE
-    Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
+    Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc plataforma/compat)
 
 set_target_properties(firmware PROPERTIES
     C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO)
@@ -219,22 +249,28 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
         Dispositivos/Sensor_Optico.c Servicios/Medicion_Velocidad.c)
     target_include_directories(pruebas_sensor_optico PRIVATE Dispositivos)
     target_include_directories(pruebas_sensor_optico SYSTEM PRIVATE
-        Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
-    add_executable(pruebas_uart tests/host/test_uart.c Dispositivos/UART.c)
-    target_include_directories(pruebas_uart PRIVATE Dispositivos)
-    target_include_directories(pruebas_uart SYSTEM PRIVATE
-        Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
+        Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc plataforma/compat)
+    add_executable(pruebas_uart tests/host/test_uart.c)
+    add_executable(pruebas_timer tests/host/test_timer.c)
+    add_executable(pruebas_reloj tests/host/test_reloj.c)
+    add_executable(pruebas_adquisicion_adc_dma tests/host/test_adquisicion_adc_dma.c
+        Dispositivos/Potenciometro.c Dispositivos/LM35.c)
+    foreach(prueba_i1 pruebas_uart pruebas_timer pruebas_reloj pruebas_adquisicion_adc_dma)
+        target_include_directories(${prueba_i1} PRIVATE Dispositivos Dispositivos/soporte tests/host)
+        target_include_directories(${prueba_i1} SYSTEM PRIVATE
+            Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc plataforma/compat)
+    endforeach()
     add_executable(pruebas_dispositivos_gpio tests/host/test_dispositivos_gpio.c
         Dispositivos/Selector.c Dispositivos/LED.c Dispositivos/Buzzer.c Servicios/Driver_Alarmas.c)
     target_include_directories(pruebas_dispositivos_gpio PRIVATE Dispositivos)
     target_include_directories(pruebas_dispositivos_gpio SYSTEM PRIVATE
-        Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
+        Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc plataforma/compat)
     target_include_directories(pruebas_lm35 PRIVATE Dispositivos)
     target_include_directories(pruebas_integracion_temperatura PRIVATE Dispositivos Dispositivos/soporte)
     target_include_directories(pruebas_integracion_temperatura SYSTEM PRIVATE
         Drivers/CMSISv2p00_LPC17xx/inc Drivers/CMSISv2p00_LPC17xx/Drivers/inc)
     target_compile_definitions(pruebas_integracion_temperatura PRIVATE ADC_VREF_MV=2000)
-    foreach(prueba pruebas_regulador consulta_regulador pruebas_integracion_regulador pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria pruebas_selector pruebas_integracion_selector pruebas_dispositivos_gpio pruebas_uart pruebas_sensor_optico pruebas_motor pruebas_potenciometro ${TPI_LM35_VARIANT_TARGETS})
+    foreach(prueba pruebas_regulador consulta_regulador pruebas_integracion_regulador pruebas_procesamiento pruebas_comunicacion pruebas_medicion_velocidad pruebas_mandos pruebas_temperatura pruebas_lm35 pruebas_integracion_temperatura consulta_medicion_velocidad pruebas_alarma_temperatura pruebas_driver_alarmas pruebas_integracion_alarmas pruebas_driver_motor pruebas_integracion_motor pruebas_telemetria pruebas_integracion_telemetria pruebas_selector pruebas_integracion_selector pruebas_dispositivos_gpio pruebas_uart pruebas_timer pruebas_reloj pruebas_adquisicion_adc_dma pruebas_sensor_optico pruebas_motor pruebas_potenciometro ${TPI_LM35_VARIANT_TARGETS})
         if(prueba STREQUAL "consulta_medicion_velocidad" OR prueba STREQUAL "pruebas_driver_alarmas")
             target_include_directories(${prueba} PRIVATE Servicios)
         elseif(prueba STREQUAL "pruebas_driver_motor" OR prueba STREQUAL "pruebas_telemetria" OR prueba STREQUAL "pruebas_selector")
@@ -288,6 +324,9 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_test(NAME b10.integracion_selector COMMAND pruebas_integracion_selector)
     add_test(NAME b12.dispositivos_gpio COMMAND pruebas_dispositivos_gpio)
     add_test(NAME b13.uart COMMAND pruebas_uart)
+    add_test(NAME i1.timer COMMAND pruebas_timer)
+    add_test(NAME i1.reloj COMMAND pruebas_reloj)
+    add_test(NAME i1.adquisicion_adc_dma COMMAND pruebas_adquisicion_adc_dma)
     add_test(NAME b14.sensor_optico COMMAND pruebas_sensor_optico)
     add_test(NAME b15.motor COMMAND pruebas_motor)
     add_test(NAME b16.potenciometro COMMAND pruebas_potenciometro)
