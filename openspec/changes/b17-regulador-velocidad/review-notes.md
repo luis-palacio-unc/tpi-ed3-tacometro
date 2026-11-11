@@ -79,3 +79,18 @@ sobre la pregunta externa acerca de esperar a la auditoría para commitear.
 Evidencia propia en build/verificacion-b17-2026-11-11 dentro del workspace,
 ignorada; reproducir con python3 scripts/verificar_b17.py.
 Los resultados externos del revisor se distinguen de las pruebas propias del informe.
+
+
+## Auditoría de implementación y corrección H1/H2
+
+Fuente externa local leída completa:B17-implementacion.md,sobre9352f0d..bf975f3;
+veredicto APROBAR CON CAMBIOS,sin bloqueantes. No se distribuye ni enlaza el harness.
+Claude consideró correcto el código;detectó huecos en límites de integral (Ki>Kp)
+y n=0/error negativo. Sus mutaciones/resultados son evidencia externa.
+
+Usuario autoriza sólo pruebas:dos CONFIGS Ki>Kp,dos trazas y mutantes sin límites
+superior/inferior y con n<0. Toda producción se conserva;copias de mutación
+ignoradas dentro del workspace. Referencia Fraction sin cambios.
+Verificación propia:unidad10/10,oráculo133758 pasos por modalidad;los tres nuevos
+mutantes mueren en unidad y oráculo,copia correcta pasa. Detalles en verify-report.
+Siguiente /auditar B17 (r2);commit local autorizado,sin push ni cierre.

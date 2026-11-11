@@ -70,7 +70,14 @@ def mutations():
     replacements={
         "correct":original,
         "anti-windup":original.replace("if (valida && !saturando)","(void)saturando;\n    if (valida)"),
-        "rounding":original.replace("(n + d / 2) / d","n / d")
+        "rounding":original.replace("(n + d / 2) / d","n / d"),
+        "integral-upper":original.replace(
+            "r->integral_num = siguiente < 0 ? 0 : (siguiente > max_integral ? max_integral : siguiente);",
+            "(void)max_integral;\n        r->integral_num = siguiente < 0 ? 0 : siguiente;"),
+        "integral-lower":original.replace(
+            "r->integral_num = siguiente < 0 ? 0 : (siguiente > max_integral ? max_integral : siguiente);",
+            "r->integral_num = siguiente > max_integral ? max_integral : siguiente;"),
+        "freeze-zero":original.replace("(n <= 0 && error < 0)","(n < 0 && error < 0)")
     }
     assert all(s!=original for name,s in replacements.items() if name!="correct")
     summary={}
@@ -90,7 +97,13 @@ def mutations():
         oracle_log=run(["python3",copy/"tests/host/verificar_regulador.py","--programa",copy/"oracle",
                         "--evidencia",copy/"oracle-evidence","--solo-oraculo"],name+"-oracle",expected=exit_code)
         if name!="correct":
-            assert ("FAIL S2" if name=="anti-windup" else "FAIL S1") in unit_log
+            expected_failure={
+                "anti-windup":"FAIL S2 anti-windup", "rounding":"FAIL S1 paso/empate",
+                "integral-upper":"FAIL S2 limites integral Ki>Kp",
+                "integral-lower":"FAIL S2 limites integral Ki>Kp",
+                "freeze-zero":"FAIL S2 n0 e negativo"
+            }[name]
+            assert expected_failure in unit_log
             assert "S9 paso" in oracle_log and "esperado=" in oracle_log and "obtenido=" in oracle_log
         summary[name]=dict(compiled=True,unit_exit=exit_code,oracle_exit=exit_code,
                            detected=name!="correct")

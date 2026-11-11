@@ -49,7 +49,7 @@ external_plan_scope: external local planning review, not shipped with repository
 external_review_summary: review-notes.md
 external_reviewer: Claude
 proposal_review_pending: false
-proposal_review_request: /auditar B17
+proposal_review_request: /auditar B17 (r2)
 model_overshoot_max_percent: 10
 model_overshoot_basis: step amplitude
 model_settling_steps_max: 20
@@ -57,10 +57,10 @@ model_settling_criterion_confirmed: true
 model_settling_band_rpm: 2
 model_horizon_steps_per_step: 100
 detailed_proposal_recheck_pending: false
-random_oracle_steps_planned: 49152
+random_oracle_steps_planned: 65536
 firmware_tests_executed_for_b17: true
 documentary_checks_passed: true
-evidence: build/verificacion-b17-2026-11-11
+evidence: build/verificacion-b17-h1-h2-2026-11-11
 initial_proposal_evidence: build/verificacion-b17-2026-11-11/before
 drivers_modification_prohibited: true
 accepted_specs_modification_prohibited: true
@@ -68,7 +68,7 @@ initialization_deferred: true
 hardware_acceptance_pending: true
 commit_authorized_for_this_delivery: true
 push_authorized: false
-next_action: /auditar B17; aceptar resultado antes de sincronizar/archivar. Sin push.
+next_action: /auditar B17 (r2); aceptar resultado antes de sincronizar/archivar. Sin push.
 external_proposal_review_name: B17-propuesta.md
 external_proposal_review_final_verdict: APROBAR (r2)
 external_proposal_review_addendum_read: true
@@ -77,8 +77,8 @@ review_findings_addressed_in_proposal: [H4, H5]
 rounding_mutation_planned: true
 rounding_mutation_executed: true
 rounding_mutation_acceptance: S1 or Fraction oracle S9 must fail in external copy
-planned_tasks: 18
-completed_tasks: 18
+planned_tasks: 21
+completed_tasks: 21
 model_s8_unchanged_in_correction: true
 denominator_bounds_unchanged_in_correction: true
 disconnected_sensor_detection_in_scope: false
@@ -92,13 +92,24 @@ host_suites_passed: 33
 sanitizer_suites_passed: 33
 arm_checks_passed: 15
 documented_functions: 46
-oracle_exact_steps_per_modality: 116722
-oracle_random_steps_per_modality: 49152
+oracle_exact_steps_per_modality: 133758
+oracle_random_steps_per_modality: 65536
 model_settling_steps_observed: [14, 14]
 model_peak_milli_rpm: [99600, 185200]
-mutations_detected: [anti-windup, rounding]
+mutations_detected: [anti-windup, rounding, integral-upper, integral-lower, freeze-zero]
 instance_bytes_arm: 40
-reproduction_command: python3 scripts/verificar_b17.py
+reproduction_command: python3 scripts/verificar_b17.py --evidencia build/verificacion-b17-h1-h2-2026-11-11
 implementation_commit_subject: 'feat: implementar regulador PI entero del modo automatico'
 
 external_proposal_review_r2_name: B17-propuesta-r2.md
+
+implementation_audit_review: B17-implementacion.md
+implementation_audit_initial_verdict: APROBAR CON CAMBIOS (sin bloqueantes)
+audit_findings_addressed_in_tests: [H1, H2]
+implementation_audit_r2_pending: true
+audit_correction_base: bf975f369f6ad4997149b2f7e5d232a7450f488a
+production_unchanged_from_audit_base: true
+oracle_configuration_count: 8
+unit_regulator_cases: 10
+c_cases_per_host_sanitizer: 226
+audit_correction_commit_subject: 'test: cubrir limites de integral y congelamiento en cero'

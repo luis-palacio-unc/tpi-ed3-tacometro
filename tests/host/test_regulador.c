@@ -50,6 +50,40 @@ static bool AntiWindup(void)
     return true;
 }
 
+static bool LimitesIntegralKiMayor(void)
+{
+    const Procesamiento_ConfigRegulador cfg = {1U, 1000U, 1000U, 1U, 4U};
+    Procesamiento_Regulador r;
+    uint16_t u = 777U;
+    Medicion_Velocidad_Lectura m = {0U, MEDICION_VELOCIDAD_VALIDA};
+    CHECK(Procesamiento_InicializarRegulador(&r, &cfg));
+    CHECK(Procesamiento_Regular(&r, 100U, &m, &u) == PROCESAMIENTO_REGULADOR_VALIDO);
+    CHECK(u == 100U && r.integral_num == 1000);
+    m.rpm_milesimas = 150000U;
+    CHECK(Procesamiento_Regular(&r, 100U, &m, &u) == PROCESAMIENTO_REGULADOR_VALIDO);
+    CHECK(u == 950U && r.integral_num == 0);
+    return true;
+}
+
+static bool CongelamientoInferiorEnCero(void)
+{
+    Procesamiento_Regulador r;
+    uint16_t u = 777U;
+    Medicion_Velocidad_Lectura m = {0U, MEDICION_VELOCIDAD_VALIDA};
+    CHECK(Procesamiento_InicializarRegulador(&r, &defaults));
+    for (unsigned k = 0U; k < 4U; ++k) {
+        CHECK(Procesamiento_Regular(&r, 1U, &m, &u) == PROCESAMIENTO_REGULADOR_VALIDO);
+    }
+    CHECK(r.integral_num == 4000);
+    m.rpm_milesimas = 2000U;
+    CHECK(Procesamiento_Regular(&r, 1U, &m, &u) == PROCESAMIENTO_REGULADOR_VALIDO);
+    CHECK(u == 0U && r.integral_num == 4000);
+    m.rpm_milesimas = 1000U;
+    CHECK(Procesamiento_Regular(&r, 1U, &m, &u) == PROCESAMIENTO_REGULADOR_VALIDO);
+    CHECK(u == 4U && r.integral_num == 4000);
+    return true;
+}
+
 static bool RetencionYRecuperacion(void)
 {
     const Medicion_Velocidad_Estado estados[] = {MEDICION_VELOCIDAD_SIN_DATOS,
@@ -205,6 +239,8 @@ int main(void)
 {
     static const struct { const char *nombre; bool (*test)(void); } casos[] = {
         {"S1 paso/empate",PasoYEmpate}, {"S2 anti-windup",AntiWindup},
+        {"S2 limites integral Ki>Kp",LimitesIntegralKiMayor},
+        {"S2 n0 e negativo",CongelamientoInferiorEnCero},
         {"S3 retencion/recuperacion",RetencionYRecuperacion}, {"S4 N/N+1",FronterasN},
         {"S3/S4 racha/consigna/reinicio",RachaInterrumpidaYConsigna},
         {"S5 configuracion",Configuracion}, {"S5 prioridades/cero",PrioridadesYCero},
@@ -214,6 +250,6 @@ int main(void)
         if (!casos[i].test()) { fprintf(stderr,"FAIL %s\n",casos[i].nombre); return 1; }
         printf("PASS %s\n",casos[i].nombre);
     }
-    puts("8/8 casos correctos");
+    puts("10/10 casos correctos");
     return 0;
 }

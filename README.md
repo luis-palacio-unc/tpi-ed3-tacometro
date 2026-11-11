@@ -429,10 +429,10 @@ de B01, con PI entero y salida0..1000, saturación/anti-windup y retención limi
 sin integrar sobre dato viejo. Control.h configura ganancias/N;500ms contractual,
 sin Timer. No integra main/hardware.
 
-Host/san33/33 cada uno, oráculo116722 pasos, planta14/14 pasos, ARM15/15 y
-Doxygen46 sin avisos. Mutantes AW/truncado detectados. B01/B06/Drivers intactos.
-Evidencia workspace build/verificacion-b17-2026-11-11 (ignorada); reproducir desde
-raíz con `python3 scripts/verificar_b17.py`.
+Host/san33/33 cada uno, oráculo133758 pasos, planta14/14 pasos, ARM15/15 y
+Doxygen46 sin avisos. Mutantes AW/truncado/límites integral/n0 detectados. B01/B06/Drivers intactos.
+Evidencia workspace build/verificacion-b17-h1-h2-2026-11-11 (ignorada); reproducir desde
+raíz con `python3 scripts/verificar_b17.py --evidencia build/verificacion-b17-h1-h2-2026-11-11`.
 [Contrato candidato](openspec/changes/b17-regulador-velocidad/specs/regulacion-velocidad/spec.md)
 e [informe](openspec/changes/b17-regulador-velocidad/verify-report.md).
-Pendiente de /auditar B17 y aceptación; sin cierre/archivo/push.
+Pendiente de /auditar B17 (r2) y aceptación; sin cierre/archivo/push.

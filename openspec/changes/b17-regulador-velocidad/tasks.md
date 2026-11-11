@@ -17,7 +17,7 @@ Propuesta r2 aprobada; usuario autoriza tareas1.2–4.6, m1 y commit local. Evid
 ## 3. Evidencia independiente y composición
 
 - [x] 3.1 Crear tests/host/consulta_regulador.c como emisor de trazas, sin nuevas APIs productivas de inspección (S9).
-- [x] 3.2 Crear tests/host/verificar_regulador.py con Fraction,6configuraciones/LCG/49152pasos y fronteras N; comparar salida y estado por paso (S9).
+- [x] 3.2 Crear tests/host/verificar_regulador.py con Fraction,8configuraciones/LCG/65536pasos y fronteras N; comparar salida y estado por paso (S9).
 - [x] 3.3 Agregar al mismo verificador planta fija/200pasos, métricas por escalón y desaturación40pasos/J1 (S2/S8).
 - [x] 3.4 Crear tests/host/test_integracion_regulador.c: B01+regulador+Driver_Motor, nuevas consignas/reentrada/retornos del proveedor (S7).
 - [x] 3.5 Crear tests/host/verificar_configuracion_control.py:4builds positivos/21negativos por diagnóstico específico (S6).
@@ -32,4 +32,13 @@ Propuesta r2 aprobada; usuario autoriza tareas1.2–4.6, m1 y commit local. Evid
 - [x] 4.5 Revisar diff/hashes de Drivers, servicios, funciones/tipos previos y specs aceptadas; actualizar README/ESTADO/CONTEXTO/MAPA/config/state.
 - [x] 4.6 Tras orden de implementación, entregar para auditoría según autorización de Git vigente; no inferir cierre, sincronización, archivo o push.
 
-18/18 tareas completas al commit de entrega. Próximo paso /auditar B17; sin cierre/archivo/push.
+18/18 tareas iniciales completas. Corrección H1/H2 autorizada sólo en pruebas.
+
+
+## 5. Corrección de auditoría H1/H2
+
+- [x] 5.1 Añadir configuraciones Ki>Kp y trazas H1/H2 en tests/host/verificar_regulador.py/test_regulador.c;conservar producción.
+- [x] 5.2 Ampliar scripts/verificar_b17.py con mutantes de límites superior/inferior y n=0;copia correcta pasa y mutantes fallan.
+- [x] 5.3 Ejecutar verificación completa,actualizar evidencia/seguimiento,revisar diff y commit local sin push para /auditar B17 (r2).
+
+21/21 tareas al commit de corrección;sin cierre/sincronización/archivo/push.

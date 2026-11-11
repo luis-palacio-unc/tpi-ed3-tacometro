@@ -8,7 +8,8 @@ import subprocess
 
 DEFAULT = (4, 1000, 1, 1000, 4)
 CONFIGS = (DEFAULT, (1,1000,1,1000,1), (1000,1,1000,1,4),
-           (1,1,1,1,1), (1000,1000,1000,1000,4), (3,7,2,9,2))
+           (1,1,1,1,1), (1000,1000,1000,1000,4), (3,7,2,9,2),
+           (1,1000,1000,1,4), (1,7,5,3,2))
 HALF = Fraction(1,2)
 
 class Referencia:
@@ -77,6 +78,13 @@ def actions():
     add(0)
     for _ in range(42): add(2,185)
     add(2,100)
+    # H1: Ki > Kp fuerza ambos limites de integral.
+    cfg=(1,1000,1000,1,4)
+    add(0,cfg=cfg);add(2,100,0,1,cfg);add(2,100,150000,1,cfg)
+    # H2: n=0 exacto con error negativo conserva la integral.
+    add(0)
+    for _ in range(4): add(2,1)
+    add(2,1,2000);add(2,1,1000)
     # Dominio completo de tipos, fronteras de consigna/medicion y estados.
     for cfg in CONFIGS:
         add(0,cfg=cfg)
@@ -133,7 +141,8 @@ def oracle(program, evidence):
     for k,(want,got) in enumerate(zip(expected,actual)):
         assert got==want, f"S9 paso{k} entrada={rows[k]} esperado={want} obtenido={got}"
     summary=dict(exact_steps=len(rows),deterministic_steps=deterministic,
-                 random_steps=49152,sequence_initializations=192)
+                 random_steps=len(CONFIGS)*32*256,sequence_initializations=len(CONFIGS)*32,
+                 configuration_count=len(CONFIGS))
     print("PASS S9",summary)
     return summary
 

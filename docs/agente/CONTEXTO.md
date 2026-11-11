@@ -427,8 +427,13 @@ H4/H5 corregidos y m1 incorporado a S1. Implementación y mutaciones verificadas
 [Propuesta](../../openspec/changes/b17-regulador-velocidad/proposal.md) y
 [resumen portable del plan externo local](../../openspec/changes/b17-regulador-velocidad/review-notes.md).
 B17 implementado,USW.2.1.2.8–10,configuración por instancia y productos int64_t.
-Host/san33/33,116722 pasos exactos, planta14/14, ARM15/15 y Doxygen46.
+Host/san33/33,133758 pasos exactos, planta14/14, ARM15/15 y Doxygen46.
 Mutaciones AW/truncado detectadas; B01/B06,servicios/dispositivos/Drivers intactos.
-Evidencia workspace build/verificacion-b17-2026-11-11 (ignorada por Git).
-Reproducir python3 scripts/verificar_b17.py. Próxima acción /auditar B17.
+Evidencia workspace build/verificacion-b17-h1-h2-2026-11-11 (ignorada por Git).
+Reproducir python3 scripts/verificar_b17.py --evidencia build/verificacion-b17-h1-h2-2026-11-11.
+Próxima acción /auditar B17 (r2).
 Commit local autorizado; resultado aún no aceptado, sin sincronizar/cerrar/archivar/push.
+
+Corrección de auditoría B17 H1/H2:sólo pruebas/infraestructura,producción bf975f3 intacta.
+Unidad10/10,ocho configuraciones Fraction,133758 pasos y cinco mutantes detectados.
+Evidencia workspace build/verificacion-b17-h1-h2-2026-11-11;siguiente /auditar B17 (r2).
