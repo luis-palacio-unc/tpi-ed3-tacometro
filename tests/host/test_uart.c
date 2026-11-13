@@ -1,8 +1,8 @@
 /*
  * Pruebas host de Dispositivos/UART.c (B13 + B18/I1).
  * Incluye el .c bajo prueba para alcanzar sus buffers internos y reemplaza por
- * dobles las funciones de la biblioteca original y del NVIC. Modela U0RBR/U0THR,
- * FIFO de 16 bytes, U0IIR y U0LSR; no ejecuta perifericos reales.
+ * dobles las funciones de la biblioteca original y del NVIC. Modela U3RBR/U3THR,
+ * FIFO de 16 bytes, U3IIR y U3LSR; no ejecuta perifericos reales.
  */
 #include "dobles_cmsis.h"
 #include "lpc17xx_pinsel.h"
@@ -44,8 +44,8 @@ static void Registrar(Evento evento)
 
 void UART_Init(LPC_UART_TypeDef *uart, const UART_CFG_T *cfg)
 {
-    if (uart != UART0 || cfg == NULL) { error_modelo = true; return; }
-    nvic_habilitada_en_init = nvic.habilitada[UART0_IRQn];
+    if (uart != UART3 || cfg == NULL) { error_modelo = true; return; }
+    nvic_habilitada_en_init = nvic.habilitada[UART3_IRQn];
     formato_visto = *cfg;
     tx_habilitada = false; fifo_habilitada = false; int_rbr = false; int_thre = false;
     Registrar(EV_UART_INIT);
@@ -53,7 +53,7 @@ void UART_Init(LPC_UART_TypeDef *uart, const UART_CFG_T *cfg)
 
 void UART_FIFOConfig(LPC_UART_TypeDef *uart, const UART_FIFO_CFG_T *cfg)
 {
-    if (uart != UART0 || cfg == NULL) { error_modelo = true; return; }
+    if (uart != UART3 || cfg == NULL) { error_modelo = true; return; }
     fifo_visto = *cfg;
     fifo_habilitada = true;
     Registrar(EV_FIFO);
@@ -63,19 +63,19 @@ void PINSEL_ConfigPin(const PINSEL_CFG_T *cfg)
 {
     if (cfg == NULL || pines_total >= 2U) { error_modelo = true; return; }
     pines_vistos[pines_total++] = *cfg;
-    Registrar(cfg->pin == PIN_2 ? EV_PIN_TX : EV_PIN_RX);
+    Registrar(cfg->pin == PIN_0 ? EV_PIN_TX : EV_PIN_RX);
 }
 
 void UART_TxEnable(LPC_UART_TypeDef *uart)
 {
-    if (uart != UART0) { error_modelo = true; return; }
+    if (uart != UART3) { error_modelo = true; return; }
     tx_habilitada = true;
     Registrar(EV_TX_ENABLE);
 }
 
 void UART_IntConfig(LPC_UART_TypeDef *uart, UART_INT tipo, FunctionalState estado)
 {
-    if (uart != UART0 || estado != ENABLE) { error_modelo = true; return; }
+    if (uart != UART3 || estado != ENABLE) { error_modelo = true; return; }
     if (tipo == UART_INT_RBR) { int_rbr = true; Registrar(EV_INT_RBR); }
     else if (tipo == UART_INT_THRE) { int_thre = true; Registrar(EV_INT_THRE); }
     else { error_modelo = true; }
@@ -83,7 +83,7 @@ void UART_IntConfig(LPC_UART_TypeDef *uart, UART_INT tipo, FunctionalState estad
 
 uint32_t UART_GetIntId(LPC_UART_TypeDef *uart)
 {
-    if (uart != UART0 || !en_isr) { error_modelo = true; return UART_IIR_INTSTAT_PEND; }
+    if (uart != UART3 || !en_isr) { error_modelo = true; return UART_IIR_INTSTAT_PEND; }
     ++lecturas_iir;
     if (int_rbr && rx_hw_leidos != rx_hw_total) {
         return usar_cti ? UART_IIR_INTID_CTI : UART_IIR_INTID_RDA;
@@ -94,7 +94,7 @@ uint32_t UART_GetIntId(LPC_UART_TypeDef *uart)
 
 uint8_t UART_GetLineStatus(LPC_UART_TypeDef *uart)
 {
-    if (uart != UART0 || !en_isr) { error_modelo = true; return 0U; }
+    if (uart != UART3 || !en_isr) { error_modelo = true; return 0U; }
     ++lecturas_lsr;
     return (uint8_t)((rx_hw_leidos != rx_hw_total ? UART_LSR_RDR : 0U) |
                      (fifo_tx_ocupados == 0U ? UART_LSR_THRE : 0U));
@@ -102,14 +102,14 @@ uint8_t UART_GetLineStatus(LPC_UART_TypeDef *uart)
 
 uint8_t UART_ReceiveByte(LPC_UART_TypeDef *uart)
 {
-    if (uart != UART0 || !en_isr || rx_hw_leidos == rx_hw_total) { error_modelo = true; return 0U; }
+    if (uart != UART3 || !en_isr || rx_hw_leidos == rx_hw_total) { error_modelo = true; return 0U; }
     ++lecturas_rbr;
     return rx_hw[rx_hw_leidos++];
 }
 
 void UART_SendByte(LPC_UART_TypeDef *uart, uint8_t dato)
 {
-    if (uart != UART0 || !en_isr || !tx_habilitada || fifo_tx_ocupados >= FIFO_HW) {
+    if (uart != UART3 || !en_isr || !tx_habilitada || fifo_tx_ocupados >= FIFO_HW) {
         error_modelo = true;
         return;
     }
@@ -129,7 +129,7 @@ static void Preparar(void)
     eventos_total = 0U; pines_total = 0U;
     memset(&formato_visto, 0xFF, sizeof(formato_visto));
     memset(&fifo_visto, 0xFF, sizeof(fifo_visto));
-    UART0_Init();
+    UART3_Init();
 }
 
 static void LlegarBytes(const uint8_t *datos, uint32_t cantidad)
@@ -147,11 +147,11 @@ static bool CausaActiva(void)
 static unsigned AtenderIRQ(void)
 {
     unsigned entradas = 0U;
-    while (nvic.habilitada[UART0_IRQn] && (nvic.pendiente[UART0_IRQn] || CausaActiva())) {
+    while (nvic.habilitada[UART3_IRQn] && (nvic.pendiente[UART3_IRQn] || CausaActiva())) {
         if (++entradas > 256U) { error_modelo = true; break; }
-        nvic.pendiente[UART0_IRQn] = false;
+        nvic.pendiente[UART3_IRQn] = false;
         en_isr = true;
-        UART0_IRQHandler();
+        UART3_IRQHandler();
         en_isr = false;
     }
     return entradas;
@@ -192,18 +192,18 @@ static bool InicializacionAcordada(void)
     CHECK(formato_visto.dataBits == UART_DBITS_8 && formato_visto.stopBits == UART_STOPBIT_1);
     CHECK(fifo_visto.level == UART_FIFO_TRGLEV0 && fifo_visto.dmaMode == DISABLE);
     CHECK(fifo_visto.resetRxBuf == ENABLE && fifo_visto.resetTxBuf == ENABLE);
-    CHECK(pines_vistos[0].port == PORT_0 && pines_vistos[0].pin == PIN_2);
-    CHECK(pines_vistos[0].func == PINSEL_FUNC_01 && pines_vistos[0].mode == PINSEL_TRISTATE);
+    CHECK(pines_vistos[0].port == PORT_0 && pines_vistos[0].pin == PIN_0);
+    CHECK(pines_vistos[0].func == PINSEL_FUNC_10 && pines_vistos[0].mode == PINSEL_TRISTATE);
     CHECK(pines_vistos[0].openDrain == DISABLE);
-    CHECK(pines_vistos[1].port == PORT_0 && pines_vistos[1].pin == PIN_3);
-    CHECK(pines_vistos[1].func == PINSEL_FUNC_01 && pines_vistos[1].mode == PINSEL_PULLUP);
+    CHECK(pines_vistos[1].port == PORT_0 && pines_vistos[1].pin == PIN_1);
+    CHECK(pines_vistos[1].func == PINSEL_FUNC_10 && pines_vistos[1].mode == PINSEL_PULLUP);
     CHECK(pines_vistos[1].openDrain == DISABLE);
     CHECK(tx_habilitada && fifo_habilitada && int_rbr && int_thre);
     CHECK(!nvic_habilitada_en_init && nvic.deshabilitaciones == 1U);
-    CHECK(nvic.habilitada[UART0_IRQn] && nvic.prioridad[UART0_IRQn] == 2U);
+    CHECK(nvic.habilitada[UART3_IRQn] && nvic.prioridad[UART3_IRQn] == 2U);
     CHECK(nvic.habilitaciones == 1U && nvic.prioridades == 1U && nvic.pedidos == 0U);
     for (unsigned i = 0U; i < NVIC_MODELO_IRQS; ++i) {
-        CHECK(i == (unsigned)UART0_IRQn || (!nvic.habilitada[i] && nvic.prioridad[i] == UINT32_MAX));
+        CHECK(i == (unsigned)UART3_IRQn || (!nvic.habilitada[i] && nvic.prioridad[i] == UINT32_MAX));
     }
     CHECK(escrituras_thr == 0U && lecturas_rbr == 0U && !nvic.error && !error_modelo);
     return true;
@@ -275,8 +275,8 @@ static bool RxIsrAcotadaADieciseis(void)
     uint8_t fuente[40], destino[40];
     Secuencia(fuente, 40U, 1U);
     LlegarBytes(fuente, 40U);
-    nvic.pendiente[UART0_IRQn] = false;
-    en_isr = true; UART0_IRQHandler(); en_isr = false;
+    nvic.pendiente[UART3_IRQn] = false;
+    en_isr = true; UART3_IRQHandler(); en_isr = false;
     CHECK(lecturas_rbr == 16U && rx_hw_leidos == 16U);
     CHECK(AtenderIRQ() == 2U && lecturas_rbr == 40U);
     CHECK(UART_Read(destino, 40U) == 40U && memcmp(destino, fuente, 40U) == 0 && !error_modelo);
@@ -327,7 +327,7 @@ static bool TxTramaDe53Completa(void)
     memcpy(copia, trama, sizeof(copia));
     CHECK(UART_Write(trama + 1, 53U) == 53U);
     CHECK(escrituras_thr == 0U && lecturas_lsr == 0U);
-    CHECK(nvic.pedidos == 1U && nvic.pendiente[UART0_IRQn]);
+    CHECK(nvic.pedidos == 1U && nvic.pendiente[UART3_IRQn]);
     CHECK(AtenderIRQ() == 1U && fifo_tx_ocupados == 16U && escrituras_thr == 16U);
     VaciarFifoALinea(); CHECK(AtenderIRQ() == 1U && fifo_tx_ocupados == 16U);
     VaciarFifoALinea(); CHECK(AtenderIRQ() == 1U && fifo_tx_ocupados == 16U);
@@ -345,8 +345,8 @@ static bool TxCebadoTrasReposoYConFifoOcupada(void)
     const uint8_t primera[] = {0x31U, 0U, 0xFFU}, segunda[] = {0x41U, 0x42U}, tercera[] = {0x43U};
     CHECK(UART_Write(primera, 3U) == 3U);
     TransmitirTodo();
-    CHECK(linea_total == 3U && !CausaActiva() && !nvic.pendiente[UART0_IRQn]);
-    CHECK(UART_Write(segunda, 2U) == 2U && nvic.pendiente[UART0_IRQn]);
+    CHECK(linea_total == 3U && !CausaActiva() && !nvic.pendiente[UART3_IRQn]);
+    CHECK(UART_Write(segunda, 2U) == 2U && nvic.pendiente[UART3_IRQn]);
     CHECK(AtenderIRQ() == 1U && fifo_tx_ocupados == 2U);
     const unsigned enviados = escrituras_thr;
     CHECK(UART_Write(tercera, 1U) == 1U);
@@ -402,7 +402,7 @@ static bool RxTxIntercaladosEIsrSinCausa(void)
     Preparar();
     const uint8_t entrada[] = {0U, 0xAAU, 0xFFU, 0x55U}, salida[] = {0xFEU, 0U, 0xCEU};
     uint8_t recibidos[4];
-    en_isr = true; UART0_IRQHandler(); en_isr = false;
+    en_isr = true; UART3_IRQHandler(); en_isr = false;
     CHECK(escrituras_thr == 0U && lecturas_rbr == 0U && lecturas_iir == 1U && lecturas_lsr == 1U);
     LlegarBytes(entrada, 4U);
     CHECK(UART_Write(salida, 3U) == 3U);

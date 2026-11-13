@@ -117,7 +117,7 @@ static void AgregarFijo(char *trama, size_t *posicion, uint32_t valor, uint32_t 
 
 void Comunicacion_Init(void)
 {
-    UART0_Init();
+    UART3_Init();
     Comunicacion_Longitud = 0U;
 }
 

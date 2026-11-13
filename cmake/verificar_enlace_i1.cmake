@@ -39,7 +39,7 @@ int main(void)
     Buzzer_Init();
     SensorOptico_Init();
     Motor_Init();
-    UART0_Init();
+    UART3_Init();
     Timer_Init();
     if (!Adquisicion_ADC_DMA_Init()) {
         return 1;
@@ -112,10 +112,10 @@ if(NOT result EQUAL 0)
 endif()
 foreach(required_symbol Selector_Init Selector_Read LED_Init LED_Write Buzzer_Init
         Buzzer_Write SensorOptico_Init SensorOptico_Read Motor_Init Motor_Write
-        UART0_Init UART_Read UART_Write Timer_Init Timer_Start Timer_Read
+        UART3_Init UART_Read UART_Write Timer_Init Timer_Start Timer_Read
         Timer_ConsumirVentana Adquisicion_ADC_DMA_Init Adquisicion_ADC_DMA_HayDatos
         Adquisicion_ADC_DMA_ContarPares Pot_Read LM35_Read
-        TIMER0_IRQHandler UART0_IRQHandler DMA_IRQHandler Reloj_Init SystemInit
+        TIMER0_IRQHandler UART3_IRQHandler DMA_IRQHandler Reloj_Init SystemInit
         SystemCoreClockUpdate)
     if(NOT symbols MATCHES "[0-9a-f]+ T ${required_symbol}[\r\n]")
         message(FATAL_ERROR "API/ISR/arranque I1 ausente o no global fuerte: ${required_symbol}")
@@ -146,7 +146,7 @@ if(NOT result EQUAL 0)
     message(FATAL_ERROR "No se pudo extraer la tabla de vectores I1: ${errors}")
 endif()
 file(READ "${OUTPUT_DIR}/vectores.bin" vectors HEX)
-foreach(entry "TIMER0_IRQHandler;17" "UART0_IRQHandler;21" "DMA_IRQHandler;42")
+foreach(entry "TIMER0_IRQHandler;17" "UART3_IRQHandler;24" "DMA_IRQHandler;42")
     list(GET entry 0 handler)
     list(GET entry 1 index)
     string(REGEX MATCH "([0-9a-f]+) T ${handler}[\r\n]" unused "${symbols}")

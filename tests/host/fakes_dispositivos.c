@@ -100,7 +100,7 @@ bool Timer_ConsumirVentana(uint32_t *pulsos)
     return true;
 }
 
-void UART0_Init(void) { Registrar("UART0_Init"); }
+void UART3_Init(void) { Registrar("UART3_Init"); }
 
 uint32_t UART_Read(uint8_t *destino, uint32_t capacidad)
 {

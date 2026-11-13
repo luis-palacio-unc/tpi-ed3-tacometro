@@ -44,7 +44,7 @@ static bool S1_ArranqueEnAutomatico(void)
 {
     static const char *const orden[] = {
         "Reloj_Init", "Adquisicion_ADC_DMA_Init", "Motor_Init", "LED_Init", "Buzzer_Init",
-        "Selector_Init", "UART0_Init", "SensorOptico_Init", "Timer_Init", "Timer_Start", NULL
+        "Selector_Init", "UART3_Init", "SensorOptico_Init", "Timer_Init", "Timer_Start", NULL
     };
     Fakes_Reiniciar();
     fakes.lm35 = 2500;

@@ -15,7 +15,7 @@ import tempfile
 
 from verificar_elf import FLASH_END, RAM_END, RAM_START, require, require_clock, tool
 
-VECTORES_PROPIOS = {17: "TIMER0_IRQHandler", 21: "UART0_IRQHandler", 42: "DMA_IRQHandler"}
+VECTORES_PROPIOS = {17: "TIMER0_IRQHandler", 24: "UART3_IRQHandler", 42: "DMA_IRQHandler"}
 CRP_OFFSET, CRP_SIN_PROTECCION = 0x2FC, 0xFFFFFFFF
 
 
@@ -74,7 +74,7 @@ def inspect(elf, prefix):
                 if n in (".text", ".data", ".ARM.exidx", ".ARM.extab"))
     ram = sum(sections[n]["size"] for n in (".data", ".bss") if n in sections)
     return ("Imagen MCUXpresso LPC1769: verificacion estatica correcta\n"
-            "Vectores 17/21/42 -> TIMER0/UART0/DMA_IRQHandler propios; resto por defecto\n"
+            "Vectores 17/24/42 -> TIMER0/UART3/DMA_IRQHandler propios; resto por defecto\n"
             "ResetISR no llama SystemInit; main lleva a Reloj_Init como primera llamada\n"
             "CRP en 0x2FC = 0xFFFFFFFF (sin proteccion); checksum de vectores valido\n"
             f"FLASH: {flash}/{FLASH_END} bytes; SRAM local (.data + .bss, sin pila): {ram}/32768 bytes\n"

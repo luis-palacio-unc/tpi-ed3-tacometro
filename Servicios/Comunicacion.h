@@ -3,7 +3,7 @@
  * @brief Enlace con la PC: recepcion de consignas y envio de telemetria ASCII.
  * @details Consigna: "RPM n" terminada en LF o CRLF. Telemetria: una linea
  * "RPM=...;TEMP=...;ESTADO=..." por periodo.
- * @note ESW.2.1.7. Usa el dispositivo UART (UART0, 9600 8N1).
+ * @note ESW.2.1.7. Usa el dispositivo UART (UART3, 9600 8N1).
  */
 #ifndef TPI_COMUNICACION_H
 #define TPI_COMUNICACION_H
@@ -31,7 +31,7 @@ typedef enum {
 
 /**
  * @brief Configurar la UART y vaciar la linea en recepcion.
- * @details Llama UART0_Init.
+ * @details Llama UART3_Init.
  * @pre Sistema_Init ejecutado.
  * @note USW.2.1.7.11. Llamar una vez antes de las demas funciones del servicio.
  */

@@ -31,7 +31,7 @@ static bool Ninguna(const char *texto)
 
 static bool S1_ConsignasValidas(void)
 {
-    static const char *const orden[] = {"UART0_Init", NULL};
+    static const char *const orden[] = {"UART3_Init", NULL};
     Preparar();
     CHECK(Fakes_LlamadasSon(orden));
     CHECK(UnaConsigna("RPM 0\n", 0U));
