@@ -20,10 +20,13 @@ indica no comentar el cuerpo de las funciones para la evaluación.
 - Especificado en anteproyecto: OM13085, LPC1769; LM35, sensor óptico HC-89,
   disco de 60 ranuras, potenciómetro de 10 kΩ, selector, LED rojo y buzzer activo.
 - Confirmado por usuario: se usará CMSIS-DAP integrado.
+- Hardware confirmado por el usuario (2026-11-12): placa OM13085 rev. D2;
+  motor con etapa de potencia a 5 V y buzzer de 5 V. No son mediciones nuevas.
 - Sensor óptico actual: XD-51, aclaración del usuario2026-11-10; sustituye HC-89
   del anteproyecto. Pinout/alimentación/niveles del módulo real por verificar al integrar.
-- NXP confirma que OM13085 incorpora LPC1769 y CMSIS-DAP. No asumir que la
-  revisión D del esquema publicado coincide con la placa física del usuario.
+- NXP confirma que OM13085 incorpora LPC1769 y CMSIS-DAP. El fabricante publica
+  esquemas D/D1; no se localizó uno específico D2. El mapa J2/PAD tomado de rev. D
+  sigue como referencia, pendiente de contrastar con la placa D2 del usuario.
 - LPC1769: Cortex-M3; la SRAM tiene bancos separados, no una región contigua de
   64 kB. Direcciones y accesibilidad DMA se revisarán al diseñar linker/adquisición.
 - Instalados y verificados: CMake 3.28.3, GCC host 13.3.0, GCC ARM 13.2.1,
@@ -321,7 +324,8 @@ La propuesta b12-integracion-arranque-timer está pospuesta, no aceptada.
 B12 corregido aceptado/archivado2026-11-10; contrato dispositivos-gpio vigente.
 Usuario corrige selector/buzzer a activos por alto, pines P2 sin funciones EINTx.
 Elegidos selectorP2.6 y buzzerP2.7; P2.10–13 reservados EINT0–3, P2.0–5 libres.
-LED rojoP0.22 activo bajo según esquema OM13085 revD; revisión física pendiente.
+LED rojoP0.22 activo bajo según esquema OM13085 revD; PCB D2 confirmada por el
+usuario, correspondencia eléctrica pendiente de verificar.
 Manual aportado: UM10360 rev4.1 (2016-12-19), tabla84/p120 y cap9/p132/150 revisados.
 Lectura/accionamiento sólo; multiplexado/dirección/polarización/FIOMASK y arranque finales.
 
