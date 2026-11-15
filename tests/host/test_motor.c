@@ -24,7 +24,7 @@ typedef enum {
 static Evento eventos[EVENTOS_MAX];
 static size_t eventos_total;
 static PWM_TIMERCFG_T base_vista;
-static PWM_MATCHCFG_T match_visto[2];
+static PWM_MATCHCFG_T match_visto[3];
 static PWM_CHANNEL canal_modo, canal_habilitado;
 static PWM_CHANNEL_EDGE flanco_visto;
 static PWM_PIN_OPTION pin_visto;
@@ -45,7 +45,7 @@ void PWM_InitTimer(const PWM_TIMERCFG_T *cfg)
 
 void PWM_ConfigMatch(const PWM_MATCHCFG_T *cfg)
 {
-    if (cfg == NULL || (cfg->channel != PWM_MATCH_0 && cfg->channel != PWM_MATCH_1)) {
+    if (cfg == NULL || (cfg->channel != PWM_MATCH_0 && cfg->channel != PWM_MATCH_2)) {
         error_modelo = true;
         return;
     }
@@ -80,7 +80,7 @@ static bool OrdenExacta(uint16_t mando)
     const size_t anteriores = llamadas;
     CHECK(Motor_Write(mando));
     CHECK(llamadas == anteriores + 1U);
-    CHECK(ultimo_registro == PWM_MATCH_1 && ultimo_valor == mando);
+    CHECK(ultimo_registro == PWM_MATCH_2 && ultimo_valor == mando);
     return true;
 }
 
@@ -112,7 +112,7 @@ static bool RechazoYRecuperacion(void)
     CHECK(OrdenExacta(500U));
     for (uint32_t mando = 1001U; mando <= UINT16_MAX; ++mando) {
         CHECK(!Motor_Write((uint16_t)mando));
-        CHECK(llamadas == 1U && ultimo_registro == PWM_MATCH_1 && ultimo_valor == 500U);
+        CHECK(llamadas == 1U && ultimo_registro == PWM_MATCH_2 && ultimo_valor == 500U);
     }
     CHECK(OrdenExacta(0U));
     CHECK(OrdenExacta(1000U));
@@ -145,11 +145,11 @@ static bool InicializacionAcordada(void)
     CHECK(match_visto[0].resetEn == ENABLE && match_visto[0].intEn == DISABLE);
     CHECK(match_visto[0].stopEn == DISABLE);
     CHECK(UINT32_C(1000000) / match_visto[0].matchValue == 1000U);
-    CHECK(match_visto[1].channel == PWM_MATCH_1 && match_visto[1].matchValue == 0U);
-    CHECK(match_visto[1].resetEn == DISABLE && match_visto[1].intEn == DISABLE);
-    CHECK(match_visto[1].stopEn == DISABLE);
-    CHECK(canal_modo == PWM_CHANNEL_1 && flanco_visto == PWM_SINGLE_EDGE);
-    CHECK(pin_visto == PWM1_P2_0 && canal_habilitado == PWM_CHANNEL_1);
+    CHECK(match_visto[2].channel == PWM_MATCH_2 && match_visto[2].matchValue == 0U);
+    CHECK(match_visto[2].resetEn == DISABLE && match_visto[2].intEn == DISABLE);
+    CHECK(match_visto[2].stopEn == DISABLE);
+    CHECK(canal_modo == PWM_CHANNEL_2 && flanco_visto == PWM_SINGLE_EDGE);
+    CHECK(pin_visto == PWM2_P2_1 && canal_habilitado == PWM_CHANNEL_2);
     CHECK(llamadas == 0U && !error_modelo);
     CHECK(OrdenExacta(0U) && OrdenExacta(1000U) && eventos_total == 8U);
     return true;

@@ -1,7 +1,7 @@
 /**
  * @file Motor.c
- * @brief Configuracion de PWM1.1 y envio directo del mando con periodo de 1000 ticks.
- * @details El driver original configura PWM1 y actualiza MR1/LER; MR0=1000 fijo.
+ * @brief Configuracion de PWM1.2 y envio directo del mando con periodo de 1000 ticks.
+ * @details El driver original configura PWM1 y actualiza MR2/LER; MR0=1000 fijo.
  * @note ESW.2.1.9. Sin conversion ni acceso directo a registros.
  */
 #include "Motor.h"
@@ -14,7 +14,7 @@
 #define MOTOR_PWM_PERIODO_TICKS 1000U
 
 _Static_assert(MOTOR_PWM_PERIODO_TICKS == TPI_MANDO_MANUAL_MAX,
-               "MR0 debe igualar el mando maximo para el envio directo a MR1.");
+               "MR0 debe igualar el mando maximo para el envio directo a MR2.");
 
 void Motor_Init(void)
 {
@@ -27,7 +27,7 @@ void Motor_Init(void)
         .matchValue = MOTOR_PWM_PERIODO_TICKS
     };
     const PWM_MATCHCFG_T mando = {
-        .channel = PWM_MATCH_1,
+        .channel = PWM_MATCH_2,
         .intEn = DISABLE,
         .stopEn = DISABLE,
         .resetEn = DISABLE,
@@ -36,9 +36,9 @@ void Motor_Init(void)
     PWM_InitTimer(&base);
     PWM_ConfigMatch(&periodo);
     PWM_ConfigMatch(&mando);
-    PWM_ChannelConfig(PWM_CHANNEL_1, PWM_SINGLE_EDGE);
-    PWM_PinConfig(PWM1_P2_0);
-    PWM_ChannelEnable(PWM_CHANNEL_1);
+    PWM_ChannelConfig(PWM_CHANNEL_2, PWM_SINGLE_EDGE);
+    PWM_PinConfig(PWM2_P2_1);
+    PWM_ChannelEnable(PWM_CHANNEL_2);
     PWM_CounterEnable();
     PWM_Enable();
 }
@@ -48,6 +48,6 @@ bool Motor_Write(uint16_t mando_por_mil)
     if (mando_por_mil > TPI_MANDO_MANUAL_MAX) {
         return false;
     }
-    PWM_MatchUpdateSingle(PWM_MATCH_1, mando_por_mil);
+    PWM_MatchUpdateSingle(PWM_MATCH_2, mando_por_mil);
     return true;
 }
