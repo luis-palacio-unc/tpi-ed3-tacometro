@@ -440,3 +440,11 @@ este cierre con commit/push y no inicia ni propone otro bloque. La reauditoría 
 como nota externa evaluar firma/retención al integrar I2; no cambia el contrato B17.
 Quedan cadencia real,main/ISR/Timer/PWM,ADC/DMA/VREF/asociación de canales/primera
 muestra,erratas,sintonía/pruebas sobre placa y documentación final para esa etapa.
+
+Puesta en marcha en placa (2026-11-13/15): la comunicación serie pasó de UART0
+(P0.2/P0.3) a UART3, TXD3 P0.0 y RXD3 P0.1, función 10, vector 24, por mal contacto
+de los pines originales; `UART0_Init` se llama ahora `UART3_Init`. La salida del
+motor pasó de PWM1.1 (P2.0, pin dañado) a PWM1.2 en P2.1, con el mando en MR2
+(`PWM_MATCH_2`). Las menciones anteriores a UART0, P0.2/P0.3, P2.0 y PWM_MATCH_1
+en este documento son historial de los bloques B13 y B15. Contratos vigentes en
+`openspec/specs/uart-dispositivo` y `openspec/specs/motor-dispositivo`.

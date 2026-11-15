@@ -52,7 +52,7 @@ no inicializar el resto y devolver false; `main()` MUST quedar detenido.
 - Given llave cerrada (AUTOMÁTICO), 25,00 °C y potenciómetro al máximo.
 - When se inicializa, se itera sin ventana y luego se cierra una ventana.
 - Then el orden de inicialización de dispositivos MUST ser Reloj, ADC/DMA, Motor,
-  LED, Buzzer, Selector, UART0, Sensor óptico, Timer_Init, Timer_Start; mando 0,
+  LED, Buzzer, Selector, UART3, Sensor óptico, Timer_Init, Timer_Start; mando 0,
   alarma apagada, sin tramas entre ventanas y trama
   `RPM=0.000;TEMP=25.00;ESTADO=AUTO_ESPERA\n`.
 

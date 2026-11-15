@@ -70,8 +70,8 @@ Variables y registros útiles:
   después de `Sistema_Init`.
 - `Aplicacion_Estado` (estática de `main.c`): 0 MANUAL, 1 AUTO_ESPERA, 2 AUTO_ACTIVO.
 - `Procesamiento_IntegralNum` (estática de `Procesamiento.c`): integral del PI por `TPI_CONTROL_KI_DEN`.
-- Vista *Peripherals+*: `PWM` (MR0 = 1000, MR1 = mando), `TIMER0`, `TIMER1` (TC = pulsos),
-  `UART0`, `ADC`, `GPIO0` (P0.22 LED) y `GPIO2` (P2.6 llave, P2.7 buzzer).
+- Vista *Peripherals+*: `PWM` (MR0 = 1000, MR2 = mando), `TIMER0`, `TIMER1` (TC = pulsos),
+  `UART3`, `ADC`, `GPIO0` (P0.22 LED) y `GPIO2` (P2.6 llave, P2.7 buzzer).
 
 Usar la configuración `Debug` para depurar; en `Release` el optimizador elimina variables.
 
@@ -90,7 +90,7 @@ Usar la configuración `Debug` para depurar; en `Release` el optimizador elimina
 
 ## Terminal serie
 
-Conversor USB-UART a 3,3 V: su RX a P0.2 (TXD0), su TX a P0.3 (RXD0) y GND común.
+Conversor USB-UART a 3,3 V: su RX a P0.0 (TXD3), su TX a P0.1 (RXD3) y GND común.
 9600 baudios, 8N1, sin control de flujo. Fin de línea al enviar: LF (se admite CR LF).
 
 ```sh
@@ -106,7 +106,7 @@ Hacerla en orden, con el motor desconectado hasta el paso 2.
 1. **Reloj.** Punto de interrupción después de `Sistema_Init()` en
    `Aplicacion_Inicializar`: `SystemCoreClock == 100000000` y `sistema_listo == true`.
    Si es `false`, el ADC/DMA no entregó el primer par y quedan LED y buzzer activos.
-2. **PWM.** Llave abierta (MANUAL). Osciloscopio en P2.0: 1 kHz, y el ciclo de trabajo
+2. **PWM.** Llave abierta (MANUAL). Osciloscopio en P2.1: 1 kHz, y el ciclo de trabajo
    sigue al potenciómetro (P0.23) de 0 a 100 %.
 3. **Telemetría.** Cada 500 ms llega `RPM=<n>.<3d>;TEMP=<n>.<2d>;ESTADO=MANUAL`. La
    temperatura debe ser la ambiente (LM35 en P0.24).

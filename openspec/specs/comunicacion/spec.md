@@ -11,7 +11,7 @@ aceptación física en placa pendiente.
 
 ### Requirement: CO1 — Recepción de consignas
 `Servicios/Comunicacion` MUST exponer `void Comunicacion_Init(void)` (llama
-`UART0_Init` y vacía la línea) y `bool Comunicacion_RecibirConsigna(uint32_t *rpm)`.
+`UART3_Init` y vacía la línea) y `bool Comunicacion_RecibirConsigna(uint32_t *rpm)`.
 Ésta MUST consumir bytes con `UART_Read` y devolver true con cada línea completa
 `RPM`, un espacio, 1 a 3 dígitos decimales, CR opcional y LF, con valor 0..185
 (`TPI_RPM_MAX`); ceros a la izquierda permitidos. Toda otra línea, incluida la de

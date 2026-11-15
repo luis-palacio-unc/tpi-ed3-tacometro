@@ -13,7 +13,7 @@ aceptación física en placa pendiente.
 ### Requirement: MD1 — Período fijo y mando directo
 
 Motor MUST exponer bool Motor_Write(uint16_t mando_por_mil). Mando válido MUST
-ser0..1000 y enviarse íntegro a PWM_MATCH_1 con PWM_MatchUpdateSingle original.
+ser0..1000 y enviarse íntegro a PWM_MATCH_2 con PWM_MatchUpdateSingle original.
 MUST NOT calcular match, escalar, redondear, leer MR0 o transformar1000 en1001.
 La configuración de uso MUST fijar MR0=1000 ticks en la inicialización final;
 Motor_Write MUST NOT reconfigurar el período por llamada. No interpretar RPM.
@@ -41,7 +41,7 @@ La configuración MR0=1000 MUST ser precondición externa, sin diagnóstico nuev
 - Then MUST evitar toda escritura por rechazo y recuperar con un único despacho.
 
 ### Requirement: MD3 — Operación mínima de dispositivo
-MUST conservar PWM1.1/P2.0 función 01, un despacho por orden válida aun repetida,
+MUST conservar PWM1.2/P2.1 función 01, un despacho por orden válida aun repetida,
 sin estado/contexto/caché/ISR/heap/esperas ni acceso propio a registros.
 Motor_Write MUST exigir Motor_Init previo; acceso serializado y latch al próximo
 ciclo. (Antes: sin init; PWM preconfigurado como precondición externa.)
@@ -64,12 +64,12 @@ potencia/adaptación/main y validación física de errata PWM.1 quedan al final.
 - When se ejecutan controles/diff/hashes.
 - Then MUST registrar evidencia actual, separada de contratos descartados y del hardware pendiente.
 
-### Requirement: MD5 — Inicialización de PWM1.1
+### Requirement: MD5 — Inicialización de PWM1.2
 Motor MUST exponer void Motor_Init(void). MUST usar, en orden, PWM_InitTimer con
 PWM_TICK y divisor 25 (PR = 24: contador a 1 MHz con PCLK 25 MHz), PWM_ConfigMatch
-de MR0 = 1000 con reset y sin interrupción/stop, PWM_ConfigMatch de MR1 = 0 sin
-acciones, PWM_ChannelConfig canal 1 flanco simple, PWM_PinConfig P2.0,
-PWM_ChannelEnable canal 1, PWM_CounterEnable y PWM_Enable. Resultado: 1 kHz, salida
+de MR0 = 1000 con reset y sin interrupción/stop, PWM_ConfigMatch de MR2 = 0 sin
+acciones, PWM_ChannelConfig canal 2 flanco simple, PWM_PinConfig P2.1,
+PWM_ChannelEnable canal 2, PWM_CounterEnable y PWM_Enable. Resultado: 1 kHz, salida
 baja hasta la primera orden. MR0 MUST coincidir con TPI_MANDO_MANUAL_MAX, verificado
 al compilar.
 

@@ -326,7 +326,7 @@ Se probaron composición directa y regresiones, sin inicialización/main/ensayo 
 Ver [cambio](openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/proposal.md) e
 [informe](openspec/changes/archive/2026-11-10-b07-r1-salidas-sin-contexto/verify-report.md).
 
-## B13: UART0 de dispositivos
+## B13: UART de dispositivos (UART0 original, hoy UART3)
 
 B13 aceptado/archivado2026-11-10; contrato vigente sincronizado.
 UART_Read/UART_Write delegan una vez a UART_Receive/Send con NONE_BLOCKING y
@@ -334,6 +334,7 @@ retornan cantidad real, permitiendo progreso parcial/cero. NULL/tamaño0 no acce
 al driver ni buffer; sin protocolo, estado propio, heap, colas o ISR nuevos.
 
 Asignación del manual UM10360 tabla80/p118: TXD0 P0.2 y RXD0 P0.3, función01.
+(Desde la puesta en marcha en placa, 2026-11-13: UART3, TXD3 P0.0 y RXD3 P0.1, función10.)
 UART_BAUDRATE en Dispositivos/UART.h, default115200, editable u override -D del
 compilador; rechaza0/negativo/exceso uint32. El parámetro todavía no se aplica al
 hardware: pinmux, baudios/reloj/formato/FIFO y conexión a Comunicacion/main al final.
@@ -370,6 +371,7 @@ Ver [contrato vigente](openspec/specs/sensor-optico/spec.md).
 Por orden del usuario, MR0 queda fijado en1000 ticks para la inicialización final.
 Motor_Write recibe sólo mando0..1000, valida y despacha directamente
 PWM_MatchUpdateSingle(PWM_MATCH_1,mando_por_mil), incluido1000 sin ajustar a1001.
+(Desde la puesta en marcha en placa, 2026-11-15: PWM1.2 en P2.1 y PWM_MATCH_2; P2.0 dañado.)
 Sin cálculo de match, lectura MR0, conversión/64bits o modelo de registros en pruebas.
 false rechaza >1000 sin escritura; true indica despacho, no efecto eléctrico.
 

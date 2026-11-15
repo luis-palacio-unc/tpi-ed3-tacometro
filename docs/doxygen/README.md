@@ -80,7 +80,7 @@ serializado documentados. Sin diagnósticos físicos de salida. Doxyfile ya cubr
 servicio; HTML/XML estricto38 funciones sin avisos, sin relajar controles.
 
 B13 agrega ESW.2.1.16/USW.2.1.16.1/.2: UART_Read/Write y UART_BAUDRATE documentados.
-INPUT incluye UART.h/.c. P0.2 TX/P0.3 RX, modo no bloqueante, cantidades/bytes,
+INPUT incluye UART.h/.c. P0.0 TX/P0.1 RX (UART3 desde 2026-11-13), modo no bloqueante, cantidades/bytes,
 NULL/cero, progreso parcial, vida/serialización y configuración previa documentados.
 Parámetro115200 modificable, no aplicado al hardware hasta inicialización final.
 Doxygen HTML/XML40 funciones sin avisos; no se relajan controles.
