@@ -17,7 +17,8 @@ para generar documentación sin autorización.
 Validación actual B15 Motor:42 funciones/USW en XML (7 Procesamiento,
 10 Comunicacion, 2 Medicion_Velocidad, 5 Mandos, 2 Temperatura, 2 LM335,
 Driver_Alarmas, 2 Driver_Motor, tres Timer, Selector, LED, Buzzer, dos UART, SensorOptico, Motor y main), sin avisos.
-USW.2.1.4.1/.2 del servicio genérico; USW.2.1.11.1/.2 del dispositivo.
+Vigente desde B18 y el cambio de sensor: USW.2.1.4.3 del servicio (`Temperatura_Leer`) y
+USW.2.1.11.3/.4 del dispositivo (`getTemperatura` y su conversión); .4.1/.4.2 y .11.1/.11.2 retiradas.
 Documentar unidades físicas/estados en el servicio y conversión/errores específicos
 en LM335. La inclusión de archivos del dispositivo no introduce dependencia del servicio.
 La sonda sin @return documentada en B01 sigue como evidencia del control estricto.

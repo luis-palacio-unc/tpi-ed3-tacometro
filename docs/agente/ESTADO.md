@@ -1,4 +1,4 @@
-# Estado — 2026-11-11
+# Estado — 2026-11-16
 
 ## Punto actual
 
@@ -28,7 +28,8 @@
   servicio llama a sus dispositivos; sin contextos, callbacks ni enums de error.
   `Sistema_Init` arranca reloj y ADC/DMA. Modos de 3 estados; alarma 45/43 °C con
   promedio de 4 lecturas; PI simplificado en I5 (ver abajo). Lazo: alarma → modo → mando →
-  telemetría cada 500 ms; en MANUAL el potenciómetro actúa en cada vuelta.
+  telemetría cada 500 ms (1 s desde el 2026-11-16, ver al final); en MANUAL el
+  potenciómetro actúa en cada vuelta.
 - Host/san 29/29 y host 29/29; ARM Debug 9/9 y Release 9/9; Doxygen 60 funciones
   sin avisos; `Drivers/` y `Dispositivos/` sin cambios. Firmware Debug 19 636 B de
   flash y 2 456 B de SRAM (Release 13 124 / 2 448). 45 de 48 mutantes detectados,
@@ -89,3 +90,20 @@ motor pasó de PWM1.1 (P2.0, pin dañado) a PWM1.2 en P2.1, con el mando en MR2
 (`PWM_MATCH_2`). Las menciones anteriores a UART0, P0.2/P0.3, P2.0 y PWM_MATCH_1
 en este documento son historial de los bloques B13 y B15. Contratos vigentes en
 `openspec/specs/uart-dispositivo` y `openspec/specs/motor-dispositivo`.
+
+## Cambios del 2026-11-16 (rama `sensor-lm335`, sin fusionar a main)
+
+Hechos por Claude a pedido explícito del usuario, sin cambio SDD propio; contratos
+vigentes editados directamente en `openspec/specs/`.
+
+- Sensor de temperatura: LM335 en lugar del LM35 (no se consiguió), mismo
+  AD0.1/P0.24. Dispositivo `Dispositivos/LM335.h/.c`; la lectura se llama
+  `getTemperatura` y resta 273,15 K más `LM335_AJUSTE_CENTESIMAS`
+  (`Configuracion/Analogica.h`). Contrato: `openspec/specs/temperatura`, TE6.
+- Ventana y período del lazo: `TPI_CONTROL_PERIODO_MS` = 1000 (antes 500). Telemetría,
+  alarma, modos y paso del PI una vez por segundo; ganancias por paso sin cambio.
+- Consigna máxima: `TPI_RPM_MAX` = 300 (antes 185); R14 actualizado.
+- Verificación: host 31/31, ARM 9/9, Doxygen sin avisos; proyecto MCUXpresso
+  recompilado. Nada de esto está probado en placa: faltan armar el LM335, calibrar el
+  ajuste y volver a probar el modo automático con paso de 1 s.
+

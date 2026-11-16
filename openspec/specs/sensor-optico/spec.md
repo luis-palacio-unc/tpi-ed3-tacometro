@@ -16,7 +16,7 @@ Sensor_Optico MUST exponer uint32_t SensorOptico_Read(void), conteo de eventos
 acumulados de TIMER1 preconfigurado como contador externo ascendente CAP1.0/P1.18,
 PINSEL3 función11. MUST delegar la lectura en TIM_ReadTimer original. MUST devolver
 conteo íntegro, incluido0/UINT32_MAX; MUST NOT convertir unidades, calcular RPM,
-aplicar factor60 ni recortar por límite185 de consignas. TIMER0 de B11 MUST preservarse.
+aplicar factor60 ni recortar por el límite de consignas (`TPI_RPM_MAX`). TIMER0 de B11 MUST preservarse.
 
 #### Scenario: S1 — Lecturas exactas e independientes
 - Given contador de eventos con valores0/1/60/185/200/MAX y TIMER0 con otro valor.
