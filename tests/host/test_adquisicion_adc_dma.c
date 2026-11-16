@@ -8,7 +8,7 @@
 #include "dobles_cmsis.h"
 #include "lpc17xx_adc.h"
 #include "lpc17xx_gpdma.h"
-#include "LM35.h"
+#include "LM335.h"
 #include "Potenciometro.h"
 #include <stddef.h>
 #include <stdio.h>
@@ -134,7 +134,7 @@ static bool Preparar(Status resultado)
     tc_activo = false; error_modelo = false; irq_adc_en_setup = true;
     irq_dma_en_arranque = false; nvic_adc_en_rafaga = true; registros_cargados_en_arranque = false;
     resultado_setup = resultado;
-    ADC_DMA_Pot = 0U; ADC_DMA_LM35 = 0U;
+    ADC_DMA_Pot = 0U; ADC_DMA_LM335 = 0U;
     return Adquisicion_ADC_DMA_Init();
 }
 
@@ -183,7 +183,7 @@ static bool CanalYListaEnlazada(void)
     CHECK(lista_vista[0].nextLLI == DIR32(Adquisicion_Lista[1]));
     CHECK(lista_vista[0].control == CONTROL_SIN_IRQ);
     CHECK(lista_vista[1].srcAddr == DIR32(adc_modelo.ADDR1));
-    CHECK(lista_vista[1].dstAddr == DIR32(ADC_DMA_LM35));
+    CHECK(lista_vista[1].dstAddr == DIR32(ADC_DMA_LM335));
     CHECK(lista_vista[1].nextLLI == DIR32(Adquisicion_Lista[0]));
     CHECK(lista_vista[1].control == CONTROL_CON_IRQ);
     CHECK(memcmp(lista_vista, Adquisicion_Lista, sizeof(lista_vista)) == 0);
@@ -195,7 +195,7 @@ static bool CanalYListaEnlazada(void)
     CHECK(offsetof(LPC_ADC_TypeDef, ADDR0) == 0x10U && offsetof(LPC_ADC_TypeDef, ADDR1) == 0x14U);
     CHECK(offsetof(LPC_ADC_TypeDef, ADGDR) == 0x04U && sizeof(GPDMA_LLI_T) == 16U);
     CHECK((DIR32(Adquisicion_Lista[0]) & 3U) == 0U && (DIR32(ADC_DMA_Pot) & 3U) == 0U);
-    CHECK((DIR32(ADC_DMA_LM35) & 3U) == 0U && !error_modelo);
+    CHECK((DIR32(ADC_DMA_LM335) & 3U) == 0U && !error_modelo);
     return true;
 }
 
@@ -229,13 +229,13 @@ static bool IsrMarcaParesCompletos(void)
     DMA_IRQHandler();
     CHECK(consultas_tc == 1U && limpiezas_tc == 0U);
     CHECK(!Adquisicion_ADC_DMA_HayDatos() && Adquisicion_ADC_DMA_ContarPares() == 0U);
-    ADC_DMA_Pot = UINT32_C(0x80008000); ADC_DMA_LM35 = UINT32_C(0x81001F40);
+    ADC_DMA_Pot = UINT32_C(0x80008000); ADC_DMA_LM335 = UINT32_C(0x8100E750);
     tc_activo = true;
     DMA_IRQHandler();
     CHECK(!tc_activo && limpiezas_tc == 1U);
     CHECK(Adquisicion_ADC_DMA_HayDatos() && Adquisicion_ADC_DMA_ContarPares() == 1U);
-    CHECK(Pot_Read() == 2048U && LM35_Read() == 4028);
-    CHECK(ADC_DMA_Pot == UINT32_C(0x80008000) && ADC_DMA_LM35 == UINT32_C(0x81001F40));
+    CHECK(Pot_Read() == 2048U && LM335_Read() == 2503);
+    CHECK(ADC_DMA_Pot == UINT32_C(0x80008000) && ADC_DMA_LM335 == UINT32_C(0x8100E750));
     for (unsigned i = 0U; i < 5U; ++i) { tc_activo = true; DMA_IRQHandler(); }
     CHECK(Adquisicion_ADC_DMA_HayDatos() && Adquisicion_ADC_DMA_ContarPares() == 6U);
     Adquisicion_Pares = UINT32_MAX;

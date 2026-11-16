@@ -3,7 +3,7 @@
 #include "Adquisicion_ADC_DMA.h"
 #include "Buzzer.h"
 #include "LED.h"
-#include "LM35.h"
+#include "LM335.h"
 #include "Motor.h"
 #include "Potenciometro.h"
 #include "Reloj.h"
@@ -135,4 +135,4 @@ void Buzzer_Init(void) { Registrar("Buzzer_Init"); }
 void Buzzer_Write(bool activar) { fakes.buzzer = activar; ++fakes.buzzer_escrituras; }
 
 uint16_t Pot_Read(void) { return fakes.pot; }
-int32_t LM35_Read(void) { return fakes.lm35; }
+int32_t LM335_Read(void) { return fakes.lm335; }

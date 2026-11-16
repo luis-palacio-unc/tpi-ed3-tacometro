@@ -13,7 +13,7 @@
 /**
  * @brief Configurar el reloj a 100 MHz, arrancar ADC/DMA y esperar el primer par.
  * @details Llama Reloj_Init, despues Adquisicion_ADC_DMA_Init y consulta
- * Adquisicion_ADC_DMA_HayDatos hasta que el potenciometro y el LM35 tengan una
+ * Adquisicion_ADC_DMA_HayDatos hasta que el potenciometro y el LM335 tengan una
  * conversion real, con un limite fijo de consultas (el primer par tarda unos 2 ms).
  * @return true si la adquisicion quedo en marcha y con datos; false si el DMA
  * rechazo el canal o si se agoto el limite sin recibir el primer par.

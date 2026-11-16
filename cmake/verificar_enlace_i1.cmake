@@ -19,7 +19,7 @@ file(WRITE "${OUTPUT_DIR}/main_fixture.c" [=[
 #include "Adquisicion_ADC_DMA.h"
 #include "Buzzer.h"
 #include "LED.h"
-#include "LM35.h"
+#include "LM335.h"
 #include "Motor.h"
 #include "Potenciometro.h"
 #include "Reloj.h"
@@ -53,7 +53,7 @@ int main(void)
             Buzzer_Write(Adquisicion_ADC_DMA_HayDatos());
         }
         if (UART_Read(recibidos, (uint32_t)sizeof(recibidos)) != 0U) {
-            observado = (uint32_t)Pot_Read() + (uint32_t)LM35_Read() + Timer_Read() +
+            observado = (uint32_t)Pot_Read() + (uint32_t)LM335_Read() + Timer_Read() +
                         SensorOptico_Read() + Adquisicion_ADC_DMA_ContarPares();
         }
     }
@@ -85,7 +85,7 @@ execute_process(COMMAND "${TOOL_PREFIX}gcc" ${TPI_ARM_FLAGS}
     -isystem "${SOURCE_DIR}/plataforma/compat"
     "${OUTPUT_DIR}/main_fixture.c"
     "${SOURCE_DIR}/Dispositivos/Timer.c" "${SOURCE_DIR}/Dispositivos/Motor.c"
-    "${SOURCE_DIR}/Dispositivos/Sensor_Optico.c" "${SOURCE_DIR}/Dispositivos/LM35.c"
+    "${SOURCE_DIR}/Dispositivos/Sensor_Optico.c" "${SOURCE_DIR}/Dispositivos/LM335.c"
     "${SOURCE_DIR}/Dispositivos/Potenciometro.c" "${SOURCE_DIR}/Dispositivos/Selector.c"
     "${SOURCE_DIR}/Dispositivos/LED.c" "${SOURCE_DIR}/Dispositivos/Buzzer.c"
     "${SOURCE_DIR}/Dispositivos/UART.c"
@@ -114,14 +114,14 @@ foreach(required_symbol Selector_Init Selector_Read LED_Init LED_Write Buzzer_In
         Buzzer_Write SensorOptico_Init SensorOptico_Read Motor_Init Motor_Write
         UART3_Init UART_Read UART_Write Timer_Init Timer_Start Timer_Read
         Timer_ConsumirVentana Adquisicion_ADC_DMA_Init Adquisicion_ADC_DMA_HayDatos
-        Adquisicion_ADC_DMA_ContarPares Pot_Read LM35_Read
+        Adquisicion_ADC_DMA_ContarPares Pot_Read LM335_Read
         TIMER0_IRQHandler UART3_IRQHandler DMA_IRQHandler Reloj_Init SystemInit
         SystemCoreClockUpdate)
     if(NOT symbols MATCHES "[0-9a-f]+ T ${required_symbol}[\r\n]")
         message(FATAL_ERROR "API/ISR/arranque I1 ausente o no global fuerte: ${required_symbol}")
     endif()
 endforeach()
-foreach(required_data ADC_DMA_Pot ADC_DMA_LM35 SystemCoreClock)
+foreach(required_data ADC_DMA_Pot ADC_DMA_LM335 SystemCoreClock)
     if(NOT symbols MATCHES "[0-9a-f]+ [BD] ${required_data}[\r\n]")
         message(FATAL_ERROR "Dato I1 ausente: ${required_data}")
     endif()

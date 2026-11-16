@@ -17,7 +17,7 @@ INPUT = Aplicacion/main.h Aplicacion/main.c Aplicacion/Procesamiento.h Aplicacio
         Dispositivos/LED.h Dispositivos/LED.c Dispositivos/Buzzer.h Dispositivos/Buzzer.c \
         Dispositivos/UART.h Dispositivos/UART.c \
         Dispositivos/Sensor_Optico.h Dispositivos/Sensor_Optico.c \
-        Dispositivos/LM35.h Dispositivos/LM35.c \
+        Dispositivos/LM335.h Dispositivos/LM335.c \
         Dispositivos/Potenciometro.h Dispositivos/Potenciometro.c \
         Dispositivos/soporte/Adquisicion_ADC_DMA.h Dispositivos/soporte/Adquisicion_ADC_DMA.c \
         Dispositivos/soporte/Reloj.h Dispositivos/soporte/Reloj.c \

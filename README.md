@@ -147,7 +147,8 @@ Doxygen documenta sus dos USW. Ver [informe B04](openspec/changes/archive/2026-1
 Servicios/Temperatura.h/.c recibe temperatura ya expresada en centésimas Celsius
 (int32_t) y estado de fuente válido/sin datos/error. Preserva valores válidos o
 invalida con cero; diferencia cero válido de ausencia. No conoce el sensor concreto.
-La implementación actual de Dispositivos/LM35.h/.c corresponde a B05-R1:
+La implementación de Dispositivos/LM35.h/.c (hoy Dispositivos/LM335.h/.c, ver
+«Sensor de temperatura LM335») corresponde a B05-R1:
 consulta muestra propia y devuelve centésimas, sin estados de dispositivo. Revisión
 aceptada y sincronizada en el contrato vigente; TE2 del servicio se conserva. ADC/DMA físicos pendientes.
 
@@ -445,3 +446,18 @@ estados ni retención; `scripts/verificar_b17.py` se eliminó. Ver
 [contrato vigente](openspec/specs/regulacion-velocidad/spec.md).
 Cierre/publicación autorizados. La integración queda a cargo de Claude; Codex no
 inicia otro bloque. Cadencia real y pruebas físicas pendientes.
+
+## Sensor de temperatura LM335
+
+El LM35 del anteproyecto no se consiguió; se usa un LM335 en el mismo canal
+AD0.1/P0.24, con el mismo ADC en ráfaga y DMA. El dispositivo se llama ahora
+Dispositivos/LM335.h/.c (`LM335_Read`, `ADC_DMA_LM335`); las secciones anteriores y
+los informes archivados conservan el nombre LM35 como historial.
+
+El LM335 entrega 10 mV/K (2,7315 V a 0 °C): la conversión resta 273,15 K y suma
+`LM335_AJUSTE_CENTESIMAS` (Configuracion/Analogica.h, default 0) para calibrar en un
+punto. Con VREFP de 3,3 V mide hasta 56,77 °C; el umbral de 45 °C son 3,18 V.
+Montaje: 2,2 kΩ desde 5 V al terminal `+`, `−` a GND, `ADJ` sin conectar y 1 kΩ en
+serie hacia P0.24. Sin sensor la lectura satura y activa la alarma; con 0 V se
+informa −273,15 °C. Verificado en host y por enlace ARM; sin probar en placa.
+Ver [contrato vigente](openspec/specs/temperatura/spec.md), TE6.

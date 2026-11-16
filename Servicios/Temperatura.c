@@ -1,13 +1,13 @@
 /**
  * @file Temperatura.c
- * @brief Promedio movil de las lecturas del LM35.
+ * @brief Promedio movil de las lecturas del LM335.
  * @details Ventana circular de cuatro lecturas en memoria estatica.
  * @note ESW.2.1.4. Contrato publico en Temperatura.h.
  */
 #include "Temperatura.h"
-#include "LM35.h"
+#include "LM335.h"
 
-/** @brief Ultimas lecturas del LM35, en centesimas de grado. */
+/** @brief Ultimas lecturas del LM335, en centesimas de grado. */
 static int32_t Temperatura_Lecturas[TEMPERATURA_MUESTRAS];
 /** @brief Lecturas validas en la ventana: 0 al arrancar, hasta TEMPERATURA_MUESTRAS. */
 static uint32_t Temperatura_Cantidad;
@@ -16,7 +16,7 @@ static uint32_t Temperatura_Siguiente;
 
 int32_t Temperatura_Leer(void)
 {
-    Temperatura_Lecturas[Temperatura_Siguiente] = LM35_Read();
+    Temperatura_Lecturas[Temperatura_Siguiente] = LM335_Read();
     Temperatura_Siguiente = (Temperatura_Siguiente + 1U) % TEMPERATURA_MUESTRAS;
     if (Temperatura_Cantidad < TEMPERATURA_MUESTRAS) {
         ++Temperatura_Cantidad;

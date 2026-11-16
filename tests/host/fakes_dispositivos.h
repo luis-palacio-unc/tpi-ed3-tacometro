@@ -24,7 +24,7 @@ typedef struct {
     bool adc_init_ok;            /* Retorno de Adquisicion_ADC_DMA_Init. */
     uint32_t adc_consultas_sin_datos; /* Consultas de HayDatos que devuelven false. */
     uint16_t pot;                /* Retorno de Pot_Read, 0..4095. */
-    int32_t lm35;                /* Retorno de LM35_Read, centesimas. */
+    int32_t lm335;                /* Retorno de LM335_Read, centesimas. */
     bool selector;               /* Retorno de Selector_Read: true = llave abierta. */
     bool hay_ventana;            /* Proxima Timer_ConsumirVentana devuelve true. */
     uint32_t pulsos;             /* Pulsos de esa ventana. */

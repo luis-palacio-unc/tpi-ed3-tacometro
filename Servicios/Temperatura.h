@@ -1,9 +1,9 @@
 /**
  * @file Temperatura.h
  * @brief Temperatura ambiente filtrada, en centesimas de grado Celsius.
- * @details Promedia las ultimas lecturas del LM35 para que el ruido del ADC no
+ * @details Promedia las ultimas lecturas del LM335 para que el ruido del ADC no
  * haga oscilar la alarma.
- * @note ESW.2.1.4. Usa el dispositivo LM35.
+ * @note ESW.2.1.4. Usa el dispositivo LM335.
  */
 #ifndef TPI_TEMPERATURA_H
 #define TPI_TEMPERATURA_H
@@ -20,12 +20,12 @@
 #define TEMPERATURA_MUESTRAS 4U
 
 /**
- * @brief Tomar una lectura del LM35 y devolver el promedio de las ultimas cuatro.
- * @details Guarda LM35_Read en una ventana circular de TEMPERATURA_MUESTRAS
+ * @brief Tomar una lectura del LM335 y devolver el promedio de las ultimas cuatro.
+ * @details Guarda LM335_Read en una ventana circular de TEMPERATURA_MUESTRAS
  * lecturas y devuelve su promedio entero. Las primeras llamadas promedian solo
  * las lecturas ya tomadas.
  * @return Temperatura en centesimas de grado Celsius (2500 = 25,00 grados).
- * @pre Sistema_Init devolvio true: ya hay una conversion real del LM35.
+ * @pre Sistema_Init devolvio true: ya hay una conversion real del LM335.
  * @note USW.2.1.4.3. Una llamada por periodo de 500 ms da un filtro de 2 s.
  * Guarda estado propio; llamar solo desde el lazo principal.
  */

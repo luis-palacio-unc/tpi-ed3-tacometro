@@ -61,7 +61,7 @@ reloj de ADC ≤ 13 MHz —; ADC_PinConfig y ADC_ChannelEnable de AD0.0/P0.23 y
 AD0.1/P0.24 (función 01, sin pull-up ni pull-down); ADC_IntDisable(GLOBAL) y
 ADC_IntEnable de canales 0 y 1; GPDMA_Init; armar una lista circular de dos
 descriptores de 1 palabra de 32 bits, ráfaga 1, sin incrementos, AD0DR0 →
-ADC_DMA_Pot y AD0DR1 → ADC_DMA_LM35, con interrupción de fin de cuenta sólo en el
+ADC_DMA_Pot y AD0DR1 → ADC_DMA_LM335, con interrupción de fin de cuenta sólo en el
 segundo; GPDMA_SetupChannel canal 0 periférico→memoria con pedido del ADC; cargar
 el primer descriptor en DMACC0SrcAddr/DMACC0Control; DMA_IRQn prioridad 3
 habilitada; GPDMA_ChannelStart; ADC_BurstEnable al final. Ese es el único acceso

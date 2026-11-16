@@ -18,7 +18,7 @@ set(TPI_SOURCES
     Dispositivos/Timer.c
     Dispositivos/Motor.c
     Dispositivos/Sensor_Optico.c
-    Dispositivos/LM35.c
+    Dispositivos/LM335.c
     Dispositivos/Potenciometro.c
     Dispositivos/Selector.c
     Dispositivos/LED.c
@@ -118,11 +118,11 @@ if(TPI_BUILD_ARM)
             "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/i1-fixture-release"
             "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
             "-DBUILD_TYPE=Release" -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_i1.cmake")
-        add_test(NAME b05.lm35_enlace_arm COMMAND "${CMAKE_COMMAND}"
+        add_test(NAME b05.lm335_enlace_arm COMMAND "${CMAKE_COMMAND}"
             "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
-            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b05-lm35-fixture" "-DBUILD_TYPE=$<CONFIG>"
+            "-DOUTPUT_DIR=${CMAKE_CURRENT_BINARY_DIR}/b05-lm335-fixture" "-DBUILD_TYPE=$<CONFIG>"
             "-DTOOL_PREFIX=${TPI_TOOL_PREFIX}" "-DPYTHON=${Python3_EXECUTABLE}"
-            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b05_lm35.cmake")
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/verificar_enlace_b05_lm335.cmake")
     endif()
 else()
     if(CMAKE_CROSSCOMPILING)
@@ -198,20 +198,29 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     endforeach()
 
     # Dispositivos: sus .c reales contra dobles de la biblioteca.
-    add_executable(pruebas_lm35 tests/host/test_lm35.c Dispositivos/LM35.c)
-    set(TPI_LM35_VARIANT_TARGETS)
-    set(TPI_LM35_ORACLE_CASES)
+    add_executable(pruebas_lm335 tests/host/test_lm335.c Dispositivos/LM335.c)
+    set(TPI_LM335_VARIANT_TARGETS)
+    set(TPI_LM335_ORACLE_CASES)
     foreach(vref IN ITEMS 1000 2000 2540 3300 5000)
-        set(lm35_target "pruebas_lm35_vref_${vref}")
-        add_executable(${lm35_target} tests/host/test_lm35.c Dispositivos/LM35.c)
-        target_compile_definitions(${lm35_target} PRIVATE "ADC_VREF_MV=${vref}")
-        list(APPEND TPI_LM35_VARIANT_TARGETS ${lm35_target})
-        list(APPEND TPI_LM35_ORACLE_CASES --caso "$<TARGET_FILE:${lm35_target}>" "${vref}")
-        add_test(NAME b05r1.lm35_vref_${vref} COMMAND ${lm35_target})
+        set(lm335_target "pruebas_lm335_vref_${vref}")
+        add_executable(${lm335_target} tests/host/test_lm335.c Dispositivos/LM335.c)
+        target_compile_definitions(${lm335_target} PRIVATE "ADC_VREF_MV=${vref}")
+        list(APPEND TPI_LM335_VARIANT_TARGETS ${lm335_target})
+        list(APPEND TPI_LM335_ORACLE_CASES --caso "$<TARGET_FILE:${lm335_target}>" "${vref}" 0)
+        add_test(NAME b05r1.lm335_vref_${vref} COMMAND ${lm335_target})
+    endforeach()
+    foreach(ajuste IN ITEMS -150 275)
+        string(REPLACE "-" "menos" ajuste_nombre "${ajuste}")
+        set(lm335_target "pruebas_lm335_ajuste_${ajuste_nombre}")
+        add_executable(${lm335_target} tests/host/test_lm335.c Dispositivos/LM335.c)
+        target_compile_definitions(${lm335_target} PRIVATE "LM335_AJUSTE_CENTESIMAS=${ajuste}")
+        list(APPEND TPI_LM335_VARIANT_TARGETS ${lm335_target})
+        list(APPEND TPI_LM335_ORACLE_CASES --caso "$<TARGET_FILE:${lm335_target}>" 3300 "${ajuste}")
+        add_test(NAME b05r1.lm335_ajuste_${ajuste_nombre} COMMAND ${lm335_target})
     endforeach()
     add_executable(pruebas_integracion_temperatura tests/host/test_integracion_temperatura.c
-        Servicios/Temperatura.c Dispositivos/LM35.c)
-    target_compile_definitions(pruebas_integracion_temperatura PRIVATE ADC_VREF_MV=2000)
+        Servicios/Temperatura.c Dispositivos/LM335.c)
+    target_compile_definitions(pruebas_integracion_temperatura PRIVATE ADC_VREF_MV=3300)
     add_executable(pruebas_potenciometro tests/host/test_potenciometro.c
         Dispositivos/Potenciometro.c)
     add_executable(pruebas_motor tests/host/test_motor.c Dispositivos/Motor.c)
@@ -221,10 +230,10 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_executable(pruebas_timer tests/host/test_timer.c)
     add_executable(pruebas_reloj tests/host/test_reloj.c)
     add_executable(pruebas_adquisicion_adc_dma tests/host/test_adquisicion_adc_dma.c
-        Dispositivos/Potenciometro.c Dispositivos/LM35.c)
+        Dispositivos/Potenciometro.c Dispositivos/LM335.c)
     add_executable(pruebas_dispositivos_gpio tests/host/test_dispositivos_gpio.c
         Dispositivos/Selector.c Dispositivos/LED.c Dispositivos/Buzzer.c Servicios/Driver_Alarmas.c)
-    set(TPI_PRUEBAS_DISPOSITIVOS pruebas_lm35 ${TPI_LM35_VARIANT_TARGETS}
+    set(TPI_PRUEBAS_DISPOSITIVOS pruebas_lm335 ${TPI_LM335_VARIANT_TARGETS}
         pruebas_integracion_temperatura pruebas_potenciometro pruebas_motor
         pruebas_sensor_optico pruebas_uart pruebas_timer pruebas_reloj
         pruebas_adquisicion_adc_dma pruebas_dispositivos_gpio)
@@ -263,16 +272,16 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_test(NAME i2.mandos COMMAND pruebas_mandos)
     add_test(NAME i2.medicion_velocidad COMMAND pruebas_medicion_velocidad)
     add_test(NAME i2.temperatura COMMAND pruebas_temperatura)
-    add_test(NAME i2.temperatura_lm35 COMMAND pruebas_integracion_temperatura)
+    add_test(NAME i2.temperatura_lm335 COMMAND pruebas_integracion_temperatura)
     add_test(NAME i2.drivers COMMAND pruebas_drivers)
     add_test(NAME i2.comunicacion COMMAND pruebas_comunicacion)
     add_test(NAME i2.procesamiento COMMAND pruebas_procesamiento)
     add_test(NAME i2.aplicacion COMMAND pruebas_aplicacion)
-    add_test(NAME b05.lm35 COMMAND pruebas_lm35)
-    add_test(NAME b05r1.oraculo_lm35 COMMAND "${Python3_EXECUTABLE}"
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/verificar_lm35.py" ${TPI_LM35_ORACLE_CASES})
-    add_test(NAME b05r1.configuracion_lm35 COMMAND "${Python3_EXECUTABLE}"
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/verificar_configuracion_lm35.py"
+    add_test(NAME b05.lm335 COMMAND pruebas_lm335)
+    add_test(NAME b05r1.oraculo_lm335 COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/verificar_lm335.py" ${TPI_LM335_ORACLE_CASES})
+    add_test(NAME b05r1.configuracion_lm335 COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/host/verificar_configuracion_lm335.py"
         --compilador "${CMAKE_C_COMPILER}" --include "${CMAKE_CURRENT_SOURCE_DIR}/Configuracion")
     add_test(NAME b12.dispositivos_gpio COMMAND pruebas_dispositivos_gpio)
     add_test(NAME b13.uart COMMAND pruebas_uart)

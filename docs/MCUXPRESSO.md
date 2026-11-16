@@ -109,14 +109,20 @@ Hacerla en orden, con el motor desconectado hasta el paso 2.
 2. **PWM.** Llave abierta (MANUAL). Osciloscopio en P2.1: 1 kHz, y el ciclo de trabajo
    sigue al potenciómetro (P0.23) de 0 a 100 %.
 3. **Telemetría.** Cada 500 ms llega `RPM=<n>.<3d>;TEMP=<n>.<2d>;ESTADO=MANUAL`. La
-   temperatura debe ser la ambiente (LM35 en P0.24).
+   temperatura debe ser la ambiente (LM335 en P0.24). El LM335 se polariza con
+   2,2 kΩ desde 5 V a su terminal `+`, `−` a GND y `ADJ` sin conectar; el `+` va a
+   P0.24 a través de 1 kΩ (limita la corriente si el sensor se desconecta y el nodo
+   sube a 5 V). A 25 °C el `+` debe medir unos 2,98 V. Si la lectura difiere de un
+   termómetro de referencia, cargar la diferencia en `LM335_AJUSTE_CENTESIMAS`
+   (`Configuracion/Analogica.h`). Sin sensor la lectura queda en 56,77 °C y suena la
+   alarma; con la entrada a 0 V se lee −273,15 °C.
 4. **Sensor.** Con el motor girando, el contador de `TIMER1` avanza con los pulsos de
    P1.18 y las RPM informadas coinciden con el giro (60 pulsos por vuelta; el motor no
    pasa de unas 185 RPM).
 5. **Automático.** Cerrar la llave (P2.6 a GND): `ESTADO=AUTO_ESPERA` y PWM en 0. Enviar
    `RPM 100`: pasa a `AUTO_ACTIVO` y la velocidad se acerca a 100. Frenar levemente el
    eje y ver que el mando lo compensa. Se aceptan consignas de 0 a 185.
-6. **Alarma.** Calentar el LM35: por encima de 45,00 °C se encienden el LED (P0.22) y
+6. **Alarma.** Calentar el LM335: por encima de 45,00 °C se encienden el LED (P0.22) y
    el buzzer (P2.7); se apagan al bajar a 43,00 °C o menos. La temperatura es el
    promedio de 4 lecturas, así que responde en unos 2 s.
 

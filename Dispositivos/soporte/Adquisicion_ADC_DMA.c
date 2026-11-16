@@ -1,7 +1,7 @@
 /**
  * @file Adquisicion_ADC_DMA.c
  * @brief ADC en rafaga de dos canales y DMA circular hacia las muestras.
- * @details Potenciometro.c y LM35.c poseen las muestras; este archivo configura
+ * @details Potenciometro.c y LM335.c poseen las muestras; este archivo configura
  * ADC y GPDMA con la biblioteca original y atiende la interrupcion de DMA.
  * @note Soporte de ESW.2.1.11/ESW.2.1.12. Unico acceso directo a registros:
  * DMACC0SrcAddr y DMACC0Control, que la biblioteca no permite fijar por descriptor.
@@ -25,7 +25,7 @@
     GPDMA_DMACCxControl_SWidth(GPDMA_WORD) | GPDMA_DMACCxControl_DWidth(GPDMA_WORD)))
 
 /**
- * @brief Lista enlazada circular: [0] AD0DR0 -> potenciometro, [1] AD0DR1 -> LM35.
+ * @brief Lista enlazada circular: [0] AD0DR0 -> potenciometro, [1] AD0DR1 -> LM335.
  * @details En SRAM local, alineada a 4 bytes; el GPDMA la relee al terminar cada
  * descriptor. Se escribe solo en Init, antes de habilitar el canal.
  */
@@ -69,7 +69,7 @@ bool Adquisicion_ADC_DMA_Init(void)
     Adquisicion_Lista[0].nextLLI = ADQUISICION_DIRECCION(Adquisicion_Lista[1]);
     Adquisicion_Lista[0].control = ADQUISICION_DMA_CONTROL;
     Adquisicion_Lista[1].srcAddr = ADQUISICION_DIRECCION(LPC_ADC->ADDR1);
-    Adquisicion_Lista[1].dstAddr = ADQUISICION_DIRECCION(ADC_DMA_LM35);
+    Adquisicion_Lista[1].dstAddr = ADQUISICION_DIRECCION(ADC_DMA_LM335);
     Adquisicion_Lista[1].nextLLI = ADQUISICION_DIRECCION(Adquisicion_Lista[0]);
     Adquisicion_Lista[1].control = ADQUISICION_DMA_CONTROL | (uint32_t)GPDMA_DMACCxControl_I;
     if (GPDMA_SetupChannel(&canal) != SUCCESS) {
@@ -97,7 +97,7 @@ uint32_t Adquisicion_ADC_DMA_ContarPares(void)
 /**
  * @brief ISR de GPDMA: registrar cada par de muestras completo.
  * @details Si el canal 0 tiene activa la interrupcion de fin de cuenta
- * (DMACIntTCStat, UM10360 tabla 547), que solo pide el descriptor del LM35, la
+ * (DMACIntTCStat, UM10360 tabla 547), que solo pide el descriptor del LM335, la
  * limpia con GPDMA_ClearIntPending (DMACIntTCClear, tabla 548), incrementa el
  * contador de pares y marca dato disponible. No toca las muestras: el GPDMA ya
  * recargo el descriptor del potenciometro y sigue transfiriendo.

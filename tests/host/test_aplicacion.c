@@ -17,7 +17,7 @@
 static void Arrancar(bool llave_en_manual)
 {
     Fakes_Reiniciar();
-    fakes.lm35 = 2500;
+    fakes.lm335 = 2500;
     for (unsigned i = 0U; i < TEMPERATURA_MUESTRAS; ++i) {
         (void)Procesamiento_EvaluarAlarma(Temperatura_Leer());
     }
@@ -47,7 +47,7 @@ static bool S1_ArranqueEnAutomatico(void)
         "Selector_Init", "UART3_Init", "SensorOptico_Init", "Timer_Init", "Timer_Start", NULL
     };
     Fakes_Reiniciar();
-    fakes.lm35 = 2500;
+    fakes.lm335 = 2500;
     fakes.pot = 4095U;
     fakes.motor = 777U;
     fakes.led = true;
@@ -149,9 +149,9 @@ static bool S4_VolverAAutomaticoEsperaConsignaNueva(void)
 }
 
 /* Mantiene la temperatura del sensor durante los 4 periodos del filtro. */
-static bool Mantener(int32_t lm35, bool activa_antes_del_cuarto, bool activa_al_final)
+static bool Mantener(int32_t lm335, bool activa_antes_del_cuarto, bool activa_al_final)
 {
-    fakes.lm35 = lm35;
+    fakes.lm335 = lm335;
     for (unsigned i = 0U; i < TEMPERATURA_MUESTRAS; ++i) {
         const bool esperada = i + 1U < TEMPERATURA_MUESTRAS ? activa_antes_del_cuarto : activa_al_final;
         Periodo(0U);

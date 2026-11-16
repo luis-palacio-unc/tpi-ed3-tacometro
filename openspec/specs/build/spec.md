@@ -121,7 +121,7 @@ El firmware ARM MUST enlazar `main` real, Aplicación, Servicios (incluido
 host MUST compilar los mismos fuentes como objetos (`Sistema.c.o` incluido) y las
 pruebas MUST enlazar `main.c` con `main` renombrado, sin modificar el fuente.
 Se retiran los fixtures ARM `verificar_enlace_b01..b10` de APIs eliminadas; se
-conservan `b05.lm35_enlace_arm`, `b17.enlace_arm*` (sólo regulador) e `i1.enlace_arm*`.
+conservan `b05.lm335_enlace_arm`, `b17.enlace_arm*` (sólo regulador) e `i1.enlace_arm*`.
 
 #### Scenario S12: Firmware I2 (`i2.firmware`, `b00.imagen`)
 - GIVEN `firmware.elf` Debug o Release

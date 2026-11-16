@@ -2,9 +2,9 @@
 #include "Temperatura.h"
 #include "fakes_dispositivos.h"
 
-static int32_t Leer(int32_t lm35)
+static int32_t Leer(int32_t lm335)
 {
-    fakes.lm35 = lm35;
+    fakes.lm335 = lm335;
     return Temperatura_Leer();
 }
 
