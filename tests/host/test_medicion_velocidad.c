@@ -14,8 +14,8 @@ static bool S1_InicioEnOrden(void)
 static bool S2_PulsosAMilesimas(void)
 {
     const struct { uint32_t pulsos; uint32_t rpm_milesimas; } casos[] = {
-        {0U, 0U}, {1U, 2000U}, {50U, 100000U}, {92U, 184000U}, {93U, 186000U},
-        {2147483U, UINT32_C(4294966000)}, {2147484U, UINT32_MAX}, {UINT32_MAX, UINT32_MAX}
+        {0U, 0U}, {1U, 1000U}, {100U, 100000U}, {185U, 185000U}, {186U, 186000U},
+        {4294967U, UINT32_C(4294967000)}, {4294968U, UINT32_MAX}, {UINT32_MAX, UINT32_MAX}
     };
     Fakes_Reiniciar();
     for (unsigned i = 0U; i < sizeof(casos) / sizeof(casos[0]); ++i) {
@@ -31,7 +31,7 @@ static bool S3_UnaVezPorVentana(void)
 {
     uint32_t rpm = 7U;
     Fakes_Reiniciar();
-    fakes.pulsos = 50U;
+    fakes.pulsos = 100U;
     CHECK(!Medicion_Velocidad_Actualizar(&rpm) && rpm == 7U);
     fakes.hay_ventana = true;
     CHECK(Medicion_Velocidad_Actualizar(&rpm) && rpm == 100000U);

@@ -28,7 +28,7 @@ estado propio.)
 #### Scenario: S1 — Inicialización y arranque
 - Given timer exclusivo desde reset y SystemCoreClock = CCLK real.
 - When se llama Init y luego Start.
-- Then MUST pedir TIM_US 1000, match 0 con valor 500, interrupción ENABLE y reset/stop
+- Then MUST pedir TIM_US 1000, match 0 con valor 1000, interrupción ENABLE y reset/stop
   DISABLE, prioridad 1, y arrancar después de leer el conteo del sensor.
 
 ### Requirement: WT2 — Base y lectura

@@ -109,7 +109,7 @@ def plant(program, evidence):
     try:
         for k in range(200):
             goal = 100 if k < 100 else 185
-            measured = 2000 * ((x + 1000) // 2000)
+            measured = 1000 * ((x + 500) // 1000)  # 1 RPM por pulso con ventana de 1 s
             process.stdin.write(f"{goal} {measured}\n")
             process.stdin.flush()
             u = int(process.stdout.readline())

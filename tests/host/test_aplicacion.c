@@ -25,7 +25,7 @@ static void Arrancar(bool llave_en_manual)
     (void)Aplicacion_Inicializar();
 }
 
-/* Cierra una ventana de 500 ms con esos pulsos y ejecuta una vuelta del lazo. */
+/* Cierra una ventana de 1 s con esos pulsos y ejecuta una vuelta del lazo. */
 static void Periodo(uint32_t pulsos)
 {
     Fakes_VaciarTx();
@@ -67,10 +67,10 @@ static bool S1_ArranqueEnAutomatico(void)
     CHECK(fakes.motor == 0U);
     Periodo(0U);
     CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 400U);
-    Periodo(50U);
+    Periodo(100U);
     CHECK(Tx("RPM=100.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 100U);
     Periodo(1U);
-    CHECK(Tx("RPM=2.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n"));
+    CHECK(Tx("RPM=1.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n"));
     return true;
 }
 
@@ -112,9 +112,9 @@ static bool S3_ManualSigueAlPotenciometro(void)
     CHECK(fakes.tx_bytes == 0U);
     fakes.pot = 4095U;
     Fakes_Recibir("RPM 100\n");
-    Periodo(50U);
+    Periodo(100U);
     CHECK(Tx("RPM=100.000;TEMP=25.00;ESTADO=MANUAL\n") && fakes.motor == 1000U);
-    Periodo(92U);
+    Periodo(184U);
     CHECK(Tx("RPM=184.000;TEMP=25.00;ESTADO=MANUAL\n") && fakes.motor == 1000U);
     CHECK(fakes.motor_rechazos == 0U);
     return true;

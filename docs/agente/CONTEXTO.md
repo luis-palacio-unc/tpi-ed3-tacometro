@@ -456,3 +456,10 @@ Cambio de sensor (2026-11-16): no se consiguió el LM35 y se reemplazó por un L
 puede ser negativa. Montaje indicado por Claude, sin medir: 2,2 kΩ desde 5 V, 1 kΩ
 en serie al pin. Las menciones anteriores al LM35 en este documento son historial de
 B05/B05-R1. Contrato vigente en `openspec/specs/temperatura` (TE6). Sin probar en placa.
+
+Ventana de 1 s (2026-11-16): por pedido del usuario `TPI_CONTROL_PERIODO_MS` pasó de
+500 a 1000 ms. Es a la vez la ventana de conteo de pulsos y el período del lazo
+(telemetría, alarma, modos, paso del PI); 1 pulso = 1 RPM con 60 ranuras. Ganancias
+por paso sin cambio, sin resintonizar en placa. Las menciones anteriores a 500 ms
+son historial de B17/B18. Contratos: `openspec/specs/timer`, `medicion-velocidad`,
+`regulacion-velocidad` y `sistema`.

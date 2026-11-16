@@ -51,7 +51,7 @@ Procesamiento_Estado Procesamiento_InicializarModo(Mandos_Modo modo);
  * @param[in] consigna_rpm Consigna recibida en RPM; se ignora si hay_consigna es false.
  * @return Estado resultante.
  * @pre Procesamiento_InicializarModo ejecutado.
- * @note USW.2.1.2.12. Una llamada por periodo de 500 ms. Si el retorno pasa de
+ * @note USW.2.1.2.12. Una llamada por periodo de 1 s. Si el retorno pasa de
  * MANUAL a AUTO_ESPERA, main descarta la recepcion pendiente.
  */
 Procesamiento_Estado Procesamiento_ActualizarModo(Mandos_Modo modo, bool hay_consigna,
@@ -72,7 +72,7 @@ uint32_t Procesamiento_Consigna(void);
  * (43,00 grados). Entre ambos valores conserva la decision anterior.
  * @param[in] temperatura_centesimas Temperatura en centesimas de grado Celsius.
  * @return true si la alarma debe estar encendida.
- * @note USW.2.1.2.14. Arranca apagada. Una llamada por periodo de 500 ms. No
+ * @note USW.2.1.2.14. Arranca apagada. Una llamada por periodo de 1 s. No
  * detiene el motor ni depende del modo.
  */
 bool Procesamiento_EvaluarAlarma(int32_t temperatura_centesimas);
@@ -85,13 +85,13 @@ bool Procesamiento_EvaluarAlarma(int32_t temperatura_centesimas);
  * integral, limitada de 0 a 1000, salvo que el mando sin limitar este saturado en
  * el sentido del error (anti-windup): en ese caso la integral no cambia.
  * Las ganancias son las fracciones TPI_CONTROL_KP_NUM/KP_DEN y KI_NUM/KI_DEN de
- * Control.h; Ki ya incluye el paso de 500 ms. Con consigna cero devuelve cero y
+ * Control.h; Ki ya incluye el paso de 1 s. Con consigna cero devuelve cero y
  * borra la integral. La integral tambien se borra en MANUAL y al inicializar el
  * modo, de manera que cada entrada a automatico regula desde cero.
  * @param[in] consigna_rpm Consigna en RPM, de 0 a TPI_RPM_MAX.
  * @param[in] rpm_milesimas Velocidad medida en la ultima ventana, en milesimas de RPM.
  * @return Mando de 0 a TPI_MANDO_MANUAL_MAX por mil.
- * @pre Una llamada por ventana nueva de 500 ms, solo en AUTO_ACTIVO.
+ * @pre Una llamada por ventana nueva de 1 s, solo en AUTO_ACTIVO.
  * @note USW.2.1.2.9. Aritmetica entera de 64 bits, sin desborde para cualquier
  * entrada de 32 bits. Los valores de Control.h son provisionales hasta sintonizar
  * con el motor.

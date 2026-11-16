@@ -12,7 +12,7 @@ aceptación física en placa pendiente.
 ### Requirement: RG1 — Paso del PI
 `Aplicacion/Procesamiento` MUST exponer
 `uint16_t Procesamiento_Regular(uint32_t consigna_rpm, uint32_t rpm_milesimas)`
-(USW.2.1.2.9). Un paso representa 500 ms. Error = consigna × 1000 − medición, en
+(USW.2.1.2.9). Un paso representa 1 s (500 ms hasta el 2026-11-16; ganancias por paso sin cambio). Error = consigna × 1000 − medición, en
 milésimas de RPM, sin recortar la medición. Mando = Kp × error + integral,
 limitado a 0..1000 y redondeado una sola vez al más cercano (el empate sube).
 Las ganancias MUST ser las fracciones `TPI_CONTROL_KP_NUM/KP_DEN` y
@@ -52,12 +52,12 @@ modo MANUAL. Una consigna nueva en automático MUST NOT borrarla.
 
 ### Requirement: RG4 — Configuración
 `Control.h` MUST proteger cada componente de ganancia en 1..1000 con
-`#ifndef`/valor por defecto/`#error`, y `TPI_CONTROL_PERIODO_MS` MUST ser 500. Los
+`#ifndef`/valor por defecto/`#error`, y `TPI_CONTROL_PERIODO_MS` MUST ser 1000. Los
 valores por defecto son provisionales hasta sintonizar con el motor.
 
 #### Scenario: S5 — Probes (`b17.configuracion_control`)
 - Given 4 configuraciones válidas y 18 inválidas (0, −1, 1001, `UINT32_MAX` por
-  componente; periodo 499 y 1000).
+  componente; periodo 999 y 500).
 - When se compilan.
 - Then las válidas MUST compilar con sus valores y las inválidas fallar con el
   `#error` de su macro.
