@@ -463,3 +463,7 @@ Ventana de 1 s (2026-11-16): por pedido del usuario `TPI_CONTROL_PERIODO_MS` pas
 por paso sin cambio, sin resintonizar en placa. Las menciones anteriores a 500 ms
 son historial de B17/B18. Contratos: `openspec/specs/timer`, `medicion-velocidad`,
 `regulacion-velocidad` y `sistema`.
+
+Consigna máxima (2026-11-16): el usuario cambió R14 de 185 a 300 RPM
+(`TPI_RPM_MAX` en `Configuracion/Limites.h`). Sólo valida consignas; el máximo
+medido del motor (~185 RPM a PWM 100 %) es un dato físico aparte, sin medición nueva.

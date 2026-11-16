@@ -471,3 +471,11 @@ paso del regulador ocurren una vez por segundo, y el promedio de temperatura aba
 4 s. Las ganancias por paso de Control.h no se cambiaron; la respuesta en automático
 tarda el doble en tiempo. Las menciones anteriores a 500 ms en este documento son
 historial. Verificado en host y por enlace ARM; sin probar en placa.
+
+## Consigna máxima de 300 RPM
+
+`TPI_RPM_MAX` (Configuracion/Limites.h) pasó de 185 a 300 RPM el 2026-11-16 por
+decisión del usuario: se aceptan consignas `RPM 0` a `RPM 300` y se ignoran las
+mayores. El límite sólo valida la consigna; no recorta la medición ni acredita que
+el motor alcance esa velocidad (si no llega, el mando queda saturado en 100 %). Las
+menciones anteriores a 185 RPM en este documento son historial.

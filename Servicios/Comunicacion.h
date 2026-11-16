@@ -17,7 +17,7 @@
  * @{
  */
 
-/** @brief Bytes maximos de una consigna antes del LF: "RPM 185" mas CR opcional. */
+/** @brief Bytes maximos de una consigna antes del LF: "RPM 300" mas CR opcional. */
 #define COMUNICACION_LINEA_MAX 8U
 /** @brief Bytes de la trama de telemetria mas larga posible, con su LF. */
 #define COMUNICACION_TELEMETRIA_MAX 53U
@@ -41,7 +41,7 @@ void Comunicacion_Init(void);
  * @brief Procesar los bytes recibidos y entregar la proxima consigna completa.
  * @details Retira bytes de UART_Read y arma la linea hasta el LF. Formato exacto:
  * "RPM", un espacio y de 1 a 3 digitos decimales, con CR opcional antes del LF;
- * el valor debe estar entre 0 y TPI_RPM_MAX (185). Una linea con otro formato,
+ * el valor debe estar entre 0 y TPI_RPM_MAX (300). Una linea con otro formato,
  * fuera de rango o de mas de COMUNICACION_LINEA_MAX bytes se descarta entera
  * hasta su LF. Si llegaron varias consignas, entrega una por llamada, en orden.
  * @param[out] rpm Destino de la consigna en RPM; solo se escribe al retornar true.

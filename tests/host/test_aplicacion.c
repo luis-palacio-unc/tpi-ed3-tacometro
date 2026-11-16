@@ -182,7 +182,7 @@ static bool S5_AlarmaConHisteresis(void)
 static bool S6_ConsignasInvalidasYCero(void)
 {
     static const char *const invalidas[] = {
-        "RPM 186\n", "RPM x\n", "RPM 100 con texto de sobra\n", "RPM 1000\n", "rpm 100\n"
+        "RPM 301\n", "RPM x\n", "RPM 100 con texto de sobra\n", "RPM 1000\n", "rpm 100\n"
     };
     Arrancar(false);
     for (unsigned i = 0U; i < sizeof(invalidas) / sizeof(invalidas[0]); ++i) {
@@ -193,10 +193,10 @@ static bool S6_ConsignasInvalidasYCero(void)
     Fakes_Recibir("RPM 0\n");
     Periodo(0U);
     CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 0U);
-    Fakes_Recibir("RPM 50\r\nRPM 186\nRPM 100\n");
+    Fakes_Recibir("RPM 50\r\nRPM 301\nRPM 100\n");
     Periodo(0U);
     CHECK(fakes.motor == 400U);
-    Fakes_Recibir("RPM 186\n");
+    Fakes_Recibir("RPM 301\n");
     Periodo(0U);
     CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 500U);
     Fakes_Recibir("RPM 0\n");

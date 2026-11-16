@@ -103,7 +103,7 @@ modos MO2); (3) mando: MANUAL → potenciómetro; AUTO_ESPERA → 0; AUTO_ACTIVO
 
 #### Scenario: S10 — Consignas inválidas, cero y saturación (`i2.aplicacion` S6 y S7)
 - Given AUTO_ESPERA.
-- When llegan `RPM 186`, `RPM x`, una línea larga, `RPM 0`, varias en un periodo y
+- When llegan `RPM 301`, `RPM x`, una línea larga, `RPM 0`, varias en un periodo y
   `RPM 185` sostenida con el eje detenido.
 - Then las inválidas MUST ignorarse; `RPM 0` MUST dar AUTO_ACTIVO con mando 0;
   MUST valer la última válida del periodo; el mando MUST llegar a 1000 sin superarlo.

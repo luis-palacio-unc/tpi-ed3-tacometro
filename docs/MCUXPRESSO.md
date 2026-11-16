@@ -121,7 +121,8 @@ Hacerla en orden, con el motor desconectado hasta el paso 2.
    pasa de unas 185 RPM).
 5. **Automático.** Cerrar la llave (P2.6 a GND): `ESTADO=AUTO_ESPERA` y PWM en 0. Enviar
    `RPM 100`: pasa a `AUTO_ACTIVO` y la velocidad se acerca a 100. Frenar levemente el
-   eje y ver que el mando lo compensa. Se aceptan consignas de 0 a 185.
+   eje y ver que el mando lo compensa. Se aceptan consignas de 0 a 300;
+   por encima de lo que el motor alcanza el mando queda saturado en 100 %.
 6. **Alarma.** Calentar el LM335: por encima de 45,00 °C se encienden el LED (P0.22) y
    el buzzer (P2.7); se apagan al bajar a 43,00 °C o menos. La temperatura es el
    promedio de 4 lecturas, así que responde en unos 4 s.

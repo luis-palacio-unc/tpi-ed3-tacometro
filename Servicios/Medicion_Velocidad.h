@@ -40,7 +40,7 @@ void Medicion_Velocidad_Init(void);
  * @return true una vez por cada ventana de 1 s; false si todavia no cerro una
  * ventana nueva.
  * @pre Medicion_Velocidad_Init ejecutado; llamar desde el lazo principal.
- * @note USW.2.1.3.4. El true es el periodo del lazo de control. No recorta a 185 RPM.
+ * @note USW.2.1.3.4. El true es el periodo del lazo de control. No recorta a TPI_RPM_MAX.
  */
 bool Medicion_Velocidad_Actualizar(uint32_t *rpm_milesimas);
 

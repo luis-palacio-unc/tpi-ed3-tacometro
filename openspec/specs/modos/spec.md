@@ -1,6 +1,6 @@
 # Modos — contrato vigente
 
-Origen: R05/R06 y R14 (aclaración del usuario: máximo 185 RPM); interfaces de R03/R04. Contratos anteriores en el historial archivado.
+Origen: R05/R06 y R14 (aclaración del usuario: máximo 185 RPM; 300 RPM desde el 2026-11-16); interfaces de R03/R04. Contratos anteriores en el historial archivado.
 
 B18 (integración I1–I5) aceptado por el usuario el 2026-11-11 sobre e3d3bce; contrato
 sincronizado desde el delta del cambio. Verificado en host y por compilación/enlace ARM;
@@ -26,18 +26,18 @@ MANUAL; AUTOMATICO → AUTO_ESPERA; consigna 0 e integral del regulador en cero.
 Actualizar MUST aplicar, en orden: (1) modo MANUAL → MANUAL, consigna 0 e
 integral del regulador en cero (regulacion-velocidad RG3);
 (2) de MANUAL a modo AUTOMATICO → AUTO_ESPERA, descartando la consigna de esa
-llamada; (3) en AUTO_ESPERA/AUTO_ACTIVO, `hay_consigna` con valor 0..185 →
+llamada; (3) en AUTO_ESPERA/AUTO_ACTIVO, `hay_consigna` con valor 0..300 →
 AUTO_ACTIVO con esa consigna; un valor mayor MUST ignorarse sin alterar estado ni
 consigna. Sin consigna nueva MUST conservar estado y consigna.
 
 #### Scenario: S2 — Consigna activa (`i2.procesamiento`)
 - Given AUTO_ESPERA.
-- When llegan 100, nada, 0 y 185.
-- Then AUTO_ACTIVO con 100, 100, 0 y 185; un valor con `hay_consigna` false MUST ignorarse.
+- When llegan 100, nada, 0 y 300.
+- Then AUTO_ACTIVO con 100, 100, 0 y 300; un valor con `hay_consigna` false MUST ignorarse.
 
 #### Scenario: S3 — Fuera de rango (`i2.procesamiento`)
 - Given AUTO_ESPERA, y AUTO_ACTIVO con 184.
-- When llegan 186 o UINT32_MAX.
+- When llegan 301 o UINT32_MAX.
 - Then MUST seguir en AUTO_ESPERA con 0, o en AUTO_ACTIVO con 184.
 
 #### Scenario: S4 — Entrada en automático (`i2.procesamiento`)

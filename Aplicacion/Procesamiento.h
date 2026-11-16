@@ -44,7 +44,7 @@ Procesamiento_Estado Procesamiento_InicializarModo(Mandos_Modo modo);
  *    integral del regulador.
  * -# Al pasar de MANUAL a AUTOMATICO el estado es AUTO_ESPERA y la consigna de
  *    esta misma llamada se descarta: solo vale una consigna posterior al cambio.
- * -# En AUTO_ESPERA o AUTO_ACTIVO, una consigna de 0 a TPI_RPM_MAX (185) pasa a
+ * -# En AUTO_ESPERA o AUTO_ACTIVO, una consigna de 0 a TPI_RPM_MAX (300) pasa a
  *    AUTO_ACTIVO y reemplaza a la anterior; una mayor se ignora.
  * @param[in] modo Modo leido de la llave en este periodo.
  * @param[in] hay_consigna true si se recibio una consigna en este periodo.

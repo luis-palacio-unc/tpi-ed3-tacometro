@@ -37,8 +37,8 @@ static bool S1_ConsignasValidas(void)
     CHECK(UnaConsigna("RPM 0\n", 0U));
     CHECK(UnaConsigna("RPM 7\r\n", 7U));
     CHECK(UnaConsigna("RPM 100\n", 100U));
-    CHECK(UnaConsigna("RPM 184\n", 184U));
-    CHECK(UnaConsigna("RPM 185\r\n", 185U));
+    CHECK(UnaConsigna("RPM 299\n", 299U));
+    CHECK(UnaConsigna("RPM 300\r\n", 300U));
     CHECK(UnaConsigna("RPM 007\n", 7U));
     return true;
 }
@@ -46,7 +46,7 @@ static bool S1_ConsignasValidas(void)
 static bool S2_LineasInvalidas(void)
 {
     static const char *const invalidas[] = {
-        "RPM 186\n", "RPM 999\n", "RPM 1000\n", "RPM x\n", "RPM 1x\n", "RPM \n", "RPM\n",
+        "RPM 301\n", "RPM 999\n", "RPM 1000\n", "RPM x\n", "RPM 1x\n", "RPM \n", "RPM\n",
         "RPM  10\n", "rpm 10\n", "RPM=10\n", "RPM -1\n", "RPM 10 \n", " RPM 10\n", "\n", "\r\n",
         "RPM 10\r\r\n", "RPM 0100\n", "RPM 1850\r\n", "RPM 100 y mucho texto de mas\n", "XXXXXXXXXRPM 1\n"
     };
@@ -65,7 +65,7 @@ static bool S3_LineaPartidaYVarias(void)
     CHECK(Ninguna("RP"));
     CHECK(Ninguna("M 1"));
     CHECK(UnaConsigna("23\r\n", 123U));
-    Fakes_Recibir("RPM 10\nRPM 300\nRPM 20\r\nRPM 3");
+    Fakes_Recibir("RPM 10\nRPM 301\nRPM 20\r\nRPM 3");
     CHECK(Comunicacion_RecibirConsigna(&rpm) && rpm == 10U);
     CHECK(Comunicacion_RecibirConsigna(&rpm) && rpm == 20U);
     CHECK(!Comunicacion_RecibirConsigna(&rpm) && rpm == 20U);

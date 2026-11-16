@@ -23,7 +23,7 @@ MUST exponer `bool Medicion_Velocidad_Actualizar(uint32_t *rpm_milesimas)`. Si
 `Timer_ConsumirVentana` entrega una ventana MUST escribir pulsos × 60 000 × 1000 /
 (`TPI_MEDICION_PULSOS_POR_VUELTA` × `TPI_CONTROL_PERIODO_MS`) calculado en 64 bits,
 saturado en UINT32_MAX, y devolver true; si no, MUST devolver false sin escribir.
-MUST NOT recortar a 185 RPM. El retorno true es el periodo del lazo de control.
+MUST NOT recortar a TPI_RPM_MAX. El retorno true es el periodo del lazo de control.
 
 #### Scenario: S2 — Pulsos a milésimas de RPM (`i2.medicion_velocidad`)
 - Given ventanas de 0, 1, 100, 185, 186, 4 294 967, 4 294 968 y UINT32_MAX pulsos.

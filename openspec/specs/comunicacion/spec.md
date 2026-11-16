@@ -13,26 +13,26 @@ aceptación física en placa pendiente.
 `Servicios/Comunicacion` MUST exponer `void Comunicacion_Init(void)` (llama
 `UART3_Init` y vacía la línea) y `bool Comunicacion_RecibirConsigna(uint32_t *rpm)`.
 Ésta MUST consumir bytes con `UART_Read` y devolver true con cada línea completa
-`RPM`, un espacio, 1 a 3 dígitos decimales, CR opcional y LF, con valor 0..185
+`RPM`, un espacio, 1 a 3 dígitos decimales, CR opcional y LF, con valor 0..300
 (`TPI_RPM_MAX`); ceros a la izquierda permitidos. Toda otra línea, incluida la de
 más de 8 bytes antes del LF, MUST descartarse entera sin afectar a la siguiente.
 MUST entregar una consigna por llamada, en orden, conservar la línea parcial entre
 llamadas y devolver false, sin escribir el destino, cuando no quedan bytes.
 
 #### Scenario: S1 — Consignas válidas (`i2.comunicacion`)
-- Given `RPM 0`, `RPM 7`+CRLF, `RPM 100`, `RPM 184`, `RPM 185`+CRLF y `RPM 007`.
+- Given `RPM 0`, `RPM 7`+CRLF, `RPM 100`, `RPM 299`, `RPM 300`+CRLF y `RPM 007`.
 - When se recibe cada una.
-- Then MUST entregar 0, 7, 100, 184, 185 y 7, una vez cada una.
+- Then MUST entregar 0, 7, 100, 299, 300 y 7, una vez cada una.
 
 #### Scenario: S2 — Líneas inválidas (`i2.comunicacion`)
-- Given `RPM 186`, `RPM 999`, `RPM 1000`, `RPM x`, `RPM 1x`, `RPM `, `RPM`,
+- Given `RPM 301`, `RPM 999`, `RPM 1000`, `RPM x`, `RPM 1x`, `RPM `, `RPM`,
   dos espacios, minúsculas, `RPM=10`, `RPM -1`, espacio final o inicial, línea
   vacía, CR solo, doble CR y líneas largas.
 - When se recibe cada una seguida de `RPM 42`.
 - Then la inválida MUST NOT entregar consigna y `RPM 42` MUST entregarse.
 
 #### Scenario: S3 — Línea partida y varias (`i2.comunicacion`)
-- Given una consigna que llega en tres tramos, y `RPM 10`, `RPM 300`, `RPM 20` y
+- Given una consigna que llega en tres tramos, y `RPM 10`, `RPM 301`, `RPM 20` y
   un tramo parcial en una sola ráfaga.
 - When se llama repetidamente.
 - Then MUST entregar 123 al completarse; luego 10 y 20, y completar la parcial después.
