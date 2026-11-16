@@ -1,0 +1,73 @@
+\section{PROYECTO}
+
+El proyecto consiste en un \textbf{tacómetro digital con control de velocidad} para un
+motor de corriente continua con reductora, implementado sobre la placa de desarrollo
+OM13085 (LPCXpresso1769) con el microcontrolador LPC1769 de NXP.
+
+Sobre el eje del motor se monta un disco de 60 ranuras que interrumpe el haz de un
+sensor óptico de ranura. Contando los flancos que produce el sensor durante una ventana
+de tiempo fija, el sistema calcula la velocidad de giro en RPM. A partir de esa medición
+el motor puede operar en dos modos, que el usuario elige con una llave selectora:
+
+\begin{itemize}
+  \item \textbf{Modo manual:} la posición de un potenciómetro (perilla) fija directamente
+  el ciclo de trabajo de la señal PWM que alimenta al motor, de 0 a 100\,\%.
+  \item \textbf{Modo automático:} el usuario envía desde una computadora, por puerto serie,
+  una consigna de velocidad entre 0 y 185 RPM. Un regulador proporcional-integral (PI)
+  ajusta el PWM para que la velocidad medida siga a la consigna.
+\end{itemize}
+
+En paralelo, el sistema mide la temperatura ambiente con un sensor LM35. Si la
+temperatura supera los 45\,\textdegree C se activa una alarma visual (LED rojo) y acústica
+(buzzer), que se apaga recién cuando la temperatura baja a 43\,\textdegree C o menos.
+
+Cada 1s el equipo envía a la computadora una trama de telemetría con la velocidad
+medida, la temperatura y el estado de operación, de modo que el usuario puede supervisar
+el funcionamiento desde una terminal serie.
+
+\subsection{OBJETIVOS}
+
+\begin{itemize}
+  \item Medir la velocidad del eje con un sensor óptico y un disco de 60 ranuras,
+  usando un temporizador del microcontrolador como contador de eventos.
+  \item Accionar el motor mediante PWM, con mando manual por potenciómetro o regulación
+  automática a partir de una consigna recibida por UART.
+  \item Adquirir las señales analógicas (potenciómetro y LM35) con el ADC del
+  microcontrolador, transfiriendo los resultados a memoria mediante DMA.
+  \item Señalizar con prioridad una condición de sobretemperatura.
+  \item Informar periódicamente el estado del sistema a una computadora.
+  \item Organizar el firmware en capas (aplicación, servicios y dispositivos), de manera
+  que la lógica de la aplicación no dependa del hardware concreto.
+\end{itemize}
+
+\subsection{REQUISITOS}
+
+\begin{longtable}{|p{1.2cm}|p{12.4cm}|}
+\hline
+\textbf{ID} & \textbf{Requisito} \\ \hline
+\endhead
+R01 & Ejecutar el firmware sobre el LPC1769 de la placa OM13085. \\ \hline
+R02 & Medir la velocidad en RPM con un disco de 60 ranuras y un sensor óptico. \\ \hline
+R03 & En modo manual, el potenciómetro determina el ciclo de trabajo del PWM del motor. \\ \hline
+R04 & En modo automático, regular la velocidad según una consigna recibida por UART. \\ \hline
+R05 & Las fuentes de mando son excluyentes: en cada modo actúa una sola. \\ \hline
+R06 & Al entrar en modo automático el motor queda con PWM cero hasta recibir una consigna
+nueva y válida; no se reutilizan consignas anteriores al cambio de modo. \\ \hline
+R07 & Si la temperatura supera el umbral, encender el LED rojo y el buzzer. \\ \hline
+R08 & Adquirir potenciómetro y temperatura con ADC y DMA. \\ \hline
+R09 & Por UART, recibir consignas y transmitir velocidad, temperatura y estado. \\ \hline
+R10 & Firmware en tres capas; la aplicación accede al hardware sólo mediante servicios. \\ \hline
+R14 & Aceptar consignas de 0 a 185 RPM inclusive (velocidad máxima del motor con PWM al
+100\,\%). \\ \hline
+\end{longtable}
+
+\subsection{ALCANCE}
+
+El trabajo comprende el diseño del hardware de interconexión de los sensores y
+actuadores con la placa OM13085, y el desarrollo completo del firmware en lenguaje C. El
+firmware usa la biblioteca CMSIS y los drivers LPC17xx provistos por la cátedra sin
+modificarlos, y se compila tanto con MCUXpresso IDE como con CMake y la cadena GNU Arm.
+
+La interfaz de usuario en la computadora es una terminal serie estándar; no se desarrolla
+software específico para la PC. El sistema no detiene el motor por sobretemperatura: la
+alarma es sólo de señalización.

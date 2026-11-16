@@ -1,0 +1,68 @@
+% !TeX program = xelatex
+% Plantilla limpia basada en TEMPLATE_GUIA_TPI_EDIII.docx.
+% Compilar dos veces con XeLaTeX para actualizar el índice.
+\documentclass[11pt,a4paper]{article}
+\usepackage{fontspec}
+% Helvetica compatible mediante la familia PostScript de LaTeX.
+\usepackage[T1]{fontenc}
+\usepackage{helvet}
+\renewcommand{\familydefault}{phv}
+% Arial si esta instalada; si no, Liberation Sans (metricamente equivalente).
+\IfFontExistsTF{Arial}{\newfontfamily\fuenteTitulos{Arial}}{\newfontfamily\fuenteTitulos{Liberation Sans}}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage[left=30mm,right=30mm,top=25mm,bottom=25mm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{titlesec}
+\usepackage{indentfirst}
+\usepackage[hidelinks,bookmarksnumbered]{hyperref}
+\input{encabezado}
+% Marca visible para datos que todavia hay que completar o verificar.
+\newcommand{\pendiente}[1]{\textcolor{red}{[PENDIENTE: #1]}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{6pt}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\titleformat{\section}{\fuenteTitulos\fontsize{14}{17}\selectfont\bfseries}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\fuenteTitulos\fontsize{12}{15}\selectfont\bfseries}{\thesubsection.}{0.6em}{}
+\titleformat{\subsubsection}{\fuenteTitulos\fontsize{12}{15}\selectfont\bfseries}{\thesubsubsection.}{0.6em}{}
+\titlespacing*{\section}{0pt}{0pt}{18pt}
+\titlespacing*{\subsection}{0pt}{18pt}{8pt}
+\titlespacing*{\subsubsection}{0pt}{12pt}{8pt}
+% Datos de carátula: completar entre llaves.
+\newcommand{\TituloTrabajo}{TACÓMETRO DIGITAL CON CONTROL DE VELOCIDAD}
+\newcommand{\NumeroGrupo}{8}
+\newcommand{\Alumnos}{\pendiente{nombres de los integrantes}}
+\newcommand{\Profesor}{\pendiente{nombre del profesor}}
+\newcommand{\NumeroComision}{\pendiente{número}}
+\newcommand{\FechaEntrega}{\pendiente{fecha de entrega}}
+\begin{document}
+\thispagestyle{empty}
+\input{caratula}
+\clearpage
+\begingroup
+\renewcommand{\contentsname}{TABLA DE CONTENIDO}
+\titleformat{\section}[block]{\centering\fuenteTitulos\fontsize{14}{17}\selectfont\bfseries}{}{0pt}{}
+\tableofcontents
+\endgroup
+\clearpage
+\input{terminos}
+\clearpage
+\input{secciones/01-proyecto}
+\clearpage
+\input{secciones/02-descripcion}
+\clearpage
+\input{secciones/03-hardware}
+\clearpage
+\input{secciones/04-firmware}
+\clearpage
+\input{secciones/05-conclusiones}
+\clearpage
+\input{secciones/06-bibliografia}
+\clearpage
+\input{secciones/07-anexos}
+\end{document}

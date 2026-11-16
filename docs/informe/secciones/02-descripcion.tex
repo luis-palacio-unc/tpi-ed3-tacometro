@@ -1,0 +1,108 @@
+\section{DESCRIPCIÓN DEL SEP}
+
+El SEP se organiza en subsistemas electrónicos (SSE) alrededor de un único subsistema
+programable, el microcontrolador (SSEP.2.1). El diagrama de bloques completo se incluye
+en el Anexo A.
+
+\begin{longtable}{|p{2.2cm}|p{4.2cm}|p{8.2cm}|}
+\hline
+\textbf{Bloque} & \textbf{Nombre} & \textbf{Función} \\ \hline
+\endhead
+SSE.1 & Alimentación & Provee las tensiones de la placa de control y de la etapa de
+potencia del motor. \\ \hline
+SSE.2 / SSEP.2.1 & Control (LPC1769) & Ejecuta el firmware: adquiere las señales, decide
+el modo, regula la velocidad, acciona salidas y se comunica con la PC. \\ \hline
+SSE.3 & Interfaz con el usuario & Perilla (potenciómetro de 10\,k$\Omega$), llave
+selectora de modo, LED rojo, buzzer activo y terminal serie en la notebook. \\ \hline
+SSE.5 & Potencia y accionamiento & Driver del motor DC, comandado por la señal PWM, y
+motor DC con reductora. \\ \hline
+SSE.6 & Adquisición de señales & Sensor de temperatura LM35 y sensor óptico de ranura
+con disco de 60 ranuras. \\ \hline
+SSE.7 & Comunicación & Conversor USB--UART entre el microcontrolador y la notebook. \\ \hline
+\end{longtable}
+
+\subsection{FUNCIONAMIENTO GENERAL}
+
+Al encenderse, el microcontrolador configura el reloj a 100\,MHz, pone en marcha la
+adquisición analógica y espera la primera conversión del potenciómetro y del LM35. Luego
+deja el motor detenido y la alarma apagada, lee la llave selectora para fijar el modo
+inicial y comienza a medir la velocidad. Si la adquisición analógica no arranca, el
+sistema queda detenido con el motor en cero y la alarma encendida como aviso de falla.
+
+El funcionamiento posterior está marcado por una \textbf{ventana de medición de 500\,ms}.
+Al cerrarse cada ventana el firmware obtiene la cantidad de pulsos contados, calcula la
+velocidad y ejecuta, en este orden:
+
+\begin{enumerate}
+  \item \textbf{Alarma:} lee la temperatura (promedio de las últimas cuatro lecturas) y
+  enciende o apaga el LED rojo y el buzzer según el umbral con histéresis.
+  \item \textbf{Modo:} lee la llave selectora y las consignas recibidas por UART, y
+  actualiza el estado de operación.
+  \item \textbf{Mando:} calcula y aplica el ciclo de trabajo del PWM según el estado.
+  \item \textbf{Telemetría:} envía una trama con velocidad, temperatura y estado.
+\end{enumerate}
+
+En modo manual, además, la lectura del potenciómetro se aplica al motor en cada vuelta del
+lazo principal, para que la respuesta a la perilla sea inmediata.
+
+\subsection{ESTADOS DE OPERACIÓN}
+
+\begin{longtable}{|p{3.0cm}|p{11.6cm}|}
+\hline
+\textbf{Estado} & \textbf{Comportamiento} \\ \hline
+\endhead
+MANUAL & Llave en manual. El potenciómetro fija el PWM (0 a 1000 por mil). La consigna
+anterior y la integral del regulador se borran. \\ \hline
+AUTO\_ESPERA & Llave en automático sin consigna válida. El PWM es cero. Al pasar desde
+MANUAL se descarta todo lo recibido por UART antes del cambio. \\ \hline
+AUTO\_ACTIVO & Llave en automático con una consigna válida de 0 a 185 RPM. El regulador PI
+calcula el PWM cada 500\,ms. Una nueva consigna válida reemplaza a la anterior; una
+fuera de rango se ignora. \\ \hline
+\end{longtable}
+
+Las transiciones son: cualquier estado pasa a MANUAL con la llave en manual; MANUAL pasa a
+AUTO\_ESPERA con la llave en automático; AUTO\_ESPERA pasa a AUTO\_ACTIVO al recibir una
+consigna válida enviada después del cambio de modo.
+
+\subsection{PROTOCOLO DE COMUNICACIÓN CON LA PC}
+
+El enlace es UART a 9600 baudios, 8 bits de datos, sin paridad y 1 bit de parada (8N1),
+con texto ASCII.
+
+\textbf{Consigna (PC $\rightarrow$ SEP):} la palabra \texttt{RPM}, un espacio y de 1 a 3
+dígitos decimales, terminada en LF o CRLF. Se admiten ceros a la izquierda y valores de 0
+a 185. Una línea con otro formato, fuera de rango o demasiado larga se descarta completa.
+Ejemplo: \texttt{RPM 120}.
+
+\textbf{Telemetría (SEP $\rightarrow$ PC):} una línea cada 500\,ms, terminada en LF:
+
+\begin{center}
+\texttt{RPM=123.456;TEMP=25.34;ESTADO=MANUAL}
+\end{center}
+
+La velocidad se informa con tres decimales y la temperatura con dos (con signo si fuera
+negativa). El estado toma los valores \texttt{MANUAL}, \texttt{AUTO\_ESPERA} o
+\texttt{AUTO\_ACTIVO}. La trama más larga ocupa 53 bytes, lo que representa menos del
+6\,\% de la capacidad del enlace a 9600 baudios con una trama cada 500\,ms.
+
+\subsection{ASIGNACIÓN DE PINES}
+
+\begin{longtable}{|p{1.6cm}|p{2.6cm}|p{4.4cm}|p{5.6cm}|}
+\hline
+\textbf{Pin} & \textbf{Función} & \textbf{Periférico} & \textbf{Conexión} \\ \hline
+\endhead
+P0.23 & AD0.0 & ADC canal 0 & Cursor del potenciómetro \\ \hline
+P0.24 & AD0.1 & ADC canal 1 & Salida del LM35 \\ \hline
+P1.18 & CAP1.0 & TIMER1 (contador) & Salida del sensor óptico \\ \hline
+P2.1 & PWM1.2 & PWM1, canal 2 & Entrada PWM del driver del motor \\ \hline
+P2.6 & GPIO entrada & Pull-up interno & Llave selectora a GND \\ \hline
+P2.7 & GPIO salida & Activo por alto & Buzzer \\ \hline
+P0.22 & GPIO salida & Activo por bajo & LED rojo de la placa \\ \hline
+P0.0 & TXD3 & UART3 & RX del conversor USB--UART \\ \hline
+P0.1 & RXD3 & UART3 & TX del conversor USB--UART \\ \hline
+\end{longtable}
+
+Durante la puesta en marcha en placa se cambiaron dos asignaciones respecto del diseño
+original: la comunicación pasó de UART0 (P0.2/P0.3) a UART3 (P0.0/P0.1) por mal contacto
+de los pines originales, y la salida PWM pasó de PWM1.1 en P2.0, pin dañado, a PWM1.2 en
+P2.1.
