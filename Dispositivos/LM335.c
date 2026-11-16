@@ -59,7 +59,7 @@ static int32_t LM335_Convert(uint16_t muestra)
     return (int32_t)centesimas - LM335_CERO_CELSIUS_CENTESIMAS + LM335_AJUSTE_CENTESIMAS;
 }
 
-int32_t LM335_Read(void)
+int32_t getTemperatura(void)
 {
     return LM335_Convert((uint16_t)ADC_GDR_RESULT(ADC_DMA_LM335));
 }

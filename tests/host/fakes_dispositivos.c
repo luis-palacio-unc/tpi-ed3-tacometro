@@ -135,4 +135,4 @@ void Buzzer_Init(void) { Registrar("Buzzer_Init"); }
 void Buzzer_Write(bool activar) { fakes.buzzer = activar; ++fakes.buzzer_escrituras; }
 
 uint16_t Pot_Read(void) { return fakes.pot; }
-int32_t LM335_Read(void) { return fakes.lm335; }
+int32_t getTemperatura(void) { return fakes.lm335; }

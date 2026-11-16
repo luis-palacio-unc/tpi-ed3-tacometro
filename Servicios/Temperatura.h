@@ -21,7 +21,7 @@
 
 /**
  * @brief Tomar una lectura del LM335 y devolver el promedio de las ultimas cuatro.
- * @details Guarda LM335_Read en una ventana circular de TEMPERATURA_MUESTRAS
+ * @details Guarda getTemperatura en una ventana circular de TEMPERATURA_MUESTRAS
  * lecturas y devuelve su promedio entero. Las primeras llamadas promedian solo
  * las lecturas ya tomadas.
  * @return Temperatura en centesimas de grado Celsius (2500 = 25,00 grados).

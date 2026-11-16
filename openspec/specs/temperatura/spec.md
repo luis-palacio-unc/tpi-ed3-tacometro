@@ -12,7 +12,7 @@ aceptación física en placa pendiente.
 
 Cambio de sensor (2026-11-16): el LM35 del anteproyecto no se consiguió y se
 reemplazó por un LM335 en el mismo canal AD0.1/P0.24. El dispositivo pasó a
-llamarse `LM335` (`Dispositivos/LM335.h/.c`, `LM335_Read`, `ADC_DMA_LM335`) y su
+llamarse `LM335` (`Dispositivos/LM335.h/.c`, `getTemperatura`, `ADC_DMA_LM335`) y su
 conversión sigue TE6. Los valores de S2, S6 y S11 se recalcularon para ese modelo;
 los informes archivados conservan los nombres y valores del LM35.
 
@@ -68,7 +68,7 @@ Claude MUST distinguirse de pruebas nuevas ejecutadas sobre esta revisión.
 
 ### Requirement: TE5 — Lectura filtrada
 `Servicios/Temperatura` MUST exponer `int32_t Temperatura_Leer(void)`: toma
-`LM335_Read()` y devuelve el promedio entero (truncado) de las últimas 4 lecturas,
+`getTemperatura()` y devuelve el promedio entero (truncado) de las últimas 4 lecturas,
 en centésimas de °C; mientras haya menos de 4 MUST promediar las disponibles.
 
 #### Scenario: S9 — Arranque del filtro (`i2.temperatura` S1)
@@ -88,7 +88,7 @@ en centésimas de °C; mientras haya menos de 4 MUST promediar las disponibles.
 - Then MUST dar 2503, 3502, 3835, 4001 y 4501, sin modificar la muestra.
 
 ### Requirement: TE6 — Modelo del LM335
-`LM335_Read` MUST convertir con el modelo nominal de 10 mV/K: centésimas de kelvin =
+`getTemperatura` MUST convertir con el modelo nominal de 10 mV/K: centésimas de kelvin =
 código × ADC_VREF_MV × 10 / 4096 con redondeo al cercano y empate arriba; resultado
 = ese valor − 27315 + `LM335_AJUSTE_CENTESIMAS`, en `int32_t` con signo. El ajuste
 MUST definirse en `Configuracion/Analogica.h` con #ifndef, default 0 y #error fuera

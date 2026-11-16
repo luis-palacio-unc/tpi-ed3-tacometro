@@ -16,7 +16,7 @@ static uint32_t Temperatura_Siguiente;
 
 int32_t Temperatura_Leer(void)
 {
-    Temperatura_Lecturas[Temperatura_Siguiente] = LM335_Read();
+    Temperatura_Lecturas[Temperatura_Siguiente] = getTemperatura();
     Temperatura_Siguiente = (Temperatura_Siguiente + 1U) % TEMPERATURA_MUESTRAS;
     if (Temperatura_Cantidad < TEMPERATURA_MUESTRAS) {
         ++Temperatura_Cantidad;

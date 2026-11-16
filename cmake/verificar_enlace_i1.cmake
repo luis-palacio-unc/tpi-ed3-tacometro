@@ -53,7 +53,7 @@ int main(void)
             Buzzer_Write(Adquisicion_ADC_DMA_HayDatos());
         }
         if (UART_Read(recibidos, (uint32_t)sizeof(recibidos)) != 0U) {
-            observado = (uint32_t)Pot_Read() + (uint32_t)LM335_Read() + Timer_Read() +
+            observado = (uint32_t)Pot_Read() + (uint32_t)getTemperatura() + Timer_Read() +
                         SensorOptico_Read() + Adquisicion_ADC_DMA_ContarPares();
         }
     }
@@ -114,7 +114,7 @@ foreach(required_symbol Selector_Init Selector_Read LED_Init LED_Write Buzzer_In
         Buzzer_Write SensorOptico_Init SensorOptico_Read Motor_Init Motor_Write
         UART3_Init UART_Read UART_Write Timer_Init Timer_Start Timer_Read
         Timer_ConsumirVentana Adquisicion_ADC_DMA_Init Adquisicion_ADC_DMA_HayDatos
-        Adquisicion_ADC_DMA_ContarPares Pot_Read LM335_Read
+        Adquisicion_ADC_DMA_ContarPares Pot_Read getTemperatura
         TIMER0_IRQHandler UART3_IRQHandler DMA_IRQHandler Reloj_Init SystemInit
         SystemCoreClockUpdate)
     if(NOT symbols MATCHES "[0-9a-f]+ T ${required_symbol}[\r\n]")

@@ -28,7 +28,9 @@
  * @pre ADC_DMA_LM335 contiene la muestra del canal LM335, transferida en una palabra
  * de 32 bits alineada. ADC_VREF_MV corresponde a la referencia utilizada. La primera
  * adquisicion debe estar completa, sin escritores CPU concurrentes en ejecucion.
- * @note USW.2.1.11.3. Una consulta volatile y conversion entera; no inicia ADC/DMA,
+ * @note El nombre no menciona el modelo del sensor: quien la llama (Temperatura.c)
+ * no cambia si se reemplaza el dispositivo por otro que entregue centesimas Celsius.
+ * USW.2.1.11.3. Una consulta volatile y conversion entera; no inicia ADC/DMA,
  * espera, valida flags/canal o modifica la muestra. Sin cache ni estados adicionales.
  * Durante actualizacion puede devolver la muestra anterior o nueva. No acredita edad,
  * coherencia multicanal, rango electrico o conexion del sensor: una entrada a 0 V
@@ -37,7 +39,7 @@
  * El error aritmetico del redondeo es <=0,005 grados, no la precision fisica; el
  * LM335 sin calibrar se aparta varios grados y se corrige con LM335_AJUSTE_CENTESIMAS.
  */
-int32_t LM335_Read(void);
+int32_t getTemperatura(void);
 
 /** @} */
 #endif /* TPI_LM335_H */

@@ -451,7 +451,7 @@ inicia otro bloque. Cadencia real y pruebas físicas pendientes.
 
 El LM35 del anteproyecto no se consiguió; se usa un LM335 en el mismo canal
 AD0.1/P0.24, con el mismo ADC en ráfaga y DMA. El dispositivo se llama ahora
-Dispositivos/LM335.h/.c (`LM335_Read`, `ADC_DMA_LM335`); las secciones anteriores y
+Dispositivos/LM335.h/.c (`getTemperatura`, `ADC_DMA_LM335`); las secciones anteriores y
 los informes archivados conservan el nombre LM35 como historial.
 
 El LM335 entrega 10 mV/K (2,7315 V a 0 °C): la conversión resta 273,15 K y suma

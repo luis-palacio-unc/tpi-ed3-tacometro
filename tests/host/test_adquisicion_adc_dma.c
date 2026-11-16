@@ -234,7 +234,7 @@ static bool IsrMarcaParesCompletos(void)
     DMA_IRQHandler();
     CHECK(!tc_activo && limpiezas_tc == 1U);
     CHECK(Adquisicion_ADC_DMA_HayDatos() && Adquisicion_ADC_DMA_ContarPares() == 1U);
-    CHECK(Pot_Read() == 2048U && LM335_Read() == 2503);
+    CHECK(Pot_Read() == 2048U && getTemperatura() == 2503);
     CHECK(ADC_DMA_Pot == UINT32_C(0x80008000) && ADC_DMA_LM335 == UINT32_C(0x8100E750));
     for (unsigned i = 0U; i < 5U; ++i) { tc_activo = true; DMA_IRQHandler(); }
     CHECK(Adquisicion_ADC_DMA_HayDatos() && Adquisicion_ADC_DMA_ContarPares() == 6U);

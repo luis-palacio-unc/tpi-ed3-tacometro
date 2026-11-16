@@ -451,7 +451,7 @@ en este documento son historial de los bloques B13 y B15. Contratos vigentes en
 
 Cambio de sensor (2026-11-16): no se consiguió el LM35 y se reemplazó por un LM335
 (10 mV/K) en el mismo AD0.1/P0.24. El dispositivo pasó a `Dispositivos/LM335.h/.c`
-(`LM335_Read`, `ADC_DMA_LM335`); la conversión resta 273,15 K y suma
+(`getTemperatura`, `ADC_DMA_LM335`); la conversión resta 273,15 K y suma
 `LM335_AJUSTE_CENTESIMAS` de `Configuracion/Analogica.h`, por lo que la lectura
 puede ser negativa. Montaje indicado por Claude, sin medir: 2,2 kΩ desde 5 V, 1 kΩ
 en serie al pin. Las menciones anteriores al LM35 en este documento son historial de

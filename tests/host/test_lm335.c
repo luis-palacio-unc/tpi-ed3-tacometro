@@ -55,7 +55,7 @@ static bool ValoresYCampos(void)
         for (size_t j = 0U; j < sizeof(campos) / sizeof(campos[0]); ++j) {
             const uint32_t palabra = casos[i].palabra | campos[j];
             ADC_DMA_LM335 = palabra;
-            CHECK(LM335_Read() == casos[i].esperado);
+            CHECK(getTemperatura() == casos[i].esperado);
             CHECK(ADC_DMA_LM335 == palabra);
         }
     }
@@ -67,7 +67,7 @@ static bool EscalaConfigurada(void)
     const Referencia *ref = ReferenciaActual();
     CHECK(ref != NULL);
     ADC_DMA_LM335 = UINT32_C(0x00004000);
-    CHECK(LM335_Read() == ref->codigo1024);
+    CHECK(getTemperatura() == ref->codigo1024);
     CHECK(ADC_DMA_LM335 == UINT32_C(0x00004000));
     CHECK(LM335_CENTESIMAS_POR_GRADO == 100U);
     return true;
@@ -78,7 +78,7 @@ static bool Redondeo(void)
     const Referencia *ref = ReferenciaActual();
     CHECK(ref != NULL);
     ADC_DMA_LM335 = UINT32_C(0x00000800);
-    CHECK(LM335_Read() == ref->codigo128);
+    CHECK(getTemperatura() == ref->codigo128);
     CHECK(ADC_DMA_LM335 == UINT32_C(0x00000800));
     return true;
 }
@@ -95,8 +95,8 @@ static bool ActualizacionYRepeticion(void)
     };
     for (size_t i = 0U; i < sizeof(casos) / sizeof(casos[0]); ++i) {
         ADC_DMA_LM335 = casos[i].palabra;
-        CHECK(LM335_Read() == casos[i].esperado);
-        CHECK(LM335_Read() == casos[i].esperado);
+        CHECK(getTemperatura() == casos[i].esperado);
+        CHECK(getTemperatura() == casos[i].esperado);
         CHECK(ADC_DMA_LM335 == casos[i].palabra);
     }
     return true;
@@ -115,11 +115,11 @@ static bool PuntosFisicos(void)
     };
     for (size_t i = 0U; i < sizeof(casos) / sizeof(casos[0]); ++i) {
         ADC_DMA_LM335 = casos[i].codigo << 4U;
-        CHECK(LM335_Read() == casos[i].esperado);
+        CHECK(getTemperatura() == casos[i].esperado);
     }
 #else
     ADC_DMA_LM335 = 0U;
-    CHECK(LM335_Read() == -27315 + (LM335_AJUSTE_CENTESIMAS));
+    CHECK(getTemperatura() == -27315 + (LM335_AJUSTE_CENTESIMAS));
 #endif
     return true;
 }
@@ -130,7 +130,7 @@ static int EmitirTabla(void)
     for (uint32_t codigo = 0U; codigo < 4096U; ++codigo) {
         const uint32_t palabra = (codigo << 4U) | UINT32_C(0xFFFF000F);
         ADC_DMA_LM335 = palabra;
-        const int32_t temperatura = LM335_Read();
+        const int32_t temperatura = getTemperatura();
         if (ADC_DMA_LM335 != palabra) {
             return 1;
         }

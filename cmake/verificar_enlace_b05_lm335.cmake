@@ -17,7 +17,7 @@ file(WRITE "${OUTPUT_DIR}/main_fixture.c" [=[
 int main(void)
 {
     ADC_DMA_LM335 = UINT32_C(0xFFFFE75F);
-    return LM335_Read() == 2503 && Temperatura_Leer() == 2503 ? 0 : 1;
+    return getTemperatura() == 2503 && Temperatura_Leer() == 2503 ? 0 : 1;
 }
 ]=])
 execute_process(COMMAND "${TOOL_PREFIX}gcc"
@@ -48,7 +48,7 @@ execute_process(COMMAND "${TOOL_PREFIX}nm" --defined-only "${OUTPUT_DIR}/fixture
 if(NOT result EQUAL 0)
     message(FATAL_ERROR "No se pudieron inspeccionar simbolos B05: ${errors}")
 endif()
-foreach(required_symbol LM335_Read ADC_DMA_LM335 Temperatura_Leer)
+foreach(required_symbol getTemperatura ADC_DMA_LM335 Temperatura_Leer)
     if(NOT symbols MATCHES "[ \t]${required_symbol}[\r\n]")
         message(FATAL_ERROR "API/auxiliar B05 eliminado o ausente: ${required_symbol}")
     endif()
