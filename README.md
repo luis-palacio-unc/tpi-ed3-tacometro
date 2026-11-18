@@ -231,7 +231,7 @@ una instantánea lógica propia: RPM en milésimas, temperatura en centésimas C
 validez independiente y estado MANUAL/AUTO_ESPERA/AUTO_ACTIVO. Genera, por ejemplo:
 
 ```text
-RPM=123.456;TEMP=25.34;ESTADO=MANUAL
+RPM=123.456;TEMP=25.34;PWM=50;ESTADO=MANUAL
 ```
 
 LF termina la trama; NUL adicional no cuenta en longitud. ND/ERR representan

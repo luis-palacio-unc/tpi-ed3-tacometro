@@ -54,7 +54,7 @@ no inicializar el resto y devolver false; `main()` MUST quedar detenido.
 - Then el orden de inicialización de dispositivos MUST ser Reloj, ADC/DMA, Motor,
   LED, Buzzer, Selector, UART3, Sensor óptico, Timer_Init, Timer_Start; mando 0,
   alarma apagada, sin tramas entre ventanas y trama
-  `RPM=0.000;TEMP=25.00;ESTADO=AUTO_ESPERA\n`.
+  `RPM=0.000;TEMP=25.00;PWM=0;ESTADO=AUTO_ESPERA\n`.
 
 #### Scenario: S5 — Fallo de arranque (`i2.aplicacion` S8)
 - Given ADC/DMA que rechaza el canal.
@@ -78,7 +78,7 @@ modos MO2); (3) mando: MANUAL → potenciómetro; AUTO_ESPERA → 0; AUTO_ACTIVO
 - Given AUTO_ESPERA y ganancias por defecto (Kp 4/1000, Ki 1/1000).
 - When llega `RPM 100\n` y se cierran ventanas con 0 y luego 100 pulsos.
 - Then estado AUTO_ACTIVO con mando 400 y luego 100; trama
-  `RPM=100.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n`. La consigna MUST NOT aplicarse
+  `RPM=100.000;TEMP=25.00;PWM=10;ESTADO=AUTO_ACTIVO\n`. La consigna MUST NOT aplicarse
   antes de cerrar la ventana.
 
 #### Scenario: S7 — Manual entre periodos (`i2.aplicacion` S3)

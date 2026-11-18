@@ -266,7 +266,7 @@ B02-R1–R4, amplía B02-R5 y agrega CT1–CT4. Publicación del cierre autoriza
 Comunicacion_CodificarTelemetria (USW.2.1.7.7) recibe instantánea const y enums propios,
 buffer/capacidad y longitud. La aplicación reunirá magnitudes B03/B05 y estado B01;
 adaptación sólo en pruebas/fixture por ahora, sin cambiar Procesamiento o main.
-Formato ASCII RPM=valor;TEMP=valor;ESTADO=MANUAL/AUTO_ESPERA/AUTO_ACTIVO, terminado LF.
+Formato ASCII RPM=valor;TEMP=valor;PWM=0..100;ESTADO=MANUAL/AUTO_ESPERA/AUTO_ACTIVO, terminado LF.
 RPM conserva tres decimales y temperatura dos/signo; ND/ERR distintos de cero.
 Máximo 53 bytes de trama, 54 con NUL; longitud excluye NUL. Punteros/enums/capacidad
 en esa prioridad; error limpia longitud y primer byte si escribibles, sin otros bytes
@@ -467,3 +467,10 @@ son historial de B17/B18. Contratos: `openspec/specs/timer`, `medicion-velocidad
 Consigna máxima (2026-11-16): el usuario cambió R14 de 185 a 300 RPM
 (`TPI_RPM_MAX` en `Configuracion/Limites.h`). Sólo valida consignas; el máximo
 medido del motor (~185 RPM a PWM 100 %) es un dato físico aparte, sin medición nueva.
+
+## Telemetría con PWM (2026-11-18)
+A pedido del usuario la trama pasó a `RPM=n.ddd;TEMP=[-]n.dd;PWM=n;ESTADO=...`, con `PWM` el
+ciclo de trabajo aplicado en % entero (0..100, redondeado desde el mando por mil). Cambia la
+firma de `Comunicacion_EnviarTelemetria` (nuevo parámetro `mando_por_mil`) y la trama más
+larga pasa de 53 a 61 bytes (`COMUNICACION_TELEMETRIA_MAX`). Las menciones anteriores del
+formato en specs archivadas y en este documento son historial.

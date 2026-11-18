@@ -48,24 +48,27 @@ retira sin interpretar todos los bytes pendientes de `UART_Read`.
 
 ### Requirement: CO3 — Telemetría
 MUST exponer `bool Comunicacion_EnviarTelemetria(uint32_t rpm_milesimas, int32_t
-temperatura_centesimas, Comunicacion_Estado estado)`. MUST entregar a `UART_Write`
-exactamente `RPM=<n>.<3 dígitos>;TEMP=[-]<n>.<2 dígitos>;ESTADO=MANUAL|AUTO_ESPERA|
-AUTO_ACTIVO\n` (formato B09 con datos válidos), sin ceros a la izquierda en la
-parte entera, sin NUL, de 53 bytes como máximo. MUST devolver true sólo si la
+temperatura_centesimas, uint16_t mando_por_mil, Comunicacion_Estado estado)`. MUST entregar a `UART_Write`
+exactamente `RPM=<n>.<3 dígitos>;TEMP=[-]<n>.<2 dígitos>;PWM=<n>;ESTADO=MANUAL|
+AUTO_ESPERA|AUTO_ACTIVO\n` (formato B09 más el campo `PWM`, agregado el 2026-11-18),
+sin ceros a la izquierda en la parte entera, sin NUL, de 61 bytes como máximo.
+`PWM` es el ciclo de trabajo entero de 0 a 100 %: `(min(mando, 1000) + 5) / 10`. MUST devolver true sólo si la
 UART aceptó la trama completa. Sin float ni libc. `ND`/`ERR` dejan de existir.
 
 #### Scenario: S5 — Trama exacta (`i2.comunicacion`)
-- Given (0; 0; MANUAL), (100000; 2500; AUTO_ACTIVO), (2000; 4501; AUTO_ESPERA),
-  (185007; 5), (1; −50), (12340; −1234), (UINT32_MAX; INT32_MIN) y (0; INT32_MAX).
+- Given (rpm; temperatura; mando; estado): (0; 0; 0; MANUAL), (100000; 2500; 1000;
+  AUTO_ACTIVO), (2000; 4501; 4; AUTO_ESPERA), (185007; 5; 500), (1; −50; 5),
+  (12340; −1234; 994), (12340; −1234; 995), (0; 0; 1001), (0; 0; UINT16_MAX),
+  (UINT32_MAX; INT32_MIN; 1000) y (0; INT32_MAX; 0).
 - When se envía.
-- Then MUST escribirse `RPM=0.000;TEMP=0.00;ESTADO=MANUAL\n`,
-  `RPM=100.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n`,
-  `RPM=2.000;TEMP=45.01;ESTADO=AUTO_ESPERA\n`, `RPM=185.007;TEMP=0.05;…`,
-  `RPM=0.001;TEMP=-0.50;…`, `RPM=12.340;TEMP=-12.34;…`,
-  `RPM=4294967.295;TEMP=-21474836.48;ESTADO=AUTO_ACTIVO\n` (53 bytes) y
-  `RPM=0.000;TEMP=21474836.47;…`.
+- Then MUST escribirse `RPM=0.000;TEMP=0.00;PWM=0;ESTADO=MANUAL\n`,
+  `RPM=100.000;TEMP=25.00;PWM=100;ESTADO=AUTO_ACTIVO\n`,
+  `RPM=2.000;TEMP=45.01;PWM=0;ESTADO=AUTO_ESPERA\n`, `…PWM=50…`, `…PWM=1…`, `…PWM=99…`,
+  `…PWM=100…` (tres veces: 995, 1001 y UINT16_MAX),
+  `RPM=4294967.295;TEMP=-21474836.48;PWM=100;ESTADO=AUTO_ACTIVO\n` (61 bytes) y
+  `RPM=0.000;TEMP=21474836.47;PWM=0;…`.
 
 #### Scenario: S6 — Sin lugar en transmisión (`i2.comunicacion`)
-- Given una UART que acepta 33 o 34 bytes y una trama de 34.
+- Given una UART que acepta 39 o 40 bytes y una trama de 40.
 - When se envía.
-- Then MUST devolver false con 33 y true con 34.
+- Then MUST devolver false con 39 y true con 40.

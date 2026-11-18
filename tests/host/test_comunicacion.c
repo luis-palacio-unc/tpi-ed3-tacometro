@@ -90,11 +90,11 @@ static bool S4_Descartar(void)
     return true;
 }
 
-static bool Trama(uint32_t rpm, int32_t temperatura, Comunicacion_Estado estado,
+static bool Trama(uint32_t rpm, int32_t temperatura, uint16_t mando, Comunicacion_Estado estado,
                   const char *esperada)
 {
     Fakes_VaciarTx();
-    CHECK(Comunicacion_EnviarTelemetria(rpm, temperatura, estado));
+    CHECK(Comunicacion_EnviarTelemetria(rpm, temperatura, mando, estado));
     CHECK(strcmp(fakes.tx, esperada) == 0 && fakes.tx_bytes == strlen(esperada));
     return true;
 }
@@ -102,31 +102,38 @@ static bool Trama(uint32_t rpm, int32_t temperatura, Comunicacion_Estado estado,
 static bool S5_TelemetriaExacta(void)
 {
     Preparar();
-    CHECK(Trama(0U, 0, COMUNICACION_ESTADO_MANUAL, "RPM=0.000;TEMP=0.00;ESTADO=MANUAL\n"));
-    CHECK(Trama(100000U, 2500, COMUNICACION_ESTADO_AUTO_ACTIVO,
-                "RPM=100.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n"));
-    CHECK(Trama(2000U, 4501, COMUNICACION_ESTADO_AUTO_ESPERA,
-                "RPM=2.000;TEMP=45.01;ESTADO=AUTO_ESPERA\n"));
-    CHECK(Trama(185007U, 5, COMUNICACION_ESTADO_MANUAL, "RPM=185.007;TEMP=0.05;ESTADO=MANUAL\n"));
-    CHECK(Trama(1U, -50, COMUNICACION_ESTADO_MANUAL, "RPM=0.001;TEMP=-0.50;ESTADO=MANUAL\n"));
-    CHECK(Trama(12340U, -1234, COMUNICACION_ESTADO_MANUAL, "RPM=12.340;TEMP=-12.34;ESTADO=MANUAL\n"));
-    CHECK(Trama(UINT32_MAX, INT32_MIN, COMUNICACION_ESTADO_AUTO_ACTIVO,
-                "RPM=4294967.295;TEMP=-21474836.48;ESTADO=AUTO_ACTIVO\n"));
+    CHECK(Trama(0U, 0, 0U, COMUNICACION_ESTADO_MANUAL, "RPM=0.000;TEMP=0.00;PWM=0;ESTADO=MANUAL\n"));
+    CHECK(Trama(100000U, 2500, 1000U, COMUNICACION_ESTADO_AUTO_ACTIVO,
+                "RPM=100.000;TEMP=25.00;PWM=100;ESTADO=AUTO_ACTIVO\n"));
+    CHECK(Trama(2000U, 4501, 4U, COMUNICACION_ESTADO_AUTO_ESPERA,
+                "RPM=2.000;TEMP=45.01;PWM=0;ESTADO=AUTO_ESPERA\n"));
+    CHECK(Trama(185007U, 5, 500U, COMUNICACION_ESTADO_MANUAL,
+                "RPM=185.007;TEMP=0.05;PWM=50;ESTADO=MANUAL\n"));
+    CHECK(Trama(1U, -50, 5U, COMUNICACION_ESTADO_MANUAL, "RPM=0.001;TEMP=-0.50;PWM=1;ESTADO=MANUAL\n"));
+    CHECK(Trama(12340U, -1234, 994U, COMUNICACION_ESTADO_MANUAL,
+                "RPM=12.340;TEMP=-12.34;PWM=99;ESTADO=MANUAL\n"));
+    CHECK(Trama(12340U, -1234, 995U, COMUNICACION_ESTADO_MANUAL,
+                "RPM=12.340;TEMP=-12.34;PWM=100;ESTADO=MANUAL\n"));
+    CHECK(Trama(0U, 0, 1001U, COMUNICACION_ESTADO_MANUAL, "RPM=0.000;TEMP=0.00;PWM=100;ESTADO=MANUAL\n"));
+    CHECK(Trama(0U, 0, UINT16_MAX, COMUNICACION_ESTADO_MANUAL, "RPM=0.000;TEMP=0.00;PWM=100;ESTADO=MANUAL\n"));
+    CHECK(Trama(UINT32_MAX, INT32_MIN, 1000U, COMUNICACION_ESTADO_AUTO_ACTIVO,
+                "RPM=4294967.295;TEMP=-21474836.48;PWM=100;ESTADO=AUTO_ACTIVO\n"));
     CHECK(fakes.tx_bytes == COMUNICACION_TELEMETRIA_MAX);
-    CHECK(Trama(0U, INT32_MAX, COMUNICACION_ESTADO_MANUAL, "RPM=0.000;TEMP=21474836.47;ESTADO=MANUAL\n"));
+    CHECK(Trama(0U, INT32_MAX, 0U, COMUNICACION_ESTADO_MANUAL,
+                "RPM=0.000;TEMP=21474836.47;PWM=0;ESTADO=MANUAL\n"));
     return true;
 }
 
 static bool S6_SinLugarEnTransmision(void)
 {
     Preparar();
-    fakes.tx_libres = 33U;
-    CHECK(!Comunicacion_EnviarTelemetria(0U, 0, COMUNICACION_ESTADO_MANUAL));
-    CHECK(fakes.tx_bytes == 33U);
-    fakes.tx_libres = 34U;
+    fakes.tx_libres = 39U;
+    CHECK(!Comunicacion_EnviarTelemetria(0U, 0, 0U, COMUNICACION_ESTADO_MANUAL));
+    CHECK(fakes.tx_bytes == 39U);
+    fakes.tx_libres = 40U;
     fakes.tx_bytes = 0U;
-    CHECK(Comunicacion_EnviarTelemetria(0U, 0, COMUNICACION_ESTADO_MANUAL));
-    CHECK(fakes.tx_bytes == 34U);
+    CHECK(Comunicacion_EnviarTelemetria(0U, 0, 0U, COMUNICACION_ESTADO_MANUAL));
+    CHECK(fakes.tx_bytes == 40U);
     return true;
 }
 

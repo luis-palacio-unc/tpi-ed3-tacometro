@@ -151,7 +151,7 @@ void Comunicacion_Descartar(void)
 }
 
 bool Comunicacion_EnviarTelemetria(uint32_t rpm_milesimas, int32_t temperatura_centesimas,
-                                   Comunicacion_Estado estado)
+                                   uint16_t mando_por_mil, Comunicacion_Estado estado)
 {
     char trama[COMUNICACION_TELEMETRIA_MAX];
     size_t posicion = 0U;
@@ -164,6 +164,9 @@ bool Comunicacion_EnviarTelemetria(uint32_t rpm_milesimas, int32_t temperatura_c
     } else {
         AgregarFijo(trama, &posicion, (uint32_t)temperatura_centesimas, 100U);
     }
+    AgregarTexto(trama, &posicion, ";PWM=");
+    const uint32_t mando = mando_por_mil > 1000U ? 1000U : mando_por_mil;
+    AgregarEntero(trama, &posicion, (mando + 5U) / 10U);
     AgregarTexto(trama, &posicion, ";ESTADO=");
     AgregarTexto(trama, &posicion, estado == COMUNICACION_ESTADO_MANUAL ? "MANUAL" :
                  (estado == COMUNICACION_ESTADO_AUTO_ESPERA ? "AUTO_ESPERA" : "AUTO_ACTIVO"));

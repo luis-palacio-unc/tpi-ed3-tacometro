@@ -108,7 +108,7 @@ Hacerla en orden, con el motor desconectado hasta el paso 2.
    Si es `false`, el ADC/DMA no entregó el primer par y quedan LED y buzzer activos.
 2. **PWM.** Llave abierta (MANUAL). Osciloscopio en P2.1: 1 kHz, y el ciclo de trabajo
    sigue al potenciómetro (P0.23) de 0 a 100 %.
-3. **Telemetría.** Cada 1 s llega `RPM=<n>.<3d>;TEMP=<n>.<2d>;ESTADO=MANUAL`. La
+3. **Telemetría.** Cada 1 s llega `RPM=<n>.<3d>;TEMP=<n>.<2d>;PWM=<0..100>;ESTADO=MANUAL`. La
    temperatura debe ser la ambiente (LM335 en P0.24). El LM335 se polariza con
    2,2 kΩ desde 5 V a su terminal `+`, `−` a GND y `ADJ` sin conectar; el `+` va a
    P0.24 a través de 1 kΩ (limita la corriente si el sensor se desconecta y el nodo

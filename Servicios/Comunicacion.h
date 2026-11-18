@@ -2,7 +2,7 @@
  * @file Comunicacion.h
  * @brief Enlace con la PC: recepcion de consignas y envio de telemetria ASCII.
  * @details Consigna: "RPM n" terminada en LF o CRLF. Telemetria: una linea
- * "RPM=...;TEMP=...;ESTADO=..." por periodo.
+ * "RPM=...;TEMP=...;PWM=...;ESTADO=..." por periodo.
  * @note ESW.2.1.7. Usa el dispositivo UART (UART3, 9600 8N1).
  */
 #ifndef TPI_COMUNICACION_H
@@ -20,7 +20,7 @@
 /** @brief Bytes maximos de una consigna antes del LF: "RPM 300" mas CR opcional. */
 #define COMUNICACION_LINEA_MAX 8U
 /** @brief Bytes de la trama de telemetria mas larga posible, con su LF. */
-#define COMUNICACION_TELEMETRIA_MAX 53U
+#define COMUNICACION_TELEMETRIA_MAX 61U
 
 /** @brief Estado de operacion informado en la telemetria. */
 typedef enum {
@@ -66,20 +66,23 @@ void Comunicacion_Descartar(void);
 /**
  * @brief Enviar una trama de telemetria.
  * @details Formato fijo, sin espacios y terminado en LF:
- * RPM=n.ddd;TEMP=[-]n.dd;ESTADO=MANUAL|AUTO_ESPERA|AUTO_ACTIVO. La parte entera
+ * RPM=n.ddd;TEMP=[-]n.dd;PWM=n;ESTADO=MANUAL|AUTO_ESPERA|AUTO_ACTIVO. La parte entera
  * no lleva ceros a la izquierda. La entrega a UART_Write, que no espera.
  * @param[in] rpm_milesimas Velocidad en milesimas de RPM (100000 se envia 100.000).
  * @param[in] temperatura_centesimas Temperatura en centesimas de grado Celsius
  * (2500 se envia 25.00; -50 se envia -0.50).
+ * @param[in] mando_por_mil Mando aplicado al motor, de 0 a 1000 por mil; se envia como
+ * ciclo de trabajo entero de 0 a 100 por ciento, redondeado al mas cercano (5 se envia 1;
+ * un valor mayor que 1000 se envia 100).
  * @param[in] estado Estado de operacion a informar.
  * @return true si la trama entro completa en el buffer de transmision; false si
  * no habia lugar suficiente y quedo truncada.
  * @pre Comunicacion_Init ejecutado; llamar desde el lazo principal.
- * @note USW.2.1.7.14. Una trama por periodo de 1 s ocupa menos del 3 por
- * ciento de la capacidad del enlace a 9600 baudios.
+ * @note USW.2.1.7.14. Una trama por periodo de 1 s (unos 48 bytes) ocupa cerca del
+ * 5 por ciento de la capacidad del enlace a 9600 baudios.
  */
 bool Comunicacion_EnviarTelemetria(uint32_t rpm_milesimas, int32_t temperatura_centesimas,
-                                   Comunicacion_Estado estado);
+                                   uint16_t mando_por_mil, Comunicacion_Estado estado);
 
 /** @} */
 #endif /* TPI_COMUNICACION_H */

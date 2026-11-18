@@ -59,9 +59,10 @@ static void Aplicacion_Periodo(uint32_t rpm_milesimas)
         Comunicacion_Descartar();
     }
 
-    Driver_Motor_Aplicar(Aplicacion_CalcularMando(rpm_milesimas));
+    const uint16_t mando = Aplicacion_CalcularMando(rpm_milesimas);
+    Driver_Motor_Aplicar(mando);
 
-    (void)Comunicacion_EnviarTelemetria(rpm_milesimas, temperatura,
+    (void)Comunicacion_EnviarTelemetria(rpm_milesimas, temperatura, mando,
         Aplicacion_Estado == PROCESAMIENTO_MANUAL ? COMUNICACION_ESTADO_MANUAL :
         (Aplicacion_Estado == PROCESAMIENTO_AUTO_ESPERA ? COMUNICACION_ESTADO_AUTO_ESPERA :
                                                           COMUNICACION_ESTADO_AUTO_ACTIVO));

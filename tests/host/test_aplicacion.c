@@ -60,17 +60,17 @@ static bool S1_ArranqueEnAutomatico(void)
     }
     CHECK(fakes.motor_escrituras == 1U && fakes.tx_bytes == 0U);
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=0;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
     CHECK(!fakes.led && !fakes.buzzer);
     Fakes_Recibir("RPM 100\n");
     Aplicacion_Iterar();
     CHECK(fakes.motor == 0U);
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 400U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=40;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 400U);
     Periodo(100U);
-    CHECK(Tx("RPM=100.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 100U);
+    CHECK(Tx("RPM=100.000;TEMP=25.00;PWM=10;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 100U);
     Periodo(1U);
-    CHECK(Tx("RPM=1.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n"));
+    CHECK(Tx("RPM=1.000;TEMP=25.00;PWM=50;ESTADO=AUTO_ACTIVO\n"));
     return true;
 }
 
@@ -80,20 +80,20 @@ static bool S2_ConsignaDelCambioDeModoSeDescarta(void)
     fakes.pot = 2048U;
     Fakes_Recibir("RPM 50\n");
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=MANUAL\n") && fakes.motor == 500U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=50;ESTADO=MANUAL\n") && fakes.motor == 500U);
     fakes.selector = false;
     Fakes_Recibir("RPM 100\nRPM 1");
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=0;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
     Fakes_Recibir("20\n");
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=0;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
     fakes.pot = 4095U;
     Aplicacion_Iterar();
     CHECK(fakes.motor == 0U);
     Fakes_Recibir("RPM 100\n");
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 400U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=40;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 400U);
     return true;
 }
 
@@ -113,9 +113,9 @@ static bool S3_ManualSigueAlPotenciometro(void)
     fakes.pot = 4095U;
     Fakes_Recibir("RPM 100\n");
     Periodo(100U);
-    CHECK(Tx("RPM=100.000;TEMP=25.00;ESTADO=MANUAL\n") && fakes.motor == 1000U);
+    CHECK(Tx("RPM=100.000;TEMP=25.00;PWM=100;ESTADO=MANUAL\n") && fakes.motor == 1000U);
     Periodo(184U);
-    CHECK(Tx("RPM=184.000;TEMP=25.00;ESTADO=MANUAL\n") && fakes.motor == 1000U);
+    CHECK(Tx("RPM=184.000;TEMP=25.00;PWM=100;ESTADO=MANUAL\n") && fakes.motor == 1000U);
     CHECK(fakes.motor_rechazos == 0U);
     return true;
 }
@@ -133,16 +133,16 @@ static bool S4_VolverAAutomaticoEsperaConsignaNueva(void)
     fakes.selector = true;
     fakes.pot = 2048U;
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=MANUAL\n") && fakes.motor == 500U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=50;ESTADO=MANUAL\n") && fakes.motor == 500U);
     fakes.selector = false;
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=0;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
     Aplicacion_Iterar();
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=0;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
     Fakes_Recibir("RPM 100\n");
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 400U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=40;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 400U);
     Periodo(0U);
     CHECK(fakes.motor == 500U);
     return true;
@@ -166,16 +166,16 @@ static bool S5_AlarmaConHisteresis(void)
     fakes.pot = 2048U;
     CHECK(Mantener(4500, false, false));
     CHECK(Mantener(4501, false, true));
-    CHECK(Tx("RPM=0.000;TEMP=45.01;ESTADO=MANUAL\n") && fakes.motor == 500U);
+    CHECK(Tx("RPM=0.000;TEMP=45.01;PWM=50;ESTADO=MANUAL\n") && fakes.motor == 500U);
     CHECK(Mantener(4400, true, true));
     CHECK(Mantener(4304, true, true));
     CHECK(Mantener(4300, true, false));
-    CHECK(Tx("RPM=0.000;TEMP=43.00;ESTADO=MANUAL\n"));
+    CHECK(Tx("RPM=0.000;TEMP=43.00;PWM=50;ESTADO=MANUAL\n"));
     CHECK(Mantener(4400, false, false));
     CHECK(Mantener(4500, false, false));
     fakes.selector = false;
     CHECK(Mantener(4600, true, true));
-    CHECK(Tx("RPM=0.000;TEMP=46.00;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
+    CHECK(Tx("RPM=0.000;TEMP=46.00;PWM=0;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
     return true;
 }
 
@@ -188,17 +188,17 @@ static bool S6_ConsignasInvalidasYCero(void)
     for (unsigned i = 0U; i < sizeof(invalidas) / sizeof(invalidas[0]); ++i) {
         Fakes_Recibir(invalidas[i]);
         Periodo(0U);
-        CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
+        CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=0;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
     }
     Fakes_Recibir("RPM 0\n");
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 0U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=0;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 0U);
     Fakes_Recibir("RPM 50\r\nRPM 301\nRPM 100\n");
     Periodo(0U);
     CHECK(fakes.motor == 400U);
     Fakes_Recibir("RPM 301\n");
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 500U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=50;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 500U);
     Fakes_Recibir("RPM 0\n");
     Periodo(0U);
     CHECK(fakes.motor == 0U);
