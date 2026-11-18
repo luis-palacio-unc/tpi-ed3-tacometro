@@ -19,7 +19,7 @@
  * @{
  */
 
-/** @brief Cuentas de TC por ventana: 1000 con base de 1 ms. */
+/** @brief Cuentas de TC por ventana: 500 con base de 1 ms. */
 #define TIMER_TICKS_VENTANA (TPI_CONTROL_PERIODO_MS / TIMER_BASE_MS)
 /** @brief Prioridad NVIC de TIMER0, la mas alta de las tres ISR propias. */
 #define TIMER_PRIORIDAD_IRQ 1U

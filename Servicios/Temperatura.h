@@ -26,7 +26,7 @@
  * las lecturas ya tomadas.
  * @return Temperatura en centesimas de grado Celsius (2500 = 25,00 grados).
  * @pre Sistema_Init devolvio true: ya hay una conversion real del LM335.
- * @note USW.2.1.4.3. Una llamada por periodo de 1 s da un filtro de 4 s.
+ * @note USW.2.1.4.3. Una llamada por periodo de 500 ms da un filtro de 2 s.
  * Guarda estado propio; llamar solo desde el lazo principal.
  */
 int32_t Temperatura_Leer(void);

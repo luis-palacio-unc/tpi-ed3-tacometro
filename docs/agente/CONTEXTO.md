@@ -474,3 +474,7 @@ ciclo de trabajo aplicado en % entero (0..100, redondeado desde el mando por mil
 firma de `Comunicacion_EnviarTelemetria` (nuevo parámetro `mando_por_mil`) y la trama más
 larga pasa de 53 a 61 bytes (`COMUNICACION_TELEMETRIA_MAX`). Las menciones anteriores del
 formato en specs archivadas y en este documento son historial.
+
+Rama experimental `exp-500ms` (2026-11-18): se deshace el cambio a 1 s y
+`TPI_CONTROL_PERIODO_MS` vuelve a 500 ms (1 pulso = 2 RPM), sólo para el ensayo de
+identificación del motor; `main` conserva 1 s. Las menciones a 1 s de arriba valen para `main`.

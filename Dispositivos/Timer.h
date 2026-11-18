@@ -63,7 +63,7 @@ uint32_t Timer_Read(void);
 
 /**
  * @brief Retirar, una sola vez, los pulsos de la ultima ventana completa.
- * @details El ISR de TIMER0 cierra una ventana cada TPI_CONTROL_PERIODO_MS (1 s)
+ * @details El ISR de TIMER0 cierra una ventana cada TPI_CONTROL_PERIODO_MS (500 ms)
  * y guarda la diferencia modulo 2^32 del conteo del sensor optico. Si el lazo no
  * consulta a tiempo y se cierran dos o mas ventanas, solo se conserva la mas
  * reciente: las anteriores se descartan sin sumarse, de modo que el valor entregado

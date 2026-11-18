@@ -47,7 +47,7 @@ uint16_t Mandos_LeerManual(void);
  * @return MANDOS_MODO_MANUAL o MANDOS_MODO_AUTOMATICO.
  * @pre Mandos_Init ejecutado.
  * @note USW.2.1.5.8. Sin antirrebote propio: la aplicacion la consulta una vez por
- * periodo de 1 s, mucho mayor que el rebote de un contacto.
+ * periodo de 500 ms, mucho mayor que el rebote de un contacto.
  */
 Mandos_Modo Mandos_LeerModo(void);
 

@@ -26,9 +26,9 @@ saturado en UINT32_MAX, y devolver true; si no, MUST devolver false sin escribir
 MUST NOT recortar a TPI_RPM_MAX. El retorno true es el periodo del lazo de control.
 
 #### Scenario: S2 — Pulsos a milésimas de RPM (`i2.medicion_velocidad`)
-- Given ventanas de 0, 1, 100, 185, 186, 4 294 967, 4 294 968 y UINT32_MAX pulsos.
+- Given ventanas de 0, 1, 50, 92, 93, 2 147 483, 2 147 484 y UINT32_MAX pulsos.
 - When se actualiza.
-- Then MUST dar 0, 1000, 100 000, 185 000, 186 000, 4 294 967 000 y UINT32_MAX en
+- Then MUST dar 0, 2000, 100 000, 184 000, 186 000, 4 294 966 000 y UINT32_MAX en
   los dos últimos.
 
 #### Scenario: S3 — Una vez por ventana (`i2.medicion_velocidad`)

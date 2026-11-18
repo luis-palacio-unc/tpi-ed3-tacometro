@@ -24,7 +24,7 @@ static Procesamiento_Estado Aplicacion_Estado;
  * PI con la consigna vigente. AUTO_ESPERA: cero.
  * @param[in] rpm_milesimas Velocidad medida en la ultima ventana.
  * @return Mando de 0 a 1000 por mil.
- * @note USW.2.1.1.4. Unidad interna; una llamada por periodo de 1 s.
+ * @note USW.2.1.1.4. Unidad interna; una llamada por periodo de 500 ms.
  */
 static uint16_t Aplicacion_CalcularMando(uint32_t rpm_milesimas)
 {
@@ -38,7 +38,7 @@ static uint16_t Aplicacion_CalcularMando(uint32_t rpm_milesimas)
 }
 
 /**
- * @brief Ejecutar el periodo de control de 1 s.
+ * @brief Ejecutar el periodo de control de 500 ms.
  * @details Alarma, modo, mando y telemetria, en ese orden; ver Aplicacion_Iterar.
  * @param[in] rpm_milesimas Velocidad medida en la ventana que acaba de cerrar.
  * @note USW.2.1.1.5. Unidad interna.

@@ -16,7 +16,7 @@ def main():
     source.write_text('#include "Control.h"\n#include <stdio.h>\nint main(void) {\n printf("%u %u %u %u %u\\n", (unsigned)TPI_CONTROL_KP_NUM,\n(unsigned)TPI_CONTROL_KP_DEN,(unsigned)TPI_CONTROL_KI_NUM,(unsigned)TPI_CONTROL_KI_DEN,\n(unsigned)TPI_CONTROL_PERIODO_MS); return 0; }\n')
     names=["TPI_CONTROL_KP_NUM","TPI_CONTROL_KP_DEN","TPI_CONTROL_KI_NUM","TPI_CONTROL_KI_DEN",
            "TPI_CONTROL_PERIODO_MS"]
-    positives=[None,(1,1,1,1,1000),(1000,1000,1000,1000,1000),(1000,1,1000,1,1000)]
+    positives=[None,(1,1,1,1,500),(1000,1000,1000,1000,500),(1000,1,1000,1,500)]
     records=[]
     def compile_one(label,defines):
         binary=a.evidencia/label
@@ -33,11 +33,11 @@ def main():
         result=subprocess.run([str(binary)],text=True,capture_output=True,check=False)
         assert result.returncode==0,result.stderr
         (a.evidencia/("positive"+str(i)+"-run.log")).write_text(result.stdout+result.stderr)
-        assert tuple(map(int,result.stdout.split()))==(values or (4,1000,1,1000,1000))
+        assert tuple(map(int,result.stdout.split()))==(values or (4,1000,1,1000,500))
     negatives=[]
     for name in names[:4]:
         negatives.extend((name,v) for v in (0,-1,1001,"UINT32_MAX"))
-    negatives.extend((names[4],v) for v in (999,500))
+    negatives.extend((names[4],v) for v in (499,1000))
     assert len(negatives)==18
     for i,(name,value) in enumerate(negatives):
         p,_=compile_one("negative"+str(i),{name:value})

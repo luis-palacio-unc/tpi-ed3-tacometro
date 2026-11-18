@@ -15,7 +15,7 @@
  * @details Orden: Sistema_Init (reloj y ADC/DMA); Driver_Motor_Init y mando cero;
  * Driver_Alarmas_Init y alarma apagada; Mandos_Init; Comunicacion_Init; modo
  * inicial segun la llave, que tambien deja el regulador PI en cero;
- * Medicion_Velocidad_Init al final, para que la primera ventana de 1 s empiece
+ * Medicion_Velocidad_Init al final, para que la primera ventana de 500 ms empiece
  * con todo listo. Si Sistema_Init falla, deja el motor en cero, enciende la
  * alarma como aviso y no inicializa el resto.
  * @return true si el sistema quedo listo para iterar; false si fallo el arranque
@@ -29,7 +29,7 @@ bool Aplicacion_Inicializar(void);
  * @brief Ejecutar una vuelta del lazo principal, sin esperas.
  * @details En cada vuelta, si el estado es MANUAL, aplica al motor la lectura del
  * potenciometro. Cuando el servicio de medicion entrega una velocidad nueva (una
- * vez cada 1 s) ejecuta el periodo de control, en este orden:
+ * vez cada 500 ms) ejecuta el periodo de control, en este orden:
  * -# Alarma: temperatura filtrada, decision con histeresis, LED y buzzer.
  * -# Modo: llave y consignas recibidas (vale la ultima). Al pasar de MANUAL a
  *    automatico descarta la recepcion pendiente.

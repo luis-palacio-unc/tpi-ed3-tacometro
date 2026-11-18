@@ -462,15 +462,14 @@ serie hacia P0.24. Sin sensor la lectura satura y activa la alarma; con 0 V se
 informa −273,15 °C. Verificado en host y por enlace ARM; sin probar en placa.
 Ver [contrato vigente](openspec/specs/temperatura/spec.md), TE6.
 
-## Ventana de medición de 1 s
+## Ventana de medición: rama experimental de 500 ms
 
-`TPI_CONTROL_PERIODO_MS` pasó de 500 a 1000 ms (2026-11-16): los pulsos de las RPM
-se cuentan en ventanas de 1 s, con lo que cada pulso vale 1 RPM con el disco de 60
-ranuras. La ventana es también el período del lazo: telemetría, alarma, modos y un
-paso del regulador ocurren una vez por segundo, y el promedio de temperatura abarca
-4 s. Las ganancias por paso de Control.h no se cambiaron; la respuesta en automático
-tarda el doble en tiempo. Las menciones anteriores a 500 ms en este documento son
-historial. Verificado en host y por enlace ARM; sin probar en placa.
+En la rama `exp-500ms` (2026-11-18) `TPI_CONTROL_PERIODO_MS` vuelve a 500 ms (se deshace
+el cambio a 1 s del 2026-11-16) para tener más puntos del transitorio en el ensayo de
+identificación del motor: cada pulso vale 2 RPM con el disco de 60 ranuras, telemetría,
+alarma, modos y un paso del regulador ocurren cada 500 ms y el promedio de temperatura
+abarca 2 s. Las ganancias por paso de Control.h no se cambiaron. En `main` la ventana
+sigue siendo de 1 s. Verificado en host y por enlace ARM; sin probar en placa.
 
 ## Consigna máxima de 300 RPM
 

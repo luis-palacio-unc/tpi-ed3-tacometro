@@ -65,7 +65,7 @@ no inicializar el resto y devolver false; `main()` MUST quedar detenido.
 ### Requirement: SI4 — Lazo cooperativo
 En cada vuelta, con estado MANUAL, Iterar MUST aplicar al motor
 `Mandos_LeerManual()`. Cuando `Medicion_Velocidad_Actualizar` entrega una medición
-(cada 1 s) MUST ejecutar, en orden: (1) alarma: `Temperatura_Leer` →
+(cada 500 ms) MUST ejecutar, en orden: (1) alarma: `Temperatura_Leer` →
 `Procesamiento_EvaluarAlarma` → `Driver_Alarmas_Aplicar`; (2) modo:
 `Mandos_LeerModo`, todas las consignas pendientes (vale la última) y
 `Procesamiento_ActualizarModo`; al pasar de MANUAL a AUTO_ESPERA,
@@ -76,7 +76,7 @@ modos MO2); (3) mando: MANUAL → potenciómetro; AUTO_ESPERA → 0; AUTO_ACTIVO
 
 #### Scenario: S6 — Consigna y regulación (`i2.aplicacion` S1)
 - Given AUTO_ESPERA y ganancias por defecto (Kp 4/1000, Ki 1/1000).
-- When llega `RPM 100\n` y se cierran ventanas con 0 y luego 100 pulsos.
+- When llega `RPM 100\n` y se cierran ventanas con 0 y luego 50 pulsos.
 - Then estado AUTO_ACTIVO con mando 400 y luego 100; trama
   `RPM=100.000;TEMP=25.00;PWM=10;ESTADO=AUTO_ACTIVO\n`. La consigna MUST NOT aplicarse
   antes de cerrar la ventana.

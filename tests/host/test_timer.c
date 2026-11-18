@@ -118,10 +118,10 @@ static bool InicializacionAcordada(void)
     Preparar();
     const Evento esperado[] = {EV_INIT_TIMER, EV_CONFIG_MATCH};
     uint32_t pulsos = UINT32_C(0xDEADBEEF);
-    CHECK(TPI_CONTROL_PERIODO_MS == 1000U && TIMER_BASE_MS == 1U);
+    CHECK(TPI_CONTROL_PERIODO_MS == 500U && TIMER_BASE_MS == 1U);
     CHECK(eventos_total == 2U && memcmp(eventos, esperado, sizeof(esperado)) == 0);
     CHECK(base_vista.prescaleOpt == TIM_US && base_vista.prescaleValue == 1000U);
-    CHECK(match_visto.channel == TIM_MATCH_0 && match_visto.matchValue == 1000U);
+    CHECK(match_visto.channel == TIM_MATCH_0 && match_visto.matchValue == 500U);
     CHECK(match_visto.intEn == ENABLE && match_visto.resetEn == DISABLE);
     CHECK(match_visto.stopEn == DISABLE && match_visto.extOpt == TIM_NOTHING);
     CHECK(!nvic_habilitada_en_config && nvic.deshabilitaciones == 1U);
@@ -144,7 +144,7 @@ static bool ArranqueTomaReferenciaDelSensor(void)
     sensor = 12345U;
     Timer_Start();
     CHECK(eventos_total == 4U && memcmp(eventos, esperado, sizeof(esperado)) == 0);
-    CHECK(en_marcha && arranques == 1U && lecturas_sensor == 1U && mr0 == 1000U);
+    CHECK(en_marcha && arranques == 1U && lecturas_sensor == 1U && mr0 == 500U);
     CerrarVentana(12345U + 60U);
     CHECK(Timer_ConsumirVentana(&pulsos) && pulsos == 60U && !error_modelo);
     return true;
@@ -154,14 +154,14 @@ static bool LecturaEnMilisegundosConCuentaLibre(void)
 {
     Preparar();
     Timer_Start();
-    const uint32_t marcas[] = {0U, 1U, 999U, 1000U, 1001U, 123456U, UINT32_MAX};
+    const uint32_t marcas[] = {0U, 1U, 499U, 500U, 501U, 123456U, UINT32_MAX};
     for (size_t i = 0U; i < sizeof(marcas) / sizeof(marcas[0]); ++i) {
         tc = marcas[i];
         CHECK(Timer_Read() == marcas[i] && tc == marcas[i]);
     }
-    CHECK(lecturas_tc == 7U && limpiezas == 0U && actualizaciones == 0U && mr0 == 1000U);
+    CHECK(lecturas_tc == 7U && limpiezas == 0U && actualizaciones == 0U && mr0 == 500U);
     CerrarVentana(0U);
-    CHECK(tc == 1000U && Timer_Read() == 1000U && mr0 == 2000U && !error_modelo);
+    CHECK(tc == 500U && Timer_Read() == 500U && mr0 == 1000U && !error_modelo);
     return true;
 }
 
@@ -176,30 +176,30 @@ static bool VentanaSeConsumeUnaSolaVez(void)
     CerrarVentana(1060U);
     const Evento esperado[] = {EV_ESTADO, EV_SENSOR, EV_LIMPIAR, EV_MATCH};
     CHECK(eventos_total == 4U && memcmp(eventos, esperado, sizeof(esperado)) == 0);
-    CHECK(!flag_mr0 && limpiezas == 1U && actualizaciones == 1U && mr0 == 2000U);
+    CHECK(!flag_mr0 && limpiezas == 1U && actualizaciones == 1U && mr0 == 1000U);
     CHECK(Timer_ConsumirVentana(&pulsos) && pulsos == 60U);
     pulsos = UINT32_C(0xDEADBEEF);
     CHECK(!Timer_ConsumirVentana(&pulsos) && pulsos == UINT32_C(0xDEADBEEF));
     CerrarVentana(1060U);
     CHECK(Timer_ConsumirVentana(&pulsos) && pulsos == 0U);
-    CHECK(!Timer_ConsumirVentana(&pulsos) && mr0 == 3000U && !error_modelo);
+    CHECK(!Timer_ConsumirVentana(&pulsos) && mr0 == 1500U && !error_modelo);
     return true;
 }
 
-static bool MatchAvanzaDeAMilYDaLaVuelta(void)
+static bool MatchAvanzaDeAQuinientosYDaLaVuelta(void)
 {
     Preparar();
     Timer_Start();
     for (uint32_t ventana = 1U; ventana <= 8U; ++ventana) {
-        CHECK(mr0 == 1000U * ventana);
+        CHECK(mr0 == 500U * ventana);
         CerrarVentana(ventana);
     }
-    CHECK(actualizaciones == 8U && limpiezas == 8U && mr0 == 9000U);
+    CHECK(actualizaciones == 8U && limpiezas == 8U && mr0 == 4500U);
     Timer_ProximoMatch = UINT32_MAX - 299U; mr0 = UINT32_MAX - 299U;
     CerrarVentana(9U);
-    CHECK(mr0 == 700U && Timer_ProximoMatch == 700U);
+    CHECK(mr0 == 200U && Timer_ProximoMatch == 200U);
     CerrarVentana(10U);
-    CHECK(mr0 == 1700U && !error_modelo);
+    CHECK(mr0 == 700U && !error_modelo);
     return true;
 }
 
@@ -231,7 +231,7 @@ static bool VentanaPerdidaConservaLaMasReciente(void)
     CHECK(!Timer_ConsumirVentana(&pulsos) && pulsos == UINT32_C(0xDEADBEEF));
     CerrarVentana(190U); CerrarVentana(200U); CerrarVentana(207U);
     CHECK(Timer_ConsumirVentana(&pulsos) && pulsos == 7U);
-    CHECK(!Timer_ConsumirVentana(&pulsos) && mr0 == 6000U && !error_modelo);
+    CHECK(!Timer_ConsumirVentana(&pulsos) && mr0 == 3000U && !error_modelo);
     return true;
 }
 
@@ -243,7 +243,7 @@ static bool IsrSinFlagNoPublica(void)
     uint32_t pulsos = UINT32_C(0xDEADBEEF);
     sensor = 99U;
     TIMER0_IRQHandler();
-    CHECK(lecturas_sensor == 1U && limpiezas == 0U && actualizaciones == 0U && mr0 == 1000U);
+    CHECK(lecturas_sensor == 1U && limpiezas == 0U && actualizaciones == 0U && mr0 == 500U);
     CHECK(!Timer_ConsumirVentana(&pulsos) && pulsos == UINT32_C(0xDEADBEEF));
     CerrarVentana(100U);
     CHECK(Timer_ConsumirVentana(&pulsos) && pulsos == 60U && !error_modelo);
@@ -284,12 +284,12 @@ static bool ReinicializarAbreEpocaNueva(void)
     uint32_t pulsos = UINT32_C(0xDEADBEEF);
     CerrarVentana(70U);
     Timer_Init();
-    CHECK(mr0 == 1000U && !en_marcha && nvic.habilitada[TIMER0_IRQn]);
+    CHECK(mr0 == 500U && !en_marcha && nvic.habilitada[TIMER0_IRQn]);
     CHECK(!Timer_ConsumirVentana(&pulsos) && pulsos == UINT32_C(0xDEADBEEF));
     sensor = 500U;
     Timer_Start();
     CerrarVentana(512U);
-    CHECK(Timer_ConsumirVentana(&pulsos) && pulsos == 12U && mr0 == 2000U && !error_modelo);
+    CHECK(Timer_ConsumirVentana(&pulsos) && pulsos == 12U && mr0 == 1000U && !error_modelo);
     return true;
 }
 
@@ -300,7 +300,7 @@ int main(void)
         {"I1 ArranqueTomaReferenciaDelSensor", ArranqueTomaReferenciaDelSensor},
         {"WT2 LecturaEnMilisegundosConCuentaLibre", LecturaEnMilisegundosConCuentaLibre},
         {"I1 VentanaSeConsumeUnaSolaVez", VentanaSeConsumeUnaSolaVez},
-        {"I1 MatchAvanzaDeAMilYDaLaVuelta", MatchAvanzaDeAMilYDaLaVuelta},
+        {"I1 MatchAvanzaDeAQuinientosYDaLaVuelta", MatchAvanzaDeAQuinientosYDaLaVuelta},
         {"I1 ConteoDeSensorDaLaVuelta", ConteoDeSensorDaLaVuelta},
         {"I1 VentanaPerdidaConservaLaMasReciente", VentanaPerdidaConservaLaMasReciente},
         {"I1 IsrSinFlagNoPublica", IsrSinFlagNoPublica},

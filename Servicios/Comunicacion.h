@@ -78,8 +78,8 @@ void Comunicacion_Descartar(void);
  * @return true si la trama entro completa en el buffer de transmision; false si
  * no habia lugar suficiente y quedo truncada.
  * @pre Comunicacion_Init ejecutado; llamar desde el lazo principal.
- * @note USW.2.1.7.14. Una trama por periodo de 1 s (unos 48 bytes) ocupa cerca del
- * 5 por ciento de la capacidad del enlace a 9600 baudios.
+ * @note USW.2.1.7.14. Una trama por periodo de 500 ms (unos 48 bytes) ocupa cerca del
+ * 10 por ciento de la capacidad del enlace a 9600 baudios.
  */
 bool Comunicacion_EnviarTelemetria(uint32_t rpm_milesimas, int32_t temperatura_centesimas,
                                    uint16_t mando_por_mil, Comunicacion_Estado estado);
