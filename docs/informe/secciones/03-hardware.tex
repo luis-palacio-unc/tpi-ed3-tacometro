@@ -1,0 +1,140 @@
+\section{ARQUITECTURA Y DISEÑO DE HARDWARE}
+
+El hardware se construye alrededor de la placa OM13085 (LPCXpresso1769, revisión D2), que
+incluye el microcontrolador, el cristal de 12\,MHz, el regulador de 3,3\,V, el LED RGB y la
+sonda CMSIS-DAP para programación y depuración por USB. A la placa se conectan los
+sensores, los mandos del usuario, la etapa de potencia del motor y el conversor serie. El
+diagrama de bloques se incluye en el Anexo A.
+
+\subsection{ETAPA DE ALIMENTACIÓN}
+
+La placa de control (SSE.2) se alimenta desde el puerto USB de la sonda CMSIS-DAP; el
+regulador de la propia placa genera los 3,3\,V del microcontrolador, que también alimentan
+al potenciómetro. La tensión de referencia del ADC (VREFP) es la de 3,3\,V de la placa.
+
+La etapa de potencia del motor y el buzzer trabajan con 5\,V.
+\pendiente{indicar la fuente de 5\,V utilizada (USB, fuente externa, corriente máxima)
+y la tensión de alimentación del LM35 y del sensor óptico}. Todas las masas son comunes.
+
+\subsection{ETAPA DE CONTROL}
+
+\subsubsection{DESCRIPCIÓN SSEP.2.1 (MICROCONTROLADOR)}
+
+El SSEP.2.1 es el LPC1769 de NXP: núcleo ARM Cortex-M3, 512\,kB de memoria flash y 64\,kB
+de SRAM. El firmware configura el PLL0 a partir del oscilador principal de 12\,MHz para
+obtener un reloj de CPU (CCLK) de 100\,MHz, con un tiempo de acceso a flash de cinco
+ciclos. Todos los periféricos usan PCLK = CCLK/4 = 25\,MHz.
+
+La siguiente tabla resume los periféricos utilizados y su configuración.
+
+\begin{longtable}{|p{2.4cm}|p{12.2cm}|}
+\hline
+\textbf{Periférico} & \textbf{Uso y configuración} \\ \hline
+\endhead
+TIMER0 & Base de tiempos de 1\,ms (prescaler PR = 24999). El match MR0 interrumpe cada
+500 cuentas, sin reiniciar el contador, y cierra la ventana de medición de velocidad.
+Interrupción con prioridad 1 (la más alta). \\ \hline
+TIMER1 & Modo contador de flancos ascendentes en CAP1.0 (P1.18): cuenta los pulsos del
+sensor óptico sin intervención de la CPU. \\ \hline
+PWM1 & Contador a 1\,MHz (PR = 24) y MR0 = 1000: frecuencia de 1\,kHz con 1000 pasos de
+resolución. El canal 2 (P2.1), en modo flanco simple, recibe el mando en MR2, de modo que
+cada unidad por mil equivale a un paso. \\ \hline
+ADC & Modo ráfaga sobre los canales AD0.0 (potenciómetro) y AD0.1 (LM35), 12 bits. Con
+CLKDIV = 255 el reloj del ADC es de 97,7\,kHz: unas 1526 conversiones por segundo, 763
+pares de muestras por segundo. \\ \hline
+GPDMA & Canal 0 en modo periférico a memoria, disparado por el ADC, con una lista enlazada
+circular de dos descriptores: AD0DR0 hacia la muestra del potenciómetro y AD0DR1 hacia la
+del LM35. Interrumpe (prioridad 3) al completar cada par. \\ \hline
+UART3 & 9600 baudios, 8N1, FIFO habilitadas. Recepción y transmisión por interrupción
+(prioridad 2) con buffers circulares de 64 y 128 bytes. \\ \hline
+GPIO & Entrada de la llave selectora (P2.6) y salidas del LED rojo (P0.22) y del buzzer
+(P2.7). \\ \hline
+\end{longtable}
+
+La programación y depuración se realizan con la sonda CMSIS-DAP integrada en la placa.
+La imagen Release compilada con MCUXpresso ocupa unos 10\,kB de flash y 360\,bytes de SRAM
+estática, sin contar la pila, muy por debajo de la capacidad del microcontrolador.
+
+\subsection{INTERFAZ DE USUARIO}
+
+\textbf{Perilla (SSE.3.1).} Potenciómetro de 10\,k$\Omega$ conectado entre 3,3\,V y GND,
+con el cursor en P0.23 (AD0.0). El ADC de 12 bits entrega de 0 a 4095 cuentas, que el
+firmware convierte en un mando de 0 a 1000 por mil con redondeo al más cercano.
+
+\textbf{Llave selectora (SSE.3.2).} Contacto entre P2.6 y GND, con la resistencia de
+pull-up interna del pin habilitada. Llave abierta (nivel alto) corresponde a modo MANUAL y
+llave cerrada (nivel bajo) a modo AUTOMÁTICO. Como el firmware la consulta una vez cada
+500\,ms, mucho más que la duración del rebote de un contacto, no hace falta antirrebote
+adicional.
+
+\textbf{Alarma visual (SSE.3.3).} Se usa el LED rojo del LED RGB de la placa OM13085,
+conectado a P0.22. Es de ánodo común, por lo que se enciende con nivel bajo.
+
+\textbf{Alarma acústica (SSE.3.4).} Buzzer activo de 5\,V comandado por P2.7, activo por
+alto. Como el pin entrega 3,3\,V y una corriente limitada, el buzzer se conecta mediante
+una etapa de conmutación. \pendiente{describir la etapa del buzzer: transistor, resistencia
+de base y diodo, si corresponde}.
+
+\textbf{Interfaz en la notebook (SSE.3.5).} Una terminal serie (por ejemplo, PuTTY,
+minicom o el monitor serie del IDE) configurada a 9600 baudios 8N1, en la que el usuario
+escribe las consignas y lee la telemetría.
+
+\subsection{ETAPA DE AISLACIÓN}
+
+El diseño no incorpora una etapa de aislación galvánica: la placa de control, los sensores
+y la etapa de potencia comparten la masa. Se consideró aceptable porque el motor es de
+baja potencia y trabaja a 5\,V, y la etapa de potencia del motor ya separa al
+microcontrolador de la corriente de carga. Como mejora, podría intercalarse un
+optoacoplador entre P2.1 y la entrada del driver del motor, con alimentación separada para
+la etapa de potencia.
+
+\subsection{ETAPA DE POTENCIA}
+
+El motor DC con reductora (SSE.5.1.1) se acciona mediante un driver (SSE.5.1) alimentado
+con 5\,V, que recibe la señal PWM de 1\,kHz y 3,3\,V de P2.1.
+\pendiente{indicar el modelo del driver o el circuito (transistor/MOSFET, diodo de rueda
+libre) y la corriente del motor}.
+
+Con el PWM al 100\,\% el motor alcanza aproximadamente 185\,RPM, según una medición
+anterior del grupo; por eso la consigna máxima del modo automático es de 185\,RPM. Hasta
+que el firmware configura el PWM, el pin P2.1 queda como entrada con pull-up (estado de
+reset), por lo que la etapa de potencia debe tolerar ese estado sin arrancar el motor; el
+firmware configura el PWM con mando cero antes de cualquier otra salida.
+
+\subsection{ETAPA DE ADQUISICIÓN}
+
+\textbf{Sensor de temperatura (SSE.6.1).} LM35 conectado a P0.24 (AD0.1). Su salida es de
+10\,mV/\textdegree C. Con VREFP = 3,3\,V el ADC de 12 bits resuelve 0,806\,mV por cuenta,
+es decir unos 0,08\,\textdegree C por cuenta. La conversión se hace en aritmética entera,
+en centésimas de grado:
+\[
+T_{[0{,}01\,^\circ\mathrm{C}]} = \mathrm{redondeo}\!\left(\frac{N \cdot 3300 \cdot 10}{4096}\right)
+\]
+donde $N$ es el resultado del ADC. El firmware promedia las últimas cuatro lecturas (una
+cada 500\,ms) para que el ruido del ADC no haga oscilar la alarma. El anteproyecto preveía
+una referencia externa de 2,54\,V; finalmente se usa la de 3,3\,V de la placa, lo que reduce
+levemente la resolución pero simplifica el hardware. El valor de VREFP se configura al
+compilar (\texttt{ADC\_VREF\_MV}) y puede ajustarse al valor medido.
+
+\textbf{Sensor óptico de ranura (SSE.6.2).} Módulo XD-51, que reemplaza al HC-89 previsto
+en el anteproyecto, montado sobre un disco de 60 ranuras solidario al eje. Su salida se
+conecta a P1.18 (CAP1.0), configurado con pull-up interno porque la salida de estos
+módulos suele ser un comparador a colector abierto. TIMER1 cuenta un flanco ascendente por
+ranura, es decir 60 pulsos por vuelta. La velocidad se obtiene como:
+\[
+\mathrm{RPM} = \frac{\text{pulsos en la ventana}}{60\ \text{pulsos/vuelta}} \cdot
+\frac{60\,000\ \mathrm{ms/min}}{500\ \mathrm{ms}} = 2 \cdot \text{pulsos}
+\]
+La resolución es, por lo tanto, de 2\,RPM. A la velocidad máxima de 185\,RPM el sensor
+genera 185 pulsos por segundo, muy por debajo del límite del contador (PCLK/4).
+
+\subsection{ETAPA DE COMUNICACIÓN}
+
+La comunicación con la notebook (SSE.7) usa UART3 del microcontrolador, en P0.0 (TXD3) y
+P0.1 (RXD3), con niveles de 3,3\,V, y un conversor USB--UART (SSE.7.1) que la notebook ve
+como un puerto serie virtual. \pendiente{indicar el modelo del conversor (CP2102, CH340,
+FT232, etc.) y verificar que trabaje con niveles de 3,3\,V}. El pin de recepción tiene
+pull-up interno para que la línea quede en reposo aunque el conversor esté desconectado.
+
+A 9600 baudios, la biblioteca calcula DLL = 93 y un divisor fraccional 3/4, que dan una
+velocidad real de 9600,6 baudios (error menor a 0,01\,\%).

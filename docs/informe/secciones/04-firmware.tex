@@ -1,0 +1,267 @@
+\section{ARQUITECTURA Y DISEÑO DE FIRMWARE}
+
+\subsection{ARQUITECTURA DE SOFTWARE DEL SSEP}
+
+El firmware del SSEP.2.1 (SSW.2.1) está escrito en C y organizado en tres capas. Cada
+capa sólo usa a la inmediata inferior, de modo que la lógica de la aplicación trabaja con
+magnitudes y estados (RPM, centésimas de grado, mando por mil, modo) y no conoce pines,
+registros ni periféricos. El diagrama de ESW por capa se incluye en el Anexo B.
+
+\begin{itemize}
+  \item \textbf{Capa de aplicación} (\texttt{Aplicacion/}): el programa principal y la
+  lógica de decisión (modos, alarma y regulador PI). No incluye ningún encabezado de
+  dispositivos; esta regla se comprueba automáticamente en el build.
+  \item \textbf{Capa de servicios} (\texttt{Servicios/}): adapta los dispositivos a
+  magnitudes útiles para la aplicación (velocidad, temperatura filtrada, mando
+  normalizado, consignas y telemetría) y es el único camino de la aplicación hacia el
+  hardware.
+  \item \textbf{Capa de dispositivos} (\texttt{Dispositivos/}): un módulo por elemento
+  físico. Configura los pines y periféricos y los accede mediante la biblioteca de drivers
+  LPC17xx original, que no se modifica. Incluye además un soporte de plataforma
+  (\texttt{Dispositivos/soporte/}) con el arranque del reloj y la adquisición ADC/DMA
+  compartida por el potenciómetro y el LM35.
+\end{itemize}
+
+Los parámetros del sistema se concentran en encabezados de \texttt{Configuracion/}:
+límites de consigna y mando (\texttt{Limites.h}), pulsos por vuelta
+(\texttt{Medicion.h}), ganancias y período del regulador (\texttt{Control.h}), umbral e
+histéresis de la alarma (\texttt{Alarma.h}) y tensión de referencia del ADC
+(\texttt{Analogica.h}). Todos pueden redefinirse al compilar y se validan con
+\texttt{\#error} si quedan fuera de rango.
+
+\subsubsection{MODELO DE EJECUCIÓN}
+
+Se utiliza un \textbf{lazo cooperativo} en \texttt{main} con tres interrupciones breves.
+Las ISR sólo mueven datos y actualizan contadores; todas las decisiones se toman en el lazo
+principal. No se usa memoria dinámica ni números en punto flotante.
+
+\begin{longtable}{|p{3.6cm}|p{1.6cm}|p{9.4cm}|}
+\hline
+\textbf{ISR} & \textbf{Prioridad} & \textbf{Función} \\ \hline
+\endhead
+\texttt{TIMER0\_IRQHandler} & 1 & Cada 500\,ms lee el contador del sensor óptico, publica
+los pulsos de la ventana y reprograma MR0. \\ \hline
+\texttt{UART3\_IRQHandler} & 2 & Pasa los bytes recibidos de la FIFO al buffer circular de
+recepción y carga la FIFO de transmisión desde el buffer circular de envío. \\ \hline
+\texttt{DMA\_IRQHandler} & 3 & Cuenta cada par de muestras ADC transferido y marca que
+hay datos disponibles. \\ \hline
+\end{longtable}
+
+Los datos compartidos entre ISR y lazo principal tienen un único escritor por variable
+(buffers circulares de un productor y un consumidor, contadores de 32 bits), por lo que no
+se requieren secciones críticas. La lectura de la ventana de medición relee el contador de
+ventanas para detectar si la interrupción intervino durante la consulta.
+
+La llegada de una ventana nueva de medición marca el \textbf{período de control de
+500\,ms}: alarma, modo, mando y telemetría se ejecutan una vez por ventana, en ese orden
+(ver sección 2.1). El regulador PI usa ese mismo período.
+
+\subsubsection{SECUENCIA DE INICIALIZACIÓN}
+
+\begin{enumerate}
+  \item \texttt{Sistema\_Init}: tiempo de acceso a flash, PLL0 a 100\,MHz y arranque de
+  ADC/DMA; espera acotada hasta tener el primer par de muestras.
+  \item \texttt{Driver\_Motor\_Init} y mando cero.
+  \item \texttt{Driver\_Alarmas\_Init}; la alarma queda apagada, o encendida si falló el
+  paso 1 (en ese caso el programa se detiene aquí).
+  \item \texttt{Mandos\_Init} (llave selectora) y \texttt{Comunicacion\_Init} (UART3).
+  \item Modo inicial según la llave.
+  \item \texttt{Medicion\_Velocidad\_Init}: contador del sensor y TIMER0. Se hace al
+  final para que la primera ventana de 500\,ms empiece con todo listo.
+\end{enumerate}
+
+\subsubsection{HERRAMIENTAS Y VERIFICACIÓN}
+
+El proyecto se compila con MCUXpresso IDE (proyecto en la raíz del repositorio) y también
+con CMake y GCC Arm (\texttt{arm-none-eabi}), sin errores ni advertencias. Además se
+compilan los mismos fuentes para la PC con dispositivos simulados, lo que permite ejecutar
+pruebas unitarias y de integración de todos los servicios y de la aplicación, también con
+\textit{sanitizers} de memoria. Todas las funciones están documentadas con Doxygen
+(\texttt{@file}, \texttt{@brief}, \texttt{@details}, \texttt{@note}) e identificadas con su
+ESW y USW, y la generación de la documentación no produce advertencias.
+
+\subsection{FIRMWARE DEL SSEP}
+
+\subsubsection{DESCRIPCIÓN DE USW DE LA CAPA DE APLICACIÓN}
+
+\textbf{ESW.2.1.1 -- main.c / main.h}
+
+\begin{longtable}{|p{2.4cm}|p{4.6cm}|p{7.6cm}|}
+\hline
+\textbf{USW} & \textbf{Función} & \textbf{Descripción} \\ \hline
+\endhead
+USW.2.1.1.1 & \texttt{main} & Inicializa y repite el lazo principal. Si la
+inicialización falla queda detenido con el motor en cero y la alarma encendida. \\ \hline
+USW.2.1.1.2 & \texttt{Aplicacion\_Inicializar} & Ejecuta la secuencia de inicialización
+de la sección anterior. Devuelve \texttt{false} si no arrancó la adquisición
+analógica. \\ \hline
+USW.2.1.1.3 & \texttt{Aplicacion\_Iterar} & Una vuelta del lazo, sin esperas: en MANUAL
+aplica el potenciómetro al motor; si hay una medición nueva ejecuta el período de
+control. \\ \hline
+USW.2.1.1.4 & \texttt{Aplicacion\_CalcularMando} & Mando del período según el estado:
+potenciómetro en MANUAL, salida del PI en AUTO\_ACTIVO y cero en AUTO\_ESPERA. \\ \hline
+USW.2.1.1.5 & \texttt{Aplicacion\_Periodo} & Período de 500\,ms: alarma, modo (descarta
+la recepción pendiente al pasar de MANUAL a automático), mando y telemetría. \\ \hline
+\end{longtable}
+
+\textbf{ESW.2.1.2 -- Procesamiento.c / Procesamiento.h}
+
+Contiene toda la lógica de decisión, sin acceso a periféricos ni llamadas a servicios:
+\texttt{main} le entrega las lecturas y aplica sus resultados.
+
+\begin{longtable}{|p{2.4cm}|p{4.6cm}|p{7.6cm}|}
+\hline
+\textbf{USW} & \textbf{Función} & \textbf{Descripción} \\ \hline
+\endhead
+USW.2.1.2.11 & \texttt{Procesamiento\_\-InicializarModo} & Fija el estado de arranque:
+MANUAL o AUTO\_ESPERA según la llave. Borra consigna e integral. \\ \hline
+USW.2.1.2.12 & \texttt{Procesamiento\_\-ActualizarModo} & Aplica las transiciones de
+estado de la sección 2.2. Una consigna mayor a 185\,RPM se ignora sin saturarla. \\ \hline
+USW.2.1.2.13 & \texttt{Procesamiento\_\-Consigna} & Devuelve la consigna vigente (cero fuera
+de AUTO\_ACTIVO). \\ \hline
+USW.2.1.2.14 & \texttt{Procesamiento\_\-EvaluarAlarma} & Alarma con histéresis: se
+enciende por encima de 45,00\,\textdegree C y se apaga a 43,00\,\textdegree C o menos; entre
+ambos valores conserva la decisión anterior. \\ \hline
+USW.2.1.2.9 & \texttt{Procesamiento\_\-Regular} & Un paso del regulador PI (ver
+abajo). \\ \hline
+\end{longtable}
+
+\textbf{Regulador PI.} El error se calcula en milésimas de RPM, $e = 1000 \cdot
+\mathrm{consigna} - \mathrm{velocidad}$, y el mando es
+\[
+u = K_p \, e + I, \qquad 0 \leq u \leq 1000
+\]
+redondeado una sola vez al entero más cercano. Luego la integral se actualiza como $I
+\leftarrow I + K_i \, e$, limitada a $[0, 1000]$. Como medida \textit{anti-windup}, la
+integral no se actualiza si el mando sin limitar está saturado en el sentido del error.
+Las ganancias se expresan como fracciones enteras en \texttt{Control.h} ($K_p =
+4/1000$ y $K_i = 1/1000$ por milésima de RPM, con $K_i$ ya discretizada para el paso de
+500\,ms) y se calculan en aritmética entera de 64 bits, sin desborde posible. Con consigna
+cero el mando es cero y la integral se borra; la integral también se borra en MANUAL, de
+modo que cada entrada al modo automático regula desde cero.
+\pendiente{actualizar las ganancias si se ajustaron durante la puesta en marcha y agregar
+el resultado de los ensayos de respuesta}.
+
+\subsubsection{DESCRIPCIÓN DE USW DE LA CAPA DE SERVICIOS}
+
+\begin{longtable}{|p{2.4cm}|p{4.6cm}|p{7.6cm}|}
+\hline
+\textbf{USW} & \textbf{Función} & \textbf{Descripción} \\ \hline
+\endhead
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.3 -- Medicion\_Velocidad}} \\ \hline
+USW.2.1.3.3 & \texttt{Medicion\_Velocidad\_\-Init} & Arranca el contador del sensor óptico
+y TIMER0; la primera ventana empieza en esta llamada. \\ \hline
+USW.2.1.3.4 & \texttt{Medicion\_Velocidad\_\-Actualizar} & Si cerró una ventana nueva,
+devuelve la velocidad en milésimas de RPM: $\mathrm{pulsos} \cdot 60\,000 \cdot 1000 / (60
+\cdot 500)$, en 64 bits. Cada \texttt{true} marca el período de control. No recorta a
+185\,RPM. \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.4 -- Temperatura}} \\ \hline
+USW.2.1.4.3 & \texttt{Temperatura\_Leer} & Toma una lectura del LM35 y devuelve el
+promedio móvil de las últimas cuatro, en centésimas de grado (filtro de 2\,s). \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.5 -- Mandos}} \\ \hline
+USW.2.1.5.6 & \texttt{Mandos\_Init} & Configura la entrada de la llave selectora. \\ \hline
+USW.2.1.5.7 & \texttt{Mandos\_LeerManual} & Convierte la muestra del potenciómetro (0 a
+4095) en mando por mil: $(N \cdot 1000 + 2047) / 4095$. \\ \hline
+USW.2.1.5.8 & \texttt{Mandos\_LeerModo} & Devuelve MANUAL (llave abierta) o AUTOMÁTICO
+(llave cerrada). \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.6 -- Driver\_Alarmas}} \\ \hline
+USW.2.1.6.2 & \texttt{Driver\_Alarmas\_Init} & Configura LED y buzzer, apagados. \\ \hline
+USW.2.1.6.3 & \texttt{Driver\_Alarmas\_\-Aplicar} & Enciende o apaga juntos el LED rojo y el
+buzzer; cada dispositivo resuelve su polaridad. \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.7 -- Comunicacion}} \\ \hline
+USW.2.1.7.11 & \texttt{Comunicacion\_Init} & Configura UART3 y vacía la línea en
+recepción. \\ \hline
+USW.2.1.7.12 & \texttt{Comunicacion\_\-RecibirConsigna} & Arma la línea recibida hasta el
+LF y entrega la próxima consigna válida; descarta líneas inválidas o largas. \\ \hline
+USW.2.1.7.13 & \texttt{Comunicacion\_\-Descartar} & Olvida lo recibido; se usa al entrar en
+automático. \\ \hline
+USW.2.1.7.14 & \texttt{Comunicacion\_\-EnviarTelemetria} & Arma la trama
+\texttt{RPM=...;TEMP=...;ESTADO=...} y la encola para transmitir, sin esperar. \\ \hline
+USW.2.1.7.15 & \texttt{Comunicacion\_\-Decodificar} & (Interna) Valida el formato
+\texttt{RPM n} y convierte el valor. \\ \hline
+USW.2.1.7.8 a .10 & \texttt{AgregarTexto}, \texttt{AgregarEntero}, \texttt{AgregarFijo} &
+(Internas) Escriben literales, enteros y números con punto decimal fijo en la trama, sin
+biblioteca estándar ni punto flotante. \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.8 -- Driver\_Motor}} \\ \hline
+USW.2.1.8.3 & \texttt{Driver\_Motor\_Init} & Configura el PWM del motor con mando
+cero. \\ \hline
+USW.2.1.8.4 & \texttt{Driver\_Motor\_Aplicar} & Aplica un mando de 0 a 1000 por mil;
+valores mayores se limitan a 1000. \\ \hline
+\multicolumn{3}{|l|}{\textbf{Soporte de plataforma -- Sistema}} \\ \hline
+-- & \texttt{Sistema\_Init} & Configura el reloj, arranca ADC/DMA y espera, con un límite
+de consultas, el primer par de muestras. \\ \hline
+\end{longtable}
+
+\subsubsection{DESCRIPCIÓN DE USW DE LA CAPA DE DISPOSITIVOS}
+
+\begin{longtable}{|p{2.4cm}|p{4.6cm}|p{7.6cm}|}
+\hline
+\textbf{USW} & \textbf{Función} & \textbf{Descripción} \\ \hline
+\endhead
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.9 -- Motor}} \\ \hline
+USW.2.1.9.2 & \texttt{Motor\_Init} & PWM1 a 1\,kHz con MR0 = 1000, canal 2 en P2.1, mando
+inicial cero. \\ \hline
+USW.2.1.9.1 & \texttt{Motor\_Write} & Escribe el mando directamente en MR2 (un paso por
+unidad por mil); rechaza valores mayores a 1000. \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.10 -- Sensor\_Optico}} \\ \hline
+USW.2.1.10.2 & \texttt{SensorOptico\_Init} & TIMER1 como contador de flancos ascendentes
+en CAP1.0 (P1.18), con pull-up. \\ \hline
+USW.2.1.10.1 & \texttt{SensorOptico\_Read} & Devuelve el conteo acumulado de
+pulsos. \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.11 -- LM35}} \\ \hline
+USW.2.1.11.3 & \texttt{LM35\_Read} & Lee la muestra transferida por DMA y devuelve la
+temperatura en centésimas de grado. \\ \hline
+USW.2.1.11.4 & \texttt{LM35\_Convert} & (Interna) Conversión entera con redondeo al más
+cercano según VREFP y 10\,mV/\textdegree C. \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.12 -- Potenciometro}} \\ \hline
+USW.2.1.12.1 & \texttt{Pot\_Read} & Devuelve el resultado de 12 bits (0 a 4095) de la
+muestra transferida por DMA. \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.13 -- Selector}} \\ \hline
+USW.2.1.13.2 & \texttt{Selector\_Init} & P2.6 como entrada con pull-up. \\ \hline
+USW.2.1.13.1 & \texttt{Selector\_Read} & Lee el nivel de P2.6. \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.14 -- LED}} \\ \hline
+USW.2.1.14.2 & \texttt{LED\_Init} & P0.22 como salida, LED apagado. \\ \hline
+USW.2.1.14.1 & \texttt{LED\_Write} & Enciende (nivel bajo) o apaga el LED rojo. \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.15 -- Buzzer}} \\ \hline
+USW.2.1.15.2 & \texttt{Buzzer\_Init} & P2.7 como salida, buzzer apagado. \\ \hline
+USW.2.1.15.1 & \texttt{Buzzer\_Write} & Activa (nivel alto) o desactiva el buzzer. \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.16 -- UART}} \\ \hline
+USW.2.1.16.3 & \texttt{UART3\_Init} & UART3 a 9600 8N1 en P0.0/P0.1, FIFO e
+interrupciones de recepción y transmisión. \\ \hline
+USW.2.1.16.1 & \texttt{UART\_Read} & Retira bytes del buffer circular de recepción (64
+bytes), sin esperar. \\ \hline
+USW.2.1.16.2 & \texttt{UART\_Write} & Encola bytes en el buffer circular de transmisión
+(128 bytes) y dispara la interrupción para iniciar el envío. \\ \hline
+USW.2.1.16.4 & \texttt{UART3\_IRQHandler} & ISR: guarda los bytes recibidos y carga hasta
+16 bytes en la FIFO de transmisión. \\ \hline
+USW.2.1.16.5 / .6 & \texttt{UART\_CargarFifoTx}, \texttt{UART\_GuardarRecibidos} &
+(Internas) Movimiento de datos entre FIFO y buffers, llamadas desde la ISR. \\ \hline
+\multicolumn{3}{|l|}{\textbf{ESW.2.1.17 -- Timer}} \\ \hline
+USW.2.1.17.1 & \texttt{Timer\_Init} & TIMER0 a 1\,ms por cuenta con MR0 cada 500 cuentas
+e interrupción; queda detenido. \\ \hline
+USW.2.1.17.14 & \texttt{Timer\_Start} & Toma la referencia del contador del sensor y
+arranca TIMER0. \\ \hline
+USW.2.1.17.2 & \texttt{Timer\_Read} & Devuelve el tiempo transcurrido en ms. \\ \hline
+USW.2.1.17.15 & \texttt{Timer\_ConsumirVentana} & Entrega una sola vez los pulsos de la
+última ventana cerrada. \\ \hline
+USW.2.1.17.16 & \texttt{TIMER0\_IRQHandler} & ISR: cierra la ventana, calcula los pulsos
+(diferencia módulo $2^{32}$) y reprograma MR0. \\ \hline
+\multicolumn{3}{|l|}{\textbf{Soporte -- Reloj y Adquisicion\_ADC\_DMA}} \\ \hline
+-- & \texttt{Reloj\_Init} & Flash a cinco ciclos, \texttt{SystemInit} (PLL0 a 100\,MHz) y
+\texttt{SystemCoreClockUpdate}. \\ \hline
+-- & \texttt{Adquisicion\_ADC\_DMA\_\-Init} & ADC en ráfaga sobre AD0.0 y AD0.1 y GPDMA
+con lista enlazada circular hacia las muestras de cada dispositivo. \\ \hline
+-- & \texttt{Adquisicion\_ADC\_DMA\_\-HayDatos} & Indica si ya se transfirió el primer par
+de muestras. \\ \hline
+-- & \texttt{DMA\_IRQHandler} & ISR: cuenta los pares completos. \\ \hline
+\end{longtable}
+
+\textbf{Adquisición ADC/DMA.} El ADC convierte en ráfaga los dos canales y cada fin de
+conversión genera un pedido de DMA. El canal 0 del GPDMA recorre una lista enlazada
+circular de dos descriptores: el primero copia AD0DR0 (potenciómetro) y el segundo AD0DR1
+(LM35), cada uno a una palabra de 32 bits que pertenece al dispositivo correspondiente.
+Leer siempre el registro de datos de cada canal, y nunca el registro global, fija la
+asociación canal--destino aunque se pierda un pedido. Como la biblioteca no permite
+cargar el primer descriptor completo, sólo los registros \texttt{DMACC0SrcAddr} y
+\texttt{DMACC0Control} se escriben directamente; es el único acceso a registros fuera de
+la biblioteca, junto con el de \texttt{FLASHCFG} en \texttt{Reloj\_Init}.

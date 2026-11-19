@@ -1,0 +1,42 @@
+PLANTILLA LATEX DEL INFORME FINAL - ELECTRONICA DIGITAL III
+
+Esta plantilla conserva los archivos y el formato del informe existente.
+Archivo principal: main.tex. Codificacion de los archivos: UTF-8.
+
+PARA COMENZAR
+1. Extraer todo el ZIP en una carpeta.
+2. Completar en main.tex: TituloTrabajo, NumeroGrupo, Alumnos, Profesor,
+   NumeroComision y FechaEntrega.
+3. Revisar encabezado.tex: actualmente indica Grupo 8 y TACOMETRO DIGITAL.
+4. Redactar el contenido en los archivos de secciones/.
+5. Agregar terminos y definiciones en terminos.tex.
+
+COMPILACION
+Instalar una distribucion LaTeX (MiKTeX o TeX Live) con XeLaTeX.
+La plantilla utiliza Arial para los titulos: esa fuente debe estar instalada
+(o debe reemplazarse su nombre en main.tex por una fuente disponible).
+Desde la carpeta del proyecto ejecutar dos veces:
+
+xelatex -interaction=nonstopmode -halt-on-error main.tex
+xelatex -interaction=nonstopmode -halt-on-error main.tex
+
+El resultado sera main.pdf; la segunda pasada actualiza el indice.
+Paquetes utilizados: fontspec, fontenc, helvet, babel (espanol), geometry,
+graphicx, titlesec, indentfirst, hyperref, xcolor y fancyhdr.
+
+CONTENIDO
+- main.tex: formato general, datos de caratula e inclusion de secciones.
+- caratula.tex: portada institucional.
+- encabezado.tex: encabezados, pies y numeracion.
+- terminos.tex: glosario inicial.
+- secciones/: proyecto, descripcion del SEP, hardware, firmware,
+  conclusiones, bibliografia y anexos.
+- images/: escudo institucional e imagenes disponibles.
+- diagramas/: fuentes editables de hardware y firmware en formato drawio.
+
+Los archivos drawio se editan con diagrams.net. Exportarlos como PDF o PNG
+para insertarlos con includegraphics en las secciones correspondientes.
+La plantilla mantiene las secciones pendientes de completar.
+No se incluyen archivos temporales de compilacion ni el anteproyecto.
+Este paquete no fue recompilado durante su preparacion, porque XeLaTeX
+no esta disponible en el PATH de esta sesion.

@@ -1,0 +1,30 @@
+\section{CONCLUSIONES}
+
+Se desarrolló un tacómetro digital con control de velocidad sobre el LPC1769 que integra
+los principales periféricos vistos en la materia: temporizadores en modo contador y con
+interrupción por match, PWM, ADC en modo ráfaga con transferencia por DMA, UART por
+interrupciones con buffers circulares y GPIO. El uso de DMA y del contador de TIMER1
+permite que la adquisición de las señales analógicas y el conteo de pulsos se realicen sin
+intervención de la CPU, que sólo atiende tres interrupciones breves y un lazo principal
+sin esperas.
+
+La organización del firmware en capas de aplicación, servicios y dispositivos resultó útil
+durante la puesta en marcha: cambiar la UART0 por la UART3 y el canal PWM1.1 por el PWM1.2
+por problemas en pines de la placa sólo requirió modificar los módulos de dispositivos,
+sin tocar la lógica de la aplicación. Del mismo modo, concentrar los parámetros en
+encabezados de configuración permite ajustar el umbral de alarma, las ganancias del
+regulador o la tensión de referencia sin modificar el código.
+
+Compilar los mismos fuentes para la PC con dispositivos simulados permitió probar la
+lógica de modos, la alarma con histéresis, el regulador PI y el protocolo de comunicación
+antes de disponer del hardware completo, y detectar errores que en la placa habrían sido
+más difíciles de encontrar.
+
+Entre las limitaciones del diseño se encuentran la resolución de 2\,RPM de la medición,
+consecuencia de la ventana de 500\,ms y del disco de 60 ranuras, que podría mejorarse
+midiendo el período entre pulsos con el modo captura del temporizador; la ausencia de
+aislación galvánica entre control y potencia; y que las ganancias del regulador PI son
+valores iniciales que deben ajustarse con ensayos sobre el motor real.
+
+\pendiente{agregar los resultados de los ensayos en placa: respuesta del regulador ante
+cambios de consigna, verificación de la alarma y observaciones de la puesta en marcha}.

@@ -1,0 +1,26 @@
+% Textos del encabezado: completar entre llaves.
+\newcommand{\EncabezadoIzquierdo}{TRABAJO PRACTICO INTEGRADOR}
+\newcommand{\EncabezadoSeccion}{Grupo 8}
+\newcommand{\EncabezadoDerecho}{TACOMETRO DIGITAL}
+
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\definecolor{azulEncabezado}{HTML}{287DA1}
+\setlength{\headheight}{15pt}
+\setlength{\headsep}{8mm}
+\fancypagestyle{informe}{%
+  \fancyhf{}
+  \fancyhead[L]{\fuenteTitulos\fontsize{10}{12}\selectfont
+    \textbf{\EncabezadoIzquierdo}%
+    \ifx\EncabezadoSeccion\empty\else
+      \enspace\textcolor{azulEncabezado}{\textbar}\enspace\EncabezadoSeccion
+    \fi}
+  \fancyhead[R]{\fuenteTitulos\fontsize{10}{12}\selectfont
+    \textcolor{azulEncabezado}{\EncabezadoDerecho}}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \fancyfoot[L]{\fontsize{10}{12}\selectfont ELECTRONICA DIGITAL III}
+  \fancyfoot[R]{\fontsize{10}{12}\selectfont\thepage}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+\pagestyle{informe}
+
