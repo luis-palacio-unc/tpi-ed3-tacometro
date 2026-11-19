@@ -4,7 +4,7 @@
  * @details Envuelve SystemInit de la biblioteca original para fijar antes el tiempo
  * de acceso a flash que exige CCLK = 100 MHz. Sirve igual con el startup propio
  * (CMake) y con el de MCUXpresso.
- * @note Soporte de plataforma B18/I1, sin ESW propio en el anexo B.
+ * @note ESW.2.1.20. Soporte de plataforma agregado en la integracion.
  */
 #ifndef TPI_RELOJ_H
 #define TPI_RELOJ_H
@@ -28,7 +28,7 @@
  * accion de main y antes de cualquier *_Init: reconfigurar el PLL0 conectado viola
  * el manual. En MCUXpresso no definir __USE_CMSIS, para que cr_startup no llame
  * tambien a SystemInit. El startup propio no configura el reloj.
- * @note Soporte de plataforma B18/I1. Bloquea dentro de SystemInit hasta que el
+ * @note USW.2.1.20.1. Bloquea dentro de SystemInit hasta que el
  * oscilador y los PLL enganchan; sin interrupciones. No acredita el reloj fisico.
  */
 void Reloj_Init(void);

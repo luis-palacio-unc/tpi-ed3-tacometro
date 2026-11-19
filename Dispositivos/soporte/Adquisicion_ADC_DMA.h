@@ -4,8 +4,8 @@
  * @details El soporte configura el ADC en rafaga sobre AD0.0/AD0.1 y el canal 0
  * del GPDMA, que copia cada resultado a la muestra de su dispositivo. Cada
  * dispositivo posee su muestra; este encabezado declara los destinos.
- * @note Soporte compartido de ESW.2.1.11 (LM335) y ESW.2.1.12 (Potenciometro), sin
- * ESW propio en el anexo B. Uso interno de Dispositivos y de la inicializacion.
+ * @note ESW.2.1.19. Soporte compartido de ESW.2.1.11 (LM335) y ESW.2.1.12
+ * (Potenciometro). Uso interno de Dispositivos y de la inicializacion.
  */
 #ifndef TPI_ADQUISICION_ADC_DMA_H
 #define TPI_ADQUISICION_ADC_DMA_H
@@ -66,7 +66,7 @@ extern volatile uint32_t ADC_DMA_LM335;
  * rechazo el canal por estar ya habilitado, en cuyo caso no se arranca nada.
  * @pre SystemInit ejecutado y SystemCoreClock = CCLK real. ADC y GPDMA exclusivos;
  * llamar una vez desde reset, desde el lazo privilegiado. VREFP = ADC_VREF_MV.
- * @note Soporte de ESW.2.1.11/ESW.2.1.12. GPDMA_Init espera el bit de habilitacion
+ * @note USW.2.1.19.1. GPDMA_Init espera el bit de habilitacion
  * del controlador solo al iniciar. La interrupcion de error del canal queda
  * enmascarada: un error de bus detendria el canal y el contador de pares.
  */
@@ -77,7 +77,7 @@ bool Adquisicion_ADC_DMA_Init(void);
  * @return true desde la primera interrupcion de fin de cuenta del segundo
  * descriptor: ADC_DMA_Pot y ADC_DMA_LM335 contienen conversiones reales. No se
  * vuelve a false hasta una nueva inicializacion.
- * @note Soporte de ESW.2.1.11/ESW.2.1.12. Lectura de una bandera volatile escrita
+ * @note USW.2.1.19.2. Lectura de una bandera volatile escrita
  * por el ISR de DMA; sin seccion critica ni esperas. No acredita frescura.
  */
 bool Adquisicion_ADC_DMA_HayDatos(void);
@@ -86,7 +86,7 @@ bool Adquisicion_ADC_DMA_HayDatos(void);
  * @brief Contar los pares de muestras completados desde Init.
  * @return Contador uint32_t modulo 2^32 de pares (potenciometro, LM335) transferidos;
  * avanza unas 763 veces por segundo. Si deja de avanzar, la adquisicion se detuvo.
- * @note Soporte de ESW.2.1.11/ESW.2.1.12. Lectura volatile de 32 bits escrita por
+ * @note USW.2.1.19.3. Lectura volatile de 32 bits escrita por
  * el ISR de DMA; sin seccion critica. Restar lecturas para medir frescura.
  */
 uint32_t Adquisicion_ADC_DMA_ContarPares(void);

@@ -2,7 +2,7 @@
  * @file Sistema.c
  * @brief Arranque del reloj y de la adquisicion ADC/DMA con espera acotada.
  * @details Unico servicio que usa el soporte Reloj y Adquisicion_ADC_DMA.
- * @note Soporte de plataforma B18/I2, sin ESW propio en el anexo B.
+ * @note ESW.2.1.18. Contrato publico en Sistema.h.
  */
 #include "Sistema.h"
 #include "Adquisicion_ADC_DMA.h"

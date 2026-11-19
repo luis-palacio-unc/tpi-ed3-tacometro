@@ -2,7 +2,7 @@
  * @file Reloj.c
  * @brief Tiempo de acceso a flash, SystemInit y actualizacion de SystemCoreClock.
  * @details Unico punto del firmware que configura el reloj del sistema.
- * @note Soporte de plataforma B18/I1. Unico acceso directo a registros: FLASHCFG.
+ * @note ESW.2.1.20. Unico acceso directo a registros: FLASHCFG.
  */
 #include "Reloj.h"
 #include "LPC17xx.h"

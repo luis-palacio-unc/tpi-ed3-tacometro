@@ -3,7 +3,7 @@
  * @brief ADC en rafaga de dos canales y DMA circular hacia las muestras.
  * @details Potenciometro.c y LM335.c poseen las muestras; este archivo configura
  * ADC y GPDMA con la biblioteca original y atiende la interrupcion de DMA.
- * @note Soporte de ESW.2.1.11/ESW.2.1.12. Unico acceso directo a registros:
+ * @note ESW.2.1.19. Unico acceso directo a registros:
  * DMACC0SrcAddr y DMACC0Control, que la biblioteca no permite fijar por descriptor.
  */
 #include "Adquisicion_ADC_DMA.h"
@@ -101,7 +101,7 @@ uint32_t Adquisicion_ADC_DMA_ContarPares(void)
  * limpia con GPDMA_ClearIntPending (DMACIntTCClear, tabla 548), incrementa el
  * contador de pares y marca dato disponible. No toca las muestras: el GPDMA ya
  * recargo el descriptor del potenciometro y sigue transfiriendo.
- * @note Soporte de ESW.2.1.11/ESW.2.1.12. Nombre exigido por la tabla de vectores.
+ * @note USW.2.1.19.4. Nombre exigido por la tabla de vectores.
  * Prioridad 3; sin lazos ni esperas. Unico escritor de la bandera y del contador.
  */
 void DMA_IRQHandler(void)
