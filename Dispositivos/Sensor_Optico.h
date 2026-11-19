@@ -38,7 +38,7 @@ void SensorOptico_Init(void);
  * @pre SensorOptico_Init ejecutado: TIMER1 exclusivo y arrancado como contador de flancos
  * ascendentes CAP1.0/P1.18, senal compatible. Bits CCR del canal en000 y ningun
  * match/captura que reinicie/detenga TC; configuracion estable y acceso privilegiado
- * desde el lazo o desde el ISR de TIMER0. TIMER0 conserva la base temporal de B11.
+ * desde el lazo o desde el ISR de TIMER0. TIMER0 conserva la base temporal.
  * @note USW.2.1.10.2. Sin contexto/estado propio/ISR/heap/esperas; no detecta
  * parada, vueltas completas omitidas, fallos electricos ni valida tiempos reales.
  */

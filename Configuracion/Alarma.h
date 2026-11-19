@@ -1,9 +1,9 @@
 /**
  * @file Alarma.h
  * @brief Umbral e histeresis de la alarma de temperatura ambiente del TPI.
- * @details Decision del usuario (2026-11-11): la alarma se enciende por encima de
+ * @details La alarma se enciende por encima de
  * 45,00 grados Celsius y se apaga al bajar a 43,00 grados o menos.
- * @note B18/I2. Valores en centesimas de grado Celsius, la unidad del servicio
+ * @note Valores en centesimas de grado Celsius, la unidad del servicio
  * Temperatura. No acredita la exactitud del sensor.
  */
 #ifndef TPI_ALARMA_H

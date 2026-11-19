@@ -1,7 +1,7 @@
 /**
  * @file LM335.c
  * @brief Conversion entera de la muestra del LM335 almacenada por ADC/DMA.
- * @details Reutiliza ADC_GDR_RESULT original; conserva redondeo B05 sin flotantes.
+ * @details Reutiliza ADC_GDR_RESULT original; redondea al mas cercano sin flotantes.
  * Pasa de kelvin a Celsius y aplica el ajuste de calibracion de Analogica.h.
  * @note ESW.2.1.11. Sin configuracion, acceso a registros, estados o normalizacion de alarma.
  */

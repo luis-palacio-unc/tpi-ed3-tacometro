@@ -3,7 +3,7 @@
  * @brief Configuracion fisica de medicion del TPI, externa al servicio generico.
  * @details Anteproyecto: disco de 60 ranuras; la captura contara un flanco por ranura.
  * El integrador entrega este factor junto con conteo/duracion coherentes al servicio.
- * @note R02/R15. No configura captura ni valida la senal electrica.
+ * @note No configura captura ni valida la senal electrica.
  */
 #ifndef TPI_CONFIGURACION_MEDICION_H
 #define TPI_CONFIGURACION_MEDICION_H

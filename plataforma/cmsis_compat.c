@@ -2,7 +2,7 @@
  * @file cmsis_compat.c
  * @brief Verificacion de compatibilidad de los encabezados CMSIS existentes.
  * @details Se compila para ARM sin configurar ni acceder a perifericos.
- * @note Soporte de plataforma B00, sin ESW adicional del anteproyecto.
+ * @note Soporte de plataforma, sin ESW propio.
  */
 #include "LPC17xx.h"
 

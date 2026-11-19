@@ -1,10 +1,10 @@
 /**
  * @file Analogica.h
  * @brief Referencia configurable para interpretar las muestras analogicas.
- * @details Default 3300 mV por decision del usuario (VREFP a 3,3 V de la placa);
+ * @details Default 3300 mV (VREFP a 3,3 V de la placa);
  * no acredita la tension real del pin ni el cableado.
  * Incluye el ajuste de calibracion de un punto del sensor de temperatura LM335.
- * @note B05-R1/B18. Medir VREFP en la placa y ajustar si difiere.
+ * @note Medir VREFP en la placa y ajustar si difiere.
  */
 #ifndef TPI_ANALOGICA_H
 #define TPI_ANALOGICA_H
