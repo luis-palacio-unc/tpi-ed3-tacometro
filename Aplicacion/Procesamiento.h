@@ -33,7 +33,7 @@ typedef enum {
  * consigna.
  * @param[in] modo Modo leido de la llave al encender.
  * @return Estado inicial.
- * @note USW.2.1.2.11. Borra la consigna anterior y la integral del regulador.
+ * @note USW.2.1.2.1. Borra la consigna anterior y la integral del regulador.
  */
 Procesamiento_Estado Procesamiento_InicializarModo(Mandos_Modo modo);
 
@@ -51,7 +51,7 @@ Procesamiento_Estado Procesamiento_InicializarModo(Mandos_Modo modo);
  * @param[in] consigna_rpm Consigna recibida en RPM; se ignora si hay_consigna es false.
  * @return Estado resultante.
  * @pre Procesamiento_InicializarModo ejecutado.
- * @note USW.2.1.2.12. Una llamada por periodo de 500 ms. Si el retorno pasa de
+ * @note USW.2.1.2.2. Una llamada por periodo de 500 ms. Si el retorno pasa de
  * MANUAL a AUTO_ESPERA, main descarta la recepcion pendiente.
  */
 Procesamiento_Estado Procesamiento_ActualizarModo(Mandos_Modo modo, bool hay_consigna,
@@ -60,7 +60,7 @@ Procesamiento_Estado Procesamiento_ActualizarModo(Mandos_Modo modo, bool hay_con
 /**
  * @brief Consultar la consigna vigente.
  * @return Consigna en RPM, de 0 a TPI_RPM_MAX; cero fuera de AUTO_ACTIVO.
- * @note USW.2.1.2.13. Sin efectos laterales.
+ * @note USW.2.1.2.3. Sin efectos laterales.
  */
 uint32_t Procesamiento_Consigna(void);
 
@@ -72,7 +72,7 @@ uint32_t Procesamiento_Consigna(void);
  * (43,00 grados). Entre ambos valores conserva la decision anterior.
  * @param[in] temperatura_centesimas Temperatura en centesimas de grado Celsius.
  * @return true si la alarma debe estar encendida.
- * @note USW.2.1.2.14. Arranca apagada. Una llamada por periodo de 500 ms. No
+ * @note USW.2.1.2.4. Arranca apagada. Una llamada por periodo de 500 ms. No
  * detiene el motor ni depende del modo.
  */
 bool Procesamiento_EvaluarAlarma(int32_t temperatura_centesimas);
@@ -92,7 +92,7 @@ bool Procesamiento_EvaluarAlarma(int32_t temperatura_centesimas);
  * @param[in] rpm_milesimas Velocidad medida en la ultima ventana, en milesimas de RPM.
  * @return Mando de 0 a TPI_MANDO_MANUAL_MAX por mil.
  * @pre Una llamada por ventana nueva de 500 ms, solo en AUTO_ACTIVO.
- * @note USW.2.1.2.9. Aritmetica entera de 64 bits, sin desborde para cualquier
+ * @note USW.2.1.2.5. Aritmetica entera de 64 bits, sin desborde para cualquier
  * entrada de 32 bits. El mando usa la integral del paso anterior; las ganancias de
  * Control.h estan sintonizadas con el ensayo de escalon del motor (2026-11-19).
  */

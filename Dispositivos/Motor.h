@@ -27,7 +27,7 @@
  * tabla 448).
  * @pre SystemInit ejecutado con CCLK = 100 MHz; PWM1 exclusivo. Hasta esta llamada
  * P2.1 es entrada GPIO con pull-up de reset: la etapa de potencia debe tolerarlo.
- * @note USW.2.1.9.2. Llamar una vez desde el lazo privilegiado antes de Motor_Write;
+ * @note USW.2.1.9.1. Llamar una vez desde el lazo privilegiado antes de Motor_Write;
  * no bloquea ni usa interrupciones. Revisar errata PWM.1 con mando 1000 en placa.
  */
 void Motor_Init(void);
@@ -45,7 +45,7 @@ void Motor_Init(void);
  * @pre Motor_Init ejecutado: PWM1 exclusivo/configurado/arrancado; PWM1.2 en P2.1 funcion01,
  * single-edge activo alto y MR0=1000 efectivo/estable. Reset por MR0 y sin otros
  * matches que alteren TC. Acceso privilegiado serializado, sin update pendiente.
- * @note USW.2.1.9.1. Sin estado/contexto/cache/ISR/heap/esperas/reintentos.
+ * @note USW.2.1.9.2. Sin estado/contexto/cache/ISR/heap/esperas/reintentos.
  * El latch se aplica al proximo ciclo; varias ordenes pueden dejar solo la ultima.
  * Revisar errata PWM.1 al integrar; aceptacion logica no valida transitorios fisicos.
  */

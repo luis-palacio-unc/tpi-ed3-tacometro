@@ -17,7 +17,7 @@
  * GPIO_SetDir deja el bit 6 de FIO2DIR como entrada (cap. 9, tabla 104).
  * @pre GPIO alimentado (PCONP.PCGPIO, valor de reset y de SystemInit) y FIO2MASK
  * bit 6 en 0 (reset). Llave entre P2.6 y GND.
- * @note USW.2.1.13.2. Llamar una vez desde el lazo privilegiado antes de
+ * @note USW.2.1.13.1. Llamar una vez desde el lazo privilegiado antes de
  * Selector_Read; no bloquea ni usa interrupciones.
  */
 void Selector_Init(void);
@@ -28,7 +28,7 @@ void Selector_Init(void);
  * @return true si P2.6 esta alto; false si esta bajo. No representa validez ni modo.
  * @pre Selector_Init ejecutado: pin configurado como GPIO de entrada con pull-up y
  * FIOMASK habilitando bit6. Acceso privilegiado serializado y configuracion estable.
- * @note USW.2.1.13.1. Una lectura, sin esperas, antirrebote, interrupciones ni estado propio.
+ * @note USW.2.1.13.2. Una lectura, sin esperas, antirrebote, interrupciones ni estado propio.
  */
 bool Selector_Read(void);
 

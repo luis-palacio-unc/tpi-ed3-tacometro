@@ -23,7 +23,7 @@
  * ni captura que alteren TC, como exige la tabla 429 para el canal seleccionado.
  * @pre TIMER1 exclusivo y en estado de reset; SystemInit ejecutado. La senal debe
  * respetar 1/(2 PCLK) por nivel y frecuencia menor que PCLK/4 (seccion 21.6.3).
- * @note USW.2.1.10.2. Llamar una vez desde el lazo privilegiado, antes de
+ * @note USW.2.1.10.1. Llamar una vez desde el lazo privilegiado, antes de
  * Timer_Start; no bloquea ni usa interrupciones. Abre una epoca nueva de conteo.
  */
 void SensorOptico_Init(void);
@@ -39,7 +39,7 @@ void SensorOptico_Init(void);
  * ascendentes CAP1.0/P1.18, senal compatible. Bits CCR del canal en000 y ningun
  * match/captura que reinicie/detenga TC; configuracion estable y acceso privilegiado
  * desde el lazo o desde el ISR de TIMER0. TIMER0 conserva la base temporal de B11.
- * @note USW.2.1.10.1. Sin contexto/estado propio/ISR/heap/esperas; no detecta
+ * @note USW.2.1.10.2. Sin contexto/estado propio/ISR/heap/esperas; no detecta
  * parada, vueltas completas omitidas, fallos electricos ni valida tiempos reales.
  */
 uint32_t SensorOptico_Read(void);

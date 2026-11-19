@@ -30,7 +30,7 @@
  * adquisicion debe estar completa, sin escritores CPU concurrentes en ejecucion.
  * @note El nombre no menciona el modelo del sensor: quien la llama (Temperatura.c)
  * no cambia si se reemplaza el dispositivo por otro que entregue centesimas Celsius.
- * USW.2.1.11.3. Una consulta volatile y conversion entera; no inicia ADC/DMA,
+ * USW.2.1.11.1. Una consulta volatile y conversion entera; no inicia ADC/DMA,
  * espera, valida flags/canal o modifica la muestra. Sin cache ni estados adicionales.
  * Durante actualizacion puede devolver la muestra anterior o nueva. No acredita edad,
  * coherencia multicanal, rango electrico o conexion del sensor: una entrada a 0 V

@@ -46,7 +46,7 @@ volatile uint32_t ADC_DMA_LM335;
  * LM335_AJUSTE_CENTESIMAS; como ambos son enteros, el redondeo no cambia. El dominio
  * admitido de VREF y del ajuste hace que el numerador quepa en uint64_t y el
  * resultado en int32_t.
- * @note USW.2.1.11.4. Unidad interna nueva; IDs .11.1/.11.2 retirados, sin reciclar.
+ * @note USW.2.1.11.2. Unidad interna nueva; IDs .11.1/.11.2 retirados, sin reciclar.
  */
 static int32_t LM335_Convert(uint16_t muestra)
 {

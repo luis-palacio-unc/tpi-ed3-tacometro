@@ -19,7 +19,7 @@
  * @brief Configurar el PWM del motor, que arranca con mando cero.
  * @details Llama Motor_Init.
  * @pre Sistema_Init ejecutado.
- * @note USW.2.1.8.3. Llamar una vez antes de Driver_Motor_Aplicar.
+ * @note USW.2.1.8.1. Llamar una vez antes de Driver_Motor_Aplicar.
  */
 void Driver_Motor_Init(void);
 
@@ -28,7 +28,7 @@ void Driver_Motor_Init(void);
  * @details Limita el valor a 1000 y lo entrega a Motor_Write.
  * @param[in] por_mil Mando de 0 a 1000 por mil; un valor mayor se aplica como 1000.
  * @pre Driver_Motor_Init ejecutado.
- * @note USW.2.1.8.4. No confirma el efecto electrico ni el movimiento.
+ * @note USW.2.1.8.2. No confirma el efecto electrico ni el movimiento.
  */
 void Driver_Motor_Aplicar(uint16_t por_mil);
 

@@ -47,7 +47,7 @@ void Timer_Init(void);
  * @details Toma antes la referencia de SensorOptico_Read para que la primera
  * ventana cuente solo pulsos posteriores al arranque. No cambia el periodo.
  * @pre Timer_Init y SensorOptico_Init ejecutados; llamar una sola vez por epoca.
- * @note USW.2.1.17.14. Timer exclusivo, acceso privilegiado serializado.
+ * @note USW.2.1.17.2. Timer exclusivo, acceso privilegiado serializado.
  */
 void Timer_Start(void);
 
@@ -55,7 +55,7 @@ void Timer_Start(void);
  * @brief Consultar TC mediante el driver y expresarlo en milisegundos.
  * @return Marca uint32 modular TC*TIMER_BASE_MS; cero puede ser una marca valida.
  * @pre Init y Start ejecutados, configuracion estable y acceso privilegiado serializado.
- * @note USW.2.1.17.2. No reinicia ni detiene el contador: TC corre libre porque
+ * @note USW.2.1.17.3. No reinicia ni detiene el contador: TC corre libre porque
  * MR0 no lo reinicia. Restar marcas de la misma epoca con duracion real<2^31ms;
  * no acredita precision de reloj/suspension/debug.
  */
@@ -73,7 +73,7 @@ uint32_t Timer_Read(void);
  * @return true si habia una ventana nueva desde la consulta anterior; false si no
  * la habia o si pulsos es NULL (en ese caso no se consume la ventana pendiente).
  * @pre Timer_Init/Timer_Start ejecutados. Llamar solo desde el lazo principal.
- * @note USW.2.1.17.15. Sin enmascarar interrupciones: lee contador de ventanas,
+ * @note USW.2.1.17.4. Sin enmascarar interrupciones: lee contador de ventanas,
  * pulsos y otra vez el contador (volatile, 32 bits), y repite si el ISR intervino;
  * como mucho una repeticion por ventana. No reentrante.
  */

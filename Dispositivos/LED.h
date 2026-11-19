@@ -17,7 +17,7 @@
  * salida (tabla 104), para no encender el LED activo por bajo durante el cambio.
  * @pre GPIO alimentado (PCONP.PCGPIO, valor de reset y de SystemInit) y FIO0MASK
  * bit 22 en 0 (reset).
- * @note USW.2.1.14.2. Llamar una vez desde el lazo privilegiado antes de LED_Write;
+ * @note USW.2.1.14.1. Llamar una vez desde el lazo privilegiado antes de LED_Write;
  * no bloquea ni usa interrupciones.
  */
 void LED_Init(void);
@@ -29,7 +29,7 @@ void LED_Init(void);
  * @param[in] activar true enciende; false apaga, sin decidir la condicion de alarma.
  * @pre LED_Init ejecutado: P0.22 como GPIO de salida y habilitado por FIOMASK;
  * revision/conexion compatibles, acceso privilegiado serializado y configuracion estable.
- * @note USW.2.1.14.1. Sin cache, reintentos, lectura GPIO ni estado mutable propio.
+ * @note USW.2.1.14.2. Sin cache, reintentos, lectura GPIO ni estado mutable propio.
  */
 void LED_Write(bool activar);
 

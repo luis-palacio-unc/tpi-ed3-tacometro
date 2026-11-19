@@ -30,7 +30,7 @@ static uint8_t Comunicacion_Longitud;
  * @param[in] longitud Cantidad de bytes, de 0 a COMUNICACION_LINEA_MAX.
  * @param[out] rpm Consigna convertida; solo se escribe al retornar true.
  * @return true si la linea es una consigna valida.
- * @note USW.2.1.7.15. Unidad interna, sin efectos laterales.
+ * @note USW.2.1.7.5. Unidad interna, sin efectos laterales.
  */
 static bool Comunicacion_Decodificar(const uint8_t *linea, uint8_t longitud, uint32_t *rpm)
 {
@@ -61,7 +61,7 @@ static bool Comunicacion_Decodificar(const uint8_t *linea, uint8_t longitud, uin
  * @param[in,out] trama Buffer de COMUNICACION_TELEMETRIA_MAX bytes.
  * @param[in,out] posicion Indice del proximo byte libre.
  * @param[in] texto Literal interno terminado en NUL.
- * @note USW.2.1.7.8. Unidad interna; el formato garantiza la capacidad.
+ * @note USW.2.1.7.6. Unidad interna; el formato garantiza la capacidad.
  */
 static void AgregarTexto(char *trama, size_t *posicion, const char *texto)
 {
@@ -77,7 +77,7 @@ static void AgregarTexto(char *trama, size_t *posicion, const char *texto)
  * @param[in,out] trama Buffer de COMUNICACION_TELEMETRIA_MAX bytes.
  * @param[in,out] posicion Indice del proximo byte libre.
  * @param[in] valor Entero a convertir, hasta 10 digitos.
- * @note USW.2.1.7.9. Unidad interna; sin libc ni flotantes.
+ * @note USW.2.1.7.7. Unidad interna; sin libc ni flotantes.
  */
 static void AgregarEntero(char *trama, size_t *posicion, uint32_t valor)
 {
@@ -101,7 +101,7 @@ static void AgregarEntero(char *trama, size_t *posicion, uint32_t valor)
  * @param[in,out] posicion Indice del proximo byte libre.
  * @param[in] valor Magnitud expresada en unidades de la escala.
  * @param[in] escala 100 para centesimas o 1000 para milesimas.
- * @note USW.2.1.7.10. Unidad interna; conserva los ceros de la fraccion.
+ * @note USW.2.1.7.8. Unidad interna; conserva los ceros de la fraccion.
  */
 static void AgregarFijo(char *trama, size_t *posicion, uint32_t valor, uint32_t escala)
 {

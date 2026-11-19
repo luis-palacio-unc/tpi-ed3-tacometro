@@ -25,7 +25,7 @@
  * @details Llama SensorOptico_Init, Timer_Init y Timer_Start, en ese orden. La
  * primera ventana empieza en esta llamada.
  * @pre Sistema_Init ejecutado. Llamar una vez, al final de la inicializacion.
- * @note USW.2.1.3.3. Habilita la interrupcion de TIMER0.
+ * @note USW.2.1.3.1. Habilita la interrupcion de TIMER0.
  */
 void Medicion_Velocidad_Init(void);
 
@@ -40,7 +40,7 @@ void Medicion_Velocidad_Init(void);
  * @return true una vez por cada ventana de 500 ms; false si todavia no cerro una
  * ventana nueva.
  * @pre Medicion_Velocidad_Init ejecutado; llamar desde el lazo principal.
- * @note USW.2.1.3.4. El true es el periodo del lazo de control. No recorta a TPI_RPM_MAX.
+ * @note USW.2.1.3.2. El true es el periodo del lazo de control. No recorta a TPI_RPM_MAX.
  */
 bool Medicion_Velocidad_Actualizar(uint32_t *rpm_milesimas);
 

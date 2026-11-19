@@ -19,7 +19,7 @@
  * @brief Configurar el LED y el buzzer, que arrancan apagados.
  * @details Llama LED_Init y Buzzer_Init.
  * @pre Sistema_Init ejecutado.
- * @note USW.2.1.6.2. Llamar una vez antes de Driver_Alarmas_Aplicar.
+ * @note USW.2.1.6.1. Llamar una vez antes de Driver_Alarmas_Aplicar.
  */
 void Driver_Alarmas_Init(void);
 
@@ -29,7 +29,7 @@ void Driver_Alarmas_Init(void);
  * resuelve su polaridad.
  * @param[in] activa true enciende ambas salidas; false las apaga.
  * @pre Driver_Alarmas_Init ejecutado.
- * @note USW.2.1.6.3. Sin estado propio; se puede repetir el mismo valor.
+ * @note USW.2.1.6.2. Sin estado propio; se puede repetir el mismo valor.
  */
 void Driver_Alarmas_Aplicar(bool activa);
 

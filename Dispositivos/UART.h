@@ -43,7 +43,7 @@
  * con UART3_IRQn en prioridad 2. Vacia los buffers circulares.
  * @pre SystemInit ejecutado y SystemCoreClock = CCLK real (PCLK_UART3 = CCLK/4).
  * UART3 exclusiva. Llamar desde el lazo privilegiado antes de UART_Read/UART_Write.
- * @note USW.2.1.16.3. El nombre evita la colision con UART_Init de la biblioteca.
+ * @note USW.2.1.16.1. El nombre evita la colision con UART_Init de la biblioteca.
  * La espera de THRE interna de UART_Init de la biblioteca ocurre solo al iniciar.
  */
 void UART3_Init(void);
@@ -59,7 +59,7 @@ void UART3_Init(void);
  * ausencia de datos. Solo el prefijo copiado puede ser modificado.
  * @pre UART3_Init ejecutado; con destino no NULL y capacidad positiva, buffer
  * escribible del tamano indicado. Unico lector, desde el lazo principal.
- * @note USW.2.1.16.1. Sin seccion critica: el ISR solo avanza el indice de
+ * @note USW.2.1.16.2. Sin seccion critica: el ISR solo avanza el indice de
  * escritura y esta funcion solo el de lectura (cargas/escrituras de 32 bits).
  */
 uint32_t UART_Read(uint8_t *destino, uint32_t capacidad);
@@ -77,7 +77,7 @@ uint32_t UART_Read(uint8_t *destino, uint32_t capacidad);
  * por la PC, vaciado del transmisor ni errores electricos/de linea.
  * @pre UART3_Init ejecutado; con datos no NULL y longitud positiva, buffer legible
  * y estable durante la llamada. Unico escritor, desde el lazo principal (no ISR).
- * @note USW.2.1.16.2. Cebado sin seccion critica: tras publicar los bytes pide la
+ * @note USW.2.1.16.3. Cebado sin seccion critica: tras publicar los bytes pide la
  * interrupcion de UART3 con NVIC_SetPendingIRQ; el ISR, unico que escribe U3THR,
  * carga la FIFO si U3LSR.THRE = 1. Asi no depende de que el periferico genere
  * THRE al habilitarla con el transmisor ya vacio (UM10360 seccion 14.4.5).

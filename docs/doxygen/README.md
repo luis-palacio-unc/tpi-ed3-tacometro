@@ -97,3 +97,35 @@ Contrato actual: MR0 preconfigurado1000, mando0..1000 enviado directamente al
 driver, validación/rechazo, serialización y latch; sin lectura/conversión/ajuste1001.
 HTML/XML42 sin avisos, un parámetro; sin controles relajados. Modelo de registros
 de pruebas retirado. Validación física PWM.1 pendiente registrada en exploración.
+
+## Numeración vigente de ESW y USW (2026-11-19)
+
+Renumeración corrida pedida por el usuario para la entrega: cada ESW numera sus USW
+desde 1, sin huecos, con la inicialización primero, luego las demás funciones públicas,
+las interrupciones y por último las unidades internas. `Sistema`, `Adquisicion_ADC_DMA`
+y `Reloj` pasan a ser ESW.2.1.18 a ESW.2.1.20. Sólo cambian comentarios. Los números de
+USW que aparecen más arriba en este archivo, en README, CONTEXTO, MAPA_REQUISITOS y en
+`openspec/changes/archive/` son los de cada bloque en su momento (historial).
+
+| ESW | Capa | Módulo | USW (en orden, desde .1) |
+|---|---|---|---|
+| ESW.2.1.1 | Aplicación | main | `main`, `Aplicacion_Inicializar`, `Aplicacion_Iterar`, `Aplicacion_CalcularMando`, `Aplicacion_Periodo` |
+| ESW.2.1.2 | Aplicación | Procesamiento | `Procesamiento_InicializarModo`, `Procesamiento_ActualizarModo`, `Procesamiento_Consigna`, `Procesamiento_EvaluarAlarma`, `Procesamiento_Regular` |
+| ESW.2.1.3 | Servicios | Medicion_Velocidad | `Medicion_Velocidad_Init`, `Medicion_Velocidad_Actualizar` |
+| ESW.2.1.4 | Servicios | Temperatura | `Temperatura_Leer` |
+| ESW.2.1.5 | Servicios | Mandos | `Mandos_Init`, `Mandos_LeerManual`, `Mandos_LeerModo` |
+| ESW.2.1.6 | Servicios | Driver_Alarmas | `Driver_Alarmas_Init`, `Driver_Alarmas_Aplicar` |
+| ESW.2.1.7 | Servicios | Comunicacion | `Comunicacion_Init`, `Comunicacion_RecibirConsigna`, `Comunicacion_Descartar`, `Comunicacion_EnviarTelemetria`, `Comunicacion_Decodificar`, `AgregarTexto`, `AgregarEntero`, `AgregarFijo` |
+| ESW.2.1.8 | Servicios | Driver_Motor | `Driver_Motor_Init`, `Driver_Motor_Aplicar` |
+| ESW.2.1.9 | Dispositivos | Motor | `Motor_Init`, `Motor_Write` |
+| ESW.2.1.10 | Dispositivos | Sensor_Optico | `SensorOptico_Init`, `SensorOptico_Read` |
+| ESW.2.1.11 | Dispositivos | LM335 | `getTemperatura`, `LM335_Convert` |
+| ESW.2.1.12 | Dispositivos | Potenciometro | `Pot_Read` |
+| ESW.2.1.13 | Dispositivos | Selector | `Selector_Init`, `Selector_Read` |
+| ESW.2.1.14 | Dispositivos | LED | `LED_Init`, `LED_Write` |
+| ESW.2.1.15 | Dispositivos | Buzzer | `Buzzer_Init`, `Buzzer_Write` |
+| ESW.2.1.16 | Dispositivos | UART | `UART3_Init`, `UART_Read`, `UART_Write`, `UART3_IRQHandler`, `UART_CargarFifoTx`, `UART_GuardarRecibidos` |
+| ESW.2.1.17 | Dispositivos | Timer | `Timer_Init`, `Timer_Start`, `Timer_Read`, `Timer_ConsumirVentana`, `TIMER0_IRQHandler` |
+| ESW.2.1.18 | Servicios | Sistema | `Sistema_Init` |
+| ESW.2.1.19 | Dispositivos | Adquisicion_ADC_DMA | `Adquisicion_ADC_DMA_Init`, `Adquisicion_ADC_DMA_HayDatos`, `Adquisicion_ADC_DMA_ContarPares`, `DMA_IRQHandler` |
+| ESW.2.1.20 | Dispositivos | Reloj | `Reloj_Init` |

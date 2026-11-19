@@ -152,3 +152,8 @@ del motor: 100 mA (dato del usuario).
 Queda fuera del firmware: Doxygen final, diagramas, informe y paquete de entrega.
 No se probaron consignas de 650 a 700 RPM; a 600 el mando ya está en 93 a 95 %.
 `Adquisicion_ADC_DMA_ContarPares` no tiene llamador.
+
+Numeración para la entrega (2026-11-19): `Sistema`, `Adquisicion_ADC_DMA` y `Reloj`
+son ESW.2.1.18 a ESW.2.1.20, y las USW de cada ESW se renumeraron en forma corrida
+desde 1 (58 en total). Sólo comentarios Doxygen. Tabla vigente en
+[docs/doxygen/README.md](../doxygen/README.md).

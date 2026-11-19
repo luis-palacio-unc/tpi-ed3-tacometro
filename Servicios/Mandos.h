@@ -26,7 +26,7 @@ typedef enum {
  * @details Llama Selector_Init. El potenciometro no requiere inicializacion
  * propia: lo adquiere el soporte ADC/DMA que arranca Sistema_Init.
  * @pre Sistema_Init ejecutado.
- * @note USW.2.1.5.6. Llamar una vez antes de Mandos_LeerModo.
+ * @note USW.2.1.5.1. Llamar una vez antes de Mandos_LeerModo.
  */
 void Mandos_Init(void);
 
@@ -36,7 +36,7 @@ void Mandos_Init(void);
  * (muestra * 1000 + 2047) / 4095. Asi 0 da 0, 2048 da 500 y 4095 da 1000.
  * @return Mando de 0 a 1000 por mil (0 a 100 por ciento de PWM).
  * @pre Sistema_Init devolvio true: ya hay una conversion real del potenciometro.
- * @note USW.2.1.5.7. Sin filtro ni estado; cada llamada lee la muestra vigente.
+ * @note USW.2.1.5.2. Sin filtro ni estado; cada llamada lee la muestra vigente.
  */
 uint16_t Mandos_LeerManual(void);
 
@@ -46,7 +46,7 @@ uint16_t Mandos_LeerManual(void);
  * es MANUAL y cerrada (nivel bajo) es AUTOMATICO.
  * @return MANDOS_MODO_MANUAL o MANDOS_MODO_AUTOMATICO.
  * @pre Mandos_Init ejecutado.
- * @note USW.2.1.5.8. Sin antirrebote propio: la aplicacion la consulta una vez por
+ * @note USW.2.1.5.3. Sin antirrebote propio: la aplicacion la consulta una vez por
  * periodo de 500 ms, mucho mayor que el rebote de un contacto.
  */
 Mandos_Modo Mandos_LeerModo(void);

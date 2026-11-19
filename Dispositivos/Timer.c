@@ -96,7 +96,7 @@ bool Timer_ConsumirVentana(uint32_t *pulsos)
  * TIM_UpdateMatchValue, y publica pulsos = conteo - conteo anterior (modulo 2^32)
  * antes de incrementar el contador de ventanas cerradas.
  * Una ventana no consumida se sobrescribe. Otras fuentes de T0IR no estan habilitadas.
- * @note USW.2.1.17.16. Nombre exigido por la tabla de vectores. Prioridad 1; sin
+ * @note USW.2.1.17.5. Nombre exigido por la tabla de vectores. Prioridad 1; sin
  * esperas ni lazos. Comparte Timer_PulsosVentana/Timer_VentanasCerradas (volatile)
  * con Timer_ConsumirVentana, que detecta una actualizacion concurrente releyendo
  * el contador.

@@ -33,7 +33,7 @@ typedef enum {
  * @brief Configurar la UART y vaciar la linea en recepcion.
  * @details Llama UART3_Init.
  * @pre Sistema_Init ejecutado.
- * @note USW.2.1.7.11. Llamar una vez antes de las demas funciones del servicio.
+ * @note USW.2.1.7.1. Llamar una vez antes de las demas funciones del servicio.
  */
 void Comunicacion_Init(void);
 
@@ -48,7 +48,7 @@ void Comunicacion_Init(void);
  * @return true si se completo una consigna valida; false cuando no quedan bytes
  * recibidos por procesar.
  * @pre Comunicacion_Init ejecutado; llamar desde el lazo principal.
- * @note USW.2.1.7.12. Conserva la linea parcial entre llamadas. Llamar en un
+ * @note USW.2.1.7.2. Conserva la linea parcial entre llamadas. Llamar en un
  * while hasta false para vaciar la recepcion.
  */
 bool Comunicacion_RecibirConsigna(uint32_t *rpm);
@@ -59,7 +59,7 @@ bool Comunicacion_RecibirConsigna(uint32_t *rpm);
  * de la UART. La aplicacion la usa al entrar en automatico, para que solo valga
  * una consigna enviada despues del cambio de modo.
  * @pre Comunicacion_Init ejecutado; llamar desde el lazo principal.
- * @note USW.2.1.7.13.
+ * @note USW.2.1.7.3.
  */
 void Comunicacion_Descartar(void);
 
@@ -78,7 +78,7 @@ void Comunicacion_Descartar(void);
  * @return true si la trama entro completa en el buffer de transmision; false si
  * no habia lugar suficiente y quedo truncada.
  * @pre Comunicacion_Init ejecutado; llamar desde el lazo principal.
- * @note USW.2.1.7.14. Una trama por periodo de 500 ms (unos 48 bytes) ocupa cerca del
+ * @note USW.2.1.7.4. Una trama por periodo de 500 ms (unos 48 bytes) ocupa cerca del
  * 10 por ciento de la capacidad del enlace a 9600 baudios.
  */
 bool Comunicacion_EnviarTelemetria(uint32_t rpm_milesimas, int32_t temperatura_centesimas,

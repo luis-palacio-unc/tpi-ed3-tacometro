@@ -16,7 +16,7 @@ defecto calculadas con el ensayo de escalón del motor; RG1, RG2, RG4 y RG5 actu
 ### Requirement: RG1 — Paso del PI
 `Aplicacion/Procesamiento` MUST exponer
 `uint16_t Procesamiento_Regular(uint32_t consigna_rpm, uint32_t rpm_milesimas)`
-(USW.2.1.2.9). Un paso representa 500 ms. Error = consigna × 1000 − medición, en
+(USW.2.1.2.5). Un paso representa 500 ms. Error = consigna × 1000 − medición, en
 milésimas de RPM, sin recortar la medición. Mando = Kp × error + integral,
 limitado a 0..1000 y redondeado una sola vez al más cercano (el empate sube).
 La integral que entra en el mando es la acumulada hasta el paso anterior.

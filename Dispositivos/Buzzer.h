@@ -17,7 +17,7 @@
  * como salida (tabla 104). Hasta esta llamada P2.7 es entrada con pull-up de reset.
  * @pre GPIO alimentado (PCONP.PCGPIO, valor de reset y de SystemInit) y FIO2MASK
  * bit 7 en 0 (reset).
- * @note USW.2.1.15.2. Llamar una vez desde el lazo privilegiado antes de
+ * @note USW.2.1.15.1. Llamar una vez desde el lazo privilegiado antes de
  * Buzzer_Write; no bloquea ni usa interrupciones.
  */
 void Buzzer_Init(void);
@@ -29,7 +29,7 @@ void Buzzer_Init(void);
  * @param[in] activar true activa la interfaz del buzzer; false la desactiva.
  * @pre Buzzer_Init ejecutado: P2.7 como GPIO de salida y habilitado por FIOMASK;
  * acceso privilegiado serializado y configuracion estable, sin escritores concurrentes.
- * @note USW.2.1.15.1. Sin cache, reintentos, lectura GPIO o estado mutable propio.
+ * @note USW.2.1.15.2. Sin cache, reintentos, lectura GPIO o estado mutable propio.
  */
 void Buzzer_Write(bool activar);
 

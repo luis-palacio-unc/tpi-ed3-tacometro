@@ -54,7 +54,7 @@ ciclo. (Antes: sin init; PWM preconfigurado como precondición externa.)
 
 ### Requirement: MD4 — Documentación y evidencia
 
-MUST actualizar Doxygen ESW.2.1.9/USW.2.1.9.1 y verificar host/san/ARM/regresiones.
+MUST actualizar Doxygen ESW.2.1.9/USW.2.1.9.2 y verificar host/san/ARM/regresiones.
 MUST retirar el modelo RAM de MR0 y preinclude al dejar de necesitar lectura.
 MUST NOT modificar Drivers, servicios/otros dispositivos/contratos aceptados ni
 inicializar/enlazar globalmente periféricos. Configuración MR0=1000, frecuencia,
