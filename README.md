@@ -459,22 +459,33 @@ El LM335 entrega 10 mV/K (2,7315 V a 0 °C): la conversión resta 273,15 K y sum
 punto. Con VREFP de 3,3 V mide hasta 56,77 °C; el umbral de 45 °C son 3,18 V.
 Montaje: 2,2 kΩ desde 5 V al terminal `+`, `−` a GND, `ADJ` sin conectar y 1 kΩ en
 serie hacia P0.24. Sin sensor la lectura satura y activa la alarma; con 0 V se
-informa −273,15 °C. Verificado en host y por enlace ARM; sin probar en placa.
-Ver [contrato vigente](openspec/specs/temperatura/spec.md), TE6.
+informa −273,15 °C. Verificado en host y por enlace ARM; probado en placa el
+2026-11-18 (alimentado a 5 V). Ver [contrato vigente](openspec/specs/temperatura/spec.md), TE6.
 
-## Ventana de medición: rama experimental de 500 ms
+## Ventana de medición de 500 ms
 
-En la rama `exp-500ms` (2026-11-18) `TPI_CONTROL_PERIODO_MS` vuelve a 500 ms (se deshace
-el cambio a 1 s del 2026-11-16) para tener más puntos del transitorio en el ensayo de
-identificación del motor: cada pulso vale 2 RPM con el disco de 60 ranuras, telemetría,
-alarma, modos y un paso del regulador ocurren cada 500 ms y el promedio de temperatura
-abarca 2 s. Las ganancias por paso de Control.h no se cambiaron. En `main` la ventana
-sigue siendo de 1 s. Verificado en host y por enlace ARM; sin probar en placa.
+`TPI_CONTROL_PERIODO_MS` vale 500 ms (el cambio a 1 s del 2026-11-16 se deshizo el
+2026-11-18 para resolver mejor el transitorio del motor): cada pulso vale 2 RPM con el
+disco de 60 ranuras; telemetría, alarma, modos y un paso del regulador ocurren cada
+500 ms y el promedio de temperatura abarca 2 s. Probado en placa.
 
-## Consigna máxima de 300 RPM
+## Regulador PI sintonizado con el motor (2026-11-19)
 
-`TPI_RPM_MAX` (Configuracion/Limites.h) pasó de 185 a 300 RPM el 2026-11-16 por
-decisión del usuario: se aceptan consignas `RPM 0` a `RPM 300` y se ignoran las
-mayores. El límite sólo valida la consigna; no recorta la medición ni acredita que
+Las ganancias de Configuracion/Control.h salen de un ensayo de escalón a lazo abierto
+(0 a 75 % de PWM con la llave de modo): régimen de unas 547 RPM y constante de tiempo
+de unos 0,14 s, menor que la ventana. Kp = 1/2000 y Ki = 1/2500 por mil por milésima
+de RPM. Como `Procesamiento_Regular` calcula el mando con la integral del paso
+anterior, equivalen a un PI con proporcional 0,1 ‰/RPM, integral 0,4 ‰/RPM por paso y
+Ti = 0,125 s. Probado en placa con consignas de 100 a 600 RPM: llega y se sostiene sin
+oscilar entre saturaciones. El motor arranca desde parado recién con un 60 % de PWM,
+así que con consignas bajas tarda unos segundos en moverse y sobrepasa antes de
+estabilizarse. Ver [contrato vigente](openspec/specs/regulacion-velocidad/spec.md).
+
+## Consigna máxima de 700 RPM
+
+`TPI_RPM_MAX` (Configuracion/Limites.h) pasó de 185 a 300 RPM el 2026-11-16 y a 700 RPM el
+2026-11-19 por decisión del usuario, después de medir en placa que el motor supera
+las 600 RPM con PWM al 100 %: se aceptan consignas `RPM 0` a `RPM 700` y se ignoran
+las mayores. El límite sólo valida la consigna; no recorta la medición ni acredita que
 el motor alcance esa velocidad (si no llega, el mando queda saturado en 100 %). Las
-menciones anteriores a 185 RPM en este documento son historial.
+menciones anteriores a 185 y 300 RPM en este documento son historial.

@@ -468,6 +468,10 @@ Consigna máxima (2026-11-16): el usuario cambió R14 de 185 a 300 RPM
 (`TPI_RPM_MAX` en `Configuracion/Limites.h`). Sólo valida consignas; el máximo
 medido del motor (~185 RPM a PWM 100 %) es un dato físico aparte, sin medición nueva.
 
+Consigna máxima (2026-11-19): R14 pasa a 700 RPM por decisión del usuario. Prueba en
+placa del 2026-11-18 con el disco de 60 ranuras: el motor da unas 600 RPM a PWM 84 %
+y 660 a 680 a 100 %; el dato de ~185 RPM queda sin efecto.
+
 ## Telemetría con PWM (2026-11-18)
 A pedido del usuario la trama pasó a `RPM=n.ddd;TEMP=[-]n.dd;PWM=n;ESTADO=...`, con `PWM` el
 ciclo de trabajo aplicado en % entero (0..100, redondeado desde el mando por mil). Cambia la
@@ -478,3 +482,12 @@ formato en specs archivadas y en este documento son historial.
 Rama experimental `exp-500ms` (2026-11-18): se deshace el cambio a 1 s y
 `TPI_CONTROL_PERIODO_MS` vuelve a 500 ms (1 pulso = 2 RPM), sólo para el ensayo de
 identificación del motor; `main` conserva 1 s. Las menciones a 1 s de arriba valen para `main`.
+
+Cierre del firmware (2026-11-19): el usuario aprueba la versión final y la fusiona a
+`main`. Ventana y período del lazo de 500 ms (el cambio a 1 s queda sin efecto),
+consigna máxima de 700 RPM y PI resintonizado con el ensayo de escalón del motor:
+Kp 1/2000 y Ki 1/2500 por mil por milésima de RPM (constante de tiempo de unos
+0,14 s; régimen de unas 547 RPM a PWM 75 %; el motor arranca desde parado recién con
+un 60 % de PWM). Probado en placa en manual y automático. Hardware soldado y listo
+para la entrega; corriente del motor de 100 mA (dato del usuario). Detalle y
+mediciones en `ESTADO.md`.

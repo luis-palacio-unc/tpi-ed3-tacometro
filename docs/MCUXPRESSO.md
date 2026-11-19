@@ -117,11 +117,11 @@ Hacerla en orden, con el motor desconectado hasta el paso 2.
    (`Configuracion/Analogica.h`). Sin sensor la lectura queda en 56,77 °C y suena la
    alarma; con la entrada a 0 V se lee −273,15 °C.
 4. **Sensor.** Con el motor girando, el contador de `TIMER1` avanza con los pulsos de
-   P1.18 y las RPM informadas coinciden con el giro (60 pulsos por vuelta; el motor no
-   pasa de unas 185 RPM).
+   P1.18 y las RPM informadas coinciden con el giro (60 pulsos por vuelta; el motor da
+   unas 600 a 680 RPM con PWM al 100 %).
 5. **Automático.** Cerrar la llave (P2.6 a GND): `ESTADO=AUTO_ESPERA` y PWM en 0. Enviar
    `RPM 100`: pasa a `AUTO_ACTIVO` y la velocidad se acerca a 100. Frenar levemente el
-   eje y ver que el mando lo compensa. Se aceptan consignas de 0 a 300;
+   eje y ver que el mando lo compensa. Se aceptan consignas de 0 a 700;
    por encima de lo que el motor alcanza el mando queda saturado en 100 %.
 6. **Alarma.** Calentar el LM335: por encima de 45,00 °C se encienden el LED (P0.22) y
    el buzzer (P2.7); se apagan al bajar a 43,00 °C o menos. La temperatura es el

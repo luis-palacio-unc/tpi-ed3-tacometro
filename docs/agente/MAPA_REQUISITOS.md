@@ -23,8 +23,8 @@ Las rutas indican módulos previstos; no acreditan implementación.
 | R13 U | Persistencia SDD y verificaciones reproducibles por bloque | Incorporación / B00 | docs/agente/, openspec/, scripts/ | B00 aceptado/archivado; contrato build vigente; evidencia en archivo B00 |
 
 R14 — aclaración del usuario (2026-11-06): aceptar consignas hasta **185 RPM**,
-inclusive. Cambiado por el usuario el 2026-11-16 a **300 RPM** (`TPI_RPM_MAX`);
-las pruebas vigentes cubren 299/300 aceptadas y 301 rechazada. Fuente común Configuracion/Limites.h (B02); alias públicos de servicios/aplicación.
+inclusive. Cambiado por el usuario el 2026-11-16 a **300 RPM** y el 2026-11-19 a **700 RPM** (`TPI_RPM_MAX`);
+las pruebas vigentes cubren 699/700 aceptadas y 701 rechazada. Fuente común Configuracion/Limites.h (B02); alias públicos de servicios/aplicación.
 B01: Procesamiento.c/.h; prueba LimitesRPM cubre 0/184/185 aceptadas y
 186/UINT32_MAX rechazadas en espera y con consigna activa. Evidencia: corrección R14
 en verify-report.md. Se conserva consigna activa ante rechazo; no se satura.
@@ -200,3 +200,9 @@ motor pasó de PWM1.1 (P2.0, pin dañado) a PWM1.2 en P2.1, con el mando en MR2
 (`PWM_MATCH_2`). Las menciones anteriores a UART0, P0.2/P0.3, P2.0 y PWM_MATCH_1
 en este documento son historial de los bloques B13 y B15. Contratos vigentes en
 `openspec/specs/uart-dispositivo` y `openspec/specs/motor-dispositivo`.
+
+Cierre 2026-11-19: R01 a R10 y R15 probados en placa por el usuario con el firmware
+final (ventana de 500 ms, consigna hasta 700 RPM, PI sintonizado con el motor);
+hardware soldado. Las menciones «físico pendiente» de este documento son historial.
+Quedan R11 (Doxygen final y diagramas) y R12 (informe y paquete de entrega).
+Detalle en [ESTADO](ESTADO.md).

@@ -1,4 +1,7 @@
-# Estado — 2026-11-16
+# Estado — 2026-11-19
+
+Firmware aprobado y hardware terminado: ver «Cierre del firmware (2026-11-19)» al
+final. Lo que sigue hasta esa sección es historial.
 
 ## Punto actual
 
@@ -107,3 +110,45 @@ vigentes editados directamente en `openspec/specs/`.
   recompilado. Nada de esto está probado en placa: faltan armar el LM335, calibrar el
   ajuste y volver a probar el modo automático con paso de 1 s.
 
+## Cierre del firmware (2026-11-19)
+
+**Firmware aprobado por el usuario y hardware terminado.** Versión final en `main`
+(rama de trabajo `consigna-700`, que parte de `exp-500ms`). Cambios del 2026-11-19
+hechos por Claude a pedido del usuario, sin cambio SDD propio; contratos vigentes
+editados directamente en `openspec/specs/`.
+
+- Ventana de conteo y período del lazo: `TPI_CONTROL_PERIODO_MS` = 500 (queda sin
+  efecto el cambio a 1 s del 2026-11-16). Con el disco de 60 ranuras cada pulso vale
+  2 RPM.
+- Consigna máxima: `TPI_RPM_MAX` = 700 (antes 300).
+- Regulador PI: `Control.h` pasa de Kp 4/1000 y Ki 1/1000 (oscilaba entre 0 y 100 %
+  de PWM) a Kp 1/2000 y Ki 1/2500 por mil por milésima de RPM. Los denominadores
+  admiten hasta 10000 y se acota `KP_NUM × KI_DEN`. El algoritmo de
+  `Procesamiento_Regular` no cambia: usa la integral del paso anterior, por lo que
+  equivale a un PI con proporcional 0,1 ‰/RPM, integral 0,4 ‰/RPM por paso y
+  Ti = 0,125 s.
+- Verificación: host 31/31, ARM 9/9, Doxygen sin avisos; MCUXpresso Debug y Release
+  con 0 errores y 0 avisos.
+
+Mediciones en placa (motor con disco de 60 ranuras, capturas de la interfaz de PC):
+
+- Manual: unas 480 RPM a PWM 61 %, 537 a 78 % y 630 a 656 a 100 %. Desde parado el
+  motor arranca recién con un 60 % de PWM; bajando sigue girando hasta un 10 a 20 %.
+- Escalón 0 → 75 % de PWM con la llave, tres repeticiones: régimen de unas 547 RPM y
+  constante de tiempo de unos 0,14 s. Pendiente de la curva estática entre 0,4 y
+  1,3 RPM por cada por mil de mando.
+- Automático con el PI nuevo: consignas 500, 600, 300, 150 y 100 alcanzadas y
+  sostenidas, sin oscilación entre saturaciones. 0 → 500 en 2,5 s con 5 % de
+  sobrepico; 500 → 600 en unos 10 s (PWM 93 a 95 %); 600 → 300 en 4,5 s; 0 → 150
+  tarda 5,5 s en arrancar y pasa por 472 RPM antes de bajar, por la zona muerta.
+  Ruido en régimen de ±20 a 30 RPM, igual que con PWM fijo.
+- Sensor óptico, LM335, alarma (LED y buzzer), potenciómetro, llave de modo y UART
+  probados por el usuario el 2026-11-18. Las fallas previas de la etapa de potencia
+  y del LM335 eran las masas de la fuente y de la placa sin unir.
+
+Hardware: circuito soldado y listo para la entrega (usuario, 2026-11-19). Corriente
+del motor: 100 mA (dato del usuario).
+
+Queda fuera del firmware: Doxygen final, diagramas, informe y paquete de entrega.
+No se probaron consignas de 650 a 700 RPM; a 600 el mando ya está en 93 a 95 %.
+`Adquisicion_ADC_DMA_ContarPares` no tiene llamador.
