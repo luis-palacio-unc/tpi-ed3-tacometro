@@ -33,17 +33,20 @@ def main():
         result=subprocess.run([str(binary)],text=True,capture_output=True,check=False)
         assert result.returncode==0,result.stderr
         (a.evidencia/("positive"+str(i)+"-run.log")).write_text(result.stdout+result.stderr)
-        assert tuple(map(int,result.stdout.split()))==(values or (4,1000,1,1000,500))
+        assert tuple(map(int,result.stdout.split()))==(values or (1,2000,1,2500,500))
     negatives=[]
     for name in names[:4]:
-        negatives.extend((name,v) for v in (0,-1,1001,"UINT32_MAX"))
-    negatives.extend((names[4],v) for v in (499,1000))
-    assert len(negatives)==18
-    for i,(name,value) in enumerate(negatives):
-        p,_=compile_one("negative"+str(i),{name:value})
-        assert p.returncode!=0,(name,value)
-        assert re.search(r"#error[^\n]*"+name,p.stderr),(name,value,p.stderr)
-    print("PASS S6: 4 configuraciones positivas y 18 negativas; diagnostico especifico")
-    (a.evidencia/"results.json").write_text(json.dumps(dict(positive=4,negative=18),indent=2)+"\n")
+        maximo=10001 if name.endswith("_DEN") else 1001
+        negatives.extend(({name:v},name) for v in (0,-1,maximo,"UINT32_MAX"))
+    negatives.extend(({names[4]:v},names[4]) for v in (499,1000))
+    # Cada componente en rango, pero KP_NUM * KI_DEN desborda la cuenta de 64 bits.
+    negatives.append(({names[0]:1000,names[3]:1001},names[0]))
+    assert len(negatives)==19
+    for i,(defines,name) in enumerate(negatives):
+        p,_=compile_one("negative"+str(i),defines)
+        assert p.returncode!=0,defines
+        assert re.search(r"#error[^\n]*"+name,p.stderr),(defines,p.stderr)
+    print("PASS S6: 4 configuraciones positivas y 19 negativas; diagnostico especifico")
+    (a.evidencia/"results.json").write_text(json.dumps(dict(positive=4,negative=19),indent=2)+"\n")
 if __name__=="__main__":
     main()

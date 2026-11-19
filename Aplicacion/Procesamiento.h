@@ -44,7 +44,7 @@ Procesamiento_Estado Procesamiento_InicializarModo(Mandos_Modo modo);
  *    integral del regulador.
  * -# Al pasar de MANUAL a AUTOMATICO el estado es AUTO_ESPERA y la consigna de
  *    esta misma llamada se descarta: solo vale una consigna posterior al cambio.
- * -# En AUTO_ESPERA o AUTO_ACTIVO, una consigna de 0 a TPI_RPM_MAX (300) pasa a
+ * -# En AUTO_ESPERA o AUTO_ACTIVO, una consigna de 0 a TPI_RPM_MAX (700) pasa a
  *    AUTO_ACTIVO y reemplaza a la anterior; una mayor se ignora.
  * @param[in] modo Modo leido de la llave en este periodo.
  * @param[in] hay_consigna true si se recibio una consigna en este periodo.
@@ -93,8 +93,8 @@ bool Procesamiento_EvaluarAlarma(int32_t temperatura_centesimas);
  * @return Mando de 0 a TPI_MANDO_MANUAL_MAX por mil.
  * @pre Una llamada por ventana nueva de 500 ms, solo en AUTO_ACTIVO.
  * @note USW.2.1.2.9. Aritmetica entera de 64 bits, sin desborde para cualquier
- * entrada de 32 bits. Los valores de Control.h son provisionales hasta sintonizar
- * con el motor.
+ * entrada de 32 bits. El mando usa la integral del paso anterior; las ganancias de
+ * Control.h estan sintonizadas con el ensayo de escalon del motor (2026-11-19).
  */
 uint16_t Procesamiento_Regular(uint32_t consigna_rpm, uint32_t rpm_milesimas);
 

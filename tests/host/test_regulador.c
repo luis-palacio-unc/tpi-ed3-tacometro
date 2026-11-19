@@ -15,29 +15,32 @@ static void Reiniciar(void)
 static bool PasoYEmpate(void)
 {
     Reiniciar();
-    CHECK(Procesamiento_Regular(100U, 0U) == 400U);
-    CHECK(Procesamiento_Regular(100U, 0U) == 500U);
+    /* Error de 100 RPM: P = 50 por mil; cada paso suma 40 por mil de integral. */
+    CHECK(Procesamiento_Regular(100U, 0U) == 50U);
+    CHECK(Procesamiento_Regular(100U, 0U) == 90U);
     Reiniciar();
-    /* Error de 125 milesimas: P = 0,5 por mil, el empate sube a 1. */
-    CHECK(Procesamiento_Regular(1U, 875U) == 1U);
+    /* Error de 1000 milesimas: P = 0,5 por mil, el empate sube a 1. */
+    CHECK(Procesamiento_Regular(1U, 0U) == 1U);
     Reiniciar();
-    CHECK(Procesamiento_Regular(1U, 876U) == 0U);
+    CHECK(Procesamiento_Regular(1U, 1U) == 0U);
     return true;
 }
 
 static bool AntiWindup(void)
 {
     Reiniciar();
-    CHECK(Procesamiento_Regular(185U, 0U) == 740U);
-    CHECK(Procesamiento_Regular(185U, 0U) == 925U);
+    /* Error de 700 RPM: P = 350 y cada paso suma 280 de integral. */
+    CHECK(Procesamiento_Regular(700U, 0U) == 350U);
+    CHECK(Procesamiento_Regular(700U, 0U) == 630U);
+    CHECK(Procesamiento_Regular(700U, 0U) == 910U);
     for (unsigned k = 0U; k < 40U; ++k) {
-        CHECK(Procesamiento_Regular(185U, 0U) == 1000U);
+        CHECK(Procesamiento_Regular(700U, 0U) == 1000U);
     }
-    /* Integral congelada en 370: 400 + 370. Sin anti-windup daria 1000. */
-    CHECK(Procesamiento_Regular(100U, 0U) == 770U);
+    /* Integral congelada en 840: 50 + 840. Sin anti-windup daria 1000. */
+    CHECK(Procesamiento_Regular(100U, 0U) == 890U);
     CHECK(Procesamiento_Regular(100U, UINT32_MAX) == 0U);
-    /* El paso saturado hacia abajo no integro: 400 + 470. */
-    CHECK(Procesamiento_Regular(100U, 0U) == 870U);
+    /* El paso saturado hacia abajo no integro: 50 + 880. */
+    CHECK(Procesamiento_Regular(100U, 0U) == 930U);
     return true;
 }
 
@@ -45,11 +48,11 @@ static bool CongelamientoInferiorEnCero(void)
 {
     Reiniciar();
     for (unsigned k = 0U; k < 4U; ++k) {
-        (void)Procesamiento_Regular(1U, 0U);
+        (void)Procesamiento_Regular(5U, 0U);
     }
-    /* Integral 4; error -1000 milesimas da exactamente cero: no integra. */
-    CHECK(Procesamiento_Regular(1U, 2000U) == 0U);
-    CHECK(Procesamiento_Regular(1U, 1000U) == 4U);
+    /* Integral 8; error -16000 milesimas da exactamente cero: no integra. */
+    CHECK(Procesamiento_Regular(5U, 21000U) == 0U);
+    CHECK(Procesamiento_Regular(5U, 5000U) == 8U);
     return true;
 }
 
@@ -59,7 +62,7 @@ static bool ConsignaCeroReinicia(void)
     (void)Procesamiento_Regular(100U, 0U);
     (void)Procesamiento_Regular(100U, 0U);
     CHECK(Procesamiento_Regular(0U, 0U) == 0U);
-    CHECK(Procesamiento_Regular(100U, 0U) == 400U);
+    CHECK(Procesamiento_Regular(100U, 0U) == 50U);
     return true;
 }
 
@@ -68,18 +71,18 @@ static bool ModoBorraLaIntegral(void)
     Reiniciar();
     (void)Procesamiento_Regular(100U, 0U);
     (void)Procesamiento_ActualizarModo(MANDOS_MODO_MANUAL, false, 0U);
-    CHECK(Procesamiento_Regular(100U, 0U) == 400U);
+    CHECK(Procesamiento_Regular(100U, 0U) == 50U);
     (void)Procesamiento_InicializarModo(MANDOS_MODO_AUTOMATICO);
-    CHECK(Procesamiento_Regular(100U, 0U) == 400U);
+    CHECK(Procesamiento_Regular(100U, 0U) == 50U);
     (void)Procesamiento_ActualizarModo(MANDOS_MODO_AUTOMATICO, true, 100U);
-    CHECK(Procesamiento_Regular(100U, 0U) == 500U);
+    CHECK(Procesamiento_Regular(100U, 0U) == 90U);
     return true;
 }
 
 static bool Extremos(void)
 {
-    const uint32_t velocidades[] = {0U, 1U, 184999U, 185000U, 185001U, UINT32_MAX};
-    const uint32_t consignas[] = {1U, 185U, 186U, UINT32_MAX};
+    const uint32_t velocidades[] = {0U, 1U, 699999U, 700000U, 700001U, UINT32_MAX};
+    const uint32_t consignas[] = {1U, 700U, 701U, UINT32_MAX};
     Reiniciar();
     for (unsigned c = 0U; c < sizeof(consignas) / sizeof(consignas[0]); ++c) {
         for (unsigned v = 0U; v < sizeof(velocidades) / sizeof(velocidades[0]); ++v) {
@@ -98,8 +101,8 @@ int main(void)
         {"S3 el modo borra la integral", ModoBorraLaIntegral},
         {"S4 extremos de 32 bits", Extremos}
     };
-    if (TPI_CONTROL_KP_NUM != 4U || TPI_CONTROL_KP_DEN != 1000U ||
-        TPI_CONTROL_KI_NUM != 1U || TPI_CONTROL_KI_DEN != 1000U) {
+    if (TPI_CONTROL_KP_NUM != 1U || TPI_CONTROL_KP_DEN != 2000U ||
+        TPI_CONTROL_KI_NUM != 1U || TPI_CONTROL_KI_DEN != 2500U) {
         fprintf(stderr, "Estas pruebas valen solo para las ganancias por defecto\n");
         return 1;
     }

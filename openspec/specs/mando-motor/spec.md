@@ -4,7 +4,8 @@ Origen R03/R06/R10/R11/R15; resultado B08 aceptado por usuario el 2026-11-09. Co
 
 B18 (integración I1–I5) aceptado por el usuario el 2026-11-11 sobre e3d3bce; contrato
 sincronizado desde el delta del cambio. Verificado en host y por compilación/enlace ARM;
-aceptación física en placa pendiente.
+funcionamiento en placa aceptado por el usuario el 2026-11-19 (prueba funcional
+del sistema completo; ver `docs/agente/ESTADO.md`).
 [Evidencia](../../changes/archive/2026-11-11-b18-integracion/verify-report.md).
 
 ## Requirements

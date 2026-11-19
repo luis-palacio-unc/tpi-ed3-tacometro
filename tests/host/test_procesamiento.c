@@ -46,19 +46,19 @@ static bool ModosS2_ConsignaActiva(void)
     CHECK(Procesamiento_Consigna() == 100U);
     CHECK(Procesamiento_ActualizarModo(AUT, true, 0U) == PROCESAMIENTO_AUTO_ACTIVO);
     CHECK(Procesamiento_Consigna() == 0U);
-    CHECK(Procesamiento_ActualizarModo(AUT, true, 300U) == PROCESAMIENTO_AUTO_ACTIVO);
-    CHECK(Procesamiento_Consigna() == 300U);
+    CHECK(Procesamiento_ActualizarModo(AUT, true, 700U) == PROCESAMIENTO_AUTO_ACTIVO);
+    CHECK(Procesamiento_Consigna() == 700U);
     return true;
 }
 
 static bool ModosS3_ConsignaFueraDeRango(void)
 {
     CHECK(Procesamiento_InicializarModo(AUT) == PROCESAMIENTO_AUTO_ESPERA);
-    CHECK(Procesamiento_ActualizarModo(AUT, true, 301U) == PROCESAMIENTO_AUTO_ESPERA);
+    CHECK(Procesamiento_ActualizarModo(AUT, true, 701U) == PROCESAMIENTO_AUTO_ESPERA);
     CHECK(Procesamiento_ActualizarModo(AUT, true, UINT32_MAX) == PROCESAMIENTO_AUTO_ESPERA);
     CHECK(Procesamiento_Consigna() == 0U);
     CHECK(Procesamiento_ActualizarModo(AUT, true, 184U) == PROCESAMIENTO_AUTO_ACTIVO);
-    CHECK(Procesamiento_ActualizarModo(AUT, true, 301U) == PROCESAMIENTO_AUTO_ACTIVO);
+    CHECK(Procesamiento_ActualizarModo(AUT, true, 701U) == PROCESAMIENTO_AUTO_ACTIVO);
     CHECK(Procesamiento_Consigna() == 184U);
     return true;
 }

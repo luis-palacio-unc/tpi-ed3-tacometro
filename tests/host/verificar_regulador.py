@@ -10,7 +10,7 @@ from math import floor
 from pathlib import Path
 import subprocess
 
-DEFAULT = (4, 1000, 1, 1000)
+DEFAULT = (1, 2000, 1, 2500)
 HALF = Fraction(1, 2)
 
 
@@ -38,13 +38,13 @@ def rows_for(config):
     add(0)
     if config == DEFAULT:
         # Paso, empate 0,5 y borde del empate.
-        add(100); add(100); add(0); add(1, 875); add(0); add(1, 876); add(0)
-        # Anti-windup: dos pasos previos, cuarenta saturados y desaturacion.
-        for _ in range(42): add(185)
+        add(100); add(100); add(0); add(1, 0); add(0); add(1, 1); add(0)
+        # Anti-windup: tres pasos previos, cuarenta saturados y desaturacion.
+        for _ in range(43): add(700)
         add(100); add(100, 0xffffffff); add(100); add(0)
         # Mando exactamente cero con error negativo: la integral se conserva.
-        for _ in range(4): add(1)
-        add(1, 2000); add(1, 1000); add(0)
+        for _ in range(4): add(5)
+        add(5, 21000); add(5, 5000); add(0)
     if config == (1, 1000, 1, 1000):
         add(1, 500); add(0)
     if config == (1, 1000, 1000, 1):
@@ -52,8 +52,8 @@ def rows_for(config):
         add(100); add(100, 150000); add(100, 100000); add(100, 99999); add(0)
         add(100); add(100, 99000); add(100, 100000); add(100, 101000); add(0)
     # Fronteras de consigna y medicion, en secuencia (la integral se arrastra).
-    for goal in (0, 1, 184, 185, 186, 0xffffffff):
-        for value in (0, 1, 184999, 185000, 185001, 0xffffffff):
+    for goal in (0, 1, 699, 700, 701, 0xffffffff):
+        for value in (0, 1, 699999, 700000, 700001, 0xffffffff):
             add(goal, value)
     deterministic = len(rows)
     seed = 0x0B170017
@@ -65,11 +65,11 @@ def rows_for(config):
                 seed = (1664525 * seed + 1013904223) & 0xffffffff
                 words.append(seed)
             selector = (words[2] >> 8) % 8
-            goal = 0 if selector == 0 else 1 + words[0] % 186
+            goal = 0 if selector == 0 else 1 + words[0] % 701
             if selector < 2:
                 value = words[1]
             elif selector < 5:
-                value = words[1] % 185001
+                value = words[1] % 700001
             else:
                 # Cerca de la consigna: regimen sin saturar, donde la integral trabaja.
                 value = max(0, goal * 1000 + words[1] % 4001 - 2000)
@@ -100,22 +100,25 @@ def oracle(program, config, evidence):
 
 
 def plant(program, evidence):
+    """Planta lineal con los datos del ensayo del 2026-11-19: 0,73 RPM por cada por
+    mil de mando y una ventana de 500 ms que promedia el 72 % del mando vigente y
+    el 28 % del anterior (constante de tiempo de 0,14 s). Sin zona muerta."""
     ref = Referencia(DEFAULT)
     process = subprocess.Popen([program], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, text=True, bufsize=1)
     trace = []
     x = 0
-    previous_u = 0
+    u1 = u2 = 0
     try:
         for k in range(200):
-            goal = 100 if k < 100 else 185
-            measured = 2000 * ((x + 1000) // 2000)
+            goal = 300 if k < 100 else 600
+            measured = 2000 * (x // 2000)
             process.stdin.write(f"{goal} {measured}\n")
             process.stdin.flush()
             u = int(process.stdout.readline())
             assert u == ref.step(goal, measured), ("planta", k, goal, measured, u)
-            x = (3 * x + 200 * previous_u + 2) // 4
-            previous_u = u
+            u2, u1 = u1, u
+            x = 730 * (72 * u1 + 28 * u2) // 100
             trace.append(dict(k=k, goal=goal, measured=measured, u=u, x_next=x))
     finally:
         process.stdin.close()
@@ -125,17 +128,18 @@ def plant(program, evidence):
     assert code == 0 and not stdout_tail, (code, errors, stdout_tail)
     (evidence / "plant-trace.json").write_text(json.dumps(trace, indent=2) + "\n")
     metrics = []
-    for start, goal, amplitude in ((0, 100, 100), (100, 185, 85)):
+    for start, goal, amplitude in ((0, 300, 300), (100, 600, 300)):
         values = [p["x_next"] for p in trace[start:start + 100]]
         peak = max(values)
         excess = max(0, peak - goal * 1000)
         settling = next((j + 1 for j in range(100)
-                         if all(abs(v - goal * 1000) <= 2000 for v in values[j:])), None)
+                         if all(abs(v - goal * 1000) <= 6000 for v in values[j:])), None)
+        print("planta", goal, "pico", peak, "establecimiento", settling)
         assert 10 * excess <= amplitude * 1000, ("sobrepico", goal, peak)
         assert settling is not None and settling <= 20, ("establecimiento", goal, settling)
         metrics.append(dict(goal_rpm=goal, peak_milli_rpm=peak, overshoot_milli_rpm=excess,
                             settling_steps=settling, horizon_steps=100))
-    print("PASS planta de prueba (sin sintonia real):", metrics)
+    print("PASS planta de prueba (modelo lineal del motor):", metrics)
     return metrics
 
 

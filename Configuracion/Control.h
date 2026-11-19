@@ -1,8 +1,16 @@
 /**
  * @file Control.h
  * @brief Ganancias discretas del regulador PI del TPI.
- * @details Defaults provisionales para el modelo, no sintonia del motor real.
- * Las ganancias son por mil por milesima RPM; Ki ya incluye el paso de 500 ms.
+ * @details Las ganancias son por mil de mando por milesima de RPM; Ki ya incluye el
+ * paso de 500 ms. Los valores por defecto salen del ensayo de escalon del 2026-11-19
+ * con el motor y el disco de 60 ranuras: constante de tiempo de unos 0,14 s y pendiente
+ * maxima de la curva estatica de unos 1,3 RPM por cada por mil de mando.
+ *
+ * Procesamiento_Regular calcula el mando con la integral del paso anterior, de modo
+ * que equivale a un PI de libro (integral actualizada antes de calcular) con
+ * proporcional Kp - Ki. Con Kp = 1/2000 y Ki = 1/2500 queda un proporcional de
+ * 0,1 por mil por RPM, una integral de 0,4 por mil por RPM en cada paso y
+ * Ti = 0,1 * 0,5 s / 0,4 = 0,125 s, cercano a la constante de tiempo del motor.
  * @note Las usa Procesamiento_Regular. No configura Timer ni establece la cadencia real.
  */
 #ifndef TPI_CONTROL_H
@@ -12,18 +20,18 @@
 
 /** @brief Numerador proporcional configurable, 1..1000. */
 #ifndef TPI_CONTROL_KP_NUM
-#define TPI_CONTROL_KP_NUM 4U
+#define TPI_CONTROL_KP_NUM 1U
 #endif
 #if TPI_CONTROL_KP_NUM < 1 || TPI_CONTROL_KP_NUM > 1000
 #error "TPI_CONTROL_KP_NUM debe pertenecer a 1..1000."
 #endif
 
-/** @brief Denominador proporcional configurable, 1..1000. */
+/** @brief Denominador proporcional configurable, 1..10000. */
 #ifndef TPI_CONTROL_KP_DEN
-#define TPI_CONTROL_KP_DEN 1000U
+#define TPI_CONTROL_KP_DEN 2000U
 #endif
-#if TPI_CONTROL_KP_DEN < 1 || TPI_CONTROL_KP_DEN > 1000
-#error "TPI_CONTROL_KP_DEN debe pertenecer a 1..1000."
+#if TPI_CONTROL_KP_DEN < 1 || TPI_CONTROL_KP_DEN > 10000
+#error "TPI_CONTROL_KP_DEN debe pertenecer a 1..10000."
 #endif
 
 /** @brief Numerador integral por paso configurable, 1..1000. */
@@ -34,12 +42,20 @@
 #error "TPI_CONTROL_KI_NUM debe pertenecer a 1..1000."
 #endif
 
-/** @brief Denominador integral configurable, 1..1000. */
+/** @brief Denominador integral configurable, 1..10000. */
 #ifndef TPI_CONTROL_KI_DEN
-#define TPI_CONTROL_KI_DEN 1000U
+#define TPI_CONTROL_KI_DEN 2500U
 #endif
-#if TPI_CONTROL_KI_DEN < 1 || TPI_CONTROL_KI_DEN > 1000
-#error "TPI_CONTROL_KI_DEN debe pertenecer a 1..1000."
+#if TPI_CONTROL_KI_DEN < 1 || TPI_CONTROL_KI_DEN > 10000
+#error "TPI_CONTROL_KI_DEN debe pertenecer a 1..10000."
+#endif
+
+/*
+ * Procesamiento_Regular multiplica el error (hasta 2^32 * 1000 milesimas de RPM) por
+ * KP_NUM * KI_DEN en 64 bits: el producto no puede pasar de un millon.
+ */
+#if TPI_CONTROL_KP_NUM * TPI_CONTROL_KI_DEN > 1000000
+#error "TPI_CONTROL_KP_NUM por TPI_CONTROL_KI_DEN no debe superar 1000000."
 #endif
 
 /**

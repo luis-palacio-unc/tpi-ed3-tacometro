@@ -3,9 +3,9 @@
  * los servicios reales, con los dispositivos simulados de fakes_dispositivos.
  * main.c se compila con main renombrado; la prueba llama Aplicacion_Inicializar
  * y Aplicacion_Iterar, sin depender del lazo infinito.
- * Ganancias por defecto de Control.h: Kp = 4/1000 e Ki = 1/1000 por mil por
- * milesima de RPM. Con consigna 100 RPM y eje detenido el primer mando es 400 y
- * cada periodo suma 100 por mil de integral.
+ * Ganancias por defecto de Control.h: Kp = 1/2000 e Ki = 1/2500 por mil por
+ * milesima de RPM. Con consigna 100 RPM y eje detenido el primer mando es 50 y
+ * cada periodo suma 40 por mil de integral.
  */
 #include "main.h"
 #include "Procesamiento.h"
@@ -66,11 +66,11 @@ static bool S1_ArranqueEnAutomatico(void)
     Aplicacion_Iterar();
     CHECK(fakes.motor == 0U);
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=40;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 400U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=5;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 50U);
     Periodo(50U);
-    CHECK(Tx("RPM=100.000;TEMP=25.00;PWM=10;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 100U);
+    CHECK(Tx("RPM=100.000;TEMP=25.00;PWM=4;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 40U);
     Periodo(1U);
-    CHECK(Tx("RPM=2.000;TEMP=25.00;PWM=49;ESTADO=AUTO_ACTIVO\n"));
+    CHECK(Tx("RPM=2.000;TEMP=25.00;PWM=9;ESTADO=AUTO_ACTIVO\n"));
     return true;
 }
 
@@ -93,7 +93,7 @@ static bool S2_ConsignaDelCambioDeModoSeDescarta(void)
     CHECK(fakes.motor == 0U);
     Fakes_Recibir("RPM 100\n");
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=40;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 400U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=5;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 50U);
     return true;
 }
 
@@ -125,11 +125,11 @@ static bool S4_VolverAAutomaticoEsperaConsignaNueva(void)
     Arrancar(false);
     Fakes_Recibir("RPM 100\n");
     Periodo(0U);
-    CHECK(fakes.motor == 400U);
+    CHECK(fakes.motor == 50U);
     Periodo(0U);
-    CHECK(fakes.motor == 500U);
+    CHECK(fakes.motor == 90U);
     Periodo(0U);
-    CHECK(fakes.motor == 600U);
+    CHECK(fakes.motor == 130U);
     fakes.selector = true;
     fakes.pot = 2048U;
     Periodo(0U);
@@ -142,9 +142,9 @@ static bool S4_VolverAAutomaticoEsperaConsignaNueva(void)
     CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=0;ESTADO=AUTO_ESPERA\n") && fakes.motor == 0U);
     Fakes_Recibir("RPM 100\n");
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=40;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 400U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=5;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 50U);
     Periodo(0U);
-    CHECK(fakes.motor == 500U);
+    CHECK(fakes.motor == 90U);
     return true;
 }
 
@@ -182,7 +182,7 @@ static bool S5_AlarmaConHisteresis(void)
 static bool S6_ConsignasInvalidasYCero(void)
 {
     static const char *const invalidas[] = {
-        "RPM 301\n", "RPM x\n", "RPM 100 con texto de sobra\n", "RPM 1000\n", "rpm 100\n"
+        "RPM 701\n", "RPM x\n", "RPM 100 con texto de sobra\n", "RPM 1000\n", "rpm 100\n"
     };
     Arrancar(false);
     for (unsigned i = 0U; i < sizeof(invalidas) / sizeof(invalidas[0]); ++i) {
@@ -193,18 +193,18 @@ static bool S6_ConsignasInvalidasYCero(void)
     Fakes_Recibir("RPM 0\n");
     Periodo(0U);
     CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=0;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 0U);
-    Fakes_Recibir("RPM 50\r\nRPM 301\nRPM 100\n");
+    Fakes_Recibir("RPM 50\r\nRPM 701\nRPM 100\n");
     Periodo(0U);
-    CHECK(fakes.motor == 400U);
-    Fakes_Recibir("RPM 301\n");
+    CHECK(fakes.motor == 50U);
+    Fakes_Recibir("RPM 701\n");
     Periodo(0U);
-    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=50;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 500U);
+    CHECK(Tx("RPM=0.000;TEMP=25.00;PWM=9;ESTADO=AUTO_ACTIVO\n") && fakes.motor == 90U);
     Fakes_Recibir("RPM 0\n");
     Periodo(0U);
     CHECK(fakes.motor == 0U);
     Fakes_Recibir("RPM 185\n");
     Periodo(0U);
-    CHECK(fakes.motor == 740U);
+    CHECK(fakes.motor == 93U);
     return true;
 }
 

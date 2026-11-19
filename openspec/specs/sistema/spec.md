@@ -4,7 +4,8 @@ Origen R01/R10/R15 y anteproyecto. Dominio nuevo de B18.
 
 B18 (integración I1–I5) aceptado por el usuario el 2026-11-11 sobre e3d3bce; contrato
 sincronizado desde el delta del cambio. Verificado en host y por compilación/enlace ARM;
-aceptación física en placa pendiente.
+funcionamiento en placa aceptado por el usuario el 2026-11-19 (prueba funcional
+del sistema completo; ver `docs/agente/ESTADO.md`).
 [Evidencia](../../changes/archive/2026-11-11-b18-integracion/verify-report.md).
 
 ## Requirements
@@ -75,10 +76,10 @@ modos MO2); (3) mando: MANUAL → potenciómetro; AUTO_ESPERA → 0; AUTO_ACTIVO
 (4) una trama de telemetría. MUST NOT esperar ni bloquear.
 
 #### Scenario: S6 — Consigna y regulación (`i2.aplicacion` S1)
-- Given AUTO_ESPERA y ganancias por defecto (Kp 4/1000, Ki 1/1000).
+- Given AUTO_ESPERA y ganancias por defecto (Kp 1/2000, Ki 1/2500).
 - When llega `RPM 100\n` y se cierran ventanas con 0 y luego 50 pulsos.
-- Then estado AUTO_ACTIVO con mando 400 y luego 100; trama
-  `RPM=100.000;TEMP=25.00;PWM=10;ESTADO=AUTO_ACTIVO\n`. La consigna MUST NOT aplicarse
+- Then estado AUTO_ACTIVO con mando 50 y luego 40; trama
+  `RPM=100.000;TEMP=25.00;PWM=4;ESTADO=AUTO_ACTIVO\n`. La consigna MUST NOT aplicarse
   antes de cerrar la ventana.
 
 #### Scenario: S7 — Manual entre periodos (`i2.aplicacion` S3)
@@ -103,7 +104,7 @@ modos MO2); (3) mando: MANUAL → potenciómetro; AUTO_ESPERA → 0; AUTO_ACTIVO
 
 #### Scenario: S10 — Consignas inválidas, cero y saturación (`i2.aplicacion` S6 y S7)
 - Given AUTO_ESPERA.
-- When llegan `RPM 301`, `RPM x`, una línea larga, `RPM 0`, varias en un periodo y
+- When llegan `RPM 701`, `RPM x`, una línea larga, `RPM 0`, varias en un periodo y
   `RPM 185` sostenida con el eje detenido.
 - Then las inválidas MUST ignorarse; `RPM 0` MUST dar AUTO_ACTIVO con mando 0;
   MUST valer la última válida del periodo; el mando MUST llegar a 1000 sin superarlo.

@@ -149,7 +149,7 @@ if(NOT TPI_BUILD_ARM AND BUILD_TESTING)
     add_executable(pruebas_regulador tests/host/test_regulador.c Aplicacion/Procesamiento.c)
     set(TPI_REGULADOR_TARGETS pruebas_regulador)
     set(TPI_REGULADOR_ORACLE_CASES)
-    foreach(ganancias IN ITEMS 4_1000_1_1000 1_1000_1_1000 1000_1_1000_1 1_1_1_1
+    foreach(ganancias IN ITEMS 1_2000_1_2500 1_1000_1_1000 1000_1_1000_1 1_1_1_1
             1000_1000_1000_1000 3_7_2_9 1_1000_1000_1 1_7_5_3)
         string(REPLACE "_" ";" g "${ganancias}")
         list(GET g 0 kp_num)
